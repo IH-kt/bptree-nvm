@@ -12,10 +12,10 @@ mkdir -p $BUILD_DIR
 
 if [ $# -gt 0 ] ; then
     if [ $1 = -u ] ; then
-        cp $FPTREE_SRC $BUILD_DIR
-        cp $ALLOCATOR_SRC $BUILD_DIR
-        cp $MAIN_SRC $BUILD_DIR
-        cp $ROOT_DIR/Makefile $BUILD_DIR
+        cp -p $FPTREE_SRC $BUILD_DIR
+        cp -p $ALLOCATOR_SRC $BUILD_DIR
+        cp -p $MAIN_SRC $BUILD_DIR
+        cp -p $ROOT_DIR/Makefile $BUILD_DIR
     fi
 else
     echo "add -u when sources are updated"
