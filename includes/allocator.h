@@ -9,17 +9,16 @@
 #  endif
 
 typedef void * ppointer;
-typedef void * vpointer;
 #  define P_NULL NULL
 #  define V_NULL NULL
 
-vpointer vmem_allocate(size_t);
+void *vmem_allocate(size_t);
 ppointer pmem_allocate(size_t);
-vpointer root_allocate(size_t, size_t);
-void vmem_free(vpointer);
-void pmem_free(vpointer);
-void root_free(vpointer);
+void *root_allocate(size_t, size_t);
+void vmem_free(void *);
+void pmem_free(ppointer);
+void root_free(ppointer);
 
-ppointer getPersistentAddr(vpointer);
-vpointer getTransientAddr(ppointer);
+ppointer getPersistentAddr(void *);
+void *getTransientAddr(ppointer);
 #endif
