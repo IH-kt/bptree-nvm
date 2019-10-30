@@ -18,7 +18,7 @@
 #endif
 
 // #define MIN_KEY 124
-#define MIN_KEY 4
+#define MIN_KEY 2
 #define MIN_DEG (MIN_KEY+1)
 #define MAX_KEY (2*MIN_KEY)
 #define MAX_DEG (MAX_KEY+1)
@@ -121,7 +121,8 @@ void search(BPTree *, Key, SearchResult *);
 // 
 // int findFirstAvailableSlot(LeafNode *);
 int compareKeyPositionPair(const void *, const void *);
-InternalNode *updateParent(Key, InternalNode *, void *, void *, char);
+void updateParent(BPTree *, InternalNode *, Key, LeafNode *);
+int updateUpward(InternalNode *, Key, LeafNode *, Key *, InternalNode **);
 // void findSplitKey(LeafNode *, int *, char *);
 // int newSplittedLeaf(BPTree *, InternalNode *, LeafNode *);
 // InternalNode *newSplittedInternal(InternalNode *, InternalNode *);

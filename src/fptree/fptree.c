@@ -286,10 +286,11 @@ int splitInternal(InternalNode *target, InternalNode **new_node) {
     target->children[i+(MAX_KEY)/2] = NULL;
 
     new_internalnode->parent = target->parent;
+    new_internalnode->children_type = target->children_type;
 
     Key split_key = target->keys[MAX_KEY/2-1];
     target->keys[MAX_KEY/2-1] = UNUSED_KEY;
-    target->key_length = MAX_KEY/2-1;
+    target->key_length = MAX_KEY/2 - 1;
 
     *new_node = new_internalnode;
     return split_key;
@@ -323,7 +324,7 @@ void insert(BPTree *bpt, KeyValuePair kv) {
     }
 
     InternalNode *parent;
-    LeafNode *target_leaf = findLeaf(bpt->root, kv.key, &parent); // ここでparentを取得した場合，他スレッドでsplitが起きたときparentが変わるのでは？
+    LeafNode *target_leaf = findLeaf(bpt->root, kv.key, &parent);
     // lock(target_leaf);
 
     if (getLeafNodeLength(target_leaf) < MAX_PAIR) {
@@ -337,46 +338,88 @@ void insert(BPTree *bpt, KeyValuePair kv) {
             insertNonfullLeaf(new_leaf, kv);
         }
         // start tx;
-        InternalNode *newRoot = updateParent(split_key, parent, target_leaf, new_leaf, LEAF);
-        if (newRoot != NULL) {
-            // need to update root
-            bpt->root = newRoot;
-        }
+        updateParent(bpt, parent, split_key, new_leaf);
         // end tx;
         // unlock(new_leaf);
     }
     // unlock(target_leaf);
 }
 
-// new_node is right hand of new_key
-InternalNode *updateParent(Key new_key, InternalNode *parent, void *existing_node, void *new_node, char node_type) {
-    // TODO: もしparentの中にexisting_nodeがあったら辿り直さずに直接変更し，そうでなければrootから辿り直すような実装
-    if (parent == NULL) {
-        // reach root
-        InternalNode *new_root = newInternalNode();
-        new_root->children[0] = existing_node;
-        insertNonfullInternal(new_root, new_key, new_node);
-        if (node_type == INTERNAL) {
-            InternalNode *ex_int = (InternalNode *)existing_node;
-            InternalNode *nn_int = (InternalNode *)new_node;
-            ex_int->parent = new_root;
-            nn_int->parent = new_root;
+int findNodeInInternalNode(InternalNode *parent, void *target) {
+    int i;
+    for (i = 0; i <= parent->key_length; i++) {
+        if (parent->children[i] == target) {
+            return 1;
         }
-        new_root->children_type = INTERNAL;
-        return new_root;
     }
+    return 0;
+}
+
+void updateParent(BPTree *bpt, InternalNode *parent, Key new_key, LeafNode *new_leaf) {
     if (parent->key_length < MAX_KEY) {
-        insertNonfullInternal(parent, new_key, new_node);
-        return NULL;
-    } else {
-        InternalNode *new_internalnode;
-        Key split_key = splitInternal(parent, &new_internalnode);
-        if (new_key <= split_key) {
-            insertNonfullInternal(parent, new_key, new_node);
-        } else {
-            insertNonfullInternal(new_internalnode, new_key, new_node);
+        if (findNodeInInternalNode(parent, new_leaf) == 1) {
+            insertNonfullInternal(parent, new_key, new_leaf);
+            return;
         }
-        return updateParent(split_key, parent->parent, parent, new_internalnode, INTERNAL);
+    }
+
+    Key split_key;
+    InternalNode *split_node;
+    int splitted = updateUpward(bpt->root, new_key, new_leaf, &split_key, &split_node);
+    if (splitted) {
+        // need to update root
+        InternalNode *new_root = newInternalNode();
+        new_root->children[0] = bpt->root;
+        insertNonfullInternal(new_root, split_key, split_node);
+        bpt->root->parent = new_root;
+        split_node->parent = new_root;
+        new_root->children_type = INTERNAL;
+        bpt->root = new_root;
+    }
+}
+
+// new_node is right hand of new_key
+int updateUpward(InternalNode *current, Key new_key, LeafNode *new_node, Key *split_key, InternalNode **split_node) {
+    int i;
+    if (current->children_type == LEAF) {
+        if (current->key_length < MAX_KEY) {
+            insertNonfullInternal(current, new_key, new_node);
+            return 0;
+        } else {
+            // this need split
+            *split_key = splitInternal(current, split_node);
+            if (new_key <= *split_key) {
+                insertNonfullInternal(current, new_key, new_node);
+            } else {
+                insertNonfullInternal(*split_node, new_key, new_node);
+            }
+            return 1;
+        }
+    } else {
+        for (i = 0; i < current->key_length; i++) {
+            if (new_key <= current->keys[i]) {
+                break;
+            }
+        }
+        int splitted = updateUpward(current->children[i], new_key, new_node, split_key, split_node);
+        if (splitted) {
+            if (current->key_length < MAX_KEY) {
+                insertNonfullInternal(current, *split_key, *split_node);
+                return 0;
+            } else {
+                InternalNode *new_split_node;
+                Key new_split_key = splitInternal(current, &new_split_node);
+                if (*split_key <= new_split_key) {
+                    insertNonfullInternal(current, *split_key, *split_node);
+                } else {
+                    insertNonfullInternal(new_split_node, *split_key, *split_node);
+                }
+                *split_key = new_split_key;
+                *split_node = new_split_node;
+                return 1;
+            }
+        }
+        return 0;
     }
 }
 
