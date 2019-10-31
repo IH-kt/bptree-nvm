@@ -18,12 +18,12 @@
 #endif
 
 // #define MIN_KEY 124
-#define MIN_KEY 2
+#define MIN_KEY 3
 #define MIN_DEG (MIN_KEY+1)
 #define MAX_KEY (2*MIN_KEY)
 #define MAX_DEG (MAX_KEY+1)
 // #define MAX_PAIR 45
-#define MAX_PAIR 3
+#define MAX_PAIR 4
 #define BITMAP_SIZE ((MAX_PAIR/8)+1)
 
 /* definition of structs */
@@ -54,6 +54,10 @@ typedef struct KeyValuePair {
 
 #define LEAF 0
 #define INTERNAL 1
+// #define LEAF_HEADER_SIZE (BITMAP_SIZE+sizeof(ppointer)+MAX_PAIR)
+// #define LEAF_DATA_SIZE (sizeof(KeyValuePair)*MAX_PAIR+1)
+// #define LEAF_SIZE (LEAF_HEADER_SIZE+LEAF_DATA_SIZE)
+
 struct InternalNode {
     int key_length;
     unsigned char children_type;
@@ -64,19 +68,26 @@ struct InternalNode {
 
 struct LeafHeader {
     unsigned char bitmap[BITMAP_SIZE];
-    ppointer next;
+    ppointer pnext;
     unsigned char fingerprints[MAX_PAIR];
 };
 
-struct LeafNode {
+struct PersistentLeafNode {
     struct LeafHeader header;
     KeyValuePair kv[MAX_PAIR];
     unsigned char lock;
 };
 
+struct LeafNode {
+    struct PersistentLeafNode *pleaf;
+    struct LeafNode *next;
+    struct LeafNode *prev;
+    int key_length;
+};
+
 struct BPTree {
     struct InternalNode *root;
-    ppointer phead;
+    ppointer *pmem_head;
     struct LeafNode *head;
 };
 
@@ -90,6 +101,7 @@ struct KeyPositionPair {
     int position;
 };
 
+typedef struct PersistentLeafNode PersistentLeafNode;
 typedef struct LeafNode LeafNode;
 typedef struct InternalNode InternalNode;
 typedef struct BPTree BPTree;
@@ -104,7 +116,7 @@ char popcntcharsize(char);
 void initKeyValuePair(KeyValuePair *);
 void initLeafNode(LeafNode *);
 void initInternalNode(InternalNode *);
-void initBPTree(BPTree *, LeafNode *, InternalNode *);
+void initBPTree(BPTree *, LeafNode *, InternalNode *, ppointer *);
 void initSearchResult(SearchResult *);
 
 LeafNode *newLeafNode();
@@ -114,22 +126,23 @@ void destroyInternalNode(InternalNode *);
 BPTree *newBPTree();
 void destroyBPTree(BPTree *);
 
-int getLeafNodeLength(LeafNode *);
+// int getLeafNodeLength(LeafNode *);
 int searchInLeaf(LeafNode *, Key);
 LeafNode *findLeaf(InternalNode *, Key, InternalNode **);
 void search(BPTree *, Key, SearchResult *);
-// 
-// int findFirstAvailableSlot(LeafNode *);
+
+int findFirstAvailableSlot(LeafNode *);
 int compareKeyPositionPair(const void *, const void *);
+void findSplitKey(LeafNode *, Key *, char *);
+Key splitLeaf(LeafNode *);
+Key splitInternal(InternalNode *, InternalNode **);
+void insertNonfullInternal(InternalNode *, Key, void *);
+void insertNonfullLeaf(LeafNode *, KeyValuePair);
+void insert(BPTree *, KeyValuePair);
+int findNodeInInternalNode(InternalNode *, void *);
 void updateParent(BPTree *, InternalNode *, Key, LeafNode *);
 int updateUpward(InternalNode *, Key, LeafNode *, Key *, InternalNode **);
-// void findSplitKey(LeafNode *, int *, char *);
-// int newSplittedLeaf(BPTree *, InternalNode *, LeafNode *);
-// InternalNode *newSplittedInternal(InternalNode *, InternalNode *);
-// void insertNewKeyAndChild(InternalNode *, int, Key, void *);
-// void insertNonfull(BPTree *, void *, KeyValuePair);
-void insert(BPTree *, KeyValuePair);
-// 
+
 // void deleteLeaf(BPTree *, LeafNode *, LeafNode *);
 // void *collapseRoot(void *);
 // InternalNode *shift(InternalNode *, InternalNode *, InternalNode *, char, void **);
