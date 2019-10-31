@@ -16,6 +16,9 @@ if [ $# -gt 0 ] ; then
         cp -p $ALLOCATOR_SRC $BUILD_DIR
         cp -p $MAIN_SRC $BUILD_DIR
         cp -p $ROOT_DIR/Makefile $BUILD_DIR
+    elif [ $1 = -d ] ; then
+        rm -r $BUILD_DIR
+        exit 0
     fi
 else
     echo "add -u when sources are updated"

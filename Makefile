@@ -24,3 +24,6 @@ all: $(MAIN)
 
 clean:
 	rm -f *.o
+
+dist-clean: clean
+	rm -f *.out
