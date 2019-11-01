@@ -149,13 +149,14 @@ LeafNode *findLeaf(InternalNode *current, Key targetkey, InternalNode **parent) 
             break;
         }
     }
+    int key_index = i;
     if (current->children_type == LEAF) {
         if (parent != NULL) {
             *parent = current;
         }
-        return (LeafNode *)current->children[i];
+        return (LeafNode *)current->children[key_index];
     } else {
-        current = current->children[i];
+        current = current->children[key_index];
         return findLeaf(current, targetkey, parent);
     }
 }
@@ -232,7 +233,7 @@ void findSplitKey(LeafNode *target, Key *split_key, char *bitmap) {
 #endif
 }
 
-Key splitLeaf(LeafNode *target) {
+Key splitLeaf(LeafNode *target, KeyValuePair newkv) {
     LeafNode *new_leafnode = getTransientAddr(newLeafNode());
     int i;
     Key split_key;
@@ -272,31 +273,52 @@ Key splitLeaf(LeafNode *target) {
     target->key_length = MAX_PAIR/2;
     new_leafnode->key_length = MAX_PAIR - MAX_PAIR/2;
 
+    // insert new node
+    if (newkv.key <= split_key) {
+        insertNonfullLeaf(target, newkv);
+    } else {
+        insertNonfullLeaf(new_leafnode, newkv);
+    }
+
     return split_key;
 }
 
-Key splitInternal(InternalNode *target, InternalNode **new_node) {
+Key splitInternal(InternalNode *target, InternalNode **splitted_node, void *new_node, Key new_key) {
     int i;
-    InternalNode *new_internalnode = newInternalNode();
-    new_internalnode->key_length = MAX_KEY/2;
-
-    for (i = 0; i < MAX_KEY/2; i++) {
-        new_internalnode->keys[i] = target->keys[i+(MAX_KEY)/2];
-        new_internalnode->children[i] = target->children[i+(MAX_KEY)/2];
-        target->keys[i+(MAX_KEY)/2] = UNUSED_KEY;
-        target->children[i+(MAX_KEY)/2] = NULL;
+    int split_position = -1;
+    if (new_key <= target->keys[MAX_KEY/2]) {
+        split_position = MAX_KEY/2;
+    } else {
+        split_position = MAX_KEY/2 + 1;
     }
-    new_internalnode->children[i] = target->children[i+(MAX_KEY)/2];
-    target->children[i+(MAX_KEY)/2] = NULL;
+    InternalNode *new_splitted_node = newInternalNode();
+    new_splitted_node->key_length = MAX_KEY - (split_position+1);
+    int newnode_length = new_splitted_node->key_length;
 
-    new_internalnode->parent = target->parent;
-    new_internalnode->children_type = target->children_type;
+    for (i = 0; i < newnode_length; i++) {
+        new_splitted_node->keys[i] = target->keys[i+split_position+1];
+        new_splitted_node->children[i] = target->children[i+split_position+1];
+        target->keys[i+split_position+1] = UNUSED_KEY;
+        target->children[i+split_position+1] = NULL;
+    }
+    new_splitted_node->children[i] = target->children[i+split_position+1];
+    target->children[i+split_position+1] = NULL;
 
-    Key split_key = target->keys[MAX_KEY/2-1];
-    target->keys[MAX_KEY/2-1] = UNUSED_KEY;
-    target->key_length -= MAX_KEY/2 + 1;
+    new_splitted_node->parent = target->parent;
+    new_splitted_node->children_type = target->children_type;
 
-    *new_node = new_internalnode;
+    Key split_key = target->keys[split_position];
+    target->keys[split_position] = UNUSED_KEY;
+    target->key_length -= newnode_length + 1;
+
+    *splitted_node = new_splitted_node;
+
+    if (new_key <= split_key) {
+        insertNonfullInternal(target, new_key, new_node);
+    } else {
+        insertNonfullInternal(new_splitted_node, new_key, new_node);
+    }
+
     return split_key;
 }
 
@@ -335,15 +357,10 @@ void insert(BPTree *bpt, KeyValuePair kv) {
     if (target_leaf->key_length < MAX_PAIR) {
         insertNonfullLeaf(target_leaf, kv);
     } else {
-        Key split_key = splitLeaf(target_leaf);
+        Key split_key = splitLeaf(target_leaf, kv);
         LeafNode *new_leaf = target_leaf->next;
-        if (kv.key <= split_key) {
-            insertNonfullLeaf(target_leaf, kv);
-        } else {
-            insertNonfullLeaf(new_leaf, kv);
-        }
         // start tx;
-        updateParent(bpt, parent, split_key, new_leaf);
+        insertParent(bpt, parent, split_key, new_leaf, target_leaf);
         // end tx;
         // unlock(new_leaf);
     }
@@ -360,31 +377,28 @@ int findNodeInInternalNode(InternalNode *parent, void *target) {
     return 0;
 }
 
-void updateParent(BPTree *bpt, InternalNode *parent, Key new_key, LeafNode *new_leaf) {
-    if (parent->key_length < MAX_KEY) {
-        if (findNodeInInternalNode(parent, new_leaf) == 1) {
-            insertNonfullInternal(parent, new_key, new_leaf);
-            return;
+void insertParent(BPTree *bpt, InternalNode *parent, Key new_key, LeafNode *new_leaf, LeafNode *target_leaf) {
+    if (parent->key_length < MAX_KEY && findNodeInInternalNode(parent, target_leaf) == 1) {
+        insertNonfullInternal(parent, new_key, new_leaf);
+    } else {
+        Key split_key;
+        InternalNode *split_node;
+        int splitted = insertUpward(bpt->root, new_key, new_leaf, &split_key, &split_node);
+        if (splitted) {
+            // need to update root
+            InternalNode *new_root = newInternalNode();
+            new_root->children[0] = bpt->root;
+            insertNonfullInternal(new_root, split_key, split_node);
+            bpt->root->parent = new_root;
+            split_node->parent = new_root;
+            new_root->children_type = INTERNAL;
+            bpt->root = new_root;
         }
-    }
-
-    Key split_key;
-    InternalNode *split_node;
-    int splitted = updateUpward(bpt->root, new_key, new_leaf, &split_key, &split_node);
-    if (splitted) {
-        // need to update root
-        InternalNode *new_root = newInternalNode();
-        new_root->children[0] = bpt->root;
-        insertNonfullInternal(new_root, split_key, split_node);
-        bpt->root->parent = new_root;
-        split_node->parent = new_root;
-        new_root->children_type = INTERNAL;
-        bpt->root = new_root;
     }
 }
 
 // new_node is right hand of new_key
-int updateUpward(InternalNode *current, Key new_key, LeafNode *new_node, Key *split_key, InternalNode **split_node) {
+int insertUpward(InternalNode *current, Key new_key, LeafNode *new_node, Key *split_key, InternalNode **split_node) {
     int i;
     if (current->children_type == LEAF) {
         if (current->key_length < MAX_KEY) {
@@ -392,12 +406,7 @@ int updateUpward(InternalNode *current, Key new_key, LeafNode *new_node, Key *sp
             return 0;
         } else {
             // this need split
-            *split_key = splitInternal(current, split_node);
-            if (new_key <= *split_key) {
-                insertNonfullInternal(current, new_key, new_node);
-            } else {
-                insertNonfullInternal(*split_node, new_key, new_node);
-            }
+            *split_key = splitInternal(current, split_node, new_node, new_key);
             return 1;
         }
     } else {
@@ -406,19 +415,20 @@ int updateUpward(InternalNode *current, Key new_key, LeafNode *new_node, Key *sp
                 break;
             }
         }
-        int splitted = updateUpward(current->children[i], new_key, new_node, split_key, split_node);
+        int splitted = insertUpward(current->children[i], new_key, new_node, split_key, split_node);
         if (splitted) {
             if (current->key_length < MAX_KEY) {
                 insertNonfullInternal(current, *split_key, *split_node);
                 return 0;
             } else {
                 InternalNode *new_split_node;
-                Key new_split_key = splitInternal(current, &new_split_node);
-                if (*split_key <= new_split_key) {
-                    insertNonfullInternal(current, *split_key, *split_node);
-                } else {
-                    insertNonfullInternal(new_split_node, *split_key, *split_node);
-                }
+                Key new_split_key = splitInternal(current, &new_split_node, *split_node, *split_key);
+                // Key new_split_key = splitInternal(current, &new_split_node);
+                // if (*split_key <= new_split_key) {
+                //     insertNonfullInternal(current, *split_key, *split_node);
+                // } else {
+                //     insertNonfullInternal(new_split_node, *split_key, *split_node);
+                // }
                 *split_key = new_split_key;
                 *split_node = new_split_node;
                 return 1;
@@ -428,393 +438,62 @@ int updateUpward(InternalNode *current, Key new_key, LeafNode *new_node, Key *sp
     }
 }
 
-// void deleteLeaf(BPTree *bpt, LeafNode *current, LeafNode *prev) {
-//     DeleteLog *log = &bpt->deletelog.deletelog;
-//     log->pcurrentleaf = getPersistentAddr(current);
-//     persist(current, sizeof(LeafNode *));
-//     if (current == bpt->head) {
-//         bpt->head = getTransientAddr(current->header.next);
-//         bpt->phead = current->header.next;
-//         persist(&bpt->phead, sizeof(PAddr));
+// void deleteLeaf(BPTree *bpt, LeafNode *current) {
+//     if (current->prev == NULL) {
+//         bpt->head = current->next;
+//         *bpt->pmem_head = current->pleaf->header.pnext;
+//         persist(bpt->pmem_head, sizeof(ppointer));
 //     } else {
-//         log->pprevleaf = getPersistentAddr(prev);
-//         persist(&log->pprevleaf, sizeof(PAddr));
-//         prev->header.next = current->header.next;
-//         persist(&prev->header.next, sizeof(PAddr));
+//         current->prev->pleaf->header.pnext = current->pleaf->header.next;
+//         current->prev->next = current->next;
 //     }
-//     PFree(current);
-// #ifdef DEBUG
-//     showDeleteLog(log);
-// #endif
-//     resetMicroLog(&bpt->deletelog);
+//     if (current->next != NULL) {
+//         current->next->prev = current->prev;
+//     }
+//     destroyLeafNode(current);
 // }
 // 
-// void *collapseRoot(void *oldroot) {
-//     void *newroot;
-//     if (isPMEM(oldroot)) {
-//         newroot = NULL;
-//         PFree(oldroot);
+// InternalNode *collapseRoot(InternalNode *oldroot) {
+//     if (oldroot->children_type == LEAF) {
+//         return NULL;
 //     } else {
-//         newroot = ((InternalNode *)oldroot)->children[0];
-//         DFree(oldroot);
+//         return (InternalNode *)oldroot->children[0];
 //     }
-//     return newroot;
 // }
 // 
-// InternalNode *shift(InternalNode *currentnode, InternalNode *neighbornode, InternalNode *anchornode, char direction, void **balancenode) {
-//     int i, shiftsize, currentnodeindex;
-// #ifdef DEBUG
-//     printf("shift:shifting\n");
-// #endif
-//     for (i = 0; i < anchornode->key_length; i++) {
-//         if (currentnode->keys[0] < anchornode->keys[i]) {
-//             break;
-//         }
-//     }
-//     currentnodeindex = i;
-//     shiftsize = (neighbornode->key_length - currentnode->key_length)/2;
-//     if (direction == LEFT) {
-//         for (i = currentnode->key_length-1; 0 <= i; i--) {
-//             currentnode->keys[i+shiftsize] = currentnode->keys[i];
-//         }
-//         for (i = currentnode->key_length; 0 < i; i--) {
-//             currentnode->children[i+shiftsize] = currentnode->children[i];
-//         }
-// 
-//         currentnode->keys[shiftsize-1] = anchornode->keys[currentnodeindex-1];
-//         for (i = 0; i < shiftsize-1; i++) {
-//             currentnode->keys[shiftsize-2-i] = neighbornode->keys[neighbornode->key_length-1-i];
-//             currentnode->children[shiftsize-1-i] = neighbornode->children[neighbornode->key_length-i];
-//             neighbornode->keys[neighbornode->key_length-1-i] = UNUSED_KEY;
-//             neighbornode->children[neighbornode->key_length-i] = NULL;
-//         }
-//         currentnode->children[0] = neighbornode->children[neighbornode->key_length-shiftsize+1];
-//         neighbornode->children[neighbornode->key_length-shiftsize+1] = NULL;
-// 
-//         anchornode->keys[currentnodeindex-1] = neighbornode->keys[neighbornode->key_length-shiftsize];
-//         neighbornode->keys[neighbornode->key_length-shiftsize] = UNUSED_KEY;
-//     } else {
-//         currentnode->keys[currentnode->key_length] = anchornode->keys[currentnodeindex];
-//         for (i = 0; i < shiftsize-1; i++) {
-//             currentnode->keys[currentnode->key_length+1+i] = neighbornode->keys[i];
-//             currentnode->children[currentnode->key_length+1+i] = neighbornode->children[i];
-//         }
-//         currentnode->children[currentnode->key_length+shiftsize] = neighbornode->children[shiftsize-1];
-//         anchornode->keys[currentnodeindex] = neighbornode->keys[shiftsize-1];
-// 
-//         for (i = 0; i + shiftsize < neighbornode->key_length; i++) {
-//             neighbornode->keys[i] = neighbornode->keys[i + shiftsize];
-//             neighbornode->children[i] = neighbornode->children[i + shiftsize];
-//             neighbornode->keys[i + shiftsize] = UNUSED_KEY;
-//             neighbornode->children[i + shiftsize] = NULL;
-//         }
-//         neighbornode->children[i] = neighbornode->children[i + shiftsize];
-//         neighbornode->children[i + shiftsize] = NULL;
-//     }
-// 
-//     neighbornode->key_length -= shiftsize;
-//     currentnode->key_length += shiftsize;
-// 
-//     *balancenode = NULL;
-// 
-//     return NULL;
-// }
-// 
-// InternalNode *merge(InternalNode *currentnode, InternalNode *neighbornode, InternalNode *anchornode, char direction) {
-//     int i, currentnodeindex;
-//     InternalNode *result;
-// #ifdef DEBUG
-//     printf("merge:current=%p, neighbor=%p, anchor=%p\n", currentnode, neighbornode, anchornode);
-//     showInternalNode(anchornode, 0);
-// #endif
-//     for (i = 0; i < anchornode->key_length; i++) {
-//         if (currentnode->keys[0] < anchornode->keys[i]) {
-//             break;
-//         }
-//     }
-//     if (i != 0) {
-//         currentnodeindex = i-1;
-//     } else {
-//         currentnodeindex = i;
-//     }
-// 
-//     if (direction == RIGHT) {
-// #ifdef DEBUG
-//         printf("merge:RIGHT\n");
-// #endif
-//         for (i = neighbornode->key_length-1; 0 <= i; i--) {
-//             neighbornode->keys[i + currentnode->key_length + 1] = neighbornode->keys[i];
-//         }
-//         for (i = neighbornode->key_length; 0 <= i; i--) {
-//             neighbornode->children[i + currentnode->key_length + 1] = neighbornode->children[i];
-//         }
-//         neighbornode->keys[currentnode->key_length] = anchornode->keys[currentnodeindex];
-//         for (i = 0; i < currentnode->key_length; i++) {
-//             neighbornode->keys[i] = currentnode->keys[i];
-//         }
-//         for (i = 0; i <= currentnode->key_length; i++) {
-//             neighbornode->children[i] = currentnode->children[i];
-//         }
-//         anchornode->keys[currentnodeindex] = neighbornode->keys[0];
-//         neighbornode->key_length += currentnode->key_length+1;
-// 
-//         result = currentnode;
-//     } else {
-// #ifdef DEBUG
-//         printf("merge:LEFT\n");
-// #endif
-//         neighbornode->keys[neighbornode->key_length] = anchornode->keys[currentnodeindex];
-//         for (i = 0; 0 < currentnode->key_length; i++) {
-//             neighbornode->keys[neighbornode->key_length+1+i] = currentnode->keys[i];
-//             neighbornode->children[neighbornode->key_length+i] = currentnode->children[i];
-//         }
-//         neighbornode->children[neighbornode->key_length+i] = currentnode->children[i];
-//         anchornode->keys[currentnodeindex] = neighbornode->keys[0];
-//         neighbornode->key_length += currentnode->key_length+1;
-// 
-//         result = currentnode;
-//     }
-// #ifdef DEBUG
-//     printf("merge:complete.\n");
-//     showInternalNode(anchornode, 0);
-// #endif
-// 
-//     return result;
-// }
-// 
-// void *rebalance(BPTree *bpt, void *currentnode, void *leftnode, void *rightnode, void *leftanchor, void *rightanchor, void *parent, void **balancenode) {
-//     void *balancenodeanchor, *result;
-//     char currentnodeisleaf = isPMEM(currentnode);
-//     int nodesize = 0;
-//     char direction = 0;
-//     result = NULL;
-// #ifdef DEBUG
-//     printf("rebalance:balancing\n");
-// #endif
-// 
-//     if (!currentnodeisleaf) {
-//         if (leftnode == NULL) {
-//             *balancenode = rightnode;
-//             balancenodeanchor = rightanchor;
-//             direction = RIGHT;
-//         } else if (rightnode == NULL) {
-//             *balancenode = leftnode;
-//             balancenodeanchor = leftanchor;
-//             direction = LEFT;
-//         } else {
-//             if (((InternalNode *)leftnode)->key_length > ((InternalNode *)rightnode)->key_length) {
-//                 *balancenode = leftnode;
-//                 balancenodeanchor = leftanchor;
-//                 direction = LEFT;
-//             } else {
-//                 *balancenode = rightnode;
-//                 balancenodeanchor = rightanchor;
-//                 direction = RIGHT;
-//             }
-//         }
-// 
-//         nodesize = ((InternalNode *)(*balancenode))->key_length;
-// 
-//         if (nodesize > MIN_KEY) {
-//             result = shift((InternalNode *)currentnode, (InternalNode *)(*balancenode), (InternalNode *)balancenodeanchor, direction, balancenode);
-//         } else {
-//             if (leftanchor == parent) {
-//                 result = merge((InternalNode *)currentnode, (InternalNode *)leftnode, (InternalNode *)leftanchor, LEFT);
-//             } else if (rightanchor == parent) {
-//                 result = merge((InternalNode *)currentnode, (InternalNode *)rightnode, (InternalNode *)rightanchor, RIGHT);
-//             }
-//         }
-//     } else {
-//         *balancenode = currentnode; // need not null
-//         deleteLeaf(bpt, (LeafNode *)currentnode, (LeafNode *)leftnode);
-//         result = currentnode;
-//     }
-// 
-//     return result;
-// }
-// 
-// void *findRebalance(BPTree *bpt, void *currentnode, void *parent, void *leftnode, void *rightnode, void *leftanchor, void *rightanchor, Key targetkey, void **balancenode) {
-//     void *removenode, *nextnode, *nextleft, *nextright, *nextleftanchor, *nextrightanchor, *result;
-//     int key_length = 0;
-//     int nextindex = -1;
-//     int i;
-//     char currentnodeisleaf = isPMEM(currentnode);
-//     LeafNode *currentleaf = NULL;
-//     InternalNode *currentinternal = NULL;
-//     LeafNode *leftleaf = NULL;
-//     InternalNode *leftinternal = NULL;
-//     LeafNode *rightleaf = NULL;
-//     InternalNode *rightinternal = NULL;
-//     removenode = NULL;
-//     nextnode = NULL;
-//     nextleft = NULL;
-//     nextright = NULL;
-//     nextleftanchor = NULL;
-//     nextrightanchor = NULL;
-//     result = NULL;
-// #ifdef DEBUG
-//     printf("findrebalance:root=%p, currentnode=%p, leftnode=%p, rightnode=%p, leftanchor=%p, rightanchor=%p, targetkey=%ld\n", bpt->root, currentnode, leftnode, rightnode, leftanchor, rightanchor, targetkey);
-// #endif
-// 
-//     if (currentnodeisleaf) {
-//         currentleaf = (LeafNode *)currentnode;
-//         leftleaf = (LeafNode *)leftnode;
-//         rightleaf = (LeafNode *)rightnode;
-// 
-//         key_length = getLeafNodeLength(currentleaf);
-// 
-// #ifdef DEBUG
-//         printf("findRebalance:leaf length = %d\n", key_length);
-// #endif
-// 
-//         if (key_length > 1) {
-//             *balancenode = NULL;
-//         } else if (key_length <= MIN_KEY && *balancenode == NULL) {
-//             *balancenode = currentnode;
-//         }
-//     } else {
-//         currentinternal = (InternalNode *)currentnode;
-//         leftinternal = (InternalNode *)leftnode;
-//         rightinternal = (InternalNode *)rightnode;
-// 
-//         key_length = currentinternal->key_length;
-// 
-//         if (key_length > MIN_KEY) {
-//             *balancenode = NULL;
-//         } else if (key_length <= MIN_KEY && *balancenode == NULL) {
-//             *balancenode = currentnode;
-//         }
-//     }
-// 
-//     if (currentnodeisleaf) {
-//         SearchResult sr;
-//         searchInLeaf(currentleaf, targetkey, &sr);
-//         nextnode = sr.node;
-//         nextindex = sr.index;
-//     } else {
-//         for (i = 0; i < currentinternal->key_length; i++) {
-//             if (targetkey < currentinternal->keys[i]) {
-//                 break;
-//             }
-//         }
-//         nextnode = currentinternal->children[i];
-//         nextindex = i;
-//     }
-// 
-// #ifdef DEBUG
-//     printf("next:%p[%d]\n", nextnode, nextindex);
-// #endif
-// 
-//     if (!currentnodeisleaf) {
-//         if (nextindex == 0) {
-//             if (leftinternal != NULL) {
-//                 nextleft = leftinternal->children[leftinternal->key_length-1];
-//                 nextleftanchor = leftanchor;
-//             }
-//         } else {
-//             nextleft = currentinternal->children[nextindex-1];
-//             nextleftanchor = currentnode;
-//         }
-// 
-//         if (nextindex == key_length) {
-//             if (rightinternal != NULL) {
-//                 nextright = rightinternal->children[0];
-//                 nextrightanchor = rightanchor;
-//             }
-//         } else {
-//             nextright = currentinternal->children[nextindex+1];
-//             nextrightanchor = currentnode;
-//         }
-// 
-//         removenode = findRebalance(bpt, nextnode, currentnode, nextleft, nextright, nextleftanchor, nextrightanchor, targetkey, balancenode);
-// #ifdef DEBUG
-//         printf("findrebalance:returned. removenode=%p\n", removenode);
-// #endif
-//     } else {
-//         if (nextindex != -1) {
-//             removenode = nextnode;
-//         } else {
-//             removenode = NULL;
-//         }
-//     }
-// 
-//     if (removenode == nextnode) {
-// #ifdef DEBUG
-//         printf("removing:%p\n", removenode);
-// #endif
-//         if (currentnodeisleaf) {
-// #ifdef VALUE_NEEDS_FREE
-//             PFree(currentleaf->kv[nextindex].value);
-// #endif
-//             CLR_BIT(currentleaf->header.bitmap, nextindex);
-//             persist(currentleaf->header.bitmap + nextindex/8, sizeof(char));
-// #ifdef DEBUG
-//             printf("removed.\n");
-//             showLeafNode(currentleaf, 0);
-// #endif
-//         } else {
-//             if (isPMEM(currentinternal->children[nextindex])) {
-//                 PFree(currentinternal->children[nextindex]);
-//             } else {
-//                 DFree(currentinternal->children[nextindex]);
-//             }
-//             if (nextindex == 0) {
-//                 i = 0;
-//             } else {
-//                 i = nextindex-1;
-//             }
-//             for (; i < currentinternal->key_length-1; i++) {
-//                 currentinternal->keys[i] = currentinternal->keys[i+1];
-//             }
-//             currentinternal->keys[currentinternal->key_length-1] = UNUSED_KEY;
-// 
-//             for (i = nextindex; i < currentinternal->key_length; i++) {
-//                 currentinternal->children[i] = currentinternal->children[i+1];
-//             }
-//             currentinternal->children[currentinternal->key_length] = NULL;
-//             currentinternal->key_length--;
-//         }
-//     }
-// 
-//     if (*balancenode == NULL) {
-// #ifdef DEBUG
-//         printf("delete:need not balancing\n");
-// #endif
-//         result = NULL;
-//     } else if (currentnode == bpt->root) {
-//         if (currentnodeisleaf) {
-//             if (getLeafNodeLength(currentleaf) <= 0) {
-//                 result = collapseRoot(currentnode);
-//             }
-//         } else {
-//             if (currentinternal->key_length <= 0) {
-//                 result = collapseRoot(currentnode);
-//             }
-//         }
-//     } else {
-//         result = rebalance(bpt, currentnode, leftnode, rightnode, leftanchor, rightanchor, parent, balancenode);
-//     }
-// 
-//     return result;
-// }
-// 
-// void delete(BPTree *bpt, Key targetkey) {
-//     void *balancenode;
+// int delete(BPTree *bpt, Key target_key) {
 //     SearchResult sr;
-//     search(&bpt->root, targetkey, &sr);
-//     if (sr.index == -1) {
-// #ifdef DEBUG
-//         printf("delete:the key doesn't exist. abort.\n");
-// #endif
-//         return;
+//     // start tx
+//     LeafNode *target_leaf = findLeaf(bpt->root, target_key, NULL);
+//     if (target_leaf == NULL) {
+//         return 0;
 //     }
-//     balancenode = NULL;
-//     void *rv = findRebalance(bpt, bpt->root, NULL, NULL, NULL, NULL, NULL, targetkey, &balancenode);
-//     if (rv != NULL) {
-//         bpt->root = rv;
+//     if (target_leaf->key_length == 1) {
+//         // lock target_leaf
+//         // lock target_leaf->prev
+//         rebalanceUpward();
+//     } else {
+//         // lock target_leaf
+//         int keypos = searchInLeaf(target_leaf, target_key);
+//         if (keypos == -1) {
+// #ifdef DEBUG
+//             printf("delete:the key doesn't exist. abort.\n");
+// #endif
+//             return 0;
+//         }
+//         CLR_BIT(target_leaf->pleaf->head.bitmap, keypos);
+//         persist(target_leaf->pleaf->head.bitmap, BITMAP_SIZE);
+//     }
+//     // end tx
+// 
+//     InternalNode *new_root = collapseRoot();
+//     if (new_root == NULL) {
+//         return 0;
+//     } else {
+//         bpt->root = new_root;
 //     }
 // }
-// 
+
 /* debug function */
 void showLeafNode(LeafNode *node, int depth) {
     int i, j;
