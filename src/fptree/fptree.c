@@ -57,7 +57,6 @@ void initInternalNode(InternalNode *node) {
     int i;
     node->key_length = 0;
     node->children_type = LEAF;
-    node->parent = NULL;
     for (i = 0; i < MAX_KEY; i++) {
         node->keys[i] = UNUSED_KEY;
     }
@@ -312,7 +311,6 @@ Key splitInternal(InternalNode *target, InternalNode **splitted_node, void *new_
     new_splitted_node->children[i] = target->children[i+split_position+1];
     target->children[i+split_position+1] = NULL;
 
-    new_splitted_node->parent = target->parent;
     new_splitted_node->children_type = target->children_type;
 
     Key split_key = target->keys[split_position];
@@ -400,8 +398,6 @@ void insertParent(BPTree *bpt, InternalNode *parent, Key new_key, LeafNode *new_
             InternalNode *new_root = newInternalNode();
             new_root->children[0] = bpt->root;
             insertNonfullInternal(new_root, split_key, split_node);
-            bpt->root->parent = new_root;
-            split_node->parent = new_root;
             new_root->children_type = INTERNAL;
             bpt->root = new_root;
         }
@@ -557,17 +553,24 @@ void mergeWithRight(InternalNode *target_node, InternalNode *right_node, Key *an
     int i;
 
     for (i = right_node->key_length; 0 < i; i--) {
-        right_node->keys[i - 1 + target_node->key_length] = right_node->keys[i - 1];
-        right_node->children[i + target_node->key_length] = right_node->children[i];
+        right_node->keys[i + target_node->key_length] = right_node->keys[i - 1];
+        right_node->children[i + 1 + target_node->key_length] = right_node->children[i];
+        printf("make-space:keys[%d] to keys[%d]\n", i - 1, target_node->key_length + i);
+        printf("make-space:children[%d] to children[%d]\n", i, i + target_node->key_length + 1);
     }
-    right_node->children[i + target_node->key_length] = right_node->children[i];
+    right_node->children[i + 1 + target_node->key_length] = right_node->children[i];
+    printf("make-space:children[%d] to children[%d]\n", i, i + target_node->key_length + 1);
 
     for (i = 0; i < target_node->key_length; i++) {
         right_node->keys[i] = target_node->keys[i];
         right_node->children[i] = target_node->children[i];
+        printf("fill:%d -> keys[%d]\n", target_node->keys[i], i);
+        printf("fill:%p -> children[%d]\n", target_node->children[i], i);
     }
     right_node->keys[i] = *anchor_key;
     right_node->children[i] = target_node->children[i];
+    printf("fill:%d -> keys[%d]\n", *anchor_key, i);
+    printf("fill:%p -> children[%d]\n", target_node->children[i], i);
     right_node->key_length += target_node->key_length + 1;
 
     *anchor_key = new_anchor_key;
