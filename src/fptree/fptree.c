@@ -68,7 +68,11 @@ void initInternalNode(InternalNode *node) {
 
 void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode, ppointer *pmem_head) {
     tree->pmem_head = pmem_head;
-    *pmem_head = getPersistentAddr(leafHead->pleaf);
+    if (leafHead != NULL) {
+        *pmem_head = getPersistentAddr(leafHead->pleaf);
+    } else {
+        *pmem_head = P_NULL;
+    }
     tree->head = leafHead;
     tree->root = rootNode;
     rootNode->children_type = LEAF;
@@ -102,8 +106,8 @@ BPTree *newBPTree() {
     ppointer *pmem_head = root_allocate(sizeof(ppointer), sizeof(PersistentLeafNode));
     BPTree *new = (BPTree *)vmem_allocate(sizeof(BPTree));
     InternalNode *rootNode = newInternalNode();
-    LeafNode *leafHead = newLeafNode();
-    initBPTree(new, leafHead, rootNode, pmem_head);
+    // LeafNode *leafHead = newLeafNode();
+    initBPTree(new, NULL, rootNode, pmem_head);
     return new;
 }
 void destroyBPTree(BPTree *tree) {
@@ -142,14 +146,18 @@ int searchInLeaf(LeafNode *node, Key key) {
     return -1;
 }
 
-LeafNode *findLeaf(InternalNode *current, Key targetkey, InternalNode **parent) {
+int searchInInternal(InternalNode *node, Key target) {
     int i;
-    for (i = 0; i < current->key_length; i++) {
-        if (targetkey <= current->keys[i]) {
-            break;
+    for (i = 0; i < node->key_length; i++) {
+        if (target <= node->keys[i]) {
+            return i;
         }
     }
-    int key_index = i;
+    return i;
+}
+
+LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent) {
+    int key_index = searchInInternal(current, target_key);
     if (current->children_type == LEAF) {
         if (parent != NULL) {
             *parent = current;
@@ -157,7 +165,7 @@ LeafNode *findLeaf(InternalNode *current, Key targetkey, InternalNode **parent) 
         return (LeafNode *)current->children[key_index];
     } else {
         current = current->children[key_index];
-        return findLeaf(current, targetkey, parent);
+        return findLeaf(current, target_key, parent);
     }
 }
 
@@ -348,6 +356,9 @@ void insertNonfullLeaf(LeafNode *node, KeyValuePair kv) {
 void insert(BPTree *bpt, KeyValuePair kv) {
     if (bpt == NULL) {
         return;
+    } else if (bpt->root->children[0] == NULL) {
+        LeafNode *new_leaf = newLeafNode();
+        initBPTree(bpt, new_leaf, bpt->root, bpt->pmem_head);
     }
 
     InternalNode *parent;
@@ -367,23 +378,23 @@ void insert(BPTree *bpt, KeyValuePair kv) {
     // unlock(target_leaf);
 }
 
-int findNodeInInternalNode(InternalNode *parent, void *target) {
+int searchNodeInInternalNode(InternalNode *parent, void *target) {
     int i;
     for (i = 0; i <= parent->key_length; i++) {
         if (parent->children[i] == target) {
-            return 1;
+            return i;
         }
     }
-    return 0;
+    return -1;
 }
 
 void insertParent(BPTree *bpt, InternalNode *parent, Key new_key, LeafNode *new_leaf, LeafNode *target_leaf) {
-    if (parent->key_length < MAX_KEY && findNodeInInternalNode(parent, target_leaf) == 1) {
+    if (parent->key_length < MAX_KEY && searchNodeInInternalNode(parent, target_leaf) != -1) {
         insertNonfullInternal(parent, new_key, new_leaf);
     } else {
         Key split_key;
         InternalNode *split_node;
-        int splitted = insertUpward(bpt->root, new_key, new_leaf, &split_key, &split_node);
+        int splitted = insertRecursive(bpt->root, new_key, new_leaf, &split_key, &split_node);
         if (splitted) {
             // need to update root
             InternalNode *new_root = newInternalNode();
@@ -398,7 +409,7 @@ void insertParent(BPTree *bpt, InternalNode *parent, Key new_key, LeafNode *new_
 }
 
 // new_node is right hand of new_key
-int insertUpward(InternalNode *current, Key new_key, LeafNode *new_node, Key *split_key, InternalNode **split_node) {
+int insertRecursive(InternalNode *current, Key new_key, LeafNode *new_node, Key *split_key, InternalNode **split_node) {
     int i;
     if (current->children_type == LEAF) {
         if (current->key_length < MAX_KEY) {
@@ -410,12 +421,8 @@ int insertUpward(InternalNode *current, Key new_key, LeafNode *new_node, Key *sp
             return 1;
         }
     } else {
-        for (i = 0; i < current->key_length; i++) {
-            if (new_key <= current->keys[i]) {
-                break;
-            }
-        }
-        int splitted = insertUpward(current->children[i], new_key, new_node, split_key, split_node);
+        int next_pos = searchInInternal(current, new_key);
+        int splitted = insertRecursive(current->children[next_pos], new_key, new_node, split_key, split_node);
         if (splitted) {
             if (current->key_length < MAX_KEY) {
                 insertNonfullInternal(current, *split_key, *split_node);
@@ -423,12 +430,6 @@ int insertUpward(InternalNode *current, Key new_key, LeafNode *new_node, Key *sp
             } else {
                 InternalNode *new_split_node;
                 Key new_split_key = splitInternal(current, &new_split_node, *split_node, *split_key);
-                // Key new_split_key = splitInternal(current, &new_split_node);
-                // if (*split_key <= new_split_key) {
-                //     insertNonfullInternal(current, *split_key, *split_node);
-                // } else {
-                //     insertNonfullInternal(new_split_node, *split_key, *split_node);
-                // }
                 *split_key = new_split_key;
                 *split_node = new_split_node;
                 return 1;
@@ -438,61 +439,265 @@ int insertUpward(InternalNode *current, Key new_key, LeafNode *new_node, Key *sp
     }
 }
 
-// void deleteLeaf(BPTree *bpt, LeafNode *current) {
-//     if (current->prev == NULL) {
-//         bpt->head = current->next;
-//         *bpt->pmem_head = current->pleaf->header.pnext;
-//         persist(bpt->pmem_head, sizeof(ppointer));
-//     } else {
-//         current->prev->pleaf->header.pnext = current->pleaf->header.next;
-//         current->prev->next = current->next;
-//     }
-//     if (current->next != NULL) {
-//         current->next->prev = current->prev;
-//     }
-//     destroyLeafNode(current);
-// }
-// 
-// InternalNode *collapseRoot(InternalNode *oldroot) {
-//     if (oldroot->children_type == LEAF) {
-//         return NULL;
-//     } else {
-//         return (InternalNode *)oldroot->children[0];
-//     }
-// }
-// 
-// int delete(BPTree *bpt, Key target_key) {
-//     SearchResult sr;
-//     // start tx
-//     LeafNode *target_leaf = findLeaf(bpt->root, target_key, NULL);
-//     if (target_leaf == NULL) {
-//         return 0;
-//     }
-//     if (target_leaf->key_length == 1) {
-//         // lock target_leaf
-//         // lock target_leaf->prev
-//         rebalanceUpward();
-//     } else {
-//         // lock target_leaf
-//         int keypos = searchInLeaf(target_leaf, target_key);
-//         if (keypos == -1) {
-// #ifdef DEBUG
-//             printf("delete:the key doesn't exist. abort.\n");
-// #endif
-//             return 0;
-//         }
-//         CLR_BIT(target_leaf->pleaf->head.bitmap, keypos);
-//         persist(target_leaf->pleaf->head.bitmap, BITMAP_SIZE);
-//     }
-//     // end tx
-// 
-//     InternalNode *new_root = collapseRoot();
-//     if (new_root == NULL) {
-//         return 0;
-//     } else {
-//         bpt->root = new_root;
-//     }
-// }
+void deleteLeaf(BPTree *bpt, LeafNode *current) {
+    if (current->prev == NULL) {
+        bpt->head = current->next;
+        *bpt->pmem_head = current->pleaf->header.pnext;
+        persist(bpt->pmem_head, sizeof(ppointer));
+    } else {
+        current->prev->pleaf->header.pnext = current->pleaf->header.pnext;
+        current->prev->next = current->next;
+    }
+    if (current->next != NULL) {
+        current->next->prev = current->prev;
+    }
+    destroyLeafNode(current);
+}
+
+InternalNode *collapseRoot(InternalNode *oldroot) {
+    if (oldroot->children_type == LEAF) {
+        return NULL;
+    } else {
+        return (InternalNode *)oldroot->children[0];
+    }
+}
+
+void removeEntry(InternalNode *parent, int node_index) {
+    int key_index = node_index;
+    if (node_index == parent->key_length) {
+        key_index--;
+    }
+    int i;
+    for (i = key_index; i < parent->key_length-1; i++) {
+        parent->keys[i] = parent->keys[i+1];
+    }
+    for (i = node_index; i < parent->key_length; i++) {
+        parent->children[i] = parent->children[i+1];
+    }
+    parent->key_length--;
+}
+
+void shiftToRight(InternalNode *target_node, Key *anchor_key, InternalNode *left_node) {
+    int move_length = (target_node->key_length + left_node->key_length)/2 - target_node->key_length;
+    int i;
+    for (i = target_node->key_length; 0 < i; i--) {
+        target_node->keys[i + move_length - 1] = target_node->keys[i - 1];
+        target_node->children[i + move_length] = target_node->children[i];
+    }
+    target_node->children[i + move_length] = target_node->children[i];
+
+    target_node->keys[move_length - 1] = *anchor_key;
+
+    for (i = 0; i < move_length - 1; i++) {
+        target_node->keys[i - 1] = left_node->keys[left_node->key_length - move_length + i];
+        target_node->children[i] = left_node->children[left_node->key_length - move_length + i + 1];
+        left_node->keys[left_node->key_length - move_length + i] = UNUSED_KEY;
+        left_node->children[left_node->key_length - move_length + i + 1] = NULL;
+    }
+    *anchor_key = left_node->keys[left_node->key_length - move_length + i];
+    target_node->children[i] = left_node->children[left_node->key_length - move_length + i + 1];
+    left_node->keys[left_node->key_length - move_length + i] = UNUSED_KEY;
+    left_node->children[left_node->key_length - move_length + i + 1] = NULL;
+
+    left_node->key_length -= move_length;
+    target_node->key_length += move_length;
+}
+
+void shiftToLeft(InternalNode *target_node, Key *anchor_key, InternalNode *right_node) {
+    int move_length = (target_node->key_length + right_node->key_length)/2 - target_node->key_length;
+    target_node->keys[target_node->key_length] = *anchor_key;
+    *anchor_key = right_node->keys[move_length-1];
+    int i;
+    for (i = 0; i < move_length-1; i++) {
+        target_node->keys[target_node->key_length + 1 + i] = right_node->keys[i];
+        target_node->children[target_node->key_length + 1 + i] = right_node->children[i];
+#ifdef DEBUG
+        printf("move:%d to [%d]\n", right_node->keys[i], target_node->key_length + 1 + i);
+        printf("move:%p to [%d]\n", right_node->children[i], target_node->key_length + 1 + i);
+#endif
+    }
+    target_node->children[target_node->key_length + 1 + i] = right_node->children[i];
+#ifdef DEBUG
+    printf("move:%p to [%d]\n", right_node->children[i], target_node->key_length + 1 + i);
+#endif
+    for (i = 0; i < right_node->key_length - move_length; i++) {
+        right_node->keys[i] = right_node->keys[i + move_length];
+        right_node->children[i] = right_node->children[i + move_length];
+#ifdef DEBUG
+        printf("left-justify: keys[%d] -> keys[%d]\n", i + move_length, i);
+        printf("left-justify: children[%d] -> children[%d]\n", i + move_length, i);
+#endif
+        right_node->keys[i + move_length] = UNUSED_KEY;
+        right_node->children[i + move_length] = NULL;
+    }
+    right_node->children[i] = right_node->children[i + move_length];
+#ifdef DEBUG
+    printf("left-justify: children[%d] -> children[%d]\n", i + move_length, i);
+#endif
+    right_node->children[i + move_length] = NULL;
+    right_node->key_length -= move_length;
+    target_node->key_length += move_length;
+}
+
+void mergeWithLeft(InternalNode *target_node, InternalNode *left_node, Key *anchor_key, Key new_anchor_key) {
+    int i;
+    left_node->keys[left_node->key_length] = *anchor_key;
+
+    for (i = 0; i < target_node->key_length; i++) {
+        left_node->keys[left_node->key_length + 1 + i] = target_node->keys[i];
+        left_node->children[left_node->key_length + 1 + i] = target_node->children[i];
+    }
+    left_node->children[left_node->key_length + 1 + i] = target_node->children[i];
+    left_node->key_length += target_node->key_length + 1;
+
+    *anchor_key = new_anchor_key;
+}
+
+void mergeWithRight(InternalNode *target_node, InternalNode *right_node, Key *anchor_key, Key new_anchor_key) {
+    int i;
+
+    for (i = right_node->key_length; 0 < i; i--) {
+        right_node->keys[i - 1 + target_node->key_length] = right_node->keys[i - 1];
+        right_node->children[i + target_node->key_length] = right_node->children[i];
+    }
+    right_node->children[i + target_node->key_length] = right_node->children[i];
+
+    for (i = 0; i < target_node->key_length; i++) {
+        right_node->keys[i] = target_node->keys[i];
+        right_node->children[i] = target_node->children[i];
+    }
+    right_node->keys[i] = *anchor_key;
+    right_node->children[i] = target_node->children[i];
+    right_node->key_length += target_node->key_length + 1;
+
+    *anchor_key = new_anchor_key;
+}
+
+// return 1 when deletion occured
+int removeRecursive(BPTree *bpt, InternalNode *current, LeafNode *delete_target_leaf, Key delete_target_key,
+                    InternalNode *left_sibling, Key *left_anchor_key, InternalNode *right_sibling, Key *right_anchor_key) {
+    int need_rebalance = 0;
+    if (current->children_type == LEAF) {
+        int leaf_pos = searchNodeInInternalNode(current, delete_target_leaf);
+        removeEntry(current, leaf_pos);
+        return 1;
+    } else {
+        int next_node_index = searchInInternal(current, delete_target_key);
+        if (0 < next_node_index) {
+            left_sibling = current->children[next_node_index-1];
+            left_anchor_key = &current->keys[next_node_index-1];
+        } else {
+            if (left_sibling != NULL) {
+                left_sibling = left_sibling->children[left_sibling->key_length];
+            }
+        }
+        if (next_node_index < current->key_length) {
+            right_sibling = current->children[next_node_index+1];
+            right_anchor_key = &current->keys[next_node_index];
+        } else {
+            if (right_sibling != NULL) {
+                right_sibling = right_sibling->children[0];
+            }
+        }
+        InternalNode *next_current = current->children[next_node_index];
+        int removed = removeRecursive(bpt, next_current, delete_target_leaf, delete_target_key,
+                                      left_sibling, left_anchor_key, right_sibling, right_anchor_key);
+        if (removed && next_current->key_length < MIN_KEY) {
+            int left_length = 0;
+            int right_length = 0;
+            // child need rebalancing
+            if (left_sibling != NULL) {
+                left_length = left_sibling->key_length;
+            }
+            if (right_sibling != NULL) {
+                right_length = right_sibling->key_length;
+            }
+            if (left_length >= MIN_KEY + 1) {
+                shiftToRight(next_current, left_anchor_key, left_sibling);
+                return 0;
+            } else if (right_length >= MIN_KEY + 1) {
+                shiftToLeft(next_current, right_anchor_key, right_sibling);
+                return 0;
+            } else if (left_length != 0 && left_length + next_current->key_length <= MAX_KEY) {
+                // anchor key is max key of target node
+                mergeWithLeft(next_current, left_sibling, left_anchor_key, next_current->keys[next_current->key_length - 1]);
+                removeEntry(current, next_node_index);
+                return 1;
+            } else if (right_length != 0 && right_length + next_current->key_length <= MAX_KEY) {
+                // anchor key is max key of left sibling
+                if (left_sibling != NULL) {
+                    mergeWithRight(next_current, right_sibling, right_anchor_key, left_sibling->keys[left_sibling->key_length - 1]);
+                } else {
+                    mergeWithRight(next_current, right_sibling, right_anchor_key, UNUSED_KEY);
+                }
+                removeEntry(current, next_node_index);
+                return 1;
+            } else {
+                printf("delete: suspicious execution\n");
+                return -1; // bug?
+            }
+        } else {
+            return 0;
+        }
+    }
+}
+
+void removeFromParent(BPTree *bpt, InternalNode *parent, LeafNode *target_node, Key target_key) {
+    int removed = 0;
+    int node_pos;
+    if (parent->key_length >= MIN_KEY + 1 && (node_pos = searchNodeInInternalNode(parent, target_node)) != -1) {
+        removeEntry(parent, node_pos);
+    } else {
+        removed = removeRecursive(bpt, bpt->root, target_node, target_key, NULL, NULL, NULL, NULL);
+    }
+
+    if (removed == 1 && bpt->root->key_length == 0) {
+        InternalNode *new_root = collapseRoot(bpt->root);
+        if (new_root != NULL) {
+            bpt->root = new_root;
+        }
+    }
+}
+
+int delete(BPTree *bpt, Key target_key) {
+    SearchResult sr;
+    InternalNode *parent;
+    // while (aborted == true)
+    // start tx
+    LeafNode *target_leaf = findLeaf(bpt->root, target_key, &parent);
+    if (target_leaf == NULL) {
+        return 0;
+    }
+    if (target_leaf->pleaf->lock == 1) {
+        // abort
+        // continue
+    }
+    if (target_leaf->key_length == 1) {
+        // lock target_leaf
+        // lock target_leaf->prev
+        // end tx
+        deleteLeaf(bpt, target_leaf);
+        // start tx
+        removeFromParent(bpt, parent, target_leaf, target_key);
+        // end tx
+        // unlock target_leaf->prev
+    } else {
+        // lock target_leaf
+        // end tx
+        int keypos = searchInLeaf(target_leaf, target_key);
+        if (keypos == -1) {
+#ifdef DEBUG
+            printf("delete:the key doesn't exist. abort.\n");
+#endif
+            return 0;
+        }
+        CLR_BIT(target_leaf->pleaf->header.bitmap, keypos);
+        persist(target_leaf->pleaf->header.bitmap, BITMAP_SIZE);
+        target_leaf->key_length--;
+        // unlock target_leaf
+    }
+    return 1;
+}
 
 /* debug function */
 void showLeafNode(LeafNode *node, int depth) {

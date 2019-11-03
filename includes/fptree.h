@@ -61,7 +61,6 @@ typedef struct KeyValuePair {
 struct InternalNode {
     int key_length;
     unsigned char children_type;
-    struct InternalNode *parent;
     Key keys[MAX_KEY];
     void *children[MAX_DEG];
 };
@@ -139,9 +138,9 @@ Key splitInternal(InternalNode *, InternalNode **, void *, Key);
 void insertNonfullInternal(InternalNode *, Key, void *);
 void insertNonfullLeaf(LeafNode *, KeyValuePair);
 void insert(BPTree *, KeyValuePair);
-int findNodeInInternalNode(InternalNode *, void *);
+int searchNodeInInternalNode(InternalNode *, void *);
 void insertParent(BPTree *, InternalNode *, Key, LeafNode *, LeafNode *);
-int insertUpward(InternalNode *, Key, LeafNode *, Key *, InternalNode **);
+int insertRecursive(InternalNode *, Key, LeafNode *, Key *, InternalNode **);
 
 // void deleteLeaf(BPTree *, LeafNode *, LeafNode *);
 // void *collapseRoot(void *);
@@ -149,7 +148,7 @@ int insertUpward(InternalNode *, Key, LeafNode *, Key *, InternalNode **);
 // InternalNode *merge(InternalNode *, InternalNode *, InternalNode *, char);
 // void *rebalance(BPTree *, void *, void *, void *, void *, void *, void *, void **);
 // void *findRebalance(BPTree *, void *, void *, void *, void *, void *, void *, Key, void **);
-// void delete(BPTree *, Key);
+int delete(BPTree *, Key);
 // 
 /* debug function */
 void showLeafNode(LeafNode *, int);
