@@ -458,9 +458,13 @@ InternalNode *collapseRoot(InternalNode *oldroot) {
     }
 }
 
-void removeEntry(InternalNode *parent, int node_index) {
+// when removing last node, anchor node's key is not updated.
+void removeEntry(InternalNode *parent, int node_index, Key *right_anchor_key) {
     int key_index = node_index;
     if (node_index == parent->key_length) {
+        if (right_anchor_key != NULL) {
+            *right_anchor_key = parent->keys[parent->key_length - 1];
+        }
         key_index--;
     }
     int i;
@@ -555,22 +559,30 @@ void mergeWithRight(InternalNode *target_node, InternalNode *right_node, Key *an
     for (i = right_node->key_length; 0 < i; i--) {
         right_node->keys[i + target_node->key_length] = right_node->keys[i - 1];
         right_node->children[i + 1 + target_node->key_length] = right_node->children[i];
+#ifdef DEBUG
         printf("make-space:keys[%d] to keys[%d]\n", i - 1, target_node->key_length + i);
         printf("make-space:children[%d] to children[%d]\n", i, i + target_node->key_length + 1);
+#endif
     }
     right_node->children[i + 1 + target_node->key_length] = right_node->children[i];
+#ifdef DEBUG
     printf("make-space:children[%d] to children[%d]\n", i, i + target_node->key_length + 1);
+#endif
 
     for (i = 0; i < target_node->key_length; i++) {
         right_node->keys[i] = target_node->keys[i];
         right_node->children[i] = target_node->children[i];
+#ifdef DEBUG
         printf("fill:%d -> keys[%d]\n", target_node->keys[i], i);
         printf("fill:%p -> children[%d]\n", target_node->children[i], i);
+#endif
     }
     right_node->keys[i] = *anchor_key;
     right_node->children[i] = target_node->children[i];
+#ifdef DEBUG
     printf("fill:%d -> keys[%d]\n", *anchor_key, i);
     printf("fill:%p -> children[%d]\n", target_node->children[i], i);
+#endif
     right_node->key_length += target_node->key_length + 1;
 
     *anchor_key = new_anchor_key;
@@ -582,7 +594,7 @@ int removeRecursive(BPTree *bpt, InternalNode *current, LeafNode *delete_target_
     int need_rebalance = 0;
     if (current->children_type == LEAF) {
         int leaf_pos = searchNodeInInternalNode(current, delete_target_leaf);
-        removeEntry(current, leaf_pos);
+        removeEntry(current, leaf_pos, right_anchor_key);
         return 1;
     } else {
         int next_node_index = searchInInternal(current, delete_target_key);
@@ -624,7 +636,7 @@ int removeRecursive(BPTree *bpt, InternalNode *current, LeafNode *delete_target_
             } else if (left_length != 0 && left_length + next_current->key_length <= MAX_KEY) {
                 // anchor key is max key of target node
                 mergeWithLeft(next_current, left_sibling, left_anchor_key, next_current->keys[next_current->key_length - 1]);
-                removeEntry(current, next_node_index);
+                removeEntry(current, next_node_index, right_anchor_key);
                 return 1;
             } else if (right_length != 0 && right_length + next_current->key_length <= MAX_KEY) {
                 // anchor key is max key of left sibling
@@ -633,7 +645,7 @@ int removeRecursive(BPTree *bpt, InternalNode *current, LeafNode *delete_target_
                 } else {
                     mergeWithRight(next_current, right_sibling, right_anchor_key, UNUSED_KEY);
                 }
-                removeEntry(current, next_node_index);
+                removeEntry(current, next_node_index, right_anchor_key);
                 return 1;
             } else {
                 printf("delete: suspicious execution\n");
@@ -648,8 +660,8 @@ int removeRecursive(BPTree *bpt, InternalNode *current, LeafNode *delete_target_
 void removeFromParent(BPTree *bpt, InternalNode *parent, LeafNode *target_node, Key target_key) {
     int removed = 0;
     int node_pos;
-    if (parent->key_length >= MIN_KEY + 1 && (node_pos = searchNodeInInternalNode(parent, target_node)) != -1) {
-        removeEntry(parent, node_pos);
+    if (parent->key_length >= MIN_KEY + 1 && (node_pos = searchNodeInInternalNode(parent, target_node)) != -1 && node_pos < parent->key_length) {
+        removeEntry(parent, node_pos, NULL);
     } else {
         removed = removeRecursive(bpt, bpt->root, target_node, target_key, NULL, NULL, NULL, NULL);
     }
