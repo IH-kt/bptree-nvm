@@ -10,6 +10,13 @@
 #ifndef NPERSIST
 #  include <x86intrin.h>
 #endif
+#ifdef CONCURRENT
+#  include <immintrin.h>
+#  define XABORT_STAT 0
+#  define RETRY_NUM 5 // times of retry RTM. < 32
+#  define TRANSACTION 1
+#  define LOCK 0
+#endif
 
 #ifdef PMDK
 #  include "allocator_pmdk.h"
@@ -20,17 +27,11 @@
 // #define MIN_KEY 124
 #define MIN_KEY 3
 #define MIN_DEG (MIN_KEY+1)
-#define MAX_KEY (2*MIN_KEY+1) // for insertion
+#define MAX_KEY (2*MIN_KEY+1)
 #define MAX_DEG (MAX_KEY+1)
 // #define MAX_PAIR 45
 #define MAX_PAIR 4
 #define BITMAP_SIZE ((MAX_PAIR/8)+1)
-
-// may not need?
-#define XABORT_STAT 0
-
-// times of retry RTM
-#define RETRY_NUM 5
 
 /* definition of structs */
 /* value should be NULL and key must be 0 when pair is unused.
