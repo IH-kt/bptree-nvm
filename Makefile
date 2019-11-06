@@ -10,12 +10,12 @@ FPTREE_OBJ=$(FPTREE_SRC:%.c=%.o)
 ALLOCATOR_SRC=allocator.c
 ALLOCATOR_OBJ=$(ALLOCATOR_SRC:%.c=%.o)
 
-MAIN_SRC=simple.c
-MAIN=simple.out
+# EXES_SRC=simple.c insert.c
+# EXES=$(EXES_SRC:%.c=%.exe)
 
-all: $(MAIN)
+all: $(EXES)
 
-%.out:%.c $(FPTREE_OBJ) $(ALLOCATOR_OBJ)
+%.exe:%.c $(FPTREE_OBJ) $(ALLOCATOR_OBJ)
 	echo $(ROOT_DIR)
 	$(CC) $(CFLAGS) -o $@ $+
 
@@ -26,4 +26,4 @@ clean:
 	rm -f *.o
 
 dist-clean: clean
-	rm -f *.out
+	rm -f *.exe
