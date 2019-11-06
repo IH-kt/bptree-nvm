@@ -6,7 +6,7 @@ TEST_DIR=$ROOT_DIR/src/test
 ALLOCATOR_DIR=$ROOT_DIR/src/utility/simple_allocator
 SRC_DIR=$ROOT_DIR/src/fptree
 
-FPTREE_SRC=$SRC_DIR/fptree.c
+FPTREE_SRC=$SRC_DIR/fptree_concurrent.c
 ALLOCATOR_SRC=$ALLOCATOR_DIR/allocator.c
 TEST_SRC="simple_test.c insert_test.c search_test.c delete_test.c"
 TEST=`echo $TEST_SRC | sed -e 's/\.c/.exe/g'`

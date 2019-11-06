@@ -1,5 +1,8 @@
 #include "fptree.h"
 #include "allocator.h"
+#ifdef CONCURRENT
+#  error CONCURRENT is defined
+#endif
 
 #ifndef NPERSIST
 void persist(void *target, size_t size) {
@@ -21,15 +24,6 @@ void persist(void *target, size_t size) { /* EMPTY */ }
 unsigned char hash(Key key) {
     return key % 256;
 }
-
-/*
-char popcntcharsize(char bits) {
-    bits = (bits & 0x55) + (bits>>1 & 0x55);
-    bits = (bits & 0x33) + (bits>>2 & 0x33);
-    bits = (bits & 0x0f) + (bits>>4 & 0x0f);
-    return bits;
-}
-*/
 
 /* initializer */
 void initKeyValuePair(KeyValuePair *pair) {
@@ -119,20 +113,6 @@ void destroyBPTree(BPTree *tree) {
     root_free(tree->pmem_head);
     vmem_free(tree);
 }
-
-/*
-int getLeafNodeLength(LeafNode *ln) {
-    int key_length = 0, i;
-    for (i = 0; i < BITMAP_SIZE-1; i++) {
-        key_length += popcntcharsize(ln->header.bitmap[i]);
-    }
-    key_length += popcntcharsize(ln->header.bitmap[i] & (0xff >> (8-MAX_PAIR%8)));
-#ifdef DEBUG
-    printf("getLeafNodeLength:%p's key_length = %d\n", ln, key_length);
-#endif
-    return key_length;
-}
-*/
 
 int lockLeaf(LeafNode *target) {
     return __sync_bool_compare_and_swap(&target->pleaf->lock, 0, 1);

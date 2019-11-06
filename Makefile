@@ -1,10 +1,12 @@
 USE_PMDK=-DPMDK
 NO_PERSIST=-DNPERSIST
+CLWB=-DCLWB
+CONCURRENT=-DCONCURRENT
 
-CC=gcc-9
-CFLAGS=-O0 -I$(ROOT_DIR)/includes/ $(NO_PERSIST)
+CC=gcc
+CFLAGS=-O0 -g -march=native -I$(ROOT_DIR)/includes/ $(CLWB) $(CONCURRENT)
 
-FPTREE_SRC=fptree.c
+FPTREE_SRC=fptree_concurrent.c
 FPTREE_OBJ=$(FPTREE_SRC:%.c=%.o)
 
 ALLOCATOR_SRC=allocator.c
@@ -16,7 +18,6 @@ ALLOCATOR_OBJ=$(ALLOCATOR_SRC:%.c=%.o)
 all: $(EXES)
 
 %.exe:%.c $(FPTREE_OBJ) $(ALLOCATOR_OBJ)
-	echo $(ROOT_DIR)
 	$(CC) $(CFLAGS) -o $@ $+
 
 %.o:%.c
