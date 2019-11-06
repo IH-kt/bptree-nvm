@@ -181,6 +181,10 @@ int searchInInternal(InternalNode *node, Key target) {
 }
 
 LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent) {
+    if (current->children[0] == NULL) {
+        // empty tree
+        return NULL;
+    }
     int key_index = searchInInternal(current, target_key);
     if (current->children_type == LEAF) {
         if (((LeafNode *)current->children[key_index])->pleaf->lock == 1) {
@@ -538,7 +542,7 @@ void shiftToRight(InternalNode *target_node, Key *anchor_key, InternalNode *left
     target_node->keys[move_length - 1] = *anchor_key;
 
     for (i = 0; i < move_length - 1; i++) {
-        target_node->keys[i - 1] = left_node->keys[left_node->key_length - move_length + i];
+        target_node->keys[i] = left_node->keys[left_node->key_length - move_length + i];
         target_node->children[i] = left_node->children[left_node->key_length - move_length + i + 1];
         left_node->keys[left_node->key_length - move_length + i] = UNUSED_KEY;
         left_node->children[left_node->key_length - move_length + i + 1] = NULL;
@@ -683,14 +687,18 @@ int removeRecursive(BPTree *bpt, InternalNode *current, LeafNode *delete_target_
                 shiftToLeft(next_current, right_anchor_key, right_sibling);
                 return 0;
             } else if (left_length != 0 && left_length + next_current->key_length <= MAX_KEY) {
-                // anchor key is max key of target node
-                mergeWithLeft(next_current, left_sibling, left_anchor_key, next_current->keys[next_current->key_length - 1]);
+                // new left anchor key is right anchor key
+                if (right_anchor_key != NULL) {
+                    mergeWithLeft(next_current, left_sibling, left_anchor_key, *right_anchor_key);
+                } else {
+                    mergeWithLeft(next_current, left_sibling, left_anchor_key, UNUSED_KEY);
+                }
                 removeEntry(current, next_node_index, right_anchor_key);
                 return 1;
             } else if (right_length != 0 && right_length + next_current->key_length <= MAX_KEY) {
-                // anchor key is max key of left sibling
-                if (left_sibling != NULL) {
-                    mergeWithRight(next_current, right_sibling, right_anchor_key, left_sibling->keys[left_sibling->key_length - 1]);
+                // new right anchor key is left anchor key
+                if (left_anchor_key != NULL) {
+                    mergeWithRight(next_current, right_sibling, right_anchor_key, *left_anchor_key);
                 } else {
                     mergeWithRight(next_current, right_sibling, right_anchor_key, UNUSED_KEY);
                 }
