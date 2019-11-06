@@ -17,9 +17,6 @@ void persist(void *target, size_t size) {
 void persist(void *target, size_t size) { /* EMPTY */ }
 #endif
 
-// may not need?
-#define XABORT_STAT 0
-
 /* utils */
 unsigned char hash(Key key) {
     return key % 256;

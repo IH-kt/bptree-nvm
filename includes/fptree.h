@@ -26,6 +26,12 @@
 #define MAX_PAIR 4
 #define BITMAP_SIZE ((MAX_PAIR/8)+1)
 
+// may not need?
+#define XABORT_STAT 0
+
+// times of retry RTM
+#define RETRY_NUM 5
+
 /* definition of structs */
 /* value should be NULL and key must be 0 when pair is unused.
  * valid key should be larger than 0.
@@ -88,6 +94,7 @@ struct BPTree {
     struct InternalNode *root;
     ppointer *pmem_head;
     struct LeafNode *head;
+    int lock;
 };
 
 struct SearchResult {
