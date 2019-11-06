@@ -116,7 +116,7 @@ typedef struct KeyPositionPair KeyPositionPair;
 
 /* utils */
 unsigned char hash(Key);
-char popcntcharsize(char);
+// char popcntcharsize(char);
 
 /* initializer */
 void initKeyValuePair(KeyValuePair *);
@@ -144,7 +144,7 @@ Key splitLeaf(LeafNode *, KeyValuePair);
 Key splitInternal(InternalNode *, InternalNode **, void *, Key);
 void insertNonfullInternal(InternalNode *, Key, void *);
 void insertNonfullLeaf(LeafNode *, KeyValuePair);
-void insert(BPTree *, KeyValuePair);
+int insert(BPTree *, KeyValuePair);
 int searchNodeInInternalNode(InternalNode *, void *);
 void insertParent(BPTree *, InternalNode *, Key, LeafNode *, LeafNode *);
 int insertRecursive(InternalNode *, Key, LeafNode *, Key *, InternalNode **);

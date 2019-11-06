@@ -22,12 +22,14 @@ unsigned char hash(Key key) {
     return key % 256;
 }
 
+/*
 char popcntcharsize(char bits) {
     bits = (bits & 0x55) + (bits>>1 & 0x55);
     bits = (bits & 0x33) + (bits>>2 & 0x33);
     bits = (bits & 0x0f) + (bits>>4 & 0x0f);
     return bits;
 }
+*/
 
 /* initializer */
 void initKeyValuePair(KeyValuePair *pair) {
@@ -118,34 +120,38 @@ void destroyBPTree(BPTree *tree) {
     vmem_free(tree);
 }
 
-// int getLeafNodeLength(LeafNode *ln) {
-//     int key_length = 0, i;
-//     for (i = 0; i < BITMAP_SIZE-1; i++) {
-//         key_length += popcntcharsize(ln->header.bitmap[i]);
-//     }
-//     key_length += popcntcharsize(ln->header.bitmap[i] & (0xff >> (8-MAX_PAIR%8)));
-// #ifdef DEBUG
-//     printf("getLeafNodeLength:%p's key_length = %d\n", ln, key_length);
-// #endif
-//     return key_length;
-// }
+/*
+int getLeafNodeLength(LeafNode *ln) {
+    int key_length = 0, i;
+    for (i = 0; i < BITMAP_SIZE-1; i++) {
+        key_length += popcntcharsize(ln->header.bitmap[i]);
+    }
+    key_length += popcntcharsize(ln->header.bitmap[i] & (0xff >> (8-MAX_PAIR%8)));
+#ifdef DEBUG
+    printf("getLeafNodeLength:%p's key_length = %d\n", ln, key_length);
+#endif
+    return key_length;
+}
+*/
 
 int lockLeaf(LeafNode *target) {
-    __sync_bool_compare_and_swap(&target->pleaf->lock, 0, 1);
+    return __sync_bool_compare_and_swap(&target->pleaf->lock, 0, 1);
 }
 
 int unlockLeaf(LeafNode *target) {
     target->pleaf->lock = 0;
     persist(&target->pleaf->lock, sizeof(target->pleaf->lock));
+    return 1;
 }
 
 int lockBPTree(BPTree *target) {
-    __sync_bool_compare_and_swap(&target->lock, 0, 1);
+    return __sync_bool_compare_and_swap(&target->lock, 0, 1);
 }
 
 int unlockBPTree(BPTree *target) {
     target->lock = 0;
     persist(&target->lock, sizeof(target->lock));
+    return 1;
 }
 
 int searchInLeaf(LeafNode *node, Key key) {
@@ -377,20 +383,26 @@ void insertNonfullLeaf(LeafNode *node, KeyValuePair kv) {
     node->key_length++;
 }
 
-void insert(BPTree *bpt, KeyValuePair kv) {
+int insert(BPTree *bpt, KeyValuePair kv) {
     if (bpt == NULL) {
-        return;
+        return 0;
     } else if (bpt->root->children[0] == NULL) {
         lockBPTree(bpt);
         LeafNode *new_leaf = newLeafNode();
         initBPTree(bpt, new_leaf, bpt->root, bpt->pmem_head);
         unlockBPTree(bpt);
+        return 1;
     }
 
     InternalNode *parent;
     // while (1) {
     // _xbegin();
     LeafNode *target_leaf = findLeaf(bpt->root, kv.key, &parent);
+    if (searchInLeaf(target_leaf, kv.key) != -1) {
+        // exist
+        // _xend();
+        return 0;
+    }
     if (!lockLeaf(target_leaf)) {
         // _xabort(XABORT_STAT);
     }
@@ -408,6 +420,7 @@ void insert(BPTree *bpt, KeyValuePair kv) {
         unlockLeaf(new_leaf);
     }
     unlockLeaf(target_leaf);
+    return 1;
 }
 
 int searchNodeInInternalNode(InternalNode *parent, void *target) {
@@ -495,7 +508,7 @@ InternalNode *collapseRoot(InternalNode *oldroot) {
 // when removing last node, anchor node's key is not updated.
 void removeEntry(InternalNode *parent, int node_index, Key *right_anchor_key) {
     int key_index = node_index;
-    if (node_index == parent->key_length) {
+    if (parent->key_length != 0 && node_index == parent->key_length) {
         if (right_anchor_key != NULL) {
             *right_anchor_key = parent->keys[parent->key_length - 1];
         }
@@ -505,9 +518,11 @@ void removeEntry(InternalNode *parent, int node_index, Key *right_anchor_key) {
     for (i = key_index; i < parent->key_length-1; i++) {
         parent->keys[i] = parent->keys[i+1];
     }
+    parent->keys[i] = UNUSED_KEY;
     for (i = node_index; i < parent->key_length; i++) {
         parent->children[i] = parent->children[i+1];
     }
+    parent->children[i] = NULL;
     parent->key_length--;
 }
 
@@ -706,6 +721,10 @@ void removeFromParent(BPTree *bpt, InternalNode *parent, LeafNode *target_node, 
             bpt->root = new_root;
         }
     }
+    if (bpt->root->key_length == -1) {
+        // deleted last node
+        bpt->root->key_length = 0;
+    }
 }
 
 int delete(BPTree *bpt, Key target_key) {
@@ -719,31 +738,37 @@ int delete(BPTree *bpt, Key target_key) {
     }
     if (lockLeaf(target_leaf)) {
         if (target_leaf->key_length == 1) {
-            if (lockLeaf(target_leaf->prev)) {
+            if (target_leaf->prev != NULL) {
+                if (lockLeaf(target_leaf->prev)) {
+                    // _xend();
+                    deleteLeaf(bpt, target_leaf);
+                    // _xbegin();
+                    removeFromParent(bpt, parent, target_leaf, target_key);
+                    // _xend();
+                    unlockLeaf(target_leaf->prev);
+                } else {
+                    // _xabort(XABORT_STAT);
+                }
+            } else {
                 // _xend();
                 deleteLeaf(bpt, target_leaf);
                 // _xbegin();
                 removeFromParent(bpt, parent, target_leaf, target_key);
                 // _xend();
-                unlockLeaf(target_leaf->prev);
-            } else {
-                // _xabort(XABORT_STAT);
             }
         } else {
-            if (lockLeaf(target_leaf)) {
-                // _xend();
-                int keypos = searchInLeaf(target_leaf, target_key);
-                if (keypos == -1) {
+            // _xend();
+            int keypos = searchInLeaf(target_leaf, target_key);
+            if (keypos == -1) {
 #ifdef DEBUG
-                    printf("delete:the key doesn't exist. abort.\n");
+                printf("delete:the key doesn't exist. abort.\n");
 #endif
-                    return 0;
-                }
-                CLR_BIT(target_leaf->pleaf->header.bitmap, keypos);
-                persist(target_leaf->pleaf->header.bitmap, BITMAP_SIZE);
-                target_leaf->key_length--;
-                unlockLeaf(target_leaf);
+                return 0;
             }
+            CLR_BIT(target_leaf->pleaf->header.bitmap, keypos);
+            persist(target_leaf->pleaf->header.bitmap, BITMAP_SIZE);
+            target_leaf->key_length--;
+            unlockLeaf(target_leaf);
         }
     } else {
         // _xabort(XABORT_STAT);
@@ -790,15 +815,19 @@ void showInternalNode(InternalNode *node, int depth) {
             printf("\t");
         printf("\tkey[%d] = %ld\n", i, node->keys[i]);
     }
-    for (i = 0; i < node->key_length+1; i++) {
-        for (j = 0; j < depth; j++)
-            printf("\t");
-        printf("\tchildren[%d]:\n", i);
-        if (node->children_type == LEAF) {
-            showLeafNode((LeafNode *)node->children[i], depth+1);
-        } else {
-            showInternalNode((InternalNode *)node->children[i], depth+1);
+    if (node->children[0] != NULL) {
+        for (i = 0; i < node->key_length+1; i++) {
+            for (j = 0; j < depth; j++)
+                printf("\t");
+            printf("\tchildren[%d]:\n", i);
+            if (node->children_type == LEAF) {
+                showLeafNode((LeafNode *)node->children[i], depth+1);
+            } else {
+                showInternalNode((InternalNode *)node->children[i], depth+1);
+            }
         }
+    } else {
+        // empty tree
     }
 }
 
