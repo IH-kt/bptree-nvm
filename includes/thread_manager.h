@@ -11,8 +11,6 @@
 #  define BPTREE_BLOCK 1
 #  define BPTREE_NON_BLOCK 2
 
-unsigned int bptree_number_of_thread = 0;
-
 struct BPTreeFunctionContainer {
     void *(* function)(BPTree *);
     BPTree *bpt;
@@ -20,5 +18,11 @@ struct BPTreeFunctionContainer {
     void *retval;
 };
 
-pthread_t bptreeCreateThread(BPTree *, void *(*)(BPTree *), pthread_attr_t);
+typedef struct BPTreeFunctionContainer BPTreeFunctionContainer;
+
+void bptreeThreadInit(unsigned int flag);
+void bptreeThreadDestroy();
+pthread_t bptreeCreateThread(BPTree *, void *(*)(BPTree *));
+void bptreeStartThread(void);
+void bptreeWaitThread(pthread_t, void **);
 #endif

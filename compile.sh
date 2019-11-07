@@ -2,34 +2,44 @@
 
 ROOT_DIR=`pwd`
 BUILD_DIR=$ROOT_DIR/build
-TEST_DIR=$ROOT_DIR/src/test
-ALLOCATOR_DIR=$ROOT_DIR/src/utility/simple_allocator
-SRC_DIR=$ROOT_DIR/src/fptree
+SRC_DIR=$ROOT_DIR/src
+TEST_DIR=$SRC_DIR/test
+ALLOCATOR_DIR=$SRC_DIR/utility/simple_allocator
+FPTREE_DIR=$SRC_DIR/fptree
+THREAD_MANAGER_DIR=$SRC_DIR/utility/thread_manager
 
-FPTREE_SRC=$SRC_DIR/fptree_concurrent.c
-ALLOCATOR_SRC=$ALLOCATOR_DIR/allocator.c
-TEST_SRC="simple_test.c insert_test.c search_test.c delete_test.c"
+FPTREE_SRC_NAME=fptree_concurrent.c
+ALLOCATOR_SRC_NAME=allocator.c
+THREAD_MANAGER_SRC_NAME=thread_manager.c
+
+FPTREE_SRC=$FPTREE_DIR/$FPTREE_SRC_NAME
+ALLOCATOR_SRC=$ALLOCATOR_DIR/$ALLOCATOR_SRC_NAME
+THREAD_MANAGER_SRC=$THREAD_MANAGER_DIR/$THREAD_MANAGER_SRC_NAME
+TEST_SRC="simple_test.c insert_test.c search_test.c delete_test.c thread_test.c"
 TEST=`echo $TEST_SRC | sed -e 's/\.c/.exe/g'`
 
 mkdir -p $BUILD_DIR
 
-if [ $# -gt 0 ] ; then
-    if [ $1 = -u ] ; then
-        cp -p $FPTREE_SRC $BUILD_DIR
-        cp -p $ALLOCATOR_SRC $BUILD_DIR
-        for files in $TEST_SRC
-        do
-            cp -p $TEST_DIR/$files $BUILD_DIR
-        done
-        cp -p $ROOT_DIR/Makefile $BUILD_DIR
-    elif [ $1 = -d ] ; then
-        rm -r $BUILD_DIR
-        exit 0
-    fi
-else
-    echo "add -u when sources are updated"
+if [ ! -e $BUILD_DIR/Makefile ] || [ $# -gt 0 ] && [ $1 = -u ] ; then
+	cp -p $FPTREE_SRC $BUILD_DIR
+	cp -p $ALLOCATOR_SRC $BUILD_DIR
+	cp -p $THREAD_MANAGER_SRC $BUILD_DIR
+	for files in $TEST_SRC
+	do
+		cp -p $TEST_DIR/$files $BUILD_DIR
+	done
+	cp -p $ROOT_DIR/Makefile $BUILD_DIR
+elif [ $# -gt 0 ] ; then
+	if [ $1 = -d ] ; then
+		rm -r $BUILD_DIR
+		exit 0
+	fi
+fi
+
+if [ $# -eq 0 ] ; then
+	echo "add -u when sources are updated"
 fi
 
 cd $BUILD_DIR
 
-make -j $TEST ROOT_DIR=$ROOT_DIR EXES=$TEST
+make -j ROOT_DIR=$ROOT_DIR EXES=$TEST FPTREE_SRC=$FPTREE_SRC_NAME ALLOCATOR_SRC=$ALLOCATOR_SRC_NAME THREAD_MANAGER_SRC=$THREAD_MANAGER_SRC_NAME

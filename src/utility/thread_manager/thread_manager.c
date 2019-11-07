@@ -6,7 +6,7 @@ __thread unsigned int number_of_thread = 0;
 void *bptreeThreadFunctionWrapper(void *container_v) {
     BPTreeFunctionContainer *container = (BPTreeFunctionContainer *)container_v;
     if (container->sem != NULL) {
-        if (sem_wait(sem) == -1) {
+        if (sem_wait(container->sem) == -1) {
             perror("sem_wait");
         }
     }
@@ -18,7 +18,7 @@ void bptreeThreadInit(unsigned int flag) {
     if (flag & BPTREE_BLOCK) {
         // init semaphore
         if (sem == NULL) {
-            sem = (sem_t *)vmem_allocate(sem_t);
+            sem = (sem_t *)vmem_allocate(sizeof(sem_t));
             if (sem_init(sem, 0, 0) == -1) {
                 perror("sem_init");
                 exit(1);
@@ -46,7 +46,7 @@ pthread_t bptreeCreateThread(BPTree *bpt, void *(* thread_function)(BPTree *)) {
     container->sem = sem;
     container->retval = NULL;
     number_of_thread++;
-    if (pthread_create(&tid, NULL, thread_function, container) == EAGAIN) {
+    if (pthread_create(&tid, NULL, bptreeThreadFunctionWrapper, container) == EAGAIN) {
         printf("pthread_create: reached resource limit\n");
     }
     return tid;
@@ -64,7 +64,9 @@ void bptreeStartThread(void) {
 void bptreeWaitThread(pthread_t tid, void **retval) {
     void *container_v;
     pthread_join(tid, &container_v);
-    *retval = ((BPTreeFunctionContainer *)container_v)->retval;
+    if (retval != NULL) {
+        *retval = ((BPTreeFunctionContainer *)container_v)->retval;
+    }
     vmem_free(container_v);
     number_of_thread--;
 }
