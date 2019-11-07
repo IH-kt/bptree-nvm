@@ -915,6 +915,8 @@ void showInternalNode(InternalNode *node, int depth) {
 }
 
 void showTree(BPTree *bpt) {
+    GET_LOCK_LOOP(bpt->lock, lockBPTree(bpt));
     printf("leaf head:%p\n", bpt->head);
     showInternalNode((InternalNode *)bpt->root, 0);
+    unlockBPTree(bpt);
 }
