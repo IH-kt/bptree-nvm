@@ -23,6 +23,9 @@
     while (1) {                                            \
         if (method == TRANSACTION) {                       \
             status = _xbegin();                            \
+            if (tree->lock) {                              \
+                TRANSACTION_EXECUTION_ABORT();             \
+            }                                              \
         } else {                                           \
             while (!lockBPTree(tree)) {                    \
                 do {                                       \
@@ -112,17 +115,21 @@ void initInternalNode(InternalNode *node) {
     }
 }
 
-void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode, ppointer *pmem_head) {
-    tree->pmem_head = pmem_head;
+void insertFirstLeafNode(BPTree *tree, LeafNode *leafHead) {
     if (leafHead != NULL) {
-        *pmem_head = getPersistentAddr(leafHead->pleaf);
+        *tree->pmem_head = getPersistentAddr(leafHead->pleaf);
     } else {
-        *pmem_head = P_NULL;
+        *tree->pmem_head = P_NULL;
     }
     tree->head = leafHead;
+    tree->root->children_type = LEAF;
+    tree->root->children[0] = leafHead;
+}
+
+void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode, ppointer *pmem_head) {
+    tree->pmem_head = pmem_head;
     tree->root = rootNode;
-    rootNode->children_type = LEAF;
-    rootNode->children[0] = leafHead;
+    insertFirstLeafNode(tree, leafHead);
     tree->lock = 0;
 }
 
@@ -426,7 +433,8 @@ int insert(BPTree *bpt, KeyValuePair kv) {
     } else if (bpt->root->children[0] == NULL) {
         lockBPTree(bpt);
         LeafNode *new_leaf = newLeafNode();
-        initBPTree(bpt, new_leaf, bpt->root, bpt->pmem_head);
+        insertFirstLeafNode(bpt, new_leaf);
+	insertNonfullLeaf(new_leaf, kv);
         unlockBPTree(bpt);
         return 1;
     }
@@ -837,16 +845,16 @@ int delete(BPTree *bpt, Key target_key) {
 
     if (empty_flag) {
         if (target_leaf->prev != NULL) {
-                deleteLeaf(bpt, target_leaf);
-                // TRANSACTION_EXECUTION_EXECUTE(bpt,
+                TRANSACTION_EXECUTION_EXECUTE(bpt,
                     removeFromParent(bpt, parent, target_leaf, target_key);
-                //);
+                );
+                deleteLeaf(bpt, target_leaf); // cannot delete leaf before remove entry
                 unlockLeaf(target_leaf->prev);
         } else {
-            deleteLeaf(bpt, target_leaf);
             TRANSACTION_EXECUTION_EXECUTE(bpt,
                 removeFromParent(bpt, parent, target_leaf, target_key);
             );
+            deleteLeaf(bpt, target_leaf);
         }
         // deleted leaf does not need to be unlocked
     } else {
@@ -915,8 +923,9 @@ void showInternalNode(InternalNode *node, int depth) {
 }
 
 void showTree(BPTree *bpt) {
-    GET_LOCK_LOOP(bpt->lock, lockBPTree(bpt));
-    printf("leaf head:%p\n", bpt->head);
-    showInternalNode((InternalNode *)bpt->root, 0);
-    unlockBPTree(bpt);
+    TRANSACTION_EXECUTION_INIT();
+    TRANSACTION_EXECUTION_EXECUTE(bpt,
+        printf("leaf head:%p\n", bpt->head);
+        showInternalNode((InternalNode *)bpt->root, 0);
+    );
 }
