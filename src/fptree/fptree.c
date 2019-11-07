@@ -394,6 +394,7 @@ int insert(BPTree *bpt, KeyValuePair kv) {
         lockBPTree(bpt);
         LeafNode *new_leaf = newLeafNode();
         initBPTree(bpt, new_leaf, bpt->root, bpt->pmem_head);
+        insertNonfullLeaf(new_leaf, kv);
         unlockBPTree(bpt);
         return 1;
     }
