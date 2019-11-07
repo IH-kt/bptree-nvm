@@ -261,7 +261,9 @@ void search(BPTree *bpt, Key target_key, SearchResult *sr) {
         TRANSACTION_EXECUTION_INIT();
         TRANSACTION_EXECUTION_EXECUTE(bpt,
             sr->node = findLeaf(bpt->root, target_key, NULL);
-            sr->index = searchInLeaf(sr->node, target_key);
+	    if (sr->node != NULL) {
+                sr->index = searchInLeaf(sr->node, target_key);
+	    }
         );
         // sr->node = findLeaf(bpt->root, target_key, NULL);
         // sr->index = searchInLeaf(sr->node, target_key);
