@@ -12,8 +12,10 @@
 #endif
 #ifdef CONCURRENT
 #  include <immintrin.h>
+#  include <sched.h>
 #  define XABORT_STAT 0
 #  define RETRY_NUM 5 // times of retry RTM. < 32
+// #  define LOOP_RETRY_NUM 10 // times of retry GET_LOCK_LOOP
 #  define TRANSACTION 1
 #  define LOCK 0
 #endif
@@ -135,7 +137,7 @@ void destroyBPTree(BPTree *);
 
 // int getLeafNodeLength(LeafNode *);
 int searchInLeaf(LeafNode *, Key);
-LeafNode *findLeaf(InternalNode *, Key, InternalNode **);
+LeafNode *findLeaf(InternalNode *, Key, InternalNode **, unsigned char *);
 void search(BPTree *, Key, SearchResult *);
 
 int findFirstAvailableSlot(LeafNode *);

@@ -20,7 +20,7 @@ TEST=`echo $TEST_SRC | sed -e 's/\.c/.exe/g'`
 
 mkdir -p $BUILD_DIR
 
-if [ ! -e $BUILD_DIR/Makefile ] || [ $# -gt 0 ] && [ $1 = -u ] ; then
+if [ ! -e $BUILD_DIR/Makefile ] || ([ $# -gt 0 ] && [ "$1" = "-u" ]) ; then
 	cp -p $FPTREE_SRC $BUILD_DIR
 	cp -p $ALLOCATOR_SRC $BUILD_DIR
 	cp -p $THREAD_MANAGER_SRC $BUILD_DIR
@@ -30,7 +30,7 @@ if [ ! -e $BUILD_DIR/Makefile ] || [ $# -gt 0 ] && [ $1 = -u ] ; then
 	done
 	cp -p $ROOT_DIR/Makefile $BUILD_DIR
 elif [ $# -gt 0 ] ; then
-	if [ $1 = -d ] ; then
+	if [ "$1" = "-d" ] ; then
 		rm -r $BUILD_DIR
 		exit 0
 	fi

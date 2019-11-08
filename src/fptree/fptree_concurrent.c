@@ -11,12 +11,24 @@
     _xabort(XABORT_STAT);               \
 }
 
-#define GET_LOCK_LOOP(lock, lock_code) { \
-    while (!lock_code) {                 \
-        do {                             \
-            _mm_pause();                 \
-        } while (lock);                  \
-    }                                    \
+#define TRANSACTION_RETRY_LOCK(tree) { \
+    unlockBPTree(tree);                \
+    sched_yield();                     \
+    continue;                          \
+}
+
+// #define GET_LOCK_LOOP(lock, lock_code, success) {             \
+    unsigned int get_lock_loop_num = 1;                       \
+    while (get_lock_loop_num < LOOP_RETRY_NUM) {              \
+        success = lock_code;                                  \
+        if (success) {                                        \
+            break;                                            \
+        }                                                     \
+        do {                                                  \
+            _mm_pause();                                      \
+            get_lock_loop_num++;                              \
+        } while (lock && get_lock_loop_num < LOOP_RETRY_NUM); \
+    }                                                         \
 }
 
 #define TRANSACTION_EXECUTION_EXECUTE(tree, code) {        \
@@ -218,7 +230,8 @@ int searchInInternal(InternalNode *node, Key target) {
     return i;
 }
 
-LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent) {
+LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent, unsigned char *retry_flag) {
+    *retry_flag = 0;
     if (current->children[0] == NULL) {
         // empty tree
         return NULL;
@@ -227,7 +240,8 @@ LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent)
     if (current->children_type == LEAF) {
         if (((LeafNode *)current->children[key_index])->pleaf->lock == 1) {
             TRANSACTION_EXECUTION_ABORT();
-            GET_LOCK_LOOP(((LeafNode *)current->children[key_index])->pleaf->lock, lockLeaf((LeafNode *)current->children[key_index]));
+            *retry_flag = 1;
+            return NULL;
         }
         if (parent != NULL) {
             *parent = current;
@@ -235,7 +249,7 @@ LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent)
         return (LeafNode *)current->children[key_index];
     } else {
         current = current->children[key_index];
-        return findLeaf(current, target_key, parent);
+        return findLeaf(current, target_key, parent, retry_flag);
     }
 }
 
@@ -260,13 +274,14 @@ void search(BPTree *bpt, Key target_key, SearchResult *sr) {
     } else {
         TRANSACTION_EXECUTION_INIT();
         TRANSACTION_EXECUTION_EXECUTE(bpt,
-            sr->node = findLeaf(bpt->root, target_key, NULL);
-	    if (sr->node != NULL) {
+            unsigned char retry_flag = 0;
+            sr->node = findLeaf(bpt->root, target_key, NULL, &retry_flag);
+	        if (sr->node != NULL) {
                 sr->index = searchInLeaf(sr->node, target_key);
-	    }
+	        } else if (retry_flag) {
+                TRANSACTION_RETRY_LOCK(bpt);
+            }
         );
-        // sr->node = findLeaf(bpt->root, target_key, NULL);
-        // sr->index = searchInLeaf(sr->node, target_key);
     }
 }
  
@@ -436,7 +451,7 @@ int insert(BPTree *bpt, KeyValuePair kv) {
         lockBPTree(bpt);
         LeafNode *new_leaf = newLeafNode();
         insertFirstLeafNode(bpt, new_leaf);
-	insertNonfullLeaf(new_leaf, kv);
+        insertNonfullLeaf(new_leaf, kv);
         unlockBPTree(bpt);
         return 1;
     }
@@ -446,7 +461,11 @@ int insert(BPTree *bpt, KeyValuePair kv) {
     LeafNode *target_leaf;
     TRANSACTION_EXECUTION_INIT();
     TRANSACTION_EXECUTION_EXECUTE(bpt,
-        target_leaf = findLeaf(bpt->root, kv.key, &parent);
+        unsigned char retry_flag = 0;
+        target_leaf = findLeaf(bpt->root, kv.key, &parent, &retry_flag);
+        if (retry_flag) {
+            TRANSACTION_RETRY_LOCK(bpt);
+        }
         if (searchInLeaf(target_leaf, kv.key) != -1) {
             found_flag = 1;
         } else {
@@ -454,7 +473,7 @@ int insert(BPTree *bpt, KeyValuePair kv) {
         }
         if (!found_flag && !lockLeaf(target_leaf)) {
             TRANSACTION_EXECUTION_ABORT();
-            GET_LOCK_LOOP(target_leaf->pleaf->lock, lockLeaf(target_leaf));
+            TRANSACTION_RETRY_LOCK(bpt);
         }
     );
     if (found_flag) {
@@ -811,22 +830,25 @@ int delete(BPTree *bpt, Key target_key) {
     LeafNode *target_leaf = NULL;
     TRANSACTION_EXECUTION_INIT();
     TRANSACTION_EXECUTION_EXECUTE(bpt,
-        target_leaf = findLeaf(bpt->root, target_key, &parent);
+        unsigned char retry_flag = 0;
+        target_leaf = findLeaf(bpt->root, target_key, &parent, &retry_flag);
         if (target_leaf != NULL) {
             exist_flag = 1;
             if (!lockLeaf(target_leaf)) {
                 TRANSACTION_EXECUTION_ABORT();
-                GET_LOCK_LOOP(target_leaf->pleaf->lock, lockLeaf(target_leaf));
+                TRANSACTION_RETRY_LOCK(bpt);
             }
             if (target_leaf->key_length == 1) {
                 empty_flag = 1;
                 if (target_leaf->prev != NULL && !lockLeaf(target_leaf->prev)) {
                     TRANSACTION_EXECUTION_ABORT();
-                    GET_LOCK_LOOP(target_leaf->prev->pleaf->lock, lockLeaf(target_leaf->prev));
+                    TRANSACTION_RETRY_LOCK(bpt);
                 }
             } else {
                 empty_flag = 0;
             }
+        } else if (retry_flag) {
+            TRANSACTION_RETRY_LOCK(bpt);
         }
     );
     if (!exist_flag) {
