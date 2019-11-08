@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     srand(1);
 
     kv.key = rand();
-    printf("insert %d\n", kv.key);
+    printf("insert %ld\n", kv.key);
     insert(bpt, kv);
 
     SearchResult sr;
@@ -18,9 +18,9 @@ int main(int argc, char *argv[]) {
     if (sr.index == -1) {
         printf("not found: %d\n", kv.key);
     }
-    printf("search: %d => (%p, %d)\n", kv.key, sr.node, sr.index);
+    printf("search: %ld => (%p, %d)\n", kv.key, sr.node, sr.index);
 
-    printf("delete %d\n", kv.key);
+    printf("delete %ld\n", kv.key);
     delete(bpt, kv.key);
 
     showTree(bpt);

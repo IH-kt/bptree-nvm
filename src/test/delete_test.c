@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
     srand((unsigned) time(NULL));
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
-        printf("insert %d\n", kv.key);
+        printf("insert %ld\n", kv.key);
         if (insert(bpt, kv)) {
             printf("success\n");
         } else {
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     }
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
-        printf("delete %d\n", kv.key);
+        printf("delete %ld\n", kv.key);
         if (delete(bpt, kv.key)) {
             printf("success\n");
         } else {
