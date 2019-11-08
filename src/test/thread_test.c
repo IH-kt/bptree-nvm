@@ -8,7 +8,7 @@
 int loop_times = 40;
 int max_val = 1000;
 
-void *insert_test(BPTree *bpt) {
+void *insert_test(BPTree *bpt, void *arg) {
     KeyValuePair kv;
     unsigned int seed = SEED_INIT_VAL;
     kv.key = 1;
@@ -28,7 +28,7 @@ void *insert_test(BPTree *bpt) {
     return NULL;
 }
 
-void *search_test(BPTree *bpt) {
+void *search_test(BPTree *bpt, void *arg) {
     Key key = 1;
     unsigned int seed = SEED_INIT_VAL;
     struct timespec wait_time;
@@ -52,7 +52,7 @@ void *search_test(BPTree *bpt) {
     return NULL;
 }
 
-void *delete_test(BPTree *bpt) {
+void *delete_test(BPTree *bpt, void *arg) {
     Key key;
     unsigned int seed = SEED_INIT_VAL;
     key = 1;
@@ -95,9 +95,9 @@ int main(int argc, char *argv[]) {
     bptreeThreadInit(BPTREE_BLOCK);
     printf("init\n");
 
-    tid[0] = bptreeCreateThread(bpt, insert_test);
-    tid[1] = bptreeCreateThread(bpt, search_test);
-    tid[2] = bptreeCreateThread(bpt, delete_test);
+    tid[0] = bptreeCreateThread(bpt, insert_test, NULL);
+    tid[1] = bptreeCreateThread(bpt, search_test, NULL);
+    tid[2] = bptreeCreateThread(bpt, delete_test, NULL);
     printf("create\n");
 
     bptreeStartThread();
