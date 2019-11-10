@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
-#ifdef USE_ASSERTION
+// #ifdef USE_ASSERTION
 #  include <assert.h>
-#endif
+// #endif
 #ifndef NPERSIST
 #  include <x86intrin.h>
 #endif
@@ -138,7 +138,7 @@ void destroyBPTree(BPTree *);
 // int getLeafNodeLength(LeafNode *);
 int searchInLeaf(LeafNode *, Key);
 LeafNode *findLeaf(InternalNode *, Key, InternalNode **, unsigned char *);
-void search(BPTree *, Key, SearchResult *);
+void search(BPTree *, Key, SearchResult *, unsigned char);
 
 int findFirstAvailableSlot(LeafNode *);
 int compareKeyPositionPair(const void *, const void *);
@@ -147,7 +147,7 @@ Key splitLeaf(LeafNode *, KeyValuePair);
 Key splitInternal(InternalNode *, InternalNode **, void *, Key);
 void insertNonfullInternal(InternalNode *, Key, void *);
 void insertNonfullLeaf(LeafNode *, KeyValuePair);
-int insert(BPTree *, KeyValuePair);
+int insert(BPTree *, KeyValuePair, unsigned char);
 int searchNodeInInternalNode(InternalNode *, void *);
 void insertParent(BPTree *, InternalNode *, Key, LeafNode *, LeafNode *);
 int insertRecursive(InternalNode *, Key, LeafNode *, Key *, InternalNode **);
@@ -158,10 +158,10 @@ int insertRecursive(InternalNode *, Key, LeafNode *, Key *, InternalNode **);
 // InternalNode *merge(InternalNode *, InternalNode *, InternalNode *, char);
 // void *rebalance(BPTree *, void *, void *, void *, void *, void *, void *, void **);
 // void *findRebalance(BPTree *, void *, void *, void *, void *, void *, void *, Key, void **);
-int delete(BPTree *, Key);
+int delete(BPTree *, Key, unsigned char);
 // 
 /* debug function */
 void showLeafNode(LeafNode *, int);
 void showInternalNode(InternalNode *, int);
-void showTree(BPTree *);
+void showTree(BPTree *, unsigned char);
 #endif

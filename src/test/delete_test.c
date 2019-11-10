@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
         printf("insert %ld\n", kv.key);
-        if (insert(bpt, kv)) {
+        if (insert(bpt, kv, 0)) {
             printf("success\n");
         } else {
             printf("failure\n");
@@ -36,14 +36,14 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
         printf("delete %ld\n", kv.key);
-        if (delete(bpt, kv.key)) {
+        if (delete(bpt, kv.key, 0)) {
             printf("success\n");
         } else {
             printf("failure\n");
         }
     }
 
-    showTree(bpt);
+    showTree(bpt, 0);
 
     return 0;
 }

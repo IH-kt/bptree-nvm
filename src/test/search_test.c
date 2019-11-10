@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
         printf("insert %ld\n", kv.key);
-        if (insert(bpt, kv)) {
+        if (insert(bpt, kv, 0)) {
             printf("success\n");
         } else {
             printf("failure\n");
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
         printf("search %ld\n", kv.key);
-        search(bpt, kv.key, &sr);
+        search(bpt, kv.key, &sr, 0);
         if (sr.index != -1) {
             printf("found\n");
         } else {
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    showTree(bpt);
+    showTree(bpt, 0);
 
     return 0;
 }

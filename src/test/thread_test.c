@@ -9,6 +9,7 @@ int loop_times = 40;
 int max_val = 1000;
 
 void *insert_test(BPTree *bpt, void *arg) {
+    unsigned char tid = *(unsigned char *) arg;
     KeyValuePair kv;
     unsigned int seed = SEED_INIT_VAL;
     kv.key = 1;
@@ -16,7 +17,7 @@ void *insert_test(BPTree *bpt, void *arg) {
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand_r(&seed) % max_val + 1;
         printf("insert: target = %ld\n", kv.key);
-        if (insert(bpt, kv)) {
+        if (insert(bpt, kv, tid)) {
             printf("insert: success\n");
         } else {
             printf("insert: failure\n");
@@ -29,6 +30,7 @@ void *insert_test(BPTree *bpt, void *arg) {
 }
 
 void *search_test(BPTree *bpt, void *arg) {
+    unsigned char tid = *(unsigned char *) arg;
     Key key = 1;
     unsigned int seed = SEED_INIT_VAL;
     struct timespec wait_time;
@@ -38,7 +40,7 @@ void *search_test(BPTree *bpt, void *arg) {
     for (int i = 1; i <= loop_times; i++) {
         key = rand() % max_val;
         printf("search: target = %ld\n", key);
-        search(bpt, key, &sr);
+        search(bpt, key, &sr, tid);
         if (sr.index != -1) {
             printf("search: found\n");
         } else {
@@ -55,11 +57,12 @@ void *search_test(BPTree *bpt, void *arg) {
 void *delete_test(BPTree *bpt, void *arg) {
     Key key;
     unsigned int seed = SEED_INIT_VAL;
+    unsigned char tid = *(unsigned char *) arg;
     key = 1;
     for (int i = 1; i <= loop_times; i++) {
         key = rand_r(&seed) % max_val + 1;
         printf("delete: target = %ld\n", key);
-        if (delete(bpt, key)) {
+        if (delete(bpt, key, tid)) {
             printf("delete: success\n");
         } else {
             printf("delete: failure\n");
@@ -95,9 +98,12 @@ int main(int argc, char *argv[]) {
     bptreeThreadInit(BPTREE_BLOCK);
     printf("init\n");
 
-    tid[0] = bptreeCreateThread(bpt, insert_test, NULL);
-    tid[1] = bptreeCreateThread(bpt, search_test, NULL);
-    tid[2] = bptreeCreateThread(bpt, delete_test, NULL);
+    unsigned char tid1 = 1;
+    unsigned char tid2 = 2;
+    unsigned char tid3 = 3;
+    tid[0] = bptreeCreateThread(bpt, insert_test, &tid1);
+    tid[1] = bptreeCreateThread(bpt, search_test, &tid2);
+    tid[2] = bptreeCreateThread(bpt, delete_test, &tid3);
     printf("create\n");
 
     bptreeStartThread();

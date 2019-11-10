@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     showTree(bpt);
     search(bpt, kv.key, &sr);
     if (sr.index == -1) {
-        printf("not found: %d\n", kv.key);
+        printf("not found: %ld\n", kv.key);
     }
     printf("search: %ld => (%p, %d)\n", kv.key, sr.node, sr.index);
 

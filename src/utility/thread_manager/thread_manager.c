@@ -10,7 +10,7 @@ void *bptreeThreadFunctionWrapper(void *container_v) {
             perror("sem_wait");
         }
     }
-    container->retval = container->function(container->bpt);
+    container->retval = container->function(container->bpt, container->arg);
     pthread_exit(container);
 }
 
@@ -38,13 +38,14 @@ void bptreeThreadDestroy() {
     }
 }
 
-pthread_t bptreeCreateThread(BPTree *bpt, void *(* thread_function)(BPTree *)) {
+pthread_t bptreeCreateThread(BPTree *bpt, void *(* thread_function)(BPTree *, void *), void *arg) {
     pthread_t tid;
     BPTreeFunctionContainer *container = (BPTreeFunctionContainer *)vmem_allocate(sizeof(BPTreeFunctionContainer));
     container->function = thread_function;
     container->bpt = bpt;
     container->sem = sem;
     container->retval = NULL;
+    container->arg = arg;
     number_of_thread++;
     if (pthread_create(&tid, NULL, bptreeThreadFunctionWrapper, container) == EAGAIN) {
         printf("pthread_create: reached resource limit\n");
