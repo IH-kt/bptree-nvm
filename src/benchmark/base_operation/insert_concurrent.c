@@ -33,14 +33,14 @@ void *insert_random(BPTree *bpt, void *arg) {
 #ifdef TIME_PART
     showTime(tid);
 #endif
-    return NULL;
+    return arg;
 }
 
 int main(int argc, char *argv[]) {
     pthread_t *tid_array;
     struct timespec stt, edt;
     int i;
-    BPTree *bpt = newBPTree();
+    BPTree *bpt;
     KeyValuePair kv;
     if (argc > 3) {
         warm_up = atoi(argv[1]);
@@ -75,14 +75,18 @@ int main(int argc, char *argv[]) {
 	kv.key = rand_r(&seed) % max_val + 1;
         insert(bpt, kv, 0);
     }
+    
+    initAllocator("data", sizeof(LeafNode) * loop_times / MAX_PAIR * 2, thread_max);
+
+    bpt = newBPTree();
 
     tid_array = (pthread_t *)malloc(sizeof(pthread_t) * thread_max);
 
     bptreeThreadInit(BPTREE_BLOCK);
 
     arg_t *arg = NULL;
-    for (i = 0; i < thread_max-1; i++) {
-        arg = (arg_t *)malloc(sizeof(int));
+    for (i = 0; i < thread_max; i++) {
+        arg = (arg_t *)malloc(sizeof(arg_t));
         arg->seed = i;
 	arg->tid = i % 256 + 1;
 	arg->loop = loop_times / thread_max;

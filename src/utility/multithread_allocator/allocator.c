@@ -208,6 +208,7 @@ int initAllocator(const char *path, size_t pmem_size, unsigned char thread_num) 
 
     _number_of_thread = thread_num;
 
+
     return 0;
 }
 

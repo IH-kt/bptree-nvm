@@ -12,7 +12,7 @@ FPTREE_DIR=$SRC_DIR/fptree
 THREAD_MANAGER_DIR=$SRC_DIR/utility/thread_manager
 BENCH_SCRIPT_DIR=$SRC_DIR/utility/benchmark_script
 
-FPTREE_SRC_NAME=fptree.c
+FPTREE_SRC_NAME=fptree_concurrent.c
 ALLOCATOR_SRC_NAME=allocator.c
 THREAD_MANAGER_SRC_NAME=thread_manager.c
 BENCH_SCRIPT_SRC_NAME=base_operation.py
