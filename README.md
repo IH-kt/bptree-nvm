@@ -12,3 +12,7 @@ main関数はsrc/test内のテスト用コードにある
 - implement-delete：deleteを実装する用（merge済み）
 - test-single-thread：シングルスレッドでの動作確認用コードを追加する用（merge済み）
 - concurrent：HTMを使って並行化する用（merge済み）
+- allocator：並行アロケータの実装用（merge済み）
+- benchmark：ベンチマークプログラム作成用（作業中）
+	- ベンチマーク自体は動作する
+	- グラフ生成がイマイチ
