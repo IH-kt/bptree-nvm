@@ -14,7 +14,7 @@
 #  include <immintrin.h>
 #  include <sched.h>
 #  define XABORT_STAT 0
-#  define RETRY_NUM 5 // times of retry RTM. < 32
+#  define RETRY_NUM 20 // times of retry RTM. < 32
 // #  define LOOP_RETRY_NUM 10 // times of retry GET_LOCK_LOOP
 #  define TRANSACTION 1
 #  define LOCK 0
@@ -120,6 +120,10 @@ typedef struct KeyPositionPair KeyPositionPair;
 /* utils */
 unsigned char hash(Key);
 // char popcntcharsize(char);
+#ifdef TIME_PART
+void showTime(unsigned int);
+#include <time.h>
+#endif
 
 /* initializer */
 void initKeyValuePair(KeyValuePair *);

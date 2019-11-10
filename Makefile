@@ -4,7 +4,7 @@ CLWB=-DCLWB
 CONCURRENT=-DCONCURRENT
 
 CC=gcc
-CFLAGS=-O0 -g -march=native -pthread -I$(ROOT_DIR)/includes/ $(CLWB) $(CONCURRENT)
+CFLAGS=-O0 -g -march=native -pthread -I$(ROOT_DIR)/includes/ $(CLWB) $(CONCURRENT) $(TIME_PART)
 
 # FPTREE_SRC=fptree_concurrent.c
 FPTREE_OBJ=$(FPTREE_SRC:%.c=%.o)

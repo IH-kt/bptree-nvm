@@ -1,6 +1,22 @@
 #include "fptree.h"
 #include "allocator.h"
 
+#ifdef TIME_PART
+__thread double insert_part1 = 0;
+__thread double insert_part2 = 0;
+__thread double insert_part3 = 0;
+__thread struct timespec stt, edt;
+__thread double time_tmp = 0;
+__thread unsigned int times_of_lock = 0;
+__thread unsigned int times_of_transaction = 0;
+void showTime(unsigned int tid) {
+	fprintf(stderr, "thread %d, insert_part1 = %lf\n", tid, insert_part1);
+	fprintf(stderr, "thread %d, insert_part2 = %lf\n", tid, insert_part2);
+	fprintf(stderr, "thread %d, insert_part3 = %lf\n", tid, insert_part3);
+	fprintf(stderr, "thread %d, lock = %u, transaction = %u\n", tid, times_of_lock, times_of_transaction);
+}
+#endif
+
 #define TRANSACTION_EXECUTION_INIT()    \
     int n_tries = 1;                    \
     int status = _XABORT_EXPLICIT;      \
@@ -49,8 +65,10 @@
             {code};                                        \
             if (method == TRANSACTION) {                   \
                 _xend();                                   \
+		times_of_transaction++;                    \
             } else {                                       \
                 unlockBPTree(tree, tid);                   \
+		times_of_lock++;                           \
             }                                              \
             break;                                         \
         } else {                                           \
@@ -443,6 +461,9 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     if (bpt == NULL) {
         return 0;
     } else if (bpt->root->children[0] == NULL) {
+#ifdef TIME_PART
+	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
 	while (!lockBPTree(bpt, tid)) {
 		_mm_pause();
 	}
@@ -452,12 +473,23 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
             insertNonfullLeaf(new_leaf, kv);
 	}
         unlockBPTree(bpt, tid);
+#ifdef TIME_PART
+	clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+	time_tmp = 0;
+	time_tmp += (edt.tv_nsec - stt.tv_nsec);
+	time_tmp /= 1000000000;
+	time_tmp += edt.tv_sec - stt.tv_sec;
+	insert_part1 += time_tmp;
+#endif
         return 1;
     }
 
     InternalNode *parent;
     unsigned char found_flag = 0;
     LeafNode *target_leaf;
+#ifdef TIME_PART
+	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
     TRANSACTION_EXECUTION_INIT();
     TRANSACTION_EXECUTION_EXECUTE(bpt,
         unsigned char retry_flag = 0;
@@ -476,12 +508,23 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
             TRANSACTION_RETRY_LOCK(bpt, tid);
         }
     , tid);
+#ifdef TIME_PART
+	clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+	time_tmp = 0;
+	time_tmp += (edt.tv_nsec - stt.tv_nsec);
+	time_tmp /= 1000000000;
+	time_tmp += edt.tv_sec - stt.tv_sec;
+	insert_part2 += time_tmp;
+#endif
     if (found_flag) {
         return 0;
     }
 
 #ifdef DEBUG
     printf("locked   %p: %d, %x\n", target_leaf, target_leaf->pleaf->lock, pthread_self());
+#endif
+#ifdef TIME_PART
+	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #endif
     if (target_leaf->key_length < MAX_PAIR) {
         insertNonfullLeaf(target_leaf, kv);
@@ -497,6 +540,14 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     printf("unlocked %p: %d, %x\n", target_leaf, target_leaf->pleaf->lock, pthread_self());
 #endif
     unlockLeaf(target_leaf, tid);
+#ifdef TIME_PART
+	clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+	time_tmp = 0;
+	time_tmp += (edt.tv_nsec - stt.tv_nsec);
+	time_tmp /= 1000000000;
+	time_tmp += edt.tv_sec - stt.tv_sec;
+	insert_part2 += time_tmp;
+#endif
     return 1;
 }
 
