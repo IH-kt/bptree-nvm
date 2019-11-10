@@ -24,7 +24,7 @@ void *insert_test(BPTree *bpt, void *arg) {
         }
     }
     printf("insert: tree state -----------------------------\n");
-    showTree(bpt);
+    showTree(bpt, tid);
     printf("------------------------------------------------\n");
     return NULL;
 }
@@ -49,7 +49,7 @@ void *search_test(BPTree *bpt, void *arg) {
 	nanosleep(&wait_time, NULL);
     }
     printf("search: tree state -----------------------------\n");
-    showTree(bpt);
+    showTree(bpt, tid);
     printf("------------------------------------------------\n");
     return NULL;
 }
@@ -69,13 +69,13 @@ void *delete_test(BPTree *bpt, void *arg) {
         }
     }
     printf("delete: tree state -----------------------------\n");
-    showTree(bpt);
+    showTree(bpt, tid);
     printf("------------------------------------------------\n");
     return NULL;
 }
 
 int main(int argc, char *argv[]) {
-    BPTree *bpt = newBPTree();
+    BPTree *bpt;
     KeyValuePair kv;
     if (argc > 1) {
         loop_times = atoi(argv[1]);
@@ -93,14 +93,18 @@ int main(int argc, char *argv[]) {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
 
+    initAllocator("data", sizeof(LeafNode) * loop_times / MAX_KEY * 2, 3);
+
+    bpt = newBPTree();
+
     pthread_t tid[3];
 
     bptreeThreadInit(BPTREE_BLOCK);
     printf("init\n");
 
-    unsigned char tid1 = 1;
-    unsigned char tid2 = 2;
-    unsigned char tid3 = 3;
+    unsigned char tid1 = 0;
+    unsigned char tid2 = 1;
+    unsigned char tid3 = 2;
     tid[0] = bptreeCreateThread(bpt, insert_test, &tid1);
     tid[1] = bptreeCreateThread(bpt, search_test, &tid2);
     tid[2] = bptreeCreateThread(bpt, delete_test, &tid3);
@@ -118,7 +122,9 @@ int main(int argc, char *argv[]) {
     printf("destroy\n");
 
     printf("finish running threads\n");
-    showTree(bpt);
+    showTree(bpt, 0);
+
+    destroyAllocator();
 
     return 0;
 }
