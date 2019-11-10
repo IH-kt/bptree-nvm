@@ -14,20 +14,15 @@ typedef struct arg_t {
 	unsigned char tid;
 } arg_t;
 
-void *insert_random(BPTree *bpt, void *arg) {
+void *delete_random(BPTree *bpt, void *arg) {
     arg_t *arg_cast = (arg_t *)arg;
     unsigned char tid = arg_cast->tid;
-    KeyValuePair kv;
+    Key key = 1;
     unsigned int seed = arg_cast->seed;
     unsigned int loop = arg_cast->loop;
-    kv.key = 1;
-    kv.value = 1;
     for (int i = 1; i <= loop; i++) {
-        kv.key = rand_r(&seed) % max_val + 1;
-        // printf("inserting %ld\n", kv.key);
-        if (!insert(bpt, kv, tid)) {
-            // fprintf(stderr, "insert: failure\n");
-        }
+        key = rand_r(&seed) % max_val + 1;
+        delete(bpt, key, tid);
         // showTree(bpt);
     }
 #ifdef TIME_PART
@@ -75,6 +70,7 @@ int main(int argc, char *argv[]) {
 	kv.key = rand_r(&seed) % max_val + 1;
         insert(bpt, kv, 0);
     }
+    // showTree(bpt, 0);
 
     tid_array = (pthread_t *)malloc(sizeof(pthread_t) * thread_max);
 
@@ -86,13 +82,13 @@ int main(int argc, char *argv[]) {
         arg->seed = i;
 	arg->tid = i % 256 + 1;
 	arg->loop = loop_times / thread_max;
-        tid_array[i] = bptreeCreateThread(bpt, insert_random, arg);
+        tid_array[i] = bptreeCreateThread(bpt, delete_random, arg);
     }
     arg = (arg_t *)malloc(sizeof(int));
     arg->seed = i;
     arg->tid = i % 256 + 1;
     arg->loop = loop_times / thread_max + loop_times % thread_max;
-    tid_array[i] = bptreeCreateThread(bpt, insert_random, arg);
+    tid_array[i] = bptreeCreateThread(bpt, delete_random, arg);
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
     bptreeStartThread();

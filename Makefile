@@ -8,7 +8,7 @@ ALLOCATOR=-DMT_ALLOCATOR
 
 
 CC=gcc
-CFLAGS=-O0 -g -march=native -pthread -I$(ROOT_DIR)/includes/ $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(ALLOCATOR)
+CFLAGS=-O0 -g -march=native -pthread -I$(ROOT_DIR)/includes/ $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(ALLOCATOR) $(TIME_PART)
 
 # FPTREE_SRC=fptree_concurrent.c
 FPTREE_OBJ=$(FPTREE_SRC:%.c=%.o)

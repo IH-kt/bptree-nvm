@@ -14,7 +14,7 @@
 #  include <immintrin.h>
 #  include <sched.h>
 #  define XABORT_STAT 0
-#  define RETRY_NUM 5 // times of retry RTM. < 32
+#  define RETRY_NUM 20 // times of retry RTM. < 32
 // #  define LOOP_RETRY_NUM 10 // times of retry GET_LOCK_LOOP
 #  define TRANSACTION 1
 #  define LOCK 0
@@ -29,13 +29,13 @@ extern PAddr PADDR_NULL;
 #  endif
 #endif
 
-// #define MIN_KEY 124
-#define MIN_KEY 3
+#define MIN_KEY 124
+// #define MIN_KEY 3
 #define MIN_DEG (MIN_KEY+1)
 #define MAX_KEY (2*MIN_KEY+1)
 #define MAX_DEG (MAX_KEY+1)
-// #define MAX_PAIR 45
-#define MAX_PAIR 4
+#define MAX_PAIR 45
+// #define MAX_PAIR 4
 #define BITMAP_SIZE ((MAX_PAIR/8)+1)
 
 /* definition of structs */
@@ -124,6 +124,10 @@ typedef struct KeyPositionPair KeyPositionPair;
 /* utils */
 unsigned char hash(Key);
 // char popcntcharsize(char);
+#ifdef TIME_PART
+void showTime(unsigned int);
+#include <time.h>
+#endif
 
 /* initializer */
 void initKeyValuePair(KeyValuePair *);
