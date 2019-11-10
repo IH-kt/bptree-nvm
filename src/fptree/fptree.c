@@ -160,7 +160,7 @@ int searchInInternal(InternalNode *node, Key target) {
     return i;
 }
 
-LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent) {
+LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent, unsigned char *retry_flag) {
     if (current->children[0] == NULL) {
         // empty tree
         return NULL;
@@ -176,7 +176,7 @@ LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent)
         return (LeafNode *)current->children[key_index];
     } else {
         current = current->children[key_index];
-        return findLeaf(current, target_key, parent);
+        return findLeaf(current, target_key, parent, NULL);
     }
 }
 
@@ -185,7 +185,7 @@ LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent)
  * otherwise, returns nodelist and index of target pair.
  * destroySearchResult should be called after use.
  */
-void search(BPTree *bpt, Key target_key, SearchResult *sr) {
+void search(BPTree *bpt, Key target_key, SearchResult *sr, unsigned char tid) {
     int i;
     initSearchResult(sr);
 
@@ -201,7 +201,7 @@ void search(BPTree *bpt, Key target_key, SearchResult *sr) {
     } else {
         // while (1) {
         // _xstart();
-        sr->node = findLeaf(bpt->root, target_key, NULL);
+        sr->node = findLeaf(bpt->root, target_key, NULL, NULL);
         sr->index = searchInLeaf(sr->node, target_key);
         // _xend();
         // }
@@ -367,7 +367,7 @@ void insertNonfullLeaf(LeafNode *node, KeyValuePair kv) {
     node->key_length++;
 }
 
-int insert(BPTree *bpt, KeyValuePair kv) {
+int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     if (bpt == NULL) {
         return 0;
     } else if (bpt->root->children[0] == NULL) {
@@ -382,7 +382,7 @@ int insert(BPTree *bpt, KeyValuePair kv) {
     InternalNode *parent;
     // while (1) {
     // _xbegin();
-    LeafNode *target_leaf = findLeaf(bpt->root, kv.key, &parent);
+    LeafNode *target_leaf = findLeaf(bpt->root, kv.key, &parent, NULL);
     if (searchInLeaf(target_leaf, kv.key) != -1) {
         // exist
         // _xend();
@@ -716,12 +716,12 @@ void removeFromParent(BPTree *bpt, InternalNode *parent, LeafNode *target_node, 
     }
 }
 
-int delete(BPTree *bpt, Key target_key) {
+int delete(BPTree *bpt, Key target_key, unsigned char tid) {
     SearchResult sr;
     InternalNode *parent;
     // while (aborted == true)
     // _xbegin();
-    LeafNode *target_leaf = findLeaf(bpt->root, target_key, &parent);
+    LeafNode *target_leaf = findLeaf(bpt->root, target_key, &parent, NULL);
     if (target_leaf == NULL) {
         return 0;
     }
@@ -820,7 +820,7 @@ void showInternalNode(InternalNode *node, int depth) {
     }
 }
 
-void showTree(BPTree *bpt) {
+void showTree(BPTree *bpt, unsigned char tid) {
     printf("leaf head:%p\n", bpt->head);
     showInternalNode((InternalNode *)bpt->root, 0);
 }

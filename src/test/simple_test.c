@@ -10,19 +10,19 @@ int main(int argc, char *argv[]) {
 
     kv.key = rand();
     printf("insert %ld\n", kv.key);
-    insert(bpt, kv);
+    insert(bpt, kv, 0);
 
     SearchResult sr;
-    showTree(bpt);
-    search(bpt, kv.key, &sr);
+    showTree(bpt, 0);
+    search(bpt, kv.key, &sr, 0);
     if (sr.index == -1) {
         printf("not found: %ld\n", kv.key);
     }
     printf("search: %ld => (%p, %d)\n", kv.key, sr.node, sr.index);
 
     printf("delete %ld\n", kv.key);
-    delete(bpt, kv.key);
+    delete(bpt, kv.key, 0);
 
-    showTree(bpt);
+    showTree(bpt, 0);
     return 0;
 }
