@@ -26,13 +26,13 @@
 #  include "allocator.h"
 #endif
 
-// #define MIN_KEY 124
-#define MIN_KEY 3
+#define MIN_KEY 124
+// #define MIN_KEY 3
 #define MIN_DEG (MIN_KEY+1)
 #define MAX_KEY (2*MIN_KEY+1)
 #define MAX_DEG (MAX_KEY+1)
-// #define MAX_PAIR 45
-#define MAX_PAIR 4
+#define MAX_PAIR 45
+// #define MAX_PAIR 4
 #define BITMAP_SIZE ((MAX_PAIR/8)+1)
 
 /* definition of structs */

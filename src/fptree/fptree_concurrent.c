@@ -47,6 +47,14 @@ void showTime(unsigned int tid) {
     }                                                         \
 }
 
+#ifdef TIME_PART
+#define TRANSACTION_SUCCESS() times_of_transaction++
+#define LOCK_SUCCESS() times_of_lock++
+#else
+#define TRANSACTION_SUCCESS()
+#define LOCK_SUCCESS()
+#endif
+
 #define TRANSACTION_EXECUTION_EXECUTE(tree, code, tid) {   \
     while (1) {                                            \
         if (method == TRANSACTION) {                       \
@@ -65,10 +73,10 @@ void showTime(unsigned int tid) {
             {code};                                        \
             if (method == TRANSACTION) {                   \
                 _xend();                                   \
-		times_of_transaction++;                    \
+		TRANSACTION_SUCCESS();                     \
             } else {                                       \
                 unlockBPTree(tree, tid);                   \
-		times_of_lock++;                           \
+		LOCK_SUCCESS();                            \
             }                                              \
             break;                                         \
         } else {                                           \
