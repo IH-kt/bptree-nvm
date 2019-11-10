@@ -67,18 +67,18 @@ int main(int argc, char *argv[]) {
     } else {
         fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d\n", warm_up, loop_times, max_val, thread_max);
     }
+    initAllocator("data", sizeof(LeafNode) * loop_times / MAX_PAIR * 2, thread_max);
+
+    bpt = newBPTree();
 
     kv.key = 1;
     kv.value = 1;
     unsigned int seed = thread_max;
     for (i = 0; i < warm_up; i++) {
 	kv.key = rand_r(&seed) % max_val + 1;
-        insert(bpt, kv, 0);
+        insert(bpt, kv, thread_max);
     }
     
-    initAllocator("data", sizeof(LeafNode) * loop_times / MAX_PAIR * 2, thread_max);
-
-    bpt = newBPTree();
 
     tid_array = (pthread_t *)malloc(sizeof(pthread_t) * thread_max);
 
