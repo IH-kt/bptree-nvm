@@ -102,9 +102,9 @@ int main(int argc, char *argv[]) {
     bptreeThreadInit(BPTREE_BLOCK);
     printf("init\n");
 
-    unsigned char tid1 = 0;
-    unsigned char tid2 = 1;
-    unsigned char tid3 = 2;
+    unsigned char tid1 = 1;
+    unsigned char tid2 = 2;
+    unsigned char tid3 = 3;
     tid[0] = bptreeCreateThread(bpt, insert_test, &tid1);
     tid[1] = bptreeCreateThread(bpt, search_test, &tid2);
     tid[2] = bptreeCreateThread(bpt, delete_test, &tid3);

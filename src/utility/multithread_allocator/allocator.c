@@ -247,6 +247,7 @@ void root_free(ppointer *root) {
 }
 
 ppointer pmem_allocate(size_t size, unsigned char tid) {
+    tid--;
     FreeNode *free_node;
     void *new_node;
     // assert (size == _tree_node_size);
@@ -278,6 +279,8 @@ ppointer pmem_allocate(size_t size, unsigned char tid) {
 }
 
 void pmem_free(ppointer node, unsigned char node_tid, unsigned char tid) {
+    node_tid--;
+    tid--;
     FreeNode *new_free = (FreeNode *)vmem_allocate(sizeof(FreeNode));
     new_free->node = getTransientAddr(node);
     while (!__sync_bool_compare_and_swap(&_pmem_memory_root->list_lock[tid][node_tid], 0, 1));
