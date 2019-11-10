@@ -3,7 +3,7 @@
 #include <time.h>
 
 int main(int argc, char *argv[]) {
-    BPTree *bpt = newBPTree();
+    BPTree *bpt;
     KeyValuePair kv;
     int loop_times = 40;
     int max_val = 1000;
@@ -21,6 +21,8 @@ int main(int argc, char *argv[]) {
     } else {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
+    initAllocator("data", sizeof(LeafNode) * loop_times / MAX_KEY * 2, 1);
+    bpt = newBPTree();
     kv.key = 1;
     kv.value = 1;
     srand((unsigned) time(NULL));
@@ -35,6 +37,7 @@ int main(int argc, char *argv[]) {
     }
 
     showTree(bpt, 0);
+    destroyAllocator();
 
     return 0;
 }

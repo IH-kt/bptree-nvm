@@ -24,6 +24,9 @@
 #  include "allocator_pmdk.h"
 #else
 #  include "allocator.h"
+#  ifdef MT_ALLOCATOR
+extern PAddr PADDR_NULL;
+#  endif
 #endif
 
 // #define MIN_KEY 124
@@ -87,6 +90,7 @@ struct PersistentLeafNode {
 };
 
 struct LeafNode {
+    unsigned char tid;
     struct PersistentLeafNode *pleaf;
     struct LeafNode *next;
     struct LeafNode *prev;
@@ -123,17 +127,17 @@ unsigned char hash(Key);
 
 /* initializer */
 void initKeyValuePair(KeyValuePair *);
-void initLeafNode(LeafNode *);
+void initLeafNode(LeafNode *, unsigned char);
 void initInternalNode(InternalNode *);
 void initBPTree(BPTree *, LeafNode *, InternalNode *, ppointer *);
 void initSearchResult(SearchResult *);
 
-LeafNode *newLeafNode();
-void destroyLeafNode(LeafNode *);
+LeafNode *newLeafNode(unsigned char);
+void destroyLeafNode(LeafNode *, unsigned char);
 InternalNode *newInternalNode();
 void destroyInternalNode(InternalNode *);
 BPTree *newBPTree();
-void destroyBPTree(BPTree *);
+void destroyBPTree(BPTree *, unsigned char);
 
 // int getLeafNodeLength(LeafNode *);
 int searchInLeaf(LeafNode *, Key);
@@ -143,7 +147,7 @@ void search(BPTree *, Key, SearchResult *, unsigned char);
 int findFirstAvailableSlot(LeafNode *);
 int compareKeyPositionPair(const void *, const void *);
 void findSplitKey(LeafNode *, Key *, char *);
-Key splitLeaf(LeafNode *, KeyValuePair);
+Key splitLeaf(LeafNode *, KeyValuePair, unsigned char);
 Key splitInternal(InternalNode *, InternalNode **, void *, Key);
 void insertNonfullInternal(InternalNode *, Key, void *);
 void insertNonfullLeaf(LeafNode *, KeyValuePair);

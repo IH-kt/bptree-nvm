@@ -31,9 +31,9 @@ void initKeyValuePair(KeyValuePair *pair) {
     pair->value = INITIAL_VALUE;
 }
 
-void initLeafNode(LeafNode *node) {
+void initLeafNode(LeafNode *node, unsigned char tid) {
     int i;
-    PersistentLeafNode *new_pleaf = (PersistentLeafNode *)pmem_allocate(sizeof(PersistentLeafNode));
+    PersistentLeafNode *new_pleaf = (PersistentLeafNode *)getTransientAddr(pmem_allocate(sizeof(PersistentLeafNode), tid));
     for (i = 0; i < BITMAP_SIZE; i++) {
         new_pleaf->header.bitmap[i] = 0;
     }
@@ -47,6 +47,7 @@ void initLeafNode(LeafNode *node) {
     node->next = NULL;
     node->prev = NULL;
     node->key_length = 0;
+    node->tid = tid;
 }
 
 void initInternalNode(InternalNode *node) {
@@ -80,13 +81,13 @@ void initSearchResult(SearchResult *sr) {
     sr->index = -1;
 }
 
-LeafNode *newLeafNode() {
+LeafNode *newLeafNode(unsigned char tid) {
     LeafNode *new = (LeafNode *)vmem_allocate(sizeof(LeafNode));
-    initLeafNode(new);
+    initLeafNode(new, 0);
     return new;
 }
-void destroyLeafNode(LeafNode *node) {
-    pmem_free(node);
+void destroyLeafNode(LeafNode *node, unsigned char tid) {
+    pmem_free(getPersistentAddr(node->pleaf), node->tid, tid);
 }
 
 InternalNode *newInternalNode() {
@@ -106,8 +107,8 @@ BPTree *newBPTree() {
     initBPTree(new, NULL, rootNode, pmem_head);
     return new;
 }
-void destroyBPTree(BPTree *tree) {
-    destroyLeafNode(tree->head);
+void destroyBPTree(BPTree *tree, unsigned char tid) {
+    destroyLeafNode(tree->head, tid);
     destroyInternalNode(tree->root);
     *tree->pmem_head = P_NULL;
     root_free(tree->pmem_head);
@@ -256,8 +257,8 @@ void findSplitKey(LeafNode *target, Key *split_key, char *bitmap) {
 #endif
 }
 
-Key splitLeaf(LeafNode *target, KeyValuePair newkv) {
-    LeafNode *new_leafnode = getTransientAddr(newLeafNode());
+Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid) {
+    LeafNode *new_leafnode = newLeafNode(tid);
     int i;
     Key split_key;
     char bitmap[BITMAP_SIZE];
@@ -284,7 +285,7 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv) {
 
     target->pleaf->header.pnext = getPersistentAddr(new_leafnode->pleaf);
 
-    persist(target->pleaf->header.pnext, sizeof(LeafNode *));
+    persist(getTransientAddr(target->pleaf->header.pnext), sizeof(LeafNode *));
 
     new_leafnode->next = target->next;
     new_leafnode->prev = target;
@@ -372,7 +373,7 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
         return 0;
     } else if (bpt->root->children[0] == NULL) {
         lockBPTree(bpt);
-        LeafNode *new_leaf = newLeafNode();
+        LeafNode *new_leaf = newLeafNode(tid);
         initBPTree(bpt, new_leaf, bpt->root, bpt->pmem_head);
         insertNonfullLeaf(new_leaf, kv);
         unlockBPTree(bpt);
@@ -397,7 +398,7 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     if (target_leaf->key_length < MAX_PAIR) {
         insertNonfullLeaf(target_leaf, kv);
     } else {
-        Key split_key = splitLeaf(target_leaf, kv);
+        Key split_key = splitLeaf(target_leaf, kv, tid);
         LeafNode *new_leaf = target_leaf->next;
         // _xbegin();
         insertParent(bpt, parent, split_key, new_leaf, target_leaf);
@@ -467,7 +468,7 @@ int insertRecursive(InternalNode *current, Key new_key, LeafNode *new_node, Key 
     }
 }
 
-void deleteLeaf(BPTree *bpt, LeafNode *current) {
+void deleteLeaf(BPTree *bpt, LeafNode *current, unsigned char tid) {
     if (current->prev == NULL) {
         bpt->head = current->next;
         *bpt->pmem_head = current->pleaf->header.pnext;
@@ -479,7 +480,7 @@ void deleteLeaf(BPTree *bpt, LeafNode *current) {
     if (current->next != NULL) {
         current->next->prev = current->prev;
     }
-    destroyLeafNode(current);
+    destroyLeafNode(current, tid);
 }
 
 InternalNode *collapseRoot(InternalNode *oldroot) {
@@ -730,7 +731,7 @@ int delete(BPTree *bpt, Key target_key, unsigned char tid) {
             if (target_leaf->prev != NULL) {
                 if (lockLeaf(target_leaf->prev)) {
                     // _xend();
-                    deleteLeaf(bpt, target_leaf);
+                    deleteLeaf(bpt, target_leaf, tid);
                     // _xbegin();
                     removeFromParent(bpt, parent, target_leaf, target_key);
                     // _xend();
@@ -740,7 +741,7 @@ int delete(BPTree *bpt, Key target_key, unsigned char tid) {
                 }
             } else {
                 // _xend();
-                deleteLeaf(bpt, target_leaf);
+                deleteLeaf(bpt, target_leaf, tid);
                 // _xbegin();
                 removeFromParent(bpt, parent, target_leaf, target_key);
                 // _xend();

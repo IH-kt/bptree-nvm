@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
+    initAllocator("data", sizeof(LeafNode), 1);
     BPTree *bpt = newBPTree();
     KeyValuePair kv;
     kv.key = 1;
@@ -24,5 +25,6 @@ int main(int argc, char *argv[]) {
     delete(bpt, kv.key, 0);
 
     showTree(bpt, 0);
+    destroyAllocator();
     return 0;
 }
