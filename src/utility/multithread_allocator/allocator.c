@@ -208,6 +208,8 @@ int initAllocator(const char *path, size_t pmem_size, unsigned char thread_num) 
 
     _number_of_thread = thread_num;
 
+    // printf("mmapped = %p to %p\n", _pmem_mmap_head, _pmem_mmap_head + _pmem_mmap_size);
+
 
     return 0;
 }
@@ -262,7 +264,8 @@ ppointer pmem_allocate(size_t size, unsigned char tid) {
         for (i = 0; i < _number_of_thread; i++) {
             if (_pmem_memory_root->local_free_list_tail_ary[i][tid] != NULL &&
                 _pmem_memory_root->local_free_list_tail_ary[i][tid] != _pmem_memory_root->local_free_list_head_ary[i][tid]) {
-                while (!__sync_bool_compare_and_swap(&_pmem_memory_root->list_lock[i][tid], 0, 1));
+                while (!__sync_bool_compare_and_swap(&_pmem_memory_root->list_lock[i][tid], 0, 1))
+			_mm_pause();
                 free_node = getFromList(&_pmem_memory_root->local_free_list_head_ary[i][tid]);
                 _pmem_memory_root->list_lock[i][tid] = 0;
                 new_node = free_node->node;
@@ -271,7 +274,8 @@ ppointer pmem_allocate(size_t size, unsigned char tid) {
             }
         }
         if (i == _number_of_thread) {
-            while (!__sync_bool_compare_and_swap(&_pmem_memory_root->global_lock, 0, 1));
+            while (!__sync_bool_compare_and_swap(&_pmem_memory_root->global_lock, 0, 1))
+		    _mm_pause();
             new_node = getFromArea(&_pmem_memory_root->global_free_area_head, _tree_node_size);
             _pmem_memory_root->global_lock = 0;
         }
@@ -284,7 +288,8 @@ void pmem_free(ppointer node, unsigned char node_tid, unsigned char tid) {
     tid--;
     FreeNode *new_free = (FreeNode *)vmem_allocate(sizeof(FreeNode));
     new_free->node = getTransientAddr(node);
-    while (!__sync_bool_compare_and_swap(&_pmem_memory_root->list_lock[tid][node_tid], 0, 1));
+    while (!__sync_bool_compare_and_swap(&_pmem_memory_root->list_lock[tid][node_tid], 0, 1))
+	    _mm_pause();
     addToList(new_free, &_pmem_memory_root->local_free_list_head_ary[tid][node_tid], &_pmem_memory_root->local_free_list_tail_ary[tid][node_tid]);
     _pmem_memory_root->list_lock[tid][node_tid] = 0;
 }
