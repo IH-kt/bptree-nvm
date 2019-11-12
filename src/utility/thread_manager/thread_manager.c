@@ -32,8 +32,10 @@ void bptreeThreadInit(unsigned int flag) {
 
 void bptreeThreadDestroy() {
     if (sem != NULL) {
-        sem_destroy(sem);
-        vmem_free(sem);
+        // vmem_free(sem); ??
+        if (sem_destroy(sem) == -1) {
+	    perror("sem_destroy");
+	}
         sem = NULL;
     }
 }
@@ -65,7 +67,7 @@ void bptreeStartThread(void) {
 void bptreeWaitThread(pthread_t tid, void **retval) {
     void *container_v;
     pthread_join(tid, &container_v);
-    if (retval != NULL) {
+    if (retval != NULL && container_v != NULL) {
         *retval = ((BPTreeFunctionContainer *)container_v)->retval;
     }
     vmem_free(container_v);

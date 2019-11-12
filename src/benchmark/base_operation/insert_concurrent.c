@@ -36,6 +36,8 @@ void *insert_random(BPTree *bpt, void *arg) {
     return arg;
 }
 
+char *pmem_path = "./data";
+
 int main(int argc, char *argv[]) {
     pthread_t *tid_array;
     struct timespec stt, edt;
@@ -63,11 +65,12 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "invalid argument\n");
             return 1;
         }
-        fprintf(stderr, "warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d\n", warm_up, loop_times, max_val, thread_max);
+	pmem_path = argv[5];
+        fprintf(stderr, "warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path);
     } else {
-        fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d\n", warm_up, loop_times, max_val, thread_max);
+        fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path);
     }
-    initAllocator("data", sizeof(LeafNode) * loop_times / MAX_PAIR * 2, thread_max);
+    initAllocator(pmem_path, sizeof(PersistentLeafNode) * (warm_up + loop_times), thread_max);
 
     bpt = newBPTree();
 
@@ -84,30 +87,29 @@ int main(int argc, char *argv[]) {
 
     bptreeThreadInit(BPTREE_BLOCK);
 
-    arg_t *arg = NULL;
+    arg_t **arg = (arg_t **)malloc(sizeof(arg_t *) * (thread_max + 1));
     for (i = 0; i < thread_max; i++) {
-        arg = (arg_t *)malloc(sizeof(arg_t));
-        arg->seed = i;
-	arg->tid = i % 256 + 1;
-	arg->loop = loop_times / thread_max;
-        tid_array[i] = bptreeCreateThread(bpt, insert_random, arg);
+        arg[i] = (arg_t *)malloc(sizeof(arg_t));
+        arg[i]->seed = i;
+	arg[i]->tid = i % 256 + 1;
+	arg[i]->loop = loop_times / thread_max;
+        tid_array[i] = bptreeCreateThread(bpt, insert_random, arg[i]);
     }
-    arg = (arg_t *)malloc(sizeof(int));
-    arg->seed = i;
-    arg->tid = i % 256 + 1;
-    arg->loop = loop_times / thread_max + loop_times % thread_max;
-    tid_array[i] = bptreeCreateThread(bpt, insert_random, arg);
+    arg[i] = (arg_t *)malloc(sizeof(int));
+    arg[i]->seed = i;
+    arg[i]->tid = i % 256 + 1;
+    arg[i]->loop = loop_times / thread_max + loop_times % thread_max;
+    tid_array[i] = bptreeCreateThread(bpt, insert_random, arg[i]);
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
     bptreeStartThread();
 
     for (i = 0; i < thread_max; i++) {
-        bptreeWaitThread(tid_array[i], (void **)&arg);
-        free(arg);
+        bptreeWaitThread(tid_array[i], NULL);
+        free(arg[i]);
     }
     clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
 
-    bptreeThreadDestroy();
 
     fprintf(stderr, "finish running threads\n");
 
@@ -117,6 +119,10 @@ int main(int argc, char *argv[]) {
     printf("%lf\n", time);
 
     // showTree(bpt, 0);
+
+    bptreeThreadDestroy();
+
+    destroyAllocator();
 
     return 0;
 }

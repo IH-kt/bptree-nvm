@@ -31,13 +31,15 @@ void *delete_random(BPTree *bpt, void *arg) {
     return NULL;
 }
 
+char *pmem_path = "data";
+
 int main(int argc, char *argv[]) {
     pthread_t *tid_array;
     struct timespec stt, edt;
     int i;
     BPTree *bpt;
     KeyValuePair kv;
-    if (argc > 3) {
+    if (argc > 4) {
         warm_up = atoi(argv[1]);
         if (warm_up <= 0) {
             fprintf(stderr, "invalid argument\n");
@@ -58,12 +60,13 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "invalid argument\n");
             return 1;
         }
-        fprintf(stderr, "warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d\n", warm_up, loop_times, max_val, thread_max);
+	pmem_path = argv[5];
+        fprintf(stderr, "warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path);
     } else {
-        fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d\n", warm_up, loop_times, max_val, thread_max);
+        fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d\n, pmem_path = %s", warm_up, loop_times, max_val, thread_max, pmem_path);
     }
 
-    initAllocator("data", sizeof(LeafNode) * loop_times / MAX_PAIR * 2, thread_max);
+    initAllocator(pmem_path, sizeof(PersistentLeafNode) * loop_times / MAX_PAIR * 2, thread_max);
     bpt = newBPTree();
 
     kv.key = 1;
