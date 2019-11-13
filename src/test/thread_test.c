@@ -62,7 +62,7 @@ void *delete_test(BPTree *bpt, void *arg) {
     for (int i = 1; i <= loop_times; i++) {
         key = rand_r(&seed) % max_val + 1;
         printf("delete: target = %ld\n", key);
-        if (bptreeRemovebpt, key, tid)) {
+        if (bptreeRemove(bpt, key, tid)) {
             printf("delete: success\n");
         } else {
             printf("delete: failure\n");
