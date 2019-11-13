@@ -39,10 +39,10 @@ int destroyAllocator();
 ppointer recoverAllocator(ppointer (*)(ppointer));
 
 void *vol_mem_allocate(size_t);
-ppointer pmem_allocate(size_t, unsigned char tid);
+ppointer pst_mem_allocate(size_t, unsigned char tid);
 ppointer *root_allocate(size_t, size_t);
 void vol_mem_free(void *);
-void pmem_free(ppointer, unsigned char, unsigned char);
+void pst_mem_free(ppointer, unsigned char, unsigned char);
 void root_free(ppointer *);
 
 ppointer getPersistentAddr(void *);

@@ -126,7 +126,7 @@ void initKeyValuePair(KeyValuePair *pair) {
 
 void initLeafNode(LeafNode *node, unsigned char tid) {
     int i;
-    ppointer new_pleaf_p = pmem_allocate(sizeof(PersistentLeafNode), tid);
+    ppointer new_pleaf_p = pst_mem_allocate(sizeof(PersistentLeafNode), tid);
     PersistentLeafNode *new_pleaf = (PersistentLeafNode *)getTransientAddr(new_pleaf_p);
     NVHTM_begin();
     for (i = 0; i < BITMAP_SIZE; i++) {
@@ -189,7 +189,7 @@ LeafNode *newLeafNode(unsigned char tid) {
     return new;
 }
 void destroyLeafNode(LeafNode *node, unsigned char tid) {
-    pmem_free(getPersistentAddr(node->pleaf), node->tid, tid);
+    pst_mem_free(getPersistentAddr(node->pleaf), node->tid, tid);
 }
 
 InternalNode *newInternalNode() {

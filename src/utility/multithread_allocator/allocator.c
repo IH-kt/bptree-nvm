@@ -254,7 +254,7 @@ void root_free(ppointer *root) {
     vol_mem_free(root);
 }
 
-ppointer pmem_allocate(size_t size, unsigned char tid) {
+ppointer pst_mem_allocate(size_t size, unsigned char tid) {
     tid--;
     FreeNode *free_node;
     void *new_node;
@@ -288,7 +288,7 @@ ppointer pmem_allocate(size_t size, unsigned char tid) {
     return getPersistentAddr(new_node);
 }
 
-void pmem_free(ppointer node, unsigned char node_tid, unsigned char tid) {
+void pst_mem_free(ppointer node, unsigned char node_tid, unsigned char tid) {
     node_tid--;
     tid--;
     FreeNode *new_free = (FreeNode *)vol_mem_allocate(sizeof(FreeNode));
