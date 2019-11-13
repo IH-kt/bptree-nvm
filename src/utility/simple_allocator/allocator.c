@@ -4,7 +4,7 @@ int initAllocator(const char *fn, size_t root_size, unsigned char thread_num) { 
 int destroyAllocator() { return 0; }
 ppointer recoverAllocator(ppointer (*getNext)(ppointer)) { return NULL; }
 
-void *vmem_allocate(size_t size) {
+void *vol_mem_allocate(size_t size) {
     return malloc(size);
 }
 ppointer pmem_allocate(size_t size, unsigned char tid) {
@@ -14,7 +14,7 @@ ppointer *root_allocate(size_t size, size_t element_size) {
     return pmem_allocate(size, 0);
 }
 
-void vmem_free(void *p) {
+void vol_mem_free(void *p) {
     free(p);
 }
 void pmem_free(ppointer p, unsigned char node_tid, unsigned char tid) {

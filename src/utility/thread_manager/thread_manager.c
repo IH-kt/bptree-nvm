@@ -18,7 +18,7 @@ void bptreeThreadInit(unsigned int flag) {
     if (flag & BPTREE_BLOCK) {
         // init semaphore
         if (sem == NULL) {
-            sem = (sem_t *)vmem_allocate(sizeof(sem_t));
+            sem = (sem_t *)vol_mem_allocate(sizeof(sem_t));
             if (sem_init(sem, 0, 0) == -1) {
                 perror("sem_init");
                 exit(1);
@@ -32,7 +32,7 @@ void bptreeThreadInit(unsigned int flag) {
 
 void bptreeThreadDestroy() {
     if (sem != NULL) {
-        // vmem_free(sem); ??
+        // vol_mem_free(sem); ??
         if (sem_destroy(sem) == -1) {
 	    perror("sem_destroy");
 	}
@@ -42,7 +42,7 @@ void bptreeThreadDestroy() {
 
 pthread_t bptreeCreateThread(BPTree *bpt, void *(* thread_function)(BPTree *, void *), void *arg) {
     pthread_t tid;
-    BPTreeFunctionContainer *container = (BPTreeFunctionContainer *)vmem_allocate(sizeof(BPTreeFunctionContainer));
+    BPTreeFunctionContainer *container = (BPTreeFunctionContainer *)vol_mem_allocate(sizeof(BPTreeFunctionContainer));
     container->function = thread_function;
     container->bpt = bpt;
     container->sem = sem;
@@ -70,6 +70,6 @@ void bptreeWaitThread(pthread_t tid, void **retval) {
     if (retval != NULL && container_v != NULL) {
         *retval = ((BPTreeFunctionContainer *)container_v)->retval;
     }
-    vmem_free(container_v);
+    vol_mem_free(container_v);
     number_of_thread--;
 }

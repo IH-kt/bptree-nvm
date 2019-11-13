@@ -34,14 +34,14 @@ typedef void * ppointer;
 #  define V_NULL NULL
 #endif
 
-int initAllocator(const char *, size_t, unsigned char);
+int initAllocator(void *, const char *, size_t, unsigned char);
 int destroyAllocator();
 ppointer recoverAllocator(ppointer (*)(ppointer));
 
-void *vmem_allocate(size_t);
+void *vol_mem_allocate(size_t);
 ppointer pmem_allocate(size_t, unsigned char tid);
 ppointer *root_allocate(size_t, size_t);
-void vmem_free(void *);
+void vol_mem_free(void *);
 void pmem_free(ppointer, unsigned char, unsigned char);
 void root_free(ppointer *);
 

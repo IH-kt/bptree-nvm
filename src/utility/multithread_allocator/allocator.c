@@ -82,7 +82,7 @@ size_t addDefaultEmptyNode(FreeNode **head, FreeNode **tail, FreeNode *global_li
             // if recovery found free node
         } else {
             if (pmem_remain >= node_size) {
-                FreeNode *new = (FreeNode *)vmem_allocate(sizeof(FreeNode));
+                FreeNode *new = (FreeNode *)vol_mem_allocate(sizeof(FreeNode));
                 new->next = NULL;
                 new->node = getFromArea(free_head, node_size);
                 addToList(new, head, tail);
@@ -100,14 +100,14 @@ void initMemoryRoot(MemoryRoot *mr, unsigned char thread_num, void *head, size_t
     mr->global_free_area_head = head;
     mr->global_free_list_head = global_list_head;
     mr->remaining_amount = pmem_size;
-    mr->local_free_list_head_ary = (FreeNode ***)vmem_allocate(sizeof(FreeNode **) * thread_num);
-    mr->local_free_list_tail_ary = (FreeNode ***)vmem_allocate(sizeof(FreeNode **) * thread_num);
-    mr->list_lock = (unsigned char **)vmem_allocate(sizeof(unsigned char *) * thread_num);
+    mr->local_free_list_head_ary = (FreeNode ***)vol_mem_allocate(sizeof(FreeNode **) * thread_num);
+    mr->local_free_list_tail_ary = (FreeNode ***)vol_mem_allocate(sizeof(FreeNode **) * thread_num);
+    mr->list_lock = (unsigned char **)vol_mem_allocate(sizeof(unsigned char *) * thread_num);
     int i, j;
     for (i = 0; i < thread_num; i++) {
-        mr->local_free_list_head_ary[i] = (FreeNode **)vmem_allocate(sizeof(FreeNode *) * thread_num);
-        mr->local_free_list_tail_ary[i] = (FreeNode **)vmem_allocate(sizeof(FreeNode *) * thread_num);
-        mr->list_lock[i] = (unsigned char *)vmem_allocate(sizeof(unsigned char) * thread_num);
+        mr->local_free_list_head_ary[i] = (FreeNode **)vol_mem_allocate(sizeof(FreeNode *) * thread_num);
+        mr->local_free_list_tail_ary[i] = (FreeNode **)vol_mem_allocate(sizeof(FreeNode *) * thread_num);
+        mr->list_lock[i] = (unsigned char *)vol_mem_allocate(sizeof(unsigned char) * thread_num);
         for (j = 0; j < thread_num; j++) {
             mr->local_free_list_head_ary[i][j] = NULL;
             mr->local_free_list_tail_ary[i][j] = NULL;
@@ -123,13 +123,13 @@ void destroyMemoryRoot(MemoryRoot *mr) {
     // TODO: need to traverse free list
     int i;
     for (i = 0; i < _number_of_thread; i++) {
-        vmem_free(mr->local_free_list_head_ary[i]);
-        vmem_free(mr->local_free_list_tail_ary[i]);
-        vmem_free(mr->list_lock[i]);
+        vol_mem_free(mr->local_free_list_head_ary[i]);
+        vol_mem_free(mr->local_free_list_tail_ary[i]);
+        vol_mem_free(mr->list_lock[i]);
     }
-    vmem_free(mr->local_free_list_head_ary);
-    vmem_free(mr->local_free_list_tail_ary);
-    vmem_free(mr->list_lock);
+    vol_mem_free(mr->local_free_list_head_ary);
+    vol_mem_free(mr->local_free_list_tail_ary);
+    vol_mem_free(mr->list_lock);
 }
 
 int comparePAddr(PAddr a, PAddr b) {
@@ -155,7 +155,17 @@ void *getTransientAddr(ppointer paddr) {
     }
 }
 
-int initAllocator(const char *path, size_t pmem_size, unsigned char thread_num) {
+int initAllocator(void *existing_p, const char *path, size_t pmem_size, unsigned char thread_num) {
+    _number_of_thread = thread_num;
+
+    if (existing_p != NULL) {
+        _pmem_mmap_head = existing_p;
+        _pmem_mmap_size = pmem_size;
+        _pmem_user_head = _pmem_mmap_head + sizeof(AllocatorHeader);
+        _pmem_user_size = pmem_size - sizeof(AllocatorHeader);
+        return 0;
+    }
+
     struct stat fi;
     int err;
     int fd = open(path, O_RDWR);
@@ -206,11 +216,6 @@ int initAllocator(const char *path, size_t pmem_size, unsigned char thread_num) 
         return -1;
     }
 
-    _number_of_thread = thread_num;
-
-    // printf("mmapped = %p to %p\n", _pmem_mmap_head, _pmem_mmap_head + _pmem_mmap_size);
-
-
     return 0;
 }
 
@@ -233,20 +238,20 @@ ppointer *root_allocate(size_t size, size_t node_size) {
 #ifdef ALLOCTIME
     clock_gettime(CLOCK_MONOTONIC, &myalloc_start_time);
 #endif
-    _pmem_memory_root = (MemoryRoot *)vmem_allocate(sizeof(MemoryRoot));
+    _pmem_memory_root = (MemoryRoot *)vol_mem_allocate(sizeof(MemoryRoot));
     initMemoryRoot(_pmem_memory_root, _number_of_thread, _pmem_user_head + size, _pmem_user_size - size, node_size, NULL);
 #ifdef ALLOCTIME
     clock_gettime(CLOCK_MONOTONIC, &myalloc_finish_time);
     myalloc_allocate_time += (myalloc_finish_time.tv_sec - myalloc_start_time.tv_sec) * 1000000000L + (myalloc_finish_time.tv_nsec - myalloc_start_time.tv_nsec);
 #endif
     _tree_node_size = node_size;
-    ppointer *root_p = (ppointer *)vmem_allocate(sizeof(ppointer));
+    ppointer *root_p = (ppointer *)vol_mem_allocate(sizeof(ppointer));
     *root_p = getPersistentAddr(_pmem_user_head);
     return root_p;
 }
 
 void root_free(ppointer *root) {
-    vmem_free(root);
+    vol_mem_free(root);
 }
 
 ppointer pmem_allocate(size_t size, unsigned char tid) {
@@ -258,7 +263,7 @@ ppointer pmem_allocate(size_t size, unsigned char tid) {
         _pmem_memory_root->local_free_list_tail_ary[tid][tid] != _pmem_memory_root->local_free_list_head_ary[tid][tid]) {
         free_node = getFromList(&_pmem_memory_root->local_free_list_head_ary[tid][tid]);
         new_node = free_node->node;
-        vmem_free(free_node);
+        vol_mem_free(free_node);
     } else {
         int i;
         for (i = 0; i < _number_of_thread; i++) {
@@ -269,7 +274,7 @@ ppointer pmem_allocate(size_t size, unsigned char tid) {
                 free_node = getFromList(&_pmem_memory_root->local_free_list_head_ary[i][tid]);
                 _pmem_memory_root->list_lock[i][tid] = 0;
                 new_node = free_node->node;
-                vmem_free(free_node);
+                vol_mem_free(free_node);
                 break;
             }
         }
@@ -286,7 +291,7 @@ ppointer pmem_allocate(size_t size, unsigned char tid) {
 void pmem_free(ppointer node, unsigned char node_tid, unsigned char tid) {
     node_tid--;
     tid--;
-    FreeNode *new_free = (FreeNode *)vmem_allocate(sizeof(FreeNode));
+    FreeNode *new_free = (FreeNode *)vol_mem_allocate(sizeof(FreeNode));
     new_free->node = getTransientAddr(node);
     while (!__sync_bool_compare_and_swap(&_pmem_memory_root->list_lock[tid][node_tid], 0, 1))
 	    _mm_pause();
@@ -294,17 +299,17 @@ void pmem_free(ppointer node, unsigned char node_tid, unsigned char tid) {
     _pmem_memory_root->list_lock[tid][node_tid] = 0;
 }
 
-void *vmem_allocate(size_t size) {
+void *vol_mem_allocate(size_t size) {
     return malloc(size);
 }
 
-void vmem_free(void *p) {
+void vol_mem_free(void *p) {
     free(p);
 }
 
 int destroyAllocator() {
     destroyMemoryRoot(_pmem_memory_root);
-    vmem_free(_pmem_memory_root);
+    vol_mem_free(_pmem_memory_root);
 
 #ifdef ALLOCTIME
     printf("alloctime:%lld.%09lld\n", myalloc_allocate_time/1000000000L, myalloc_allocate_time%1000000000L);

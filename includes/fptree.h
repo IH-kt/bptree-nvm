@@ -1,5 +1,6 @@
 #ifndef FPTREE_H
 #define FPTREE_H
+#include "nv-htm_wrapper.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -56,6 +57,16 @@ typedef int Value;
 )
 #define CLR_BIT(bitmapaddr, index) (\
     bitmapaddr[index/8] &= ~(1 << ((index)%8)) \
+)
+
+#define GET_BIT_T(bitmapaddr, index) (\
+    (NVHTM_read(&bitmapaddr[index/8]) & (1 << ((index)%8))) >> (index)%8\
+)
+#define SET_BIT_T(bitmapaddr, index) (\
+    NVHTM_write(&bitmapaddr[index/8], NVHTM_read(&bitmapaddr[index/8]) | (1 << ((index)%8))) \
+)
+#define CLR_BIT_T(bitmapaddr, index) (\
+    NVHTM_write(&bitmapaddr[index/8], NVHTM_read(&bitmapaddr[index/8]) & ~(1 << ((index)%8))) \
 )
 
 /* structs */
@@ -151,7 +162,7 @@ void search(BPTree *, Key, SearchResult *, unsigned char);
 int findFirstAvailableSlot(LeafNode *);
 int compareKeyPositionPair(const void *, const void *);
 void findSplitKey(LeafNode *, Key *, char *);
-Key splitLeaf(LeafNode *, KeyValuePair, unsigned char);
+Key splitLeaf(LeafNode *, KeyValuePair, unsigned char, LeafNode *);
 Key splitInternal(InternalNode *, InternalNode **, void *, Key);
 void insertNonfullInternal(InternalNode *, Key, void *);
 void insertNonfullLeaf(LeafNode *, KeyValuePair);

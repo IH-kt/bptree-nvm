@@ -82,7 +82,7 @@ void initSearchResult(SearchResult *sr) {
 }
 
 LeafNode *newLeafNode(unsigned char tid) {
-    LeafNode *new = (LeafNode *)vmem_allocate(sizeof(LeafNode));
+    LeafNode *new = (LeafNode *)vol_mem_allocate(sizeof(LeafNode));
     initLeafNode(new, 0);
     return new;
 }
@@ -91,17 +91,17 @@ void destroyLeafNode(LeafNode *node, unsigned char tid) {
 }
 
 InternalNode *newInternalNode() {
-    InternalNode *new = (InternalNode *)vmem_allocate(sizeof(InternalNode));
+    InternalNode *new = (InternalNode *)vol_mem_allocate(sizeof(InternalNode));
     initInternalNode(new);
     return new;
 }
 void destroyInternalNode(InternalNode *node) {
-    vmem_free(node);
+    vol_mem_free(node);
 }
 
 BPTree *newBPTree() {
     ppointer *pmem_head = root_allocate(sizeof(ppointer), sizeof(PersistentLeafNode));
-    BPTree *new = (BPTree *)vmem_allocate(sizeof(BPTree));
+    BPTree *new = (BPTree *)vol_mem_allocate(sizeof(BPTree));
     InternalNode *rootNode = newInternalNode();
     // LeafNode *leafHead = newLeafNode();
     initBPTree(new, NULL, rootNode, pmem_head);
@@ -112,7 +112,7 @@ void destroyBPTree(BPTree *tree, unsigned char tid) {
     destroyInternalNode(tree->root);
     *tree->pmem_head = P_NULL;
     root_free(tree->pmem_head);
-    vmem_free(tree);
+    vol_mem_free(tree);
 }
 
 int lockLeaf(LeafNode *target) {
@@ -257,8 +257,10 @@ void findSplitKey(LeafNode *target, Key *split_key, char *bitmap) {
 #endif
 }
 
-Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid) {
-    LeafNode *new_leafnode = newLeafNode(tid);
+Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode *new_leafnode) {
+    if (new_leafnode == NULL) {
+        new_leafnode = newLeafNode(tid);
+    }
     int i;
     Key split_key;
     char bitmap[BITMAP_SIZE];
