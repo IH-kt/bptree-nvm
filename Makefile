@@ -13,7 +13,7 @@ PMDK_LIBS=-L$(PMDK_DIR)/lib -lpmem
 include $(ROOT_DIR)/Makefile_nvhtm.inc
 
 CC=gcc
-CFLAGS=-O0 -g -march=native -pthread -I$(ROOT_DIR)/includes/ $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(ALLOCATOR) $(TIME_PART)
+CFLAGS=-O0 -g -march=native -pthread -I$(ROOT_DIR)/includes/ $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(ALLOCATOR) $(TIME_PART) $(NVHTM_CFLAGS)
 
 # FPTREE_SRC=fptree_concurrent.c
 FPTREE_OBJ=$(FPTREE_SRC:%.c=%.o)
