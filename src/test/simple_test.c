@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     printf("search: %ld => (%p, %d)\n", kv.key, sr.node, sr.index);
 
     printf("delete %ld\n", kv.key);
-    delete(bpt, kv.key, 0);
+    bptreeRemovebpt, kv.key, 0);
 
     showTree(bpt, 0);
     destroyAllocator();

@@ -1,5 +1,8 @@
 #ifndef FPTREE_H
 #define FPTREE_H
+#  ifdef __cplusplus
+extern "C" {
+#  endif
 #include "nv-htm_wrapper.h"
 
 #include <stdlib.h>
@@ -59,15 +62,17 @@ typedef int Value;
     bitmapaddr[index/8] &= ~(1 << ((index)%8)) \
 )
 
-#define GET_BIT_T(bitmapaddr, index) (\
-    (NVHTM_read(&bitmapaddr[index/8]) & (1 << ((index)%8))) >> (index)%8\
+#ifdef NVHTM
+#  define GET_BIT_T(bitmapaddr, index) (\
+    (NVM_read(&bitmapaddr[index/8]) & (1 << ((index)%8))) >> (index)%8\
 )
-#define SET_BIT_T(bitmapaddr, index) (\
-    NVHTM_write(&bitmapaddr[index/8], NVHTM_read(&bitmapaddr[index/8]) | (1 << ((index)%8))) \
+#  define SET_BIT_T(bitmapaddr, index) (\
+    NVM_write(&bitmapaddr[index/8], NVM_read(&bitmapaddr[index/8]) | (1 << ((index)%8))) \
 )
-#define CLR_BIT_T(bitmapaddr, index) (\
-    NVHTM_write(&bitmapaddr[index/8], NVHTM_read(&bitmapaddr[index/8]) & ~(1 << ((index)%8))) \
+#  define CLR_BIT_T(bitmapaddr, index) (\
+    NVM_write(&bitmapaddr[index/8], NVM_read(&bitmapaddr[index/8]) & ~(1 << ((index)%8))) \
 )
+#endif
 
 /* structs */
 typedef struct KeyValuePair {
@@ -177,10 +182,13 @@ int insertRecursive(InternalNode *, Key, LeafNode *, Key *, InternalNode **);
 // InternalNode *merge(InternalNode *, InternalNode *, InternalNode *, char);
 // void *rebalance(BPTree *, void *, void *, void *, void *, void *, void *, void **);
 // void *findRebalance(BPTree *, void *, void *, void *, void *, void *, void *, Key, void **);
-int delete(BPTree *, Key, unsigned char);
+int bptreeRemove(BPTree *, Key, unsigned char);
 // 
 /* debug function */
 void showLeafNode(LeafNode *, int);
 void showInternalNode(InternalNode *, int);
 void showTree(BPTree *, unsigned char);
+#  ifdef __cplusplus
+};
+#  endif
 #endif

@@ -22,7 +22,7 @@ void *delete_random(BPTree *bpt, void *arg) {
     unsigned int loop = arg_cast->loop;
     for (int i = 1; i <= loop; i++) {
         key = rand_r(&seed) % max_val + 1;
-        delete(bpt, key, tid);
+        bptreeRemove(bpt, key, tid);
         // showTree(bpt);
     }
 #ifdef TIME_PART
@@ -31,7 +31,7 @@ void *delete_random(BPTree *bpt, void *arg) {
     return NULL;
 }
 
-char *pmem_path = "data";
+char const *pmem_path = "data";
 
 int main(int argc, char *argv[]) {
     pthread_t *tid_array;
@@ -66,7 +66,10 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d\n, pmem_path = %s", warm_up, loop_times, max_val, thread_max, pmem_path);
     }
 
-    initAllocator(pmem_path, sizeof(PersistentLeafNode) * loop_times / MAX_PAIR * 2, thread_max);
+#ifdef NVHTM
+#else
+    initAllocator(NULL, pmem_path, sizeof(PersistentLeafNode) * loop_times / MAX_PAIR * 2, thread_max);
+#endif
     bpt = newBPTree();
 
     kv.key = 1;

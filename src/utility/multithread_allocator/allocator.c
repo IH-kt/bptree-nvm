@@ -1,4 +1,7 @@
 #include "allocator.h"
+#ifdef NVHTM
+#  include "nvhtm.h"
+#endif
 
 PAddr PADDR_NULL = { 0, 0 };
 
@@ -46,6 +49,7 @@ size_t _pmem_user_size = 0;
 int _number_of_thread = -1;
 MemoryRoot *_pmem_memory_root = NULL;
 size_t _tree_node_size = 0;
+unsigned char _initialized_by_others = 0;
 
 void *getFromArea(void **head, size_t node_size) {
     // while(!__sync_bool_compare_and_swap(&lock, 0, 1));
@@ -159,6 +163,7 @@ int initAllocator(void *existing_p, const char *path, size_t pmem_size, unsigned
     _number_of_thread = thread_num;
 
     if (existing_p != NULL) {
+        _initialized_by_others = 1;
         _pmem_mmap_head = existing_p;
         _pmem_mmap_size = pmem_size;
         _pmem_user_head = _pmem_mmap_head + sizeof(AllocatorHeader);
@@ -247,6 +252,18 @@ ppointer *root_allocate(size_t size, size_t node_size) {
     _tree_node_size = node_size;
     ppointer *root_p = (ppointer *)vol_mem_allocate(sizeof(ppointer));
     *root_p = getPersistentAddr(_pmem_user_head);
+#ifdef NVHTM
+    NH_begin();
+    if (comparePAddr(PADDR_NULL, NH_read((PAddr *)_pmem_mmap_head))) {
+        NH_write(&((PAddr *)_pmem_mmap_head)->fid, getPersistentAddr(_pmem_user_head).fid);
+        NH_write(&((PAddr *)_pmem_mmap_head)->offset, getPersistentAddr(_pmem_user_head).offset);
+    }
+    NH_commit();
+#else
+    if (comparePAddr(PADDR_NULL, *(PAddr *)_pmem_mmap_head)) {
+        *(PAddr *)_pmem_mmap_head = getPersistentAddr(_pmem_user_head);
+    }
+#endif
     return root_p;
 }
 
@@ -270,7 +287,7 @@ ppointer pst_mem_allocate(size_t size, unsigned char tid) {
             if (_pmem_memory_root->local_free_list_tail_ary[i][tid] != NULL &&
                 _pmem_memory_root->local_free_list_tail_ary[i][tid] != _pmem_memory_root->local_free_list_head_ary[i][tid]) {
                 while (!__sync_bool_compare_and_swap(&_pmem_memory_root->list_lock[i][tid], 0, 1))
-			_mm_pause();
+                    _mm_pause();
                 free_node = getFromList(&_pmem_memory_root->local_free_list_head_ary[i][tid]);
                 _pmem_memory_root->list_lock[i][tid] = 0;
                 new_node = free_node->node;
@@ -280,7 +297,7 @@ ppointer pst_mem_allocate(size_t size, unsigned char tid) {
         }
         if (i == _number_of_thread) {
             while (!__sync_bool_compare_and_swap(&_pmem_memory_root->global_lock, 0, 1))
-		    _mm_pause();
+                _mm_pause();
             new_node = getFromArea(&_pmem_memory_root->global_free_area_head, _tree_node_size);
             _pmem_memory_root->global_lock = 0;
         }
@@ -316,10 +333,12 @@ int destroyAllocator() {
     printf("persisttime:%lld.%09lld\n", myalloc_persist_time/1000000000L, myalloc_persist_time%1000000000L);
 #endif
 
-    int err = munmap(_pmem_mmap_head, _pmem_mmap_size);
-    if (err == -1) {
-        perror("munmap");
-        return -1;
+    if (!_initialized_by_others) {
+        int err = munmap(_pmem_mmap_head, _pmem_mmap_size);
+        if (err == -1) {
+            perror("munmap");
+            return -1;
+        }
     }
     return 0;
 }

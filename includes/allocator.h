@@ -1,5 +1,8 @@
 #ifndef H_ALLOC
 #define H_ALLOC
+#  ifdef __cplusplus
+extern "C" {
+#  endif
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -47,4 +50,8 @@ void root_free(ppointer *);
 
 ppointer getPersistentAddr(void *);
 void *getTransientAddr(ppointer);
+
+#  ifdef __cplusplus
+};
+#  endif
 #endif

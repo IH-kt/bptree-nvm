@@ -36,7 +36,7 @@ void *insert_random(BPTree *bpt, void *arg) {
     return arg;
 }
 
-char *pmem_path = "./data";
+char const *pmem_path = "data";
 
 int main(int argc, char *argv[]) {
     pthread_t *tid_array;
@@ -70,7 +70,10 @@ int main(int argc, char *argv[]) {
     } else {
         fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path);
     }
-    initAllocator(pmem_path, sizeof(PersistentLeafNode) * (warm_up + loop_times), thread_max);
+#ifdef NVHTM
+#else
+    initAllocator(NULL, pmem_path, sizeof(PersistentLeafNode) * (warm_up + loop_times), thread_max);
+#endif
 
     bpt = newBPTree();
 

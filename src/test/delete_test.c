@@ -21,7 +21,10 @@ int main(int argc, char *argv[]) {
     } else {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
-    initAllocator("data", sizeof(LeafNode) * loop_times / MAX_KEY * 2, 1);
+#ifdef NVHTM
+#else
+    initAllocator(NULL, "data", sizeof(LeafNode) * loop_times / MAX_KEY * 2, 1);
+#endif
     bpt = newBPTree();
     kv.key = 1;
     kv.value = 1;
@@ -38,7 +41,7 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
         printf("delete %ld\n", kv.key);
-        if (delete(bpt, kv.key, 0)) {
+        if (bptreeRemovebpt, kv.key, 0)) {
             printf("success\n");
         } else {
             printf("failure\n");

@@ -719,7 +719,7 @@ void removeFromParent(BPTree *bpt, InternalNode *parent, LeafNode *target_node, 
     }
 }
 
-int delete(BPTree *bpt, Key target_key, unsigned char tid) {
+int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
     SearchResult sr;
     InternalNode *parent;
     // while (aborted == true)
