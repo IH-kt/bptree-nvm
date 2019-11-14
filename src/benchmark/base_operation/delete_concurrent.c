@@ -1,3 +1,6 @@
+#ifdef NVHTM
+#  include "nvhtm.h"
+#endif
 #include "fptree.h"
 #include "thread_manager.h"
 #include <stdlib.h>
@@ -15,6 +18,9 @@ typedef struct arg_t {
 } arg_t;
 
 void *delete_random(BPTree *bpt, void *arg) {
+#ifdef NVHTM
+    NVHTM_thr_init();
+#endif
     arg_t *arg_cast = (arg_t *)arg;
     unsigned char tid = arg_cast->tid;
     Key key = 1;
@@ -27,6 +33,9 @@ void *delete_random(BPTree *bpt, void *arg) {
     }
 #ifdef TIME_PART
     showTime(tid);
+#endif
+#ifdef NVHTM
+    NVHTM_thr_exit();
 #endif
     return NULL;
 }
@@ -66,9 +75,14 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d\n, pmem_path = %s", warm_up, loop_times, max_val, thread_max, pmem_path);
     }
 
+    size_t allocation_size = sizeof(PersistentLeafNode) * loop_times / MAX_PAIR * 2;
 #ifdef NVHTM
+    NVHTM_init(thread_max);
+    void *pool = NH_alloc(allocation_size);
+    initAllocator(pool, pmem_path, allocation_size, thread_max);
+    NVHTM_clear();
 #else
-    initAllocator(NULL, pmem_path, sizeof(PersistentLeafNode) * loop_times / MAX_PAIR * 2, thread_max);
+    initAllocator(NULL, pmem_path, allocation_size, thread_max);
 #endif
     bpt = newBPTree();
 
@@ -80,6 +94,9 @@ int main(int argc, char *argv[]) {
         insert(bpt, kv, thread_max);
     }
     // showTree(bpt, 0);
+#ifdef NVHTM
+    NVHTM_cpy_to_checkpoint(pool);
+#endif
 
     tid_array = (pthread_t *)malloc(sizeof(pthread_t) * thread_max);
 
@@ -89,8 +106,8 @@ int main(int argc, char *argv[]) {
     for (i = 0; i < thread_max-1; i++) {
         arg = (arg_t *)malloc(sizeof(int));
         arg->seed = i;
-	arg->tid = i % 256 + 1;
-	arg->loop = loop_times / thread_max;
+        arg->tid = i % 256 + 1;
+        arg->loop = loop_times / thread_max;
         tid_array[i] = bptreeCreateThread(bpt, delete_random, arg);
     }
     arg = (arg_t *)malloc(sizeof(int));
@@ -110,12 +127,18 @@ int main(int argc, char *argv[]) {
 
     bptreeThreadDestroy();
 
+    destroyAllocator();
+
     fprintf(stderr, "finish running threads\n");
 
     double time = edt.tv_nsec - stt.tv_nsec;
     time /= 1000000000;
     time += edt.tv_sec - stt.tv_sec;
     printf("%lf\n", time);
+
+#ifdef NVHTM
+    NVHTM_shutdown();
+#endif
 
     // showTree(bpt, 0);
 

@@ -5,6 +5,8 @@
 
 #define SEED_INIT_VAL 0
 
+#define ROUND_UP_M(val) (((val) & 0xfffff) != 0) ? (((val) & !(0x000fffff)) + 0x100000) : (val)
+
 int loop_times = 40;
 int max_val = 1000;
 
@@ -12,6 +14,7 @@ void *insert_test(BPTree *bpt, void *arg) {
     unsigned char tid = *(unsigned char *) arg;
     KeyValuePair kv;
     unsigned int seed = SEED_INIT_VAL;
+    NVHTM_thr_init();
     kv.key = 1;
     kv.value = 1;
     for (int i = 1; i <= loop_times; i++) {
@@ -26,6 +29,7 @@ void *insert_test(BPTree *bpt, void *arg) {
     printf("insert: tree state -----------------------------\n");
     showTree(bpt, tid);
     printf("------------------------------------------------\n");
+    NVHTM_thr_exit();
     return NULL;
 }
 
@@ -34,6 +38,7 @@ void *search_test(BPTree *bpt, void *arg) {
     Key key = 1;
     unsigned int seed = SEED_INIT_VAL;
     struct timespec wait_time;
+    NVHTM_thr_init();
     wait_time.tv_sec = 0;
     wait_time.tv_nsec = 10;
     SearchResult sr;
@@ -51,6 +56,7 @@ void *search_test(BPTree *bpt, void *arg) {
     printf("search: tree state -----------------------------\n");
     showTree(bpt, tid);
     printf("------------------------------------------------\n");
+    NVHTM_thr_exit();
     return NULL;
 }
 
@@ -58,6 +64,7 @@ void *delete_test(BPTree *bpt, void *arg) {
     Key key;
     unsigned int seed = SEED_INIT_VAL;
     unsigned char tid = *(unsigned char *) arg;
+    NVHTM_thr_init();
     key = 1;
     for (int i = 1; i <= loop_times; i++) {
         key = rand_r(&seed) % max_val + 1;
@@ -71,6 +78,7 @@ void *delete_test(BPTree *bpt, void *arg) {
     printf("delete: tree state -----------------------------\n");
     showTree(bpt, tid);
     printf("------------------------------------------------\n");
+    NVHTM_thr_exit();
     return NULL;
 }
 
@@ -93,7 +101,20 @@ int main(int argc, char *argv[]) {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
 
-    initAllocator(NULL, "data", sizeof(LeafNode) * loop_times / MAX_KEY * 2, 3);
+    NVHTM_init(3);
+    printf("%d -> %d\n", 1, ROUND_UP_M(1));
+
+    size_t pool_sz = sizeof(PersistentLeafNode) * loop_times / MAX_KEY * 2 + 100;
+    pool_sz = ROUND_UP_M(pool_sz);
+    printf("pool_sz=%lu\n", pool_sz);
+    void *pool = NH_alloc(pool_sz);
+    printf("pool:%p -> %p (%lu)\n", pool, (char *)pool + pool_sz, pool_sz);
+
+    NVHTM_clear();
+
+    NVHTM_cpy_to_checkpoint(pool);
+
+    initAllocator(NULL, "data", pool_sz, 3);
 
     bpt = newBPTree();
 
@@ -125,6 +146,8 @@ int main(int argc, char *argv[]) {
     showTree(bpt, 0);
 
     destroyAllocator();
+
+    NVHTM_shutdown();
 
     return 0;
 }

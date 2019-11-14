@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
-    initAllocator("data", sizeof(LeafNode), 1);
+    initAllocator(NULL, "data", sizeof(LeafNode), 1);
     BPTree *bpt = newBPTree();
     KeyValuePair kv;
     kv.key = 1;

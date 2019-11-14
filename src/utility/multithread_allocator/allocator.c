@@ -12,7 +12,7 @@ long long allocate_time = 0;
 long long persist_time = 0;
 #endif
 
-#define DEFAULT_NODE_NUM 3 // デフォルトでフリーリストに入っている数
+#define DEFAULT_NODE_NUM 0 // デフォルトでフリーリストに入っている数
 
 typedef struct AllocatorHeader {
     PAddr node_head;
@@ -101,6 +101,7 @@ size_t addDefaultEmptyNode(FreeNode **head, FreeNode **tail, FreeNode *global_li
 }
 
 void initMemoryRoot(MemoryRoot *mr, unsigned char thread_num, void *head, size_t pmem_size, size_t node_size, FreeNode *global_list_head) {
+    mr->global_lock = 0;
     mr->global_free_area_head = head;
     mr->global_free_list_head = global_list_head;
     mr->remaining_amount = pmem_size;
@@ -252,18 +253,16 @@ ppointer *root_allocate(size_t size, size_t node_size) {
     _tree_node_size = node_size;
     ppointer *root_p = (ppointer *)vol_mem_allocate(sizeof(ppointer));
     *root_p = getPersistentAddr(_pmem_user_head);
-#ifdef NVHTM
     NH_begin();
     if (comparePAddr(PADDR_NULL, NH_read((PAddr *)_pmem_mmap_head))) {
-        NH_write(&((PAddr *)_pmem_mmap_head)->fid, getPersistentAddr(_pmem_user_head).fid);
-        NH_write(&((PAddr *)_pmem_mmap_head)->offset, getPersistentAddr(_pmem_user_head).offset);
+        NH_write(&((PAddr *)_pmem_mmap_head)->fid, getPersistentAddr(((PAddr *)_pmem_user_head)).fid);
+        NH_write(&((PAddr *)_pmem_mmap_head)->offset, getPersistentAddr(((PAddr *)_pmem_user_head)).offset);
     }
     NH_commit();
-#else
-    if (comparePAddr(PADDR_NULL, *(PAddr *)_pmem_mmap_head)) {
-        *(PAddr *)_pmem_mmap_head = getPersistentAddr(_pmem_user_head);
-    }
-#endif
+    // // nv-htm cannot used in main thread? this code may not be runned concurrently
+    // if (comparePAddr(PADDR_NULL, *(PAddr *)_pmem_mmap_head)) {
+    //     *(PAddr *)_pmem_mmap_head = getPersistentAddr(_pmem_user_head);
+    // }
     return root_p;
 }
 

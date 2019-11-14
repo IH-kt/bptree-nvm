@@ -111,8 +111,7 @@ void LOG_init(int nb_threads, int fresh)
     #if DO_CHECKPOINT == 1 || DO_CHECKPOINT == 5
     if (LOG_global_ptr == NULL) {
         LOG_global_ptr = ALLOC_MEM(LOG_FILE, size_of_logs);
-        // printf("mapping %s\n", LOG_FILE);
-        memset(LOG_global_ptr, 0, size_of_logs);
+        pmem_memset_persist(LOG_global_ptr, 0, size_of_logs);
     }
     /*
     key_t key = KEY_LOGS;

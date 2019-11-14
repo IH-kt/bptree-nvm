@@ -27,9 +27,13 @@ THREAD_MANAGER_OBJ=$(THREAD_MANAGER_SRC:%.c=%.o)
 # EXES_SRC=simple.c insert.c
 # EXES=$(EXES_SRC:%.c=%.exe)
 
+ifeq ($(NVHTM), -DNVHTM)
+	NVHTM_LIB=libnh.a
+endif
+
 all: $(EXES)
 
-%.exe:%.c $(FPTREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ)
+%.exe:%.c $(FPTREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(NVHTM_LIB)
 	$(CXX) -o $@ $+ $(CFLAGS)
 
 %.o:%.c

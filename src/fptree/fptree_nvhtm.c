@@ -120,21 +120,23 @@ unsigned char hash(Key key) {
 
 /* initializer */
 void initKeyValuePair(KeyValuePair *pair) {
-    pair->key = UNUSED_KEY;
-    pair->value = INITIAL_VALUE;
+    NVM_write(&pair->key, UNUSED_KEY);
+    NVM_write(&pair->value, INITIAL_VALUE);
 }
 
 void initLeafNode(LeafNode *node, unsigned char tid) {
     int i;
     ppointer new_pleaf_p = pst_mem_allocate(sizeof(PersistentLeafNode), tid);
+    printf("fid = %d, offset = %lu\n", new_pleaf_p.fid, new_pleaf_p.offset);
     PersistentLeafNode *new_pleaf = (PersistentLeafNode *)getTransientAddr(new_pleaf_p);
     NVHTM_begin();
     for (i = 0; i < BITMAP_SIZE; i++) {
-        new_pleaf->header.bitmap[i] = 0;
+        NVM_write(&new_pleaf->header.bitmap[i], 0);
     }
-    new_pleaf->header.pnext = P_NULL;
+    NVM_write(&new_pleaf->header.pnext.fid, P_NULL.fid);
+    NVM_write(&new_pleaf->header.pnext.offset, P_NULL.offset);
     for (i = 0; i < MAX_PAIR; i++) {
-        new_pleaf->header.fingerprints[i] = 0;
+        NVM_write(&new_pleaf->header.fingerprints[i], 0);
         initKeyValuePair(&new_pleaf->kv[i]);
     }
     NVM_write(&new_pleaf->lock, 0);
@@ -160,6 +162,17 @@ void initInternalNode(InternalNode *node) {
 
 void insertFirstLeafNode(BPTree *tree, LeafNode *leafHead) {
     if (leafHead != NULL) {
+        *tree->pmem_head = getPersistentAddr(leafHead->pleaf);
+    } else {
+        *tree->pmem_head = P_NULL;
+    }
+    tree->head = leafHead;
+    tree->root->children_type = LEAF;
+    tree->root->children[0] = leafHead;
+}
+
+void insertFirstLeafNode_T(BPTree *tree, LeafNode *leafHead) {
+    if (leafHead != NULL) {
         NVM_write(&tree->pmem_head->fid, getPersistentAddr(leafHead->pleaf).fid);
         NVM_write(&tree->pmem_head->offset, getPersistentAddr(leafHead->pleaf).offset);
     } else {
@@ -175,7 +188,7 @@ void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode, ppoint
     tree->pmem_head = pmem_head;
     tree->root = rootNode;
     NVHTM_begin();
-    insertFirstLeafNode(tree, leafHead);
+    insertFirstLeafNode_T(tree, leafHead);
     NVHTM_end();
     tree->lock = 0;
 }
@@ -485,7 +498,7 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
 #ifdef TIME_PART
         clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #endif
-        insertFirstLeafNode(bpt, new_leaf);
+        insertFirstLeafNode_T(bpt, new_leaf);
         insertNonfullLeaf(new_leaf, kv);
         NVHTM_end();
 #ifdef TIME_PART

@@ -70,9 +70,14 @@ int main(int argc, char *argv[]) {
     } else {
         fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path);
     }
+    size_t allocation_size = sizeof(PersistentLeafNode) * (warm_up + loop_times);
 #ifdef NVHTM
+    NVHTM_init(thread_max);
+    void *pool = NH_alloc(allocation_size);
+    initAllocator(pool, pmem_path, allocation_size, thread_max);
+    NVHTM_clear();
 #else
-    initAllocator(NULL, pmem_path, sizeof(PersistentLeafNode) * (warm_up + loop_times), thread_max);
+    initAllocator(NULL, pmem_path, allocation_size, thread_max);
 #endif
 
     bpt = newBPTree();
@@ -84,6 +89,10 @@ int main(int argc, char *argv[]) {
 	kv.key = rand_r(&seed) % max_val + 1;
         insert(bpt, kv, thread_max);
     }
+
+#ifdef NVHTM
+    NVHTM_cpy_to_checkpoint(pool);
+#endif
     
 
     tid_array = (pthread_t *)malloc(sizeof(pthread_t) * thread_max);
@@ -126,6 +135,10 @@ int main(int argc, char *argv[]) {
     bptreeThreadDestroy();
 
     destroyAllocator();
+
+#ifdef NVHTM
+    NVHTM_shutdown();
+#endif
 
     return 0;
 }

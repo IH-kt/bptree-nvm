@@ -97,9 +97,9 @@ void MN_thr_exit()
 
 void MN_flush(void *addr, size_t size, int do_flush)
 {
-	// int i;
-	// int size_cl = CACHE_LINE_SIZE / sizeof (char);
-	// int new_size = size / size_cl;
+	int i;
+	int size_cl = CACHE_LINE_SIZE / sizeof (char);
+	int new_size = size / size_cl;
 
 	// // TODO: not cache_align flush
 
@@ -114,7 +114,7 @@ void MN_flush(void *addr, size_t size, int do_flush)
 			clflush(((char*) addr) + i); // does not need fence
 			// MN_count_spins++;
 			// MN_time_spins += rdtscp() - _ts1_;
-		} else
+		}//  else
 			// SPIN_PER_WRITE(1);
 	}
 }
