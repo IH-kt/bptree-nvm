@@ -34,28 +34,28 @@ static std::mutex mtx;
 
 int SPIN_PER_WRITE(int nb_writes)
 {
-	// ts_s _ts1_ = rdtscp();
-	// SPIN_10NOPS(NH_spins_per_100 * nb_writes);
-	// MN_count_spins += nb_writes;
-	// MN_time_spins += rdtscp() - _ts1_;
+// 	ts_s _ts1_ = rdtscp();
+// 	SPIN_10NOPS(NH_spins_per_100 * nb_writes);
+// 	MN_count_spins += nb_writes;
+// 	MN_time_spins += rdtscp() - _ts1_;
 	return nb_writes;
 }
 
 int MN_write(void *addr, void *buf, size_t size, int to_aux)
 {
-	// MN_count_writes++;
-	// if (to_aux) {
-	// 	// it means it does not support CoW (dynamic mallocs?)
-	// 	if (aux_pool == NULL) aux_pool = (int*)malloc(SIZE_AUX_POOL);
-	// 	uintptr_t given_addr = (uintptr_t)addr;
-	// 	uintptr_t pool_addr = (uintptr_t)aux_pool;
-	// 	// place at random within the boundry
-	// 	given_addr = given_addr % (SIZE_AUX_POOL - size);
-	// 	given_addr = given_addr + pool_addr;
-	// 	void *new_addr = (void*)given_addr;
-	// 	memcpy(new_addr, buf, size);
-	// 	return 0;
-	// }
+	MN_count_writes++;
+	if (to_aux) {
+		// it means it does not support CoW (dynamic mallocs?)
+		if (aux_pool == NULL) aux_pool = (int*)malloc(SIZE_AUX_POOL);
+		uintptr_t given_addr = (uintptr_t)addr;
+		uintptr_t pool_addr = (uintptr_t)aux_pool;
+		// place at random within the boundry
+		given_addr = given_addr % (SIZE_AUX_POOL - size);
+		given_addr = given_addr + pool_addr;
+		void *new_addr = (void*)given_addr;
+		memcpy(new_addr, buf, size);
+		return 0;
+	}
 
 	memcpy(addr, buf, size);
 
@@ -64,21 +64,21 @@ int MN_write(void *addr, void *buf, size_t size, int to_aux)
 
 void *MN_alloc(const char *file_name, size_t size)
 {
-	// // TODO: do with mmap
-	// char *res;
-	// size_t missing = size % CACHE_LINE_SIZE;
+	// TODO: do with mmap
+	char *res;
+	size_t missing = size % CACHE_LINE_SIZE;
 
-	// ALLOC_FN(res, char, size + missing);
+	ALLOC_FN(res, char, size + missing);
 	//    res = aligned_alloc(CACHE_LINE_SIZE, size + missing);
 	//    res = malloc(size);
 
-	return NULL;
+	return (void*) res;
 }
 
 void MN_free(void *ptr)
 {
 	// TODO: do with mmap
-	// free(ptr);
+	free(ptr);
 }
 
 void MN_thr_enter()
@@ -88,11 +88,11 @@ void MN_thr_enter()
 
 void MN_thr_exit()
 {
-	//mtx.lock();
-	//MN_count_spins_total        += MN_count_spins;
-	//MN_time_spins_total         += MN_time_spins;
-	//MN_count_writes_to_PM_total += MN_count_writes;
-	//mtx.unlock();
+	// mtx.lock();
+	// MN_count_spins_total        += MN_count_spins;
+	// MN_time_spins_total         += MN_time_spins;
+	// MN_count_writes_to_PM_total += MN_count_writes;
+	// mtx.unlock();
 }
 
 void MN_flush(void *addr, size_t size, int do_flush)
@@ -101,11 +101,11 @@ void MN_flush(void *addr, size_t size, int do_flush)
 	int size_cl = CACHE_LINE_SIZE / sizeof (char);
 	int new_size = size / size_cl;
 
-	// // TODO: not cache_align flush
+	// TODO: not cache_align flush
 
-	// if (size < size_cl) {
-	// 	new_size = 1;
-	// }
+	if (size < size_cl) {
+		new_size = 1;
+	}
 
 	for (i = 0; i < new_size; i += size_cl) {
 		// TODO: addr may not be aligned
@@ -125,39 +125,39 @@ void MN_drain()
 }
 
 void MN_learn_nb_nops() {
-	// const char *save_file = "ns_per_10_nops";
-	// FILE *fp = fopen(save_file, "r");
-
-	// if (fp == NULL) {
-	// 	// File does not exist
-	// 	unsigned long long ts1, ts2;
-	// 	double time;
-	// 	// in milliseconds (CPU_MAX_FREQ is in kilo)
-	// 	double ns100 = (double)NVM_LATENCY_NS * 1e-6; // moved to 500ns
-	// 	const unsigned long long test = 99999999;
-	// 	unsigned long long i = 0;
-	// 	double measured_cycles = 0;
-
-	// 	// CPU_MAX_FREQ is in kiloHz
-
-	// 	printf("CPU_MAX_FREQ=%llu\n", CPU_MAX_FREQ);
-
-	// 	fp = fopen(save_file, "w");
-
-	// 	ts1 = rdtscp();
-	// 	SPIN_10NOPS(test);
-	// 	ts2 = rdtscp();
-
-	// 	measured_cycles = ts2 - ts1;
-
-	// 	time = measured_cycles / (double) CPU_MAX_FREQ; // TODO:
-
-	// 	SPINS_PER_100NS = (double) test * (ns100 / time) + 1; // round up
-	// 	fprintf(fp, "%i\n", SPINS_PER_100NS);
-	// 	fclose(fp);
-	// 	printf("measured spins per 100ns: %i\n", SPINS_PER_100NS);
-	// } else {
-	// 	fscanf(fp, "%i\n", &SPINS_PER_100NS);
-	// 	fclose(fp);
-	// }
+ 	const char *save_file = "ns_per_10_nops";
+ 	FILE *fp = fopen(save_file, "r");
+ 
+ 	if (fp == NULL) {
+// 		// File does not exist
+// 		unsigned long long ts1, ts2;
+// 		double time;
+// 		// in milliseconds (CPU_MAX_FREQ is in kilo)
+// 		double ns100 = (double)NVM_LATENCY_NS * 1e-6; // moved to 500ns
+// 		const unsigned long long test = 99999999;
+// 		unsigned long long i = 0;
+// 		double measured_cycles = 0;
+// 
+// 		// CPU_MAX_FREQ is in kiloHz
+// 
+// 		printf("CPU_MAX_FREQ=%llu\n", CPU_MAX_FREQ);
+// 
+ 		fp = fopen(save_file, "w");
+// 
+// 		ts1 = rdtscp();
+// 		SPIN_10NOPS(test);
+// 		ts2 = rdtscp();
+// 
+// 		measured_cycles = ts2 - ts1;
+// 
+// 		time = measured_cycles / (double) CPU_MAX_FREQ; // TODO:
+// 
+// 		SPINS_PER_100NS = (double) test * (ns100 / time) + 1; // round up
+ 		fprintf(fp, "%i\n", SPINS_PER_100NS);
+ 		fclose(fp);
+// 		printf("measured spins per 100ns: %i\n", SPINS_PER_100NS);
+// 	} else {
+ 		fscanf(fp, "%i\n", &SPINS_PER_100NS);
+ 		fclose(fp);
+ 	}
 }

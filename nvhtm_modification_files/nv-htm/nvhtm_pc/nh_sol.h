@@ -74,13 +74,16 @@ extern "C"
   NH_after_write(addr, val); \
   val; \
 })
-
-#undef NH_alloc
-#define NH_alloc(size) NVHTM_alloc("alloc.dat", size, 1)
-
-#undef NH_free
-#define NH_free(ptr) NVHTM_free(ptr)
 #endif /* SOFTWARE_TRANSLATION */
+
+#undef  NH_alloc
+#undef  NH_free
+static size_t al_sz = 0;
+#define NH_alloc(size) ({\
+  al_sz = size;\
+  ALLOC_MEM("alloc.dat", size);\
+})
+#define NH_free(pool)  FREE_MEM(pool, al_sz)
 
 #ifdef SOFTWARE_TRANSLATION
 

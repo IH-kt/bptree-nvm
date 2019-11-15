@@ -101,20 +101,21 @@ int main(int argc, char *argv[]) {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
 
-    NVHTM_init(3);
-    printf("%d -> %d\n", 1, ROUND_UP_M(1));
+    NVHTM_init(4);
 
     size_t pool_sz = sizeof(PersistentLeafNode) * loop_times / MAX_KEY * 2 + 100;
-    pool_sz = ROUND_UP_M(pool_sz);
     printf("pool_sz=%lu\n", pool_sz);
     void *pool = NH_alloc(pool_sz);
     printf("pool:%p -> %p (%lu)\n", pool, (char *)pool + pool_sz, pool_sz);
+    printf("write pool: %d -> ", *(int *)pool);
+    *(int *)pool = 0;
+    printf("%d\n", *(int *)pool);
 
     NVHTM_clear();
 
     NVHTM_cpy_to_checkpoint(pool);
 
-    initAllocator(NULL, "data", pool_sz, 3);
+    initAllocator(pool, "data", pool_sz, 3);
 
     bpt = newBPTree();
 

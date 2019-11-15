@@ -16,6 +16,9 @@ typedef struct arg_t {
 
 void *insert_random(BPTree *bpt, void *arg) {
     arg_t *arg_cast = (arg_t *)arg;
+#ifdef NVHTM
+    NVHTM_thr_init();
+#endif
     unsigned char tid = arg_cast->tid;
     KeyValuePair kv;
     unsigned int seed = arg_cast->seed;
@@ -32,6 +35,9 @@ void *insert_random(BPTree *bpt, void *arg) {
     }
 #ifdef TIME_PART
     showTime(tid);
+#endif
+#ifdef NVHTM
+    NVHTM_thr_exit();
 #endif
     return arg;
 }
@@ -72,7 +78,7 @@ int main(int argc, char *argv[]) {
     }
     size_t allocation_size = sizeof(PersistentLeafNode) * (warm_up + loop_times);
 #ifdef NVHTM
-    NVHTM_init(thread_max);
+    NVHTM_init(thread_max+1);
     void *pool = NH_alloc(allocation_size);
     initAllocator(pool, pmem_path, allocation_size, thread_max);
     NVHTM_clear();

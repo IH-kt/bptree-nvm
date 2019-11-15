@@ -103,38 +103,35 @@ void LOG_init(int nb_threads, int fresh)
   TM_nb_threads = nb_threads;
   // nvm_htm_log_size = NVMHTM_LOG_SIZE / nb_threads; // TODO
 
-  printf("Number of threads: %i\n", TM_nb_threads);
+  // printf("Number of threads: %i\n", TM_nb_threads);
 
   if (NH_global_logs == NULL) {
     ALLOC_FN(NH_global_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
 
     #if DO_CHECKPOINT == 1 || DO_CHECKPOINT == 5
-    if (LOG_global_ptr == NULL) {
-        LOG_global_ptr = ALLOC_MEM(LOG_FILE, size_of_logs);
-        pmem_memset_persist(LOG_global_ptr, 0, size_of_logs);
-    }
-    /*
-    key_t key = KEY_LOGS;
-
-    int shmid = shmget(key, size_of_logs, 0777 | IPC_CREAT);
-    // first detach, reallocation may fail
-    // shmctl(shmid, IPC_RMID, NULL);
-    // shmid = shmget(key, NVMHTM_LOG_SIZE, 0777 | IPC_CREAT);
-
-    LOG_global_ptr = shmat(shmid, (void *)0, 0);
+    LOG_global_ptr = ALLOC_MEM(LOG_FILE, size_of_logs);
     memset(LOG_global_ptr, 0, size_of_logs);
 
-    if (shmid < 0) {
-      perror("shmget");
-    }
+    // key_t key = KEY_LOGS;
 
-    LOG_global_ptr = shmat(shmid, (void *)0, 0);
-    fresh = 1; // this is not init to 0
+    // int shmid = shmget(key, size_of_logs, 0777 | IPC_CREAT);
+    // // first detach, reallocation may fail
+    // // shmctl(shmid, IPC_RMID, NULL);
+    // // shmid = shmget(key, NVMHTM_LOG_SIZE, 0777 | IPC_CREAT);
 
-    if (LOG_global_ptr < 0) {
-      perror("shmat");
-    }
-    */
+    // LOG_global_ptr = shmat(shmid, (void *)0, 0);
+    // memset(LOG_global_ptr, 0, size_of_logs);
+
+    // if (shmid < 0) {
+    //   perror("shmget");
+    // }
+
+    // LOG_global_ptr = shmat(shmid, (void *)0, 0);
+    // fresh = 1; // this is not init to 0
+
+    // if (LOG_global_ptr < 0) {
+    //   perror("shmat");
+    // }
     #else
     LOG_global_ptr = ALLOC_MEM(LOG_FILE, size_of_logs);
     #endif

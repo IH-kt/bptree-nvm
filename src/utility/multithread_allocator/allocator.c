@@ -169,6 +169,7 @@ int initAllocator(void *existing_p, const char *path, size_t pmem_size, unsigned
         _pmem_mmap_size = pmem_size;
         _pmem_user_head = _pmem_mmap_head + sizeof(AllocatorHeader);
         _pmem_user_size = pmem_size - sizeof(AllocatorHeader);
+        *(PAddr *)_pmem_mmap_head = PADDR_NULL;
         return 0;
     }
 
@@ -253,16 +254,16 @@ ppointer *root_allocate(size_t size, size_t node_size) {
     _tree_node_size = node_size;
     ppointer *root_p = (ppointer *)vol_mem_allocate(sizeof(ppointer));
     *root_p = getPersistentAddr(_pmem_user_head);
-    NH_begin();
-    if (comparePAddr(PADDR_NULL, NH_read((PAddr *)_pmem_mmap_head))) {
-        NH_write(&((PAddr *)_pmem_mmap_head)->fid, getPersistentAddr(((PAddr *)_pmem_user_head)).fid);
-        NH_write(&((PAddr *)_pmem_mmap_head)->offset, getPersistentAddr(((PAddr *)_pmem_user_head)).offset);
-    }
-    NH_commit();
-    // // nv-htm cannot used in main thread? this code may not be runned concurrently
-    // if (comparePAddr(PADDR_NULL, *(PAddr *)_pmem_mmap_head)) {
-    //     *(PAddr *)_pmem_mmap_head = getPersistentAddr(_pmem_user_head);
+    // NH_begin();
+    // if (comparePAddr(PADDR_NULL, NH_read((PAddr *)_pmem_mmap_head))) {
+    //     NH_write(&((PAddr *)_pmem_mmap_head)->fid, getPersistentAddr(((PAddr *)_pmem_user_head)).fid);
+    //     NH_write(&((PAddr *)_pmem_mmap_head)->offset, getPersistentAddr(((PAddr *)_pmem_user_head)).offset);
     // }
+    // NH_commit();
+    // nv-htm cannot used in main thread? this code may not be runned concurrently
+    if (comparePAddr(PADDR_NULL, *(PAddr *)_pmem_mmap_head)) {
+        *(PAddr *)_pmem_mmap_head = getPersistentAddr(_pmem_user_head);
+    }
     return root_p;
 }
 

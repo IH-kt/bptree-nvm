@@ -72,12 +72,12 @@ int main(int argc, char *argv[]) {
 	pmem_path = argv[5];
         fprintf(stderr, "warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path);
     } else {
-        fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d\n, pmem_path = %s", warm_up, loop_times, max_val, thread_max, pmem_path);
+        fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d\n, pmem_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path);
     }
 
     size_t allocation_size = sizeof(PersistentLeafNode) * loop_times / MAX_PAIR * 2;
 #ifdef NVHTM
-    NVHTM_init(thread_max);
+    NVHTM_init(thread_max+1);
     void *pool = NH_alloc(allocation_size);
     initAllocator(pool, pmem_path, allocation_size, thread_max);
     NVHTM_clear();
