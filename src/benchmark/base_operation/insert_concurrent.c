@@ -43,6 +43,7 @@ void *insert_random(BPTree *bpt, void *arg) {
 }
 
 char const *pmem_path = "data";
+char const *log_path = "log";
 
 int main(int argc, char *argv[]) {
     pthread_t *tid_array;
@@ -50,7 +51,7 @@ int main(int argc, char *argv[]) {
     int i;
     BPTree *bpt;
     KeyValuePair kv;
-    if (argc > 3) {
+    if (argc > 6) {
         warm_up = atoi(argv[1]);
         if (warm_up <= 0) {
             fprintf(stderr, "invalid argument\n");
@@ -71,15 +72,17 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "invalid argument\n");
             return 1;
         }
-	pmem_path = argv[5];
-        fprintf(stderr, "warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path);
+        pmem_path = argv[5];
+        log_path = argv[6];
+        fprintf(stderr, "warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s, log_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path, log_path);
     } else {
-        fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path);
+        fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s, log_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path, log_path);
     }
     size_t allocation_size = sizeof(PersistentLeafNode) * (warm_up + loop_times);
 #ifdef NVHTM
+    set_log_file_name(log_path);
     NVHTM_init(thread_max+1);
-    void *pool = NH_alloc(allocation_size);
+    void *pool = NH_alloc(pmem_path, allocation_size);
     initAllocator(pool, pmem_path, allocation_size, thread_max);
     NVHTM_clear();
 #else

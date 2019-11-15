@@ -57,6 +57,8 @@ extern CL_ALIGN map<void*, NVMHTM_mem_s*> instances; // from nvmhtm.cpp
 static double ns_per_10_nops = 100;
 static int total_spins = 0;
 
+char const *log_file_name = LOG_FILE;
+
 //thread_local NVLog_s *nvm_htm_log = NULL;
 extern CL_ALIGN map<ts_s, NVLog_s*> sorted_logs; // from log_aux
 extern CL_ALIGN map<int, NVLog_s*> empty_logs;
@@ -88,6 +90,10 @@ static int sort_logs();
 
 // ################ implementation header
 
+void set_log_file_name (char const *fn) {
+  log_file_name = fn;
+}
+
 void LOG_init(int nb_threads, int fresh)
 {
   int i;
@@ -109,7 +115,7 @@ void LOG_init(int nb_threads, int fresh)
     ALLOC_FN(NH_global_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
 
     #if DO_CHECKPOINT == 1 || DO_CHECKPOINT == 5
-    LOG_global_ptr = ALLOC_MEM(LOG_FILE, size_of_logs);
+    LOG_global_ptr = ALLOC_MEM(log_file_name, size_of_logs);
     memset(LOG_global_ptr, 0, size_of_logs);
 
     // key_t key = KEY_LOGS;

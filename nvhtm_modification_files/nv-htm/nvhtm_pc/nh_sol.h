@@ -79,9 +79,9 @@ extern "C"
 #undef  NH_alloc
 #undef  NH_free
 static size_t al_sz = 0;
-#define NH_alloc(size) ({\
+#define NH_alloc(fn, size) ({\
   al_sz = size;\
-  ALLOC_MEM("alloc.dat", size);\
+  ALLOC_MEM(fn, size);\
 })
 #define NH_free(pool)  FREE_MEM(pool, al_sz)
 

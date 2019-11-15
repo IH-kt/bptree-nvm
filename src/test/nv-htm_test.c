@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
 
     size_t pool_sz = sizeof(PersistentLeafNode) * loop_times / MAX_KEY * 2 + 100;
     printf("pool_sz=%lu\n", pool_sz);
-    void *pool = NH_alloc(pool_sz);
+    void *pool = NH_alloc("data", pool_sz);
     printf("pool:%p -> %p (%lu)\n", pool, (char *)pool + pool_sz, pool_sz);
     printf("write pool: %d -> ", *(int *)pool);
     *(int *)pool = 0;
