@@ -1,30 +1,5 @@
 #!/bin/sh
 
-ROOT_DIR=`pwd`
-BUILD_DIR=$ROOT_DIR/build
-SRC_DIR=$ROOT_DIR/src
-TEST_DIR=$SRC_DIR/test
-BENCH_DIR=$SRC_DIR/benchmark
-BASE_BENCH_DIR=$BENCH_DIR/base_operation
-# ALLOCATOR_DIR=$SRC_DIR/utility/simple_allocator
-ALLOCATOR_DIR=$SRC_DIR/utility/multithread_allocator
-FPTREE_DIR=$SRC_DIR/fptree
-THREAD_MANAGER_DIR=$SRC_DIR/utility/thread_manager
-BENCH_SCRIPT_DIR=$SRC_DIR/utility/benchmark_script
-
-FPTREE_SRC_NAME=fptree_concurrent.c
-ALLOCATOR_SRC_NAME=allocator.c
-THREAD_MANAGER_SRC_NAME=thread_manager.c
-BENCH_SCRIPT_SRC_NAME=base_operation.py
-
-FPTREE_SRC=$FPTREE_DIR/$FPTREE_SRC_NAME
-ALLOCATOR_SRC=$ALLOCATOR_DIR/$ALLOCATOR_SRC_NAME
-THREAD_MANAGER_SRC=$THREAD_MANAGER_DIR/$THREAD_MANAGER_SRC_NAME
-BENCH_SCRIPT_SRC=$BENCH_SCRIPT_DIR/$BENCH_SCRIPT_SRC_NAME
-TEST_SRC="simple_test.c insert_test.c search_test.c delete_test.c thread_test.c nv-htm_test.c"
-TEST=`echo $TEST_SRC | sed -e 's/\.c/.exe/g'`
-BASE_BENCH_SRC="insert_concurrent.c search_concurrent.c delete_concurrent.c"
-BASE_BENCH=`echo $BASE_BENCH_SRC | sed -e 's/\.c/.exe/g'`
 
 mkdir -p $BUILD_DIR
 

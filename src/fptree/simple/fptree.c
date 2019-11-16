@@ -400,8 +400,8 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     if (target_leaf->key_length < MAX_PAIR) {
         insertNonfullLeaf(target_leaf, kv);
     } else {
-        Key split_key = splitLeaf(target_leaf, kv, tid);
-        LeafNode *new_leaf = target_leaf->next;
+        LeafNode *new_leaf = newLeafNode(tid);
+        Key split_key = splitLeaf(target_leaf, kv, tid, new_leaf);
         // _xbegin();
         insertParent(bpt, parent, split_key, new_leaf, target_leaf);
         // _xend();

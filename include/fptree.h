@@ -24,14 +24,8 @@ extern "C" {
 #  define LOCK 0
 #endif
 
-#ifdef PMDK
-#  include "allocator_pmdk.h"
-#else
-#  include "allocator.h"
-#  ifdef MT_ALLOCATOR
-extern PAddr PADDR_NULL;
-#  endif
-#endif
+#include "allocator.h"
+extern ppointer PADDR_NULL;
 
 #define MIN_KEY 124
 // #define MIN_KEY 3

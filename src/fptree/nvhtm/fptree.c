@@ -97,7 +97,7 @@ void showTime(unsigned int tid) {
     }                                                      \
 }
 
-#if defined(NPERSIST) && defined(NVHTM)
+#if defined(NPERSIST)
 void persist(void *target, size_t size) { /* EMPTY */ }
 #else
 void persist(void *target, size_t size) {
