@@ -1,3 +1,6 @@
+#ifndef CONCURRENT
+#  error "CONCURRENT is not defined!"
+#endif
 #include "thread_manager.h"
 
 __thread sem_t *sem = NULL;

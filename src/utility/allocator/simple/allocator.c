@@ -1,6 +1,9 @@
+#ifdef CONCURRENT
+#  error "CONCURRENT is defined!"
+#endif
 #include "allocator.h"
 
-int initAllocator(const char *fn, size_t root_size, unsigned char thread_num) { return 0; }
+int initAllocator(void *ex_p, const char *fn, size_t root_size, unsigned char thread_num) { return 0; }
 int destroyAllocator() { return 0; }
 ppointer recoverAllocator(ppointer (*getNext)(ppointer)) { return NULL; }
 

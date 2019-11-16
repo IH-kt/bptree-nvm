@@ -1,46 +1,67 @@
-USE_PMDK=-DPMDK
-# NO_PERSIST=-DNPERSIST
-CLWB=-DCLWB
-# CLWB=
-CONCURRENT=-DCONCURRENT
-# CONCURRENT=-UCONCURRENT
-# ALLOCATOR=-DMT_ALLOCATOR
+include ./Makefile_location.inc
+VPATH = ./build:$(TEST_SRC_DIR)/$(TYPE):$(BASE_BENCH_SRC_DIR)
 
-PMDK_DIR=$(HOME)/local
-PMDK_INCLUDES=-I$(PMDK_DIR)/include/
-PMDK_LIBS=-L$(PMDK_DIR)/lib -lpmem
+PMDK_DIR		:= $(HOME)/local
+PMDK_INCLUDES	:= -I$(PMDK_DIR)/include/
+PMDK_LIBS		:= -L$(PMDK_DIR)/lib -lpmem
 
-include $(ROOT_DIR)/Makefile_nvhtm.inc
+include ./Makefile_nvhtm.inc
+
+ifdef no_persist
+	NO_PERSIST := -DNPERSIST
+else
+	NO_PERSIST :=
+endif
+ifdef nclwb
+	CLWB :=
+else
+	CLWB := -DCLWB
+endif
+ifeq ($(type), concurrent)
+	CONCURRENT := -DCONCURRENT
+else
+	CONCURRENT :=
+endif
+ifeq ($(type), nvhtm)
+	CONCURRENT := -DCONCURRENT
+	NVHTM := -DNVHTM
+	NVHTM_LIB := libnh.a
+else
+	NVHTM :=
+endif
+ifeq ($(time), time_part)
+	TIME_PART := -DTIME_PART
+else
+	TIME_PART :=
+endif
+
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART)
 
 CC=gcc
 CXX=g++
-CFLAGS=-O0 -g -march=native -pthread $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(ALLOCATOR) $(TIME_PART) -I$(ROOT_DIR)/includes/ $(NVHTM_CFLAGS)
+CFLAGS=-O0 -g -march=native -pthread $(DEFINES) -I$(INCLUDE_DIR) $(NVHTM_CFLAGS)
 
-# FPTREE_SRC=fptree_concurrent.c
 FPTREE_OBJ=$(FPTREE_SRC:%.c=%.o)
-
-# ALLOCATOR_SRC=allocator.c
 ALLOCATOR_OBJ=$(ALLOCATOR_SRC:%.c=%.o)
-
 THREAD_MANAGER_OBJ=$(THREAD_MANAGER_SRC:%.c=%.o)
 
-# EXES_SRC=simple.c insert.c
-# EXES=$(EXES_SRC:%.c=%.exe)
+TEST_EXE		:= $(TEST_SRC_NAME:%.c=%.exe)
+BASE_BENCH_EXE	:= $(BASE_BENCH_SRC_NAME:%.c=%.exe)
+ALL_EXE			:= $(TEST_EXE) $(BASE_BENCH_EXE)
 
-ifeq ($(NVHTM), -DNVHTM)
-	NVHTM_LIB=libnh.a
-endif
+all: $(ALL_EXE)
 
-all: $(EXES)
-
-%.exe:%.c $(FPTREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(NVHTM_LIB)
-	$(CXX) -o $@ $+ $(CFLAGS)
+%.exe:%.o $(FPTREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(NVHTM_LIB)
+	$(CXX) -o $(BUILD_DIR)/$@ $+ $(CFLAGS)
 
 %.o:%.c
-	$(CC) -c $+ $(CFLAGS)
+	mkdir -p $(BUILD_DIR)
+	$(CC) -c $+ -o $@ $(CFLAGS)
+
+libnh.a:
+	./make_nv-htm_lib.sh
 
 clean:
-	rm -f *.o
 
 dist-clean: clean
-	rm -f *.exe
+	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE))

@@ -19,7 +19,7 @@ extern "C" {
 #  include <x86intrin.h>
 #endif
 
-#ifdef MT_ALLOCATOR
+#ifdef CONCURRENT
 struct PAddr {
     unsigned int fid;
     size_t offset;
@@ -28,7 +28,7 @@ struct PAddr {
 typedef struct PAddr PAddr;
 
 typedef struct PAddr ppointer;
-extern PAddr PADDR_NULL;
+extern ppointer PADDR_NULL;
 #  define P_NULL PADDR_NULL
 #  define V_NULL NULL
 #else
