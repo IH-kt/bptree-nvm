@@ -14,6 +14,7 @@ trial_num = 50000000 # 検索・追加する回数
 thread_num = range(1, 27, 5) # スレッド数
 # vrampath = "/home/iiboshi/dramdir"
 pmempath = "/mnt/nvmm/iiboshi/data"
+pmemlogpath = "/mnt/nvmm/iiboshi/log"
 # linestyles = ["ro-", "b.-", "gs-", "k+-", "y^-", "c*-", "m1-", "kD-", "kx-", "k3-"]
 
 def exp_loop(filename, mode, mempath):
@@ -23,7 +24,7 @@ def exp_loop(filename, mode, mempath):
         for i in thread_num:
             print("thread_num: " + str(i))
             inner_result_array = [];
-            cmd = ['./' + filename, str(warmup_num), str(trial_num), str(warmup_num + trial_num), str(i), pmempath]
+            cmd = ['./' + filename, str(warmup_num), str(trial_num), str(warmup_num + trial_num), str(i), pmempath, pmemlogpath]
             print(cmd)
             for j in exp_loop_times:
                 print("trial " + str(j+1))
