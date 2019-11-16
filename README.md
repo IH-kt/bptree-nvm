@@ -4,7 +4,7 @@
 
 cloneしたリポジトリで`./compile.sh -u`とするとbuildディレクトリができてその中に実行ファイルができる
 
-main関数はsrc/test内のテスト用コードにある
+main関数はsrc/test内のテスト用コード，src/benchmark内のベンチマーク用コードにある
 
 ## ブランチ一覧
 
@@ -13,6 +13,10 @@ main関数はsrc/test内のテスト用コードにある
 - test-single-thread：シングルスレッドでの動作確認用コードを追加する用（merge済み）
 - concurrent：HTMを使って並行化する用（merge済み）
 - allocator：並行アロケータの実装用（merge済み）
-- benchmark：ベンチマークプログラム作成用（作業中）
+- benchmark：ベンチマークプログラム作成用（merge済み）
 	- ベンチマーク自体は動作する
 	- グラフ生成がイマイチ
+- implement-replaced-minnvm：NV-HTMのNVMエミュレータを実NVMに置き換える用（merge済み）
+	- 結局エミュレータ自体は空にしただけ
+	- NH_allocのmmapへの置き換え
+	- shmgetによる共有メモリで実装されていたログをmmapに置き換え
