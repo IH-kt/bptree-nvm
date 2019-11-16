@@ -1,5 +1,5 @@
 include ./Makefile_location.inc
-VPATH = ./build:$(TEST_SRC_DIR)/$(TYPE):$(BASE_BENCH_SRC_DIR)
+VPATH = $(BUILD_DIR):$(TEST_SRC_DIR)/$(TYPE):$(BASE_BENCH_SRC_DIR)
 
 PMDK_DIR		:= $(HOME)/local
 PMDK_INCLUDES	:= -I$(PMDK_DIR)/include/
@@ -25,7 +25,7 @@ endif
 ifeq ($(type), nvhtm)
 	CONCURRENT := -DCONCURRENT
 	NVHTM := -DNVHTM
-	NVHTM_LIB := libnh.a
+	NVHTM_LIB := $(BUILD_DIR)/libnh.a
 else
 	NVHTM :=
 endif
@@ -60,8 +60,9 @@ all: $(ALL_EXE)
 
 libnh.a:
 	./make_nv-htm_lib.sh
+	mv libnh.a $(BUILD_DIR)
 
 clean:
 
 dist-clean: clean
-	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE))
+	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE)) $(NVHTM_LIB)

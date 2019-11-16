@@ -1,5 +1,7 @@
 # bptree-nvm
 
+NVMを使うB<sup>+</sup>-Treeの実験用コード諸々
+
 ## 実行方法
 
 cloneしたリポジトリで`make`とするとbuildディレクトリができてその中に実行ファイルができる
