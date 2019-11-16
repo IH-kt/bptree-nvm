@@ -2,9 +2,17 @@
 
 ## 実行方法
 
-cloneしたリポジトリで`./compile.sh -u`とするとbuildディレクトリができてその中に実行ファイルができる
+cloneしたリポジトリで`make`とするとbuildディレクトリができてその中に実行ファイルができる
+
+`make type=xxx`とすることで作る種類が変わる
+
+- simple = シングルスレッドの一番シンプルなもの
+- concurrent = マルチスレッドで動作するもの．葉ノードではロックを使う
+- nvhtm = マルチスレッドで動作するもの．葉ノードでは[NV-HTM](https://bitbucket.org/daniel_castro1993/nvhtm/src/master/)を使う
 
 main関数はsrc/test内のテスト用コード，src/benchmark内のベンチマーク用コードにある
+
+res/以下に実験の結果が置いてある
 
 ## ブランチ一覧
 
