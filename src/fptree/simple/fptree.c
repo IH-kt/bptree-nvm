@@ -300,10 +300,12 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode 
     new_leafnode->key_length = MAX_PAIR - MAX_PAIR/2;
 
     // insert new node
-    if (newkv.key <= split_key) {
-        insertNonfullLeaf(target, newkv);
-    } else {
-        insertNonfullLeaf(new_leafnode, newkv);
+    if (newkv.key != UNUSED_KEY) {
+        if (newkv.key <= split_key) {
+            insertNonfullLeaf(target, newkv);
+        } else {
+            insertNonfullLeaf(new_leafnode, newkv);
+        }
     }
 
     return split_key;
@@ -468,6 +470,65 @@ int insertRecursive(InternalNode *current, Key new_key, LeafNode *new_node, Key 
         }
         return 0;
     }
+}
+
+int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
+    if (bpt == NULL) {
+        return 0;
+    } else {
+        unsigned char split_flag = 0;
+        Key split_key = UNUSED_KEY;
+        int target_index = -1;
+        LeafNode *splitted_leaf = NULL;
+        LeafNode *new_leaf = NULL;
+        // while (1) {
+        // _xstart();
+        InternalNode *parent = NULL;
+        LeafNode *target = findLeaf(bpt->root, new_kv.key, &parent, NULL);
+        if (target == NULL) {
+            return 0;
+        }
+        lockLeaf(target);
+        target_index = searchInLeaf(target, new_kv.key);
+        if (target_index == -1) {
+            unlockLeaf(target);
+            return 0;
+        }
+        if (target->key_length >= MAX_PAIR) {
+            LeafNode *new_leaf = newLeafNode(tid);
+            KeyValuePair dummy = {UNUSED_KEY, INITIAL_VALUE};
+            split_key = splitLeaf(target, dummy, tid, new_leaf);
+            splitted_leaf = target;
+            if (new_kv.key > split_key) {
+                target = new_leaf;
+            }
+            target_index = searchInLeaf(target, new_kv.key);
+        }
+        int empty_slot_index = findFirstAvailableSlot(target);
+        // _xend();
+        // }
+        target->pleaf->kv[empty_slot_index] = new_kv;
+        target->pleaf->header.fingerprints[empty_slot_index] = hash(new_kv.key);
+        persist(&target->pleaf->kv[empty_slot_index], sizeof(KeyValuePair));
+        persist(&target->pleaf->header.fingerprints[empty_slot_index], sizeof(char));
+        unsigned char tmp_bitmap[BITMAP_SIZE];
+        int i;
+        memcpy(tmp_bitmap, target->pleaf->header.bitmap, BITMAP_SIZE);
+        CLR_BIT(tmp_bitmap, target_index);
+        SET_BIT(tmp_bitmap, empty_slot_index);
+        memcpy(target->pleaf->header.bitmap, tmp_bitmap, BITMAP_SIZE);
+        persist(target->pleaf->header.bitmap, BITMAP_SIZE);
+        // _xbegin();
+        if (splitted_leaf != NULL) {
+            insertParent(bpt, parent, split_key, new_leaf, splitted_leaf);
+            unlockLeaf(new_leaf);
+            unlockLeaf(splitted_leaf);
+        } else {
+            unlockLeaf(target);
+        }
+        // _xend();
+    }
+    return 1;
 }
 
 void deleteLeaf(BPTree *bpt, LeafNode *current, unsigned char tid) {

@@ -8,6 +8,7 @@ extern "C" {
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <string.h>
 // #ifdef USE_ASSERTION
 #  include <assert.h>
 // #endif
@@ -169,6 +170,8 @@ int insert(BPTree *, KeyValuePair, unsigned char);
 int searchNodeInInternalNode(InternalNode *, void *);
 void insertParent(BPTree *, InternalNode *, Key, LeafNode *, LeafNode *);
 int insertRecursive(InternalNode *, Key, LeafNode *, Key *, InternalNode **);
+
+int bptreeUpdate(BPTree *, KeyValuePair, unsigned char);
 
 // void deleteLeaf(BPTree *, LeafNode *, LeafNode *);
 // void *collapseRoot(void *);
