@@ -560,6 +560,75 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     return 1;
 }
 
+int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
+    if (bpt == NULL) {
+        return 0;
+    } else {
+        TRANSACTION_EXECUTION_INIT();
+        unsigned char split_flag = 0;
+        unsigned char not_found_flag = 0;
+        Key split_key = UNUSED_KEY;
+        int target_index = -1;
+        LeafNode *splitted_leaf = NULL;
+        LeafNode *new_leaf = NULL;
+        InternalNode *parent = NULL;
+        LeafNode *target = NULL;
+        TRANSACTION_EXECUTION_EXECUTE(bpt,
+            unsigned char retry_flag = 0;
+            target = findLeaf(bpt->root, new_kv.key, &parent, &retry_flag);
+            if (target == NULL) {
+                not_found_flag = 1;
+            } else {
+                if (retry_flag) {
+                    TRANSACTION_EXECUTION_ABORT();
+                    TRANSACTION_RETRY_LOCK(bpt, tid);
+                }
+                lockLeaf(target, tid);
+                target_index = searchInLeaf(target, new_kv.key);
+                if (target_index == -1) {
+                    not_found_flag = 1;
+                    unlockLeaf(target, tid);
+                }
+            }
+        , tid);
+        if (not_found_flag) {
+            return 0;
+        }
+        if (target->key_length >= MAX_PAIR) {
+            LeafNode *new_leaf = newLeafNode(tid);
+            KeyValuePair dummy = {UNUSED_KEY, INITIAL_VALUE};
+            split_key = splitLeaf(target, dummy, tid, new_leaf);
+            splitted_leaf = target;
+            if (new_kv.key > split_key) {
+                target = new_leaf;
+            }
+            target_index = searchInLeaf(target, new_kv.key);
+        }
+        int empty_slot_index = findFirstAvailableSlot(target);
+        target->pleaf->kv[empty_slot_index] = new_kv;
+        target->pleaf->header.fingerprints[empty_slot_index] = hash(new_kv.key);
+        persist(&target->pleaf->kv[empty_slot_index], sizeof(KeyValuePair));
+        persist(&target->pleaf->header.fingerprints[empty_slot_index], sizeof(char));
+        unsigned char tmp_bitmap[BITMAP_SIZE];
+        int i;
+        memcpy(tmp_bitmap, target->pleaf->header.bitmap, BITMAP_SIZE);
+        CLR_BIT(tmp_bitmap, target_index);
+        SET_BIT(tmp_bitmap, empty_slot_index);
+        memcpy(target->pleaf->header.bitmap, tmp_bitmap, BITMAP_SIZE);
+        persist(target->pleaf->header.bitmap, BITMAP_SIZE);
+        if (splitted_leaf != NULL) {
+            TRANSACTION_EXECUTION_EXECUTE(bpt,
+                insertParent(bpt, parent, split_key, new_leaf, splitted_leaf);
+            , tid);
+            unlockLeaf(new_leaf, tid);
+            unlockLeaf(splitted_leaf, tid);
+        } else {
+            unlockLeaf(target, tid);
+        }
+    }
+    return 1;
+}
+
 int searchNodeInInternalNode(InternalNode *parent, void *target) {
     int i;
     for (i = 0; i <= parent->key_length; i++) {

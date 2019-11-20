@@ -101,15 +101,16 @@ void showTime(unsigned int tid) {
 void persist(void *target, size_t size) { /* EMPTY */ }
 #else
 void persist(void *target, size_t size) {
-    int i;
-    for (i = 0; i < (size-1)/64 + 1; i++) {
-#  ifdef CLWB
-        _mm_clwb(target + i * 64);
-#  else
-        _mm_clflush(target + i * 64);
-#  endif
-    }
-    _mm_sfence();
+    // nvhtm need not persist
+//     int i;
+//     for (i = 0; i < (size-1)/64 + 1; i++) {
+// #  ifdef CLWB
+//         _mm_clwb(target + i * 64);
+// #  else
+//         _mm_clflush(target + i * 64);
+// #  endif
+//     }
+//     _mm_sfence();
 }
 #endif
 
@@ -187,9 +188,9 @@ void insertFirstLeafNode_T(BPTree *tree, LeafNode *leafHead) {
 void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode, ppointer *pmem_head) {
     tree->pmem_head = pmem_head;
     tree->root = rootNode;
-    NVHTM_begin();
-    insertFirstLeafNode_T(tree, leafHead);
-    NVHTM_end();
+    // NVHTM_begin();
+    insertFirstLeafNode(tree, leafHead);
+    // NVHTM_end();
     tree->lock = 0;
 }
 
@@ -620,6 +621,63 @@ int insertRecursive(InternalNode *current, Key new_key, LeafNode *new_node, Key 
         }
         return 0;
     }
+}
+
+int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
+    if (bpt == NULL) {
+        return 0;
+    }
+    unsigned char split_flag = 0;
+    Key split_key = UNUSED_KEY;
+    int target_index = -1;
+    LeafNode *splitted_leaf = NULL;
+    LeafNode *new_leaf = NULL;
+    InternalNode *parent = NULL;
+    LeafNode *target = NULL;
+    NVHTM_begin();
+    target = findLeaf(bpt->root, new_kv.key, &parent, NULL);
+    if (target == NULL) {
+        NVHTM_end();
+        return 0;
+    }
+    // lockLeaf(target, tid);
+    target_index = searchInLeaf(target, new_kv.key);
+    if (target_index == -1) {
+        NVHTM_end();
+        return 0;
+        // unlockLeaf(target, tid);
+    }
+    if (target->key_length >= MAX_PAIR) {
+        LeafNode *new_leaf = newLeafNode(tid);
+        KeyValuePair dummy = {UNUSED_KEY, INITIAL_VALUE};
+        split_key = splitLeaf(target, dummy, tid, new_leaf);
+        splitted_leaf = target;
+        if (new_kv.key > split_key) {
+            target = new_leaf;
+        }
+        target_index = searchInLeaf(target, new_kv.key);
+    }
+    int empty_slot_index = findFirstAvailableSlot(target);
+    target->pleaf->kv[empty_slot_index] = new_kv;
+    target->pleaf->header.fingerprints[empty_slot_index] = hash(new_kv.key);
+    // persist(&target->pleaf->kv[empty_slot_index], sizeof(KeyValuePair));
+    // persist(&target->pleaf->header.fingerprints[empty_slot_index], sizeof(char));
+    unsigned char tmp_bitmap[BITMAP_SIZE];
+    int i;
+    memcpy(tmp_bitmap, target->pleaf->header.bitmap, BITMAP_SIZE);
+    CLR_BIT(tmp_bitmap, target_index);
+    SET_BIT(tmp_bitmap, empty_slot_index);
+    memcpy(target->pleaf->header.bitmap, tmp_bitmap, BITMAP_SIZE);
+    // persist(target->pleaf->header.bitmap, BITMAP_SIZE);
+    if (splitted_leaf != NULL) {
+        insertParent(bpt, parent, split_key, new_leaf, splitted_leaf);
+        // unlockLeaf(new_leaf, tid);
+        // unlockLeaf(splitted_leaf, tid);
+    } else {
+        // unlockLeaf(target, tid);
+    }
+    NVHTM_end();
+    return 1;
 }
 
 void deleteLeaf(BPTree *bpt, LeafNode *current, unsigned char tid) {
