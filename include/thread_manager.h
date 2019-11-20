@@ -22,7 +22,7 @@ typedef struct BPTreeFunctionContainer BPTreeFunctionContainer;
 #    endif
 
 #    define BPTREE_BLOCK 1
-#    define BPTREE_NON_BLOCK 2
+#    define BPTREE_NONBLOCK 2
 
 void bptreeThreadInit(unsigned int flag);
 void bptreeThreadDestroy();

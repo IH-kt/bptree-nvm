@@ -1,5 +1,5 @@
 include ./Makefile_location.inc
-VPATH = $(BUILD_DIR):$(TEST_SRC_DIR)/$(TYPE):$(BASE_BENCH_SRC_DIR)
+VPATH = $(BUILD_DIR):$(TEST_SRC_DIR)/$(TYPE):$(BASE_BENCH_SRC_DIR):$(HTM_ALG_DIR)/bin:$(MIN_NVM_DIR)/bin
 
 PMDK_DIR		:= $(HOME)/local
 PMDK_INCLUDES	:= -I$(PMDK_DIR)/include/
@@ -52,15 +52,25 @@ ALL_EXE			:= $(TEST_EXE) $(BASE_BENCH_EXE)
 all: $(ALL_EXE)
 
 %.exe:%.o $(FPTREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(NVHTM_LIB)
-	$(CXX) -o $(BUILD_DIR)/$@ $+ $(CFLAGS)
+	$(CXX) -o $(BUILD_DIR)/$@ $+ $(NVHTM_LIB) $(CFLAGS)
 
 %.o:%.c
 	mkdir -p $(BUILD_DIR)
-	$(CC) -c $+ -o $@ $(CFLAGS)
+	$(CC) -o $@ $(CFLAGS) -c $+
 
-libnh.a:
-	./make_nv-htm_lib.sh
-	mv libnh.a $(BUILD_DIR)
+$(NVHTM_LIB): libhtm_sgl.a libminimal_nvm.a
+	cp -R nvhtm_modification_files nvhtm
+	make -C nvhtm $(NVHTM_MAKE_ARGS)
+	mv nvhtm/libnh.a $(NVHTM_LIB)
+
+libhtm_sgl.a:
+	(cd nvhtm/DEPENDENCIES/htm_alg; ./compile.sh)
+
+libminimal_nvm.a:
+	(cd nvhtm-selfcontained/nvm-emulation; ./compile.sh)
+
+test-make:
+	echo $(NVHTM_CFLAGS)
 
 clean:
 

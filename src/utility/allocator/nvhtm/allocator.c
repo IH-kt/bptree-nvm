@@ -2,7 +2,6 @@
 #  error "CONCURRENT is not defined!"
 #endif
 #include "allocator.h"
-#include "nvhtm.h"
 
 PAddr PADDR_NULL = { 0, 0 };
 

@@ -1,12 +1,15 @@
 ifeq ($(type), nvhtm)
-NVHTM_DIR       := $(ROOT_DIR)/nvhtm-selfcontained/nv-htm
-NVM_DEP_DIR     := $(ROOT_DIR)/nvhtm-selfcontained
-NVHTM_INCLUDES  := -I$(NVHTM_DIR)/common/ -I$(NVM_DEP_DIR)/nvm-emulation/include/\
-                   -I$(NVM_DEP_DIR)/arch-dep/include/ -I$(NVM_DEP_DIR)/htm-alg/include/\
+NVHTM_DIR       := $(ROOT_DIR)/nvhtm
+NVM_DEP_DIR     := $(ROOT_DIR)/nvhtm/DEPENDENCIES
+HTM_ALG_DIR     := $(ROOT_DIR)/nvhtm/DEPENDENCIES/htm_alg
+MIN_NVM_DIR     := $(ROOT_DIR)/nvhtm-selfcontained/nvm-emulation
+
+NVHTM_INCLUDES  := -I$(NVHTM_DIR)/common/ -I$(MIN_NVM_DIR)/include/\
+                   -I$(NVM_DEP_DIR)/arch_dep/include/ -I$(HTM_ALG_DIR)/include/\
                    -I$(NVHTM_DIR)/nvhtm_common/ -I$(NVHTM_DIR)/nvhtm_pc/
-NVHTM_DEFINES   := -DCPU_MAX_FREQ=3900000 -DMAX_PHYS_THRS=18 -DNVMHTM_LOG_SIZE=1000\
-                   -DSORT_ALG=4 -DLOG_FILTER_THRESHOLD=0.50 -DHTM_SGL_INIT_BUDGET=20\
-                   -DREDO_TS -DVALIDATION=3  -DDO_CHECKPOINT=5 -DLOG_THRESHOLD=0.0 -DLOG_PERIOD=10
-NVHTM_LIBS      := -L$(NVM_DEP_DIR)/nvm-emulation/bin -L$(NVM_DEP_DIR)/htm-alg/bin -lhtm_sgl -lminimal_nvm
+NVHTM_DEFINES   := -DDO_CHECKPOINT=5 -DSOLUTION=4 -DSORT_ALG=5
+NVHTM_LIBS      := -L$(MIN_NVM_DIR)/bin -L$(HTM_ALG_DIR)/bin -lhtm_sgl -lminimal_nvm
 NVHTM_CFLAGS    := $(NVHTM_DEFINES) $(NVHTM_INCLUDES) $(PMDK_INCLUDES) -lpthread -mrtm $(NVHTM_LIBS) $(PMDK_LIBS)
+
+NVHTM_MAKE_ARGS := SOLUTION=4 DO_CHECKPOINT=5 SORT_ALG=5
 endif
