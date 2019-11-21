@@ -81,39 +81,39 @@ int main(int argc, char *argv[]) {
     size_t allocation_size = sizeof(PersistentLeafNode) * (warm_up + loop_times);
 #ifdef NVHTM
     set_log_file_name(log_path);
-    NVHTM_init(thread_max+1);
+    NVHTM_init(thread_max+2);
     void *pool = NH_alloc(pmem_path, allocation_size);
-    initAllocator(pool, pmem_path, allocation_size, thread_max);
     NVHTM_clear();
+    NVHTM_cpy_to_checkpoint(pool);
+    initAllocator(pool, pmem_path, allocation_size, thread_max+1);
 #else
     initAllocator(NULL, pmem_path, allocation_size, thread_max);
 #endif
 
     bpt = newBPTree();
 
+    tid_array = (pthread_t *)malloc(sizeof(pthread_t) * thread_max + 1);
+    arg_t **arg = (arg_t **)malloc(sizeof(arg_t *) * (thread_max + 1));
+    bptreeThreadInit(BPTREE_NONBLOCK);
+
     kv.key = 1;
     kv.value = 1;
     unsigned int seed = thread_max;
-    for (i = 0; i < warm_up; i++) {
-	kv.key = rand_r(&seed) % max_val + 1;
-        insert(bpt, kv, thread_max);
-    }
-
-#ifdef NVHTM
-    NVHTM_cpy_to_checkpoint(pool);
-#endif
-    
-
-    tid_array = (pthread_t *)malloc(sizeof(pthread_t) * thread_max);
+    arg[thread_max] = (arg_t *)malloc(sizeof(arg_t));
+    arg[thread_max]->seed = thread_max;
+    arg[thread_max]->tid = thread_max + 1;
+    arg[thread_max]->loop = warm_up;
+    tid_array[thread_max] = bptreeCreateThread(bpt, insert_random, arg[thread_max]);
+    bptreeWaitThread(tid_array[thread_max], NULL);
+    free(arg[thread_max]);
 
     bptreeThreadInit(BPTREE_BLOCK);
 
-    arg_t **arg = (arg_t **)malloc(sizeof(arg_t *) * (thread_max + 1));
     for (i = 0; i < thread_max; i++) {
         arg[i] = (arg_t *)malloc(sizeof(arg_t));
         arg[i]->seed = i;
-	arg[i]->tid = i % 256 + 1;
-	arg[i]->loop = loop_times / thread_max;
+        arg[i]->tid = i % 256 + 1;
+        arg[i]->loop = loop_times / thread_max;
         tid_array[i] = bptreeCreateThread(bpt, insert_random, arg[i]);
     }
     arg[i] = (arg_t *)malloc(sizeof(int));
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
     time += edt.tv_sec - stt.tv_sec;
     printf("%lf\n", time);
 
-    // showTree(bpt, 0);
+    showTree(bpt, 1);
 
     bptreeThreadDestroy();
 

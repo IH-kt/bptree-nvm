@@ -68,12 +68,12 @@ extern const Value INITIAL_VALUE;
 )
 #  define SET_BIT_T(bitmapaddr, index) ({\
     char bt_tmp = NVM_read(&bitmapaddr[index/8]) | (1 << ((index)%8));\
-    NVM_write_varsize(&bitmapaddr[index/8], bt_tmp, sizeof(char)) \
+    NVM_write_varsize(&bitmapaddr[index/8], &bt_tmp, sizeof(char)); \
 })
-#  define CLR_BIT_T(bitmapaddr, index) (\
-    char bt_tmp = NVM_read(&bitmapaddr[index/8]) | ~(1 << ((index)%8));\
-    NVM_write_varsize(&bitmapaddr[index/8], bt_tmp, sizeof(char)) \
-)
+#  define CLR_BIT_T(bitmapaddr, index) ({\
+    char bt_tmp = NVM_read(&bitmapaddr[index/8]) & ~(1 << ((index)%8));\
+    NVM_write_varsize(&bitmapaddr[index/8], &bt_tmp, sizeof(char)); \
+})
 #endif
 
 /* structs */

@@ -3,11 +3,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define SEED_INIT_VAL 0
-
+#define SEED_INIT_VAL 0 
 #define ROUND_UP_M(val) (((val) & 0xfffff) != 0) ? (((val) & !(0x000fffff)) + 0x100000) : (val)
 
-int loop_times = 40;
+int loop_times = 400;
 int max_val = 1000;
 
 void *insert_test(BPTree *bpt, void *arg) {
@@ -26,9 +25,9 @@ void *insert_test(BPTree *bpt, void *arg) {
             printf("insert: failure\n");
         }
     }
-    printf("insert: tree state -----------------------------\n");
-    showTree(bpt, tid);
-    printf("------------------------------------------------\n");
+    // printf("insert: tree state -----------------------------\n");
+    // showTree(bpt, tid);
+    // printf("------------------------------------------------\n");
     NVHTM_thr_exit();
     return NULL;
 }
@@ -53,9 +52,9 @@ void *search_test(BPTree *bpt, void *arg) {
         }
 	nanosleep(&wait_time, NULL);
     }
-    printf("search: tree state -----------------------------\n");
-    showTree(bpt, tid);
-    printf("------------------------------------------------\n");
+    // printf("search: tree state -----------------------------\n");
+    // showTree(bpt, tid);
+    // printf("------------------------------------------------\n");
     NVHTM_thr_exit();
     return NULL;
 }
@@ -75,9 +74,9 @@ void *delete_test(BPTree *bpt, void *arg) {
             printf("delete: failure\n");
         }
     }
-    printf("delete: tree state -----------------------------\n");
-    showTree(bpt, tid);
-    printf("------------------------------------------------\n");
+    // printf("delete: tree state -----------------------------\n");
+    // showTree(bpt, tid);
+    // printf("------------------------------------------------\n");
     NVHTM_thr_exit();
     return NULL;
 }
@@ -96,20 +95,23 @@ int main(int argc, char *argv[]) {
             printf("invalid argument\n");
             return 1;
         }
-	printf("loop_times = %d, max_val = %d\n", loop_times, max_val);
+        printf("loop_times = %d, max_val = %d\n", loop_times, max_val);
     } else {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
 
     NVHTM_init(4);
 
-    size_t pool_sz = sizeof(PersistentLeafNode) * loop_times / MAX_KEY * 2 + 100;
+    size_t pool_sz = sizeof(PersistentLeafNode) * loop_times + 100000;
     printf("pool_sz=%lu\n", pool_sz);
     void *pool = NH_alloc("data", pool_sz);
+    // void *pool = NH_alloc(pool_sz);
     printf("pool:%p -> %p (%lu)\n", pool, (char *)pool + pool_sz, pool_sz);
     printf("write pool: %d -> ", *(int *)pool);
     *(int *)pool = 0;
     printf("%d\n", *(int *)pool);
+    printf("memset pool\n");
+    memset(pool, '\0', pool_sz);
 
     NVHTM_clear();
 
@@ -127,8 +129,8 @@ int main(int argc, char *argv[]) {
     unsigned char tid1 = 1;
     unsigned char tid2 = 2;
     unsigned char tid3 = 3;
-    tid[0] = bptreeCreateThread(bpt, insert_test, &tid1);
-    tid[1] = bptreeCreateThread(bpt, search_test, &tid2);
+    tid[0] = bptreeCreateThread(bpt, search_test, &tid2);
+    tid[1] = bptreeCreateThread(bpt, insert_test, &tid1);
     tid[2] = bptreeCreateThread(bpt, delete_test, &tid3);
     printf("create\n");
 
