@@ -201,7 +201,7 @@ void insertFirstLeafNode_T(BPTree *tree, LeafNode *leafHead) {
     ppointer tmp;
     if (leafHead != NULL) {
         tmp = getPersistentAddr(leafHead->pleaf);
-        NVM_write_varsize(&tree->pmem_head, &tmp, sizeof(ppointer));
+        NVM_write_varsize(tree->pmem_head, &tmp, sizeof(ppointer));
     } else {
         NVM_write_varsize(tree->pmem_head, &P_NULL, sizeof(ppointer));
     }
