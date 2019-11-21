@@ -493,10 +493,10 @@ void NVMHTM_shutdown()
 
   double time_taken = (double) NVHTM_get_total_time();
 
-  printf("--- Percentage time blocked %f \n", ((double) NH_time_blocked_total
+  fprintf(stderr, "--- Percentage time blocked %f \n", ((double) NH_time_blocked_total
   / (double) CPU_MAX_FREQ / 1000.0D) / (double) TM_nb_threads / time_taken);
-  printf("--- Nb. checkpoints %lli\n", NH_nb_checkpoints);
-  printf("--- Time blocked %e ms!\n", (double) time_chkp_total / ((double) CPU_MAX_FREQ));
+  fprintf(stderr, "--- Nb. checkpoints %lli\n", NH_nb_checkpoints);
+  fprintf(stderr, "--- Time blocked %e ms!\n", (double) time_chkp_total / ((double) CPU_MAX_FREQ));
 }
 
 void NVMHTM_write_ts(int id, ts_s ts)
@@ -519,11 +519,12 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   #endif
 
   // flush entries before write TS (does not need memory barrier)
-  SPIN_PER_WRITE(MAX(nb_writes * sizeof(NVLogEntry_s) / CACHE_LINE_SIZE, 1));
-  // int log_before = ptr_mod_log(NH_global_logs[id]->end, -nb_writes);
-  // MN_flush(&(NH_global_logs[id]->ptr[log_before]),
-  //   nb_writes * sizeof(NVLogEntry_s), 0
-  // );
+  
+  // SPIN_PER_WRITE(MAX(nb_writes * sizeof(NVLogEntry_s) / CACHE_LINE_SIZE, 1));
+  int log_before = ptr_mod_log(NH_global_logs[id]->end, -nb_writes);
+  MN_flush(&(NH_global_logs[id]->ptr[log_before]),
+    nb_writes * sizeof(NVLogEntry_s), 1
+  );
 
   #ifndef DISABLE_VALIDATION
   NVMHTM_validate(id, threads_set);
@@ -532,11 +533,11 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   // good place for a memory barrier
 
   NVMHTM_write_ts(id, ts); // Flush all together
-  SPIN_PER_WRITE(1);
-  // log_before = ptr_mod_log(NH_global_logs[id]->end, -1);
-  // MN_flush(&(NH_global_logs[id]->ptr[log_before]),
-  //   sizeof(NVLogEntry_s), 0
-  // );
+  // SPIN_PER_WRITE(1);
+  log_before = ptr_mod_log(NH_global_logs[id]->end, -1);
+  MN_flush(&(NH_global_logs[id]->ptr[log_before]),
+    sizeof(NVLogEntry_s), 1
+  );
   #if VALIDATION == 2 && !defined(DISABLE_VALIDATION)
   global_flushed_ts++;
   // __sync_synchronize(); // Is not working! need the fence in the while loop!
@@ -1001,7 +1002,7 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
   (double) NH_manager_order_logs / (double) CPU_MAX_FREQ);
   ptr += sprintf(ptr, "[logger] NB_spins=%lli NB_writes=%lli TIME_spins=%fms\n",
   MN_count_spins, MN_count_writes, (double)MN_time_spins / (double)CPU_MAX_FREQ);
-  printf("%s", buffer);
+  fprintf(stderr, "%s", buffer);
 
   aux_thread_stats_to_gnuplot_file((char*) STATS_FILE ".aux_thr");
 

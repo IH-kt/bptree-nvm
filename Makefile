@@ -59,7 +59,7 @@ all: $(ALL_EXE)
 	$(CC) -o $@ $(CFLAGS) -c $+
 
 $(NVHTM_LIB): libhtm_sgl.a libminimal_nvm.a
-	cp -R nvhtm_modification_files nvhtm
+	cp -R $(ROOT_DIR)/nvhtm_modification_files/* $(NVHTM_DIR)
 	make -C nvhtm $(NVHTM_MAKE_ARGS)
 	mv nvhtm/libnh.a $(NVHTM_LIB)
 
@@ -67,6 +67,7 @@ libhtm_sgl.a:
 	(cd nvhtm/DEPENDENCIES/htm_alg; ./compile.sh)
 
 libminimal_nvm.a:
+	cp -R $(ROOT_DIR)/dummy_min-nvm/* $(MIN_NVM_DIR)/src
 	(cd nvhtm-selfcontained/nvm-emulation; ./compile.sh)
 
 test-make:

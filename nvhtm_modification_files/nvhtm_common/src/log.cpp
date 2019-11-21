@@ -109,7 +109,7 @@ void LOG_init(int nb_threads, int fresh)
   TM_nb_threads = nb_threads;
   // nvm_htm_log_size = NVMHTM_LOG_SIZE / nb_threads; // TODO
 
-  printf("Number of threads: %i\n", TM_nb_threads);
+  // printf("Number of threads: %i\n", TM_nb_threads);
 
   if (NH_global_logs == NULL) {
     ALLOC_FN(NH_global_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
@@ -282,7 +282,8 @@ void LOG_checkpoint_apply_N(int n)
   }
 
   // flushes the checkpoint
-  SPIN_PER_WRITE(to_flush.size()); // simulation
+  // SPIN_PER_WRITE(to_flush.size()); // simulation
+
   // TODO: we do not need to spin all this time (pay the cost of a memfence only!)
 }
 
@@ -299,7 +300,7 @@ void LOG_checkpoint_apply_N_update_after(int n)
   }
 
   // flushes the checkpoint
-  SPIN_PER_WRITE(to_flush.size()); // simulation
+  // SPIN_PER_WRITE(to_flush.size()); // simulation
 
   for (i = 0; i < TM_nb_threads; ++i) {
     NH_global_logs[i]->start;
