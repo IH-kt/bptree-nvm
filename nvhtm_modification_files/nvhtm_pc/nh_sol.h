@@ -78,8 +78,8 @@ extern "C"
 #define NH_alloc(fn, size) ({ \
         al_fn = fn; \
         al_sz = size; \
-        pool = ALLOC_MEM(fn, size); \
-        pool;\
+        al_pool = ALLOC_MEM(fn, size); \
+        al_pool;\
 })
 extern size_t al_sz;
 extern char const *al_fn;
@@ -89,7 +89,6 @@ extern void *al_pool;
 #define NH_free(pool) FREE_MEM(pool, al_sz)
 
 #define REMAP_PRIVATE() {\
-    printf("al_fn=%s\n", al_fn);\
     int fd = open(al_fn, O_RDWR);\
     if (fd == -1) perror("open");\
     void *tmp = mmap(al_pool, al_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_FIXED, fd, 0);\
