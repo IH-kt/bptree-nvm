@@ -472,6 +472,42 @@ int insertRecursive(InternalNode *current, Key new_key, LeafNode *new_node, Key 
     }
 }
 
+int findMaxKey(LeafNode *leaf) {
+    PersistentLeafNode *pleaf = leaf->pleaf;
+    int max_k = 0;
+    for(int i = 0; i < MAX_PAIR; i++) {
+        int k = pleaf->kv[i].key;
+        if(GET_BIT(pleaf->header.bitmap, i) && k > max_k) {
+            max_k = k;
+        }
+    }
+    return max_k;
+}
+
+// restructuring BPtree from leaf nodes
+void insertLeaf(BPTree *emptyTree, LeafNode *leafHead) {
+    InternalNode *root = emptyTree->root;
+    root->children[0] = leafHead;
+    emptyTree->head = leafHead;
+
+    LeafNode *target_leaf = leafHead->next;
+    while(target_leaf != NULL) {
+        Key split_key;
+        InternalNode *split_node;
+        int new_key = findMaxKey(target_leaf->prev);
+        int splitted = insertRecursive(root, new_key, target_leaf, &split_key, &split_node);
+        if (splitted) {
+            // need to update root
+            InternalNode *new_root = newInternalNode();
+            new_root->children[0] = emptyTree->root;
+            insertNonfullInternal(new_root, split_key, split_node);
+            new_root->children_type = INTERNAL;
+            emptyTree->root = new_root;
+        }
+        target_leaf = target_leaf->next;
+    }
+}
+
 int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
     if (bpt == NULL) {
         return 0;
