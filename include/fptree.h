@@ -42,9 +42,14 @@ extern ppointer PADDR_NULL;
  * valid key should be larger than 0.
  */
 typedef long Key;
-#define UNUSED_KEY -1
 typedef int Value;
+#ifdef NVHTM
+extern const Key UNUSED_KEY;
+extern const Value INITIAL_VALUE;
+#else
+#define UNUSED_KEY -1
 #define INITIAL_VALUE 0
+#endif
 
 /* bitmap operator */
 #define GET_BIT(bitmapaddr, index) (\
@@ -61,11 +66,13 @@ typedef int Value;
 #  define GET_BIT_T(bitmapaddr, index) (\
     (NVM_read(&bitmapaddr[index/8]) & (1 << ((index)%8))) >> (index)%8\
 )
-#  define SET_BIT_T(bitmapaddr, index) (\
-    NVM_write(&bitmapaddr[index/8], NVM_read(&bitmapaddr[index/8]) | (1 << ((index)%8))) \
-)
+#  define SET_BIT_T(bitmapaddr, index) ({\
+    char bt_tmp = NVM_read(&bitmapaddr[index/8]) | (1 << ((index)%8));\
+    NVM_write_varsize(&bitmapaddr[index/8], bt_tmp, sizeof(char)) \
+})
 #  define CLR_BIT_T(bitmapaddr, index) (\
-    NVM_write(&bitmapaddr[index/8], NVM_read(&bitmapaddr[index/8]) & ~(1 << ((index)%8))) \
+    char bt_tmp = NVM_read(&bitmapaddr[index/8]) | ~(1 << ((index)%8));\
+    NVM_write_varsize(&bitmapaddr[index/8], bt_tmp, sizeof(char)) \
 )
 #endif
 
