@@ -1,7 +1,7 @@
 #ifdef NVHTM
 #  include "nvhtm.h"
 #endif
-#include "fptree.h"
+#include "tree.h"
 #include "thread_manager.h"
 #include <stdlib.h>
 #include <time.h>

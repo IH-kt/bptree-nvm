@@ -12,26 +12,38 @@ ifndef type
 else
 	TYPE	:= $(type)
 endif
+ifeq ($(tree), bptree)
+	TREE		:= bptree
+else
+	TREE		:= fptree
+endif
 
 TEST_SRC_DIR        := $(SRC_DIR)/test
 BENCH_SRC_DIR		:= $(SRC_DIR)/benchmark
 BASE_BENCH_SRC_DIR	:= $(BENCH_SRC_DIR)/base_operation
 UTILITY_DIR         := $(SRC_DIR)/utility
 FPTREE_DIR          := $(SRC_DIR)/fptree
+BPTREE_DIR          := $(SRC_DIR)/bptree
 ALLOCATOR_DIR       := $(UTILITY_DIR)/allocator
 THREAD_MANAGER_DIR  := $(UTILITY_DIR)/thread_manager
 BENCH_SCRIPT_DIR    := $(UTILITY_DIR)/benchmark_script
 
-FPTREE_SRC_NAME         := fptree.c
+BPTREE_SRC_NAME         := bptree.c
 ALLOCATOR_SRC_NAME      := allocator.c
 THREAD_MANAGER_SRC_NAME := thread_manager.c
 BENCH_SCRIPT_SRC_NAME   := base_operation.py
-TEST_SRC_NAME			:= $(shell ls $(TEST_SRC_DIR)/$(TYPE))
+OP_TEST_SRC_NAME		:= $(shell ls $(TEST_SRC_DIR)/$(TYPE))
+TREE_TEST_SRC_NAME      := $(shell ls $(TEST_SRC_DIR)/$(TREE))
+TEST_SRC_NAME           := $(OP_TEST_SRC_NAME) $(TREE_TEST_SRC_NAME)
 BASE_BENCH_SRC_NAME		:= $(shell ls $(BASE_BENCH_SRC_DIR))
 
-FPTREE_SRC          := $(FPTREE_DIR)/$(TYPE)/$(FPTREE_SRC_NAME)
+FPTREE_SRC          := $(FPTREE_DIR)/$(TYPE)/$(BPTREE_SRC_NAME)
+BPTREE_SRC          := $(BPTREE_DIR)/$(TYPE)/$(BPTREE_SRC_NAME)
 ALLOCATOR_SRC       := $(ALLOCATOR_DIR)/$(TYPE)/$(ALLOCATOR_SRC_NAME)
 THREAD_MANAGER_SRC  := $(THREAD_MANAGER_DIR)/$(TYPE)/$(THREAD_MANAGER_SRC_NAME)
 BENCH_SCRIPT_SRC    := $(BENCH_SCRIPT_DIR)/$(BENCH_SCRIPT_SRC_NAME)
-TEST_SRC 			:= $(addprefix $(TEST_SRC_DIR)/$(TYPE)/, $(TEST_SRC_NAME))
+OP_TEST_SRC 		:= $(addprefix $(TEST_SRC_DIR)/$(TYPE)/, $(OP_TEST_SRC_NAME))
+TREE_TEST_SRC 		:= $(addprefix $(TEST_SRC_DIR)/$(TREE)/, $(TREE_TEST_SRC_NAME))
+TEST_SRC            := $(OP_TEST_SRC) $(TREE_TEST_SRC)
 BASE_BENCH_SRC 		:= $(addprefix $(BASE_BENCH_SRC_DIR)/$(TYPE)/, $(BASE_BENCH_SRC_NAME))
+

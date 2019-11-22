@@ -1,4 +1,4 @@
-#include "fptree.h"
+#include "tree.h"
 #include "allocator.h"
 #ifdef CONCURRENT
 #  error CONCURRENT is defined

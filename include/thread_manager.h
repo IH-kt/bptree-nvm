@@ -3,7 +3,7 @@
 #  ifdef __cplusplus
 extern "C" {
 #  endif
-#    include "fptree.h"
+#    include "tree.h"
 #    ifdef CONCURRENT
 #      include <pthread.h>
 #      include <immintrin.h>
