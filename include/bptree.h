@@ -155,6 +155,7 @@ int searchNodeInInternalNode(InternalNode *, void *);
 void insertParent(BPTree *, InternalNode *, Key, LeafNode *, LeafNode *);
 int insertRecursive(InternalNode *, Key, LeafNode *, Key *, InternalNode **);
 
+void insertLeaf(BPTree *, LeafNode *);
 int bptreeUpdate(BPTree *, KeyValuePair, unsigned char);
 
 // void deleteLeaf(BPTree *, LeafNode *, LeafNode *);
