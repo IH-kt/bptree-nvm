@@ -17,6 +17,34 @@ typedef struct arg_t {
 	unsigned char tid;
 } arg_t;
 
+void *insert_random(BPTree *bpt, void *arg) {
+    arg_t *arg_cast = (arg_t *)arg;
+#ifdef NVHTM
+    NVHTM_thr_init();
+#endif
+    unsigned char tid = arg_cast->tid;
+    KeyValuePair kv;
+    unsigned int seed = arg_cast->seed;
+    unsigned int loop = arg_cast->loop;
+    kv.key = 1;
+    kv.value = 1;
+    for (int i = 1; i <= loop; i++) {
+        kv.key = rand_r(&seed) % max_val + 1;
+        // printf("inserting %ld\n", kv.key);
+        if (!insert(bpt, kv, tid)) {
+            // fprintf(stderr, "insert: failure\n");
+        }
+        // showTree(bpt);
+    }
+#ifdef TIME_PART
+    showTime(tid);
+#endif
+#ifdef NVHTM
+    NVHTM_thr_exit();
+#endif
+    return arg;
+}
+
 void *delete_random(BPTree *bpt, void *arg) {
 #ifdef NVHTM
     NVHTM_thr_init();
@@ -37,7 +65,7 @@ void *delete_random(BPTree *bpt, void *arg) {
 #ifdef NVHTM
     NVHTM_thr_exit();
 #endif
-    return NULL;
+    return arg;
 }
 
 char const *pmem_path = "data";
@@ -45,6 +73,7 @@ char const *log_path = "log";
 
 int main(int argc, char *argv[]) {
     pthread_t *tid_array;
+    arg_t **arg;
     struct timespec stt, edt;
     int i;
     BPTree *bpt;
@@ -80,51 +109,53 @@ int main(int argc, char *argv[]) {
     size_t allocation_size = sizeof(PersistentLeafNode) * loop_times / MAX_PAIR * 2;
 #ifdef NVHTM
     set_log_file_name(log_path);
-    NVHTM_init(thread_max+1);
+    NVHTM_init(thread_max + 2);
     void *pool = NH_alloc(pmem_path, allocation_size);
-    initAllocator(pool, pmem_path, allocation_size, thread_max);
     NVHTM_clear();
+    NVHTM_cpy_to_checkpoint(pool);
+    initAllocator(pool, pmem_path, allocation_size, thread_max + 1);
 #else
-    initAllocator(NULL, pmem_path, allocation_size, thread_max);
+    initAllocator(NULL, pmem_path, allocation_size, thread_max + 1);
 #endif
     bpt = newBPTree();
+
+    tid_array = (pthread_t *)malloc(sizeof(pthread_t) * (thread_max + 1));
+    arg = (arg_t **)malloc(sizeof(arg_t *) * (thread_max + 1));
+
+    bptreeThreadInit(BPTREE_NONBLOCK);
 
     kv.key = 1;
     kv.value = 1;
     unsigned int seed = thread_max;
-    for (i = 0; i < warm_up; i++) {
-	kv.key = rand_r(&seed) % max_val + 1;
-        insert(bpt, kv, thread_max);
-    }
-    // showTree(bpt, 0);
-#ifdef NVHTM
-    NVHTM_cpy_to_checkpoint(pool);
-#endif
-
-    tid_array = (pthread_t *)malloc(sizeof(pthread_t) * thread_max);
+    arg[thread_max] = (arg_t *)malloc(sizeof(arg_t));
+    arg[thread_max]->seed = thread_max;
+    arg[thread_max]->tid = thread_max;
+    arg[thread_max]->loop = warm_up;
+    tid_array[thread_max] = bptreeCreateThread(bpt, insert_random, arg[thread_max]);
+    bptreeWaitThread(tid_array[thread_max], NULL);
+    free(arg[thread_max]);
 
     bptreeThreadInit(BPTREE_BLOCK);
 
-    arg_t *arg = NULL;
     for (i = 0; i < thread_max-1; i++) {
-        arg = (arg_t *)malloc(sizeof(int));
-        arg->seed = i;
-        arg->tid = i % 256 + 1;
-        arg->loop = loop_times / thread_max;
-        tid_array[i] = bptreeCreateThread(bpt, delete_random, arg);
+        arg[i] = (arg_t *)malloc(sizeof(int));
+        arg[i]->seed = i;
+        arg[i]->tid = i % 256 + 1;
+        arg[i]->loop = loop_times / thread_max;
+        tid_array[i] = bptreeCreateThread(bpt, delete_random, arg[i]);
     }
-    arg = (arg_t *)malloc(sizeof(int));
-    arg->seed = i;
-    arg->tid = i % 256 + 1;
-    arg->loop = loop_times / thread_max + loop_times % thread_max;
-    tid_array[i] = bptreeCreateThread(bpt, delete_random, arg);
+    arg[i] = (arg_t *)malloc(sizeof(int));
+    arg[i]->seed = i;
+    arg[i]->tid = i % 256 + 1;
+    arg[i]->loop = loop_times / thread_max + loop_times % thread_max;
+    tid_array[i] = bptreeCreateThread(bpt, delete_random, arg[i]);
 
     clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
     bptreeStartThread();
 
     for (i = 0; i < thread_max; i++) {
-        bptreeWaitThread(tid_array[i], (void **)&arg);
-        free(arg);
+        bptreeWaitThread(tid_array[i], NULL);
+        free(NULL);
     }
     clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
 

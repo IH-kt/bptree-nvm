@@ -1,3 +1,6 @@
+#ifdef NVHTM
+#  include "nvhtm.h"
+#endif
 #include "fptree.h"
 #include "thread_manager.h"
 #include <stdlib.h>
@@ -81,13 +84,14 @@ int main(int argc, char *argv[]) {
     size_t allocation_size = sizeof(PersistentLeafNode) * (warm_up + loop_times);
 #ifdef NVHTM
     set_log_file_name(log_path);
-    NVHTM_init(thread_max+2);
+    NVHTM_init(thread_max + 2);
     void *pool = NH_alloc(pmem_path, allocation_size);
+    // void *pool = NH_alloc(allocation_size);
     NVHTM_clear();
     NVHTM_cpy_to_checkpoint(pool);
-    initAllocator(pool, pmem_path, allocation_size, thread_max+1);
+    initAllocator(pool, pmem_path, allocation_size, thread_max + 1);
 #else
-    initAllocator(NULL, pmem_path, allocation_size, thread_max);
+    initAllocator(NULL, pmem_path, allocation_size, thread_max + 1);
 #endif
 
     bpt = newBPTree();
@@ -139,7 +143,7 @@ int main(int argc, char *argv[]) {
     time += edt.tv_sec - stt.tv_sec;
     printf("%lf\n", time);
 
-    showTree(bpt, 1);
+    // showTree(bpt, 1);
 
     bptreeThreadDestroy();
 
