@@ -252,16 +252,14 @@ ppointer *root_allocate(size_t size, size_t node_size) {
     myalloc_allocate_time += (myalloc_finish_time.tv_sec - myalloc_start_time.tv_sec) * 1000000000L + (myalloc_finish_time.tv_nsec - myalloc_start_time.tv_nsec);
 #endif
     _tree_node_size = node_size;
-    ppointer *root_p = (ppointer *)vol_mem_allocate(sizeof(ppointer));
-    *root_p = getPersistentAddr(_pmem_user_head);
-    if (comparePAddr(PADDR_NULL, *(PAddr *)_pmem_mmap_head)) {
-        *(PAddr *)_pmem_mmap_head = getPersistentAddr(_pmem_user_head);
+    ppointer *root_p = (ppointer *)_pmem_user_head;
+    if (comparePAddr(PADDR_NULL, ((AllocatorHeader*)_pmem_mmap_head)->node_head)) {
+        ((AllocatorHeader *)_pmem_mmap_head)->node_head = getPersistentAddr(_pmem_user_head);
     }
     return root_p;
 }
 
 void root_free(ppointer *root) {
-    vol_mem_free(root);
 }
 
 ppointer pst_mem_allocate(size_t size, unsigned char tid) {
