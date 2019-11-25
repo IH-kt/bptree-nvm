@@ -159,8 +159,7 @@ void initLeafNode(LeafNode *node, unsigned char tid) {
     for (i = 0; i < BITMAP_SIZE; i++) {
         NVM_write_varsize(&new_pleaf->header.bitmap[i], &zchar, sizeof(char));
     }
-    NVM_write_varsize(&new_pleaf->header.pnext.fid, &P_NULL.fid, sizeof(P_NULL.fid));
-    NVM_write_varsize(&new_pleaf->header.pnext.offset, &P_NULL.offset, sizeof(P_NULL.offset));
+    NVM_write_varsize(&new_pleaf->header.pnext, &P_NULL, sizeof(P_NULL));
     for (i = 0; i < MAX_PAIR; i++) {
         NVM_write_varsize(&new_pleaf->header.fingerprints[i], &zchar, sizeof(char));
         initKeyValuePair(&new_pleaf->kv[i]);
