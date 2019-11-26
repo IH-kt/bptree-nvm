@@ -117,8 +117,13 @@ void initMemoryRoot(MemoryRoot *mr, unsigned char thread_num, void *head, size_t
             mr->local_free_list_head_ary[i][j] = NULL;
             mr->local_free_list_tail_ary[i][j] = NULL;
             if (i == j) {
-                addDefaultEmptyNode(&mr->local_free_list_head_ary[i][j], &mr->local_free_list_tail_ary[i][j],
-                    mr->global_free_list_head, mr->remaining_amount, node_size, &mr->global_free_area_head);
+                int res;
+                res = addDefaultEmptyNode(&mr->local_free_list_head_ary[i][j], &mr->local_free_list_tail_ary[i][j],
+                             mr->global_free_list_head, mr->remaining_amount, node_size, &mr->global_free_area_head);
+                if (res < 0) {
+                    fprintf(stderr, "allocator init: out of memory\n");
+                    exit(1);
+                }
             }
             mr->list_lock[i][j] = 0;
         }
@@ -252,16 +257,14 @@ ppointer *root_allocate(size_t size, size_t node_size) {
     myalloc_allocate_time += (myalloc_finish_time.tv_sec - myalloc_start_time.tv_sec) * 1000000000L + (myalloc_finish_time.tv_nsec - myalloc_start_time.tv_nsec);
 #endif
     _tree_node_size = node_size;
-    ppointer *root_p = (ppointer *)vol_mem_allocate(sizeof(ppointer));
-    *root_p = getPersistentAddr(_pmem_user_head);
-    if (comparePAddr(PADDR_NULL, *(PAddr *)_pmem_mmap_head)) {
-        *(PAddr *)_pmem_mmap_head = getPersistentAddr(_pmem_user_head);
+    ppointer *root_p = (ppointer *)_pmem_user_head;
+    if (comparePAddr(PADDR_NULL, ((AllocatorHeader*)_pmem_mmap_head)->node_head)) {
+        ((AllocatorHeader *)_pmem_mmap_head)->node_head = getPersistentAddr(_pmem_user_head);
     }
     return root_p;
 }
 
 void root_free(ppointer *root) {
-    vol_mem_free(root);
 }
 
 ppointer pst_mem_allocate(size_t size, unsigned char tid) {

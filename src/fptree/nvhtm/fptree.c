@@ -2,20 +2,59 @@
 #include "allocator.h"
 #include "nv-htm_wrapper.h"
 
+typedef intptr_t NVHTM_WRITE_UNIT_T;
+const Key UNUSED_KEY = -1;
+const Value INITIAL_VALUE = 0;
+
 #ifdef TIME_PART
+__thread double internal_alloc_time = 0;
+__thread double leaf_alloc_time = 0;
 __thread double insert_part1 = 0;
 __thread double insert_part2 = 0;
 __thread double insert_part3 = 0;
-__thread struct timespec stt, edt;
-__thread double time_tmp = 0;
 __thread unsigned int times_of_lock = 0;
 __thread unsigned int times_of_transaction = 0;
+#  define INTERNAL_ALLOC_TIME internal_alloc_time
+#  define LEAF_ALLOC_TIME leaf_alloc_time
+#  define INSERT_1_TIME insert_part1
+#  define INSERT_2_TIME insert_part2
+#  define INSERT_3_TIME insert_part3
+#  define INIT_TIME_VAR()     \
+    struct timespec stt, edt; \
+    double time_tmp = 0
+
+#  define START_MEJOR_TIME() \
+	clock_gettime(CLOCK_MONOTONIC_RAW, &stt)
+
+#  define FINISH_MEJOR_TIME(time_res) {         \
+	clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
+	time_tmp = 0;                             \
+	time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
+	time_tmp /= 1000000000;                   \
+	time_tmp += edt.tv_sec - stt.tv_sec;      \
+	time_res += time_tmp;                     \
+}
+
 void showTime(unsigned int tid) {
 	fprintf(stderr, "thread %d, insert_part1 = %lf\n", tid, insert_part1);
 	fprintf(stderr, "thread %d, insert_part2 = %lf\n", tid, insert_part2);
 	fprintf(stderr, "thread %d, insert_part3 = %lf\n", tid, insert_part3);
 	fprintf(stderr, "thread %d, lock = %u, transaction = %u\n", tid, times_of_lock, times_of_transaction);
 }
+
+#  define TRANSACTION_SUCCESS() times_of_transaction++
+#  define LOCK_SUCCESS() times_of_lock++
+#else
+#  define INTERNAL_ALLOC_TIME
+#  define LEAF_ALLOC_TIME
+#  define INSERT_1_TIME
+#  define INSERT_2_TIME
+#  define INSERT_3_TIME
+#  define INIT_TIME_VAR()
+#  define START_MEJOR_TIME()
+#  define FINISH_MEJOR_TIME(res)
+#  define TRANSACTION_SUCCESS()
+#  define LOCK_SUCCESS()
 #endif
 
 #define TRANSACTION_EXECUTION_INIT()    \
@@ -119,28 +158,48 @@ unsigned char hash(Key key) {
     return key % 256;
 }
 
+void NVM_write_varsize(void *addr_v, const void *value_v, size_t len) {
+    char *addr = (char *)addr_v;
+    char *value = (char *)value_v;
+    NVHTM_WRITE_UNIT_T tmp;
+    size_t us = sizeof(NVHTM_WRITE_UNIT_T);
+    int i;
+    for (i = 0; i < len / us; i++) {
+        NVM_write(addr + i * us, *(NVHTM_WRITE_UNIT_T *)(value + i * us));
+        // memcpy(addr + i * us, (NVHTM_WRITE_UNIT_T *)(value + i * us), sizeof(NVHTM_WRITE_UNIT_T));
+    }
+    if (len % us != 0) {
+        // preserve other bits
+        long mask = (0xffffffffffffffff) << (len % us) * 8;
+        tmp = *(NVHTM_WRITE_UNIT_T *)(addr + i * us);
+        tmp &= mask;
+        tmp |= (*(NVHTM_WRITE_UNIT_T *)value) & (~mask);
+        NVM_write(addr + i * us, tmp);
+        // memcpy(addr + i * us, &tmp, sizeof(NVHTM_WRITE_UNIT_T));
+    }
+}
+
 /* initializer */
 void initKeyValuePair(KeyValuePair *pair) {
-    NVM_write(&pair->key, UNUSED_KEY);
-    NVM_write(&pair->value, INITIAL_VALUE);
+    NVM_write_varsize(&pair->key, &UNUSED_KEY, sizeof(Key));
+    NVM_write_varsize(&pair->value, &INITIAL_VALUE, sizeof(Value));
 }
 
 void initLeafNode(LeafNode *node, unsigned char tid) {
     int i;
+    char zchar = 0;
     ppointer new_pleaf_p = pst_mem_allocate(sizeof(PersistentLeafNode), tid);
-    printf("fid = %d, offset = %lu\n", new_pleaf_p.fid, new_pleaf_p.offset);
     PersistentLeafNode *new_pleaf = (PersistentLeafNode *)getTransientAddr(new_pleaf_p);
     NVHTM_begin();
     for (i = 0; i < BITMAP_SIZE; i++) {
-        NVM_write(&new_pleaf->header.bitmap[i], 0);
+        NVM_write_varsize(&new_pleaf->header.bitmap[i], &zchar, sizeof(char));
     }
-    NVM_write(&new_pleaf->header.pnext.fid, P_NULL.fid);
-    NVM_write(&new_pleaf->header.pnext.offset, P_NULL.offset);
+    NVM_write_varsize(&new_pleaf->header.pnext, &P_NULL, sizeof(P_NULL));
     for (i = 0; i < MAX_PAIR; i++) {
-        NVM_write(&new_pleaf->header.fingerprints[i], 0);
+        NVM_write_varsize(&new_pleaf->header.fingerprints[i], &zchar, sizeof(char));
         initKeyValuePair(&new_pleaf->kv[i]);
     }
-    NVM_write(&new_pleaf->lock, 0);
+    NVM_write_varsize(&new_pleaf->lock, &zchar, sizeof(char));
     NVHTM_end();
     node->pleaf = new_pleaf;
     node->next = NULL;
@@ -173,12 +232,12 @@ void insertFirstLeafNode(BPTree *tree, LeafNode *leafHead) {
 }
 
 void insertFirstLeafNode_T(BPTree *tree, LeafNode *leafHead) {
+    ppointer tmp;
     if (leafHead != NULL) {
-        NVM_write(&tree->pmem_head->fid, getPersistentAddr(leafHead->pleaf).fid);
-        NVM_write(&tree->pmem_head->offset, getPersistentAddr(leafHead->pleaf).offset);
+        tmp = getPersistentAddr(leafHead->pleaf);
+        NVM_write_varsize(tree->pmem_head, &tmp, sizeof(ppointer));
     } else {
-        NVM_write(&tree->pmem_head->fid, P_NULL.fid);
-        NVM_write(&tree->pmem_head->offset, P_NULL.offset);
+        NVM_write_varsize(tree->pmem_head, &P_NULL, sizeof(ppointer));
     }
     tree->head = leafHead;
     tree->root->children_type = LEAF;
@@ -200,8 +259,11 @@ void initSearchResult(SearchResult *sr) {
 }
 
 LeafNode *newLeafNode(unsigned char tid) {
+    INIT_TIME_VAR();
+    START_MEJOR_TIME();
     LeafNode *new = (LeafNode *)vol_mem_allocate(sizeof(LeafNode));
     initLeafNode(new, tid);
+    FINISH_MEJOR_TIME(LEAF_ALLOC_TIME);
     return new;
 }
 void destroyLeafNode(LeafNode *node, unsigned char tid) {
@@ -209,8 +271,11 @@ void destroyLeafNode(LeafNode *node, unsigned char tid) {
 }
 
 InternalNode *newInternalNode() {
+    INIT_TIME_VAR();
+    START_MEJOR_TIME();
     InternalNode *new = (InternalNode *)vol_mem_allocate(sizeof(InternalNode));
     initInternalNode(new);
+    FINISH_MEJOR_TIME(INTERNAL_ALLOC_TIME);
     return new;
 }
 void destroyInternalNode(InternalNode *node) {
@@ -377,31 +442,38 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode 
     int i;
     Key split_key;
     char bitmap[BITMAP_SIZE];
+    KeyValuePair kv_tmp;
+    unsigned char c_tmp;
+    ppointer pp_tmp;
 
     for (i = 0; i < MAX_PAIR; i++) {
-        NVM_write(&new_leafnode->pleaf->kv[i].key, NVM_read(&target->pleaf->kv[i].key));
-        NVM_write(&new_leafnode->pleaf->kv[i].value, NVM_read(&target->pleaf->kv[i].value));
-        NVM_write(&new_leafnode->pleaf->header.fingerprints[i], NVM_read(&target->pleaf->header.fingerprints[i]));
+        kv_tmp = NVM_read(&target->pleaf->kv[i]);
+        NVM_write_varsize(&new_leafnode->pleaf->kv[i], &kv_tmp, sizeof(KeyValuePair));
+        c_tmp = NVM_read(&target->pleaf->header.fingerprints[i]);
+        NVM_write_varsize(&new_leafnode->pleaf->header.fingerprints[i], &c_tmp, sizeof(unsigned char));
     }
-    NVM_write(&new_leafnode->pleaf->header.pnext.fid, NVM_read(&target->pleaf->header.pnext.fid));
-    NVM_write(&new_leafnode->pleaf->header.pnext.offset, NVM_read(&target->pleaf->header.pnext.offset));
-    NVM_write(&new_leafnode->pleaf->lock, NVM_read(&target->pleaf->lock));
+    pp_tmp = NVM_read(&target->pleaf->header.pnext);
+    NVM_write_varsize(&new_leafnode->pleaf->header.pnext, &pp_tmp, sizeof(ppointer));
+    c_tmp = NVM_read(&target->pleaf->lock);
+    NVM_write_varsize(&new_leafnode->pleaf->lock, &c_tmp, sizeof(char));
     persist(new_leafnode->pleaf, sizeof(PersistentLeafNode));
 
     findSplitKey(new_leafnode, &split_key, bitmap);
 
     for (i = 0; i < BITMAP_SIZE; i++) {
-        NVM_write(&new_leafnode->pleaf->header.bitmap[i], bitmap[i]);
+        c_tmp = bitmap[i];
+        NVM_write_varsize(&new_leafnode->pleaf->header.bitmap[i], &c_tmp, sizeof(char));
     }
     persist(new_leafnode->pleaf->header.bitmap, BITMAP_SIZE * sizeof(bitmap[0]));
 
     for (i = 0; i < BITMAP_SIZE; i++) {
-        NVM_write(&target->pleaf->header.bitmap[i], ~bitmap[i]);
+        c_tmp = ~bitmap[i];
+        NVM_write_varsize(&target->pleaf->header.bitmap[i], &c_tmp, sizeof(char));
     }
     persist(target->pleaf->header.bitmap, BITMAP_SIZE * sizeof(bitmap[0]));
 
-    NVM_write(&target->pleaf->header.pnext.fid, getPersistentAddr(new_leafnode->pleaf).fid);
-    NVM_write(&target->pleaf->header.pnext.offset, getPersistentAddr(new_leafnode->pleaf).offset);
+    pp_tmp = getPersistentAddr(new_leafnode->pleaf);
+    NVM_write_varsize(&target->pleaf->header.pnext, &pp_tmp, sizeof(ppointer));
 
     persist(getTransientAddr(NVM_read(&target->pleaf->header.pnext)), sizeof(LeafNode *));
 
@@ -477,9 +549,9 @@ void insertNonfullInternal(InternalNode *target, Key key, void *child) {
 
 void insertNonfullLeaf(LeafNode *node, KeyValuePair kv) {
     int slot = findFirstAvailableSlot(node);
-    NVM_write(&node->pleaf->kv[slot].key, kv.key);
-    NVM_write(&node->pleaf->kv[slot].value, kv.value);
-    NVM_write(&node->pleaf->header.fingerprints[slot], hash(kv.key));
+    char hs_tmp = hash(kv.key);
+    NVM_write_varsize(&node->pleaf->kv[slot], &kv, sizeof(KeyValuePair));
+    NVM_write_varsize(&node->pleaf->header.fingerprints[slot], &hs_tmp, sizeof(char));
     persist(&node->pleaf->kv[slot], sizeof(KeyValuePair));
     persist(&node->pleaf->header.fingerprints[slot], sizeof(char));
     SET_BIT_T(node->pleaf->header.bitmap, slot);
@@ -488,6 +560,7 @@ void insertNonfullLeaf(LeafNode *node, KeyValuePair kv) {
 }
 
 int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
+    INIT_TIME_VAR();
     LeafNode *new_leaf = newLeafNode(tid);
     unsigned char used_flag = 0;
     if (bpt == NULL) {
@@ -496,29 +569,18 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     }
     NVHTM_begin();
     if (bpt->root->children[0] == NULL) {
-#ifdef TIME_PART
-        clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
-#endif
+        START_MEJOR_TIME();
         insertFirstLeafNode_T(bpt, new_leaf);
         insertNonfullLeaf(new_leaf, kv);
         NVHTM_end();
-#ifdef TIME_PART
-        clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
-        time_tmp = 0;
-        time_tmp += (edt.tv_nsec - stt.tv_nsec);
-        time_tmp /= 1000000000;
-        time_tmp += edt.tv_sec - stt.tv_sec;
-        insert_part1 += time_tmp;
-#endif
+        FINISH_MEJOR_TIME(INSERT_1_TIME);
         return 1;
     }
 
     InternalNode *parent;
     unsigned char found_flag = 0;
     LeafNode *target_leaf;
-#ifdef TIME_PART
-	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
-#endif
+    START_MEJOR_TIME();
     unsigned char retry_flag = 0;
     target_leaf = findLeaf(bpt->root, kv.key, &parent, &retry_flag);
     if (searchInLeaf(target_leaf, kv.key) != -1) {
@@ -526,41 +588,28 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     } else {
         found_flag = 0;
     }
-#ifdef TIME_PART
-	clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
-	time_tmp = 0;
-	time_tmp += (edt.tv_nsec - stt.tv_nsec);
-	time_tmp /= 1000000000;
-	time_tmp += edt.tv_sec - stt.tv_sec;
-	insert_part2 += time_tmp;
-#endif
+    FINISH_MEJOR_TIME(INSERT_2_TIME);
     if (found_flag) {
         NVHTM_end();
         destroyLeafNode(new_leaf, tid);
         return 0;
     }
 
-#ifdef TIME_PART
-	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
-#endif
+    START_MEJOR_TIME();
 
     if (target_leaf->key_length < MAX_PAIR) {
         insertNonfullLeaf(target_leaf, kv);
+        unlockLeaf(target_leaf, tid);
+        NVHTM_end();
+        destroyLeafNode(new_leaf, tid);
     } else {
         Key split_key = splitLeaf(target_leaf, kv, tid, new_leaf);
         insertParent(bpt, parent, split_key, new_leaf, target_leaf);
         unlockLeaf(new_leaf, tid);
+        unlockLeaf(target_leaf, tid);
+        NVHTM_end();
     }
-    unlockLeaf(target_leaf, tid);
-    NVHTM_end();
-#ifdef TIME_PART
-	clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
-	time_tmp = 0;
-	time_tmp += (edt.tv_nsec - stt.tv_nsec);
-	time_tmp /= 1000000000;
-	time_tmp += edt.tv_sec - stt.tv_sec;
-	insert_part2 += time_tmp;
-#endif
+    FINISH_MEJOR_TIME(INSERT_3_TIME);
     return 1;
 }
 
@@ -686,8 +735,8 @@ void deleteLeaf(BPTree *bpt, LeafNode *current, unsigned char tid) {
         *bpt->pmem_head = NVM_read(&current->pleaf->header.pnext);
         persist(bpt->pmem_head, sizeof(ppointer));
     } else {
-        NVM_write(&current->prev->pleaf->header.pnext.fid, NVM_read(&current->pleaf->header.pnext).fid);
-        NVM_write(&current->prev->pleaf->header.pnext.offset, NVM_read(&current->pleaf->header.pnext).offset);
+        ppointer pp_tmp = NVM_read(&current->pleaf->header.pnext);
+        NVM_write_varsize(&current->prev->pleaf->header.pnext, &pp_tmp, sizeof(ppointer));
         current->prev->next = current->next;
     }
     if (current->next != NULL) {

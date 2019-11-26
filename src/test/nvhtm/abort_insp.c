@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
 
-    NVHTM_init(4);
+    NVHTM_init(2);
 
     size_t pool_sz = sizeof(PersistentLeafNode) * loop_times + 100000;
     printf("pool_sz=%lu\n", pool_sz);
@@ -117,29 +117,23 @@ int main(int argc, char *argv[]) {
 
     NVHTM_cpy_to_checkpoint(pool);
 
-    initAllocator(pool, "data", pool_sz, 3);
+    initAllocator(pool, "data", pool_sz, 1);
 
     bpt = newBPTree();
 
-    pthread_t tid[3];
+    pthread_t tid[1];
 
     bptreeThreadInit(BPTREE_BLOCK);
     printf("init\n");
 
     unsigned char tid1 = 1;
-    unsigned char tid2 = 2;
-    unsigned char tid3 = 3;
-    tid[0] = bptreeCreateThread(bpt, search_test, &tid2);
-    tid[1] = bptreeCreateThread(bpt, insert_test, &tid1);
-    tid[2] = bptreeCreateThread(bpt, delete_test, &tid3);
+    tid[0] = bptreeCreateThread(bpt, insert_test, &tid1);
     printf("create\n");
 
     bptreeStartThread();
     printf("start\n");
 
     bptreeWaitThread(tid[0], NULL);
-    bptreeWaitThread(tid[1], NULL);
-    bptreeWaitThread(tid[2], NULL);
     printf("wait\n");
 
     bptreeThreadDestroy();

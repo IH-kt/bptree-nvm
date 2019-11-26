@@ -253,7 +253,7 @@ extern "C"
 		log_start = log->start; \
 		MN_write(&(log->end), &(LOG_local_state.end), \
 			sizeof(LOG_local_state.end), 0); \
-		MN_count_spins++; \
+		/* MN_count_spins++; */ \
 		/* log->end = LOG_local_state.end; */ \
 		__sync_synchronize(); \
 	})
