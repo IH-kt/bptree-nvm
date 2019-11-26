@@ -117,8 +117,13 @@ void initMemoryRoot(MemoryRoot *mr, unsigned char thread_num, void *head, size_t
             mr->local_free_list_head_ary[i][j] = NULL;
             mr->local_free_list_tail_ary[i][j] = NULL;
             if (i == j) {
-                addDefaultEmptyNode(&mr->local_free_list_head_ary[i][j], &mr->local_free_list_tail_ary[i][j],
-                    mr->global_free_list_head, mr->remaining_amount, node_size, &mr->global_free_area_head);
+                int res;
+                res = addDefaultEmptyNode(&mr->local_free_list_head_ary[i][j], &mr->local_free_list_tail_ary[i][j],
+                             mr->global_free_list_head, mr->remaining_amount, node_size, &mr->global_free_area_head);
+                if (res < 0) {
+                    fprintf(stderr, "allocator init: out of memory\n");
+                    exit(1);
+                }
             }
             mr->list_lock[i][j] = 0;
         }

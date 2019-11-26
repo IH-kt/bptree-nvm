@@ -7,19 +7,54 @@ const Key UNUSED_KEY = -1;
 const Value INITIAL_VALUE = 0;
 
 #ifdef TIME_PART
+__thread double internal_alloc_time = 0;
+__thread double leaf_alloc_time = 0;
 __thread double insert_part1 = 0;
 __thread double insert_part2 = 0;
 __thread double insert_part3 = 0;
-__thread struct timespec stt, edt;
-__thread double time_tmp = 0;
 __thread unsigned int times_of_lock = 0;
 __thread unsigned int times_of_transaction = 0;
+#  define INTERNAL_ALLOC_TIME internal_alloc_time
+#  define LEAF_ALLOC_TIME leaf_alloc_time
+#  define INSERT_1_TIME insert_part1
+#  define INSERT_2_TIME insert_part2
+#  define INSERT_3_TIME insert_part3
+#  define INIT_TIME_VAR()     \
+    struct timespec stt, edt; \
+    double time_tmp = 0
+
+#  define START_MEJOR_TIME() \
+	clock_gettime(CLOCK_MONOTONIC_RAW, &stt)
+
+#  define FINISH_MEJOR_TIME(time_res) {         \
+	clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
+	time_tmp = 0;                             \
+	time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
+	time_tmp /= 1000000000;                   \
+	time_tmp += edt.tv_sec - stt.tv_sec;      \
+	time_res += time_tmp;                     \
+}
+
 void showTime(unsigned int tid) {
 	fprintf(stderr, "thread %d, insert_part1 = %lf\n", tid, insert_part1);
 	fprintf(stderr, "thread %d, insert_part2 = %lf\n", tid, insert_part2);
 	fprintf(stderr, "thread %d, insert_part3 = %lf\n", tid, insert_part3);
 	fprintf(stderr, "thread %d, lock = %u, transaction = %u\n", tid, times_of_lock, times_of_transaction);
 }
+
+#  define TRANSACTION_SUCCESS() times_of_transaction++
+#  define LOCK_SUCCESS() times_of_lock++
+#else
+#  define INTERNAL_ALLOC_TIME
+#  define LEAF_ALLOC_TIME
+#  define INSERT_1_TIME
+#  define INSERT_2_TIME
+#  define INSERT_3_TIME
+#  define INIT_TIME_VAR()
+#  define START_MEJOR_TIME()
+#  define FINISH_MEJOR_TIME(res)
+#  define TRANSACTION_SUCCESS()
+#  define LOCK_SUCCESS()
 #endif
 
 #define TRANSACTION_EXECUTION_INIT()    \
@@ -224,8 +259,11 @@ void initSearchResult(SearchResult *sr) {
 }
 
 LeafNode *newLeafNode(unsigned char tid) {
+    INIT_TIME_VAR();
+    START_MEJOR_TIME();
     LeafNode *new = (LeafNode *)vol_mem_allocate(sizeof(LeafNode));
     initLeafNode(new, tid);
+    FINISH_MEJOR_TIME(LEAF_ALLOC_TIME);
     return new;
 }
 void destroyLeafNode(LeafNode *node, unsigned char tid) {
@@ -233,8 +271,11 @@ void destroyLeafNode(LeafNode *node, unsigned char tid) {
 }
 
 InternalNode *newInternalNode() {
+    INIT_TIME_VAR();
+    START_MEJOR_TIME();
     InternalNode *new = (InternalNode *)vol_mem_allocate(sizeof(InternalNode));
     initInternalNode(new);
+    FINISH_MEJOR_TIME(INTERNAL_ALLOC_TIME);
     return new;
 }
 void destroyInternalNode(InternalNode *node) {
@@ -519,6 +560,7 @@ void insertNonfullLeaf(LeafNode *node, KeyValuePair kv) {
 }
 
 int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
+    INIT_TIME_VAR();
     LeafNode *new_leaf = newLeafNode(tid);
     unsigned char used_flag = 0;
     if (bpt == NULL) {
@@ -527,29 +569,18 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     }
     NVHTM_begin();
     if (bpt->root->children[0] == NULL) {
-#ifdef TIME_PART
-        clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
-#endif
+        START_MEJOR_TIME();
         insertFirstLeafNode_T(bpt, new_leaf);
         insertNonfullLeaf(new_leaf, kv);
         NVHTM_end();
-#ifdef TIME_PART
-        clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
-        time_tmp = 0;
-        time_tmp += (edt.tv_nsec - stt.tv_nsec);
-        time_tmp /= 1000000000;
-        time_tmp += edt.tv_sec - stt.tv_sec;
-        insert_part1 += time_tmp;
-#endif
+        FINISH_MEJOR_TIME(INSERT_1_TIME);
         return 1;
     }
 
     InternalNode *parent;
     unsigned char found_flag = 0;
     LeafNode *target_leaf;
-#ifdef TIME_PART
-	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
-#endif
+    START_MEJOR_TIME();
     unsigned char retry_flag = 0;
     target_leaf = findLeaf(bpt->root, kv.key, &parent, &retry_flag);
     if (searchInLeaf(target_leaf, kv.key) != -1) {
@@ -557,23 +588,14 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     } else {
         found_flag = 0;
     }
-#ifdef TIME_PART
-	clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
-	time_tmp = 0;
-	time_tmp += (edt.tv_nsec - stt.tv_nsec);
-	time_tmp /= 1000000000;
-	time_tmp += edt.tv_sec - stt.tv_sec;
-	insert_part2 += time_tmp;
-#endif
+    FINISH_MEJOR_TIME(INSERT_2_TIME);
     if (found_flag) {
         NVHTM_end();
         destroyLeafNode(new_leaf, tid);
         return 0;
     }
 
-#ifdef TIME_PART
-	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
-#endif
+    START_MEJOR_TIME();
 
     if (target_leaf->key_length < MAX_PAIR) {
         insertNonfullLeaf(target_leaf, kv);
@@ -587,14 +609,7 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
         unlockLeaf(target_leaf, tid);
         NVHTM_end();
     }
-#ifdef TIME_PART
-	clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
-	time_tmp = 0;
-	time_tmp += (edt.tv_nsec - stt.tv_nsec);
-	time_tmp /= 1000000000;
-	time_tmp += edt.tv_sec - stt.tv_sec;
-	insert_part2 += time_tmp;
-#endif
+    FINISH_MEJOR_TIME(INSERT_3_TIME);
     return 1;
 }
 
