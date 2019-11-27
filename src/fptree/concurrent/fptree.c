@@ -309,7 +309,7 @@ void search(BPTree *bpt, Key target_key, SearchResult *sr, unsigned char tid) {
     initSearchResult(sr);
 
 #ifdef DEBUG
-    printf("search: key = %ld\n", targetkey);
+    printf("search: key = %ld\n", target_key);
 #endif
 
     if (bpt == NULL) {
@@ -539,7 +539,7 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     }
 
 #ifdef DEBUG
-    printf("locked   %p: %d, %x\n", target_leaf, target_leaf->pleaf->lock, pthread_self());
+    printf("locked   %p: %d, %x\n", target_leaf, target_leaf->pleaf->lock, tid);
 #endif
     START_MEJOR_TIME();
     if (target_leaf->key_length < MAX_PAIR) {
@@ -553,7 +553,7 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
         unlockLeaf(new_leaf, tid);
     }
 #ifdef DEBUG
-    printf("unlocked %p: %d, %x\n", target_leaf, target_leaf->pleaf->lock, pthread_self());
+    printf("unlocked %p: %d, %x\n", target_leaf, target_leaf->pleaf->lock, tid);
 #endif
     unlockLeaf(target_leaf, tid);
     FINISH_MEJOR_TIME(INSERT_3_TIME);
@@ -741,7 +741,7 @@ void shiftToRight(InternalNode *target_node, Key *anchor_key, InternalNode *left
         target_node->keys[i + move_length - 1] = target_node->keys[i - 1];
         target_node->children[i + move_length] = target_node->children[i];
 #ifdef DEBUG
-        printf("target_node->keys[%d] <- [%d]\n", i + move_length - 1, i - 1);
+        printf("target_node->keys[%d] <- [%d]:%ld\n", i + move_length - 1, i - 1, target_node->keys[i - 1]);
         printf("target_node->children[%d] <- [%d]\n", i + move_length, i);
 #endif
     }
@@ -755,8 +755,8 @@ void shiftToRight(InternalNode *target_node, Key *anchor_key, InternalNode *left
     printf("target_node->keys[%d] = *anchor_key\n", move_length - 1);
 #endif
 
-    for (i = 0; i < move_length - 1; i++) {
-        target_node->keys[i] = left_node->keys[left_node->key_length - move_length + i];
+    for (i = move_length - 1; 0 < i; i--) {
+        target_node->keys[i - 1] = left_node->keys[left_node->key_length - move_length + i];
         target_node->children[i] = left_node->children[left_node->key_length - move_length + i + 1];
         left_node->keys[left_node->key_length - move_length + i] = UNUSED_KEY;
         left_node->children[left_node->key_length - move_length + i + 1] = NULL;
@@ -787,7 +787,7 @@ void shiftToLeft(InternalNode *target_node, Key *anchor_key, InternalNode *right
         target_node->keys[target_node->key_length + 1 + i] = right_node->keys[i];
         target_node->children[target_node->key_length + 1 + i] = right_node->children[i];
 #ifdef DEBUG
-        printf("move:%d to [%d]\n", right_node->keys[i], target_node->key_length + 1 + i);
+        printf("move:%ld to [%d]\n", right_node->keys[i], target_node->key_length + 1 + i);
         printf("move:%p to [%d]\n", right_node->children[i], target_node->key_length + 1 + i);
 #endif
     }
@@ -848,14 +848,14 @@ void mergeWithRight(InternalNode *target_node, InternalNode *right_node, Key *an
         right_node->keys[i] = target_node->keys[i];
         right_node->children[i] = target_node->children[i];
 #ifdef DEBUG
-        printf("fill:%d -> keys[%d]\n", target_node->keys[i], i);
+        printf("fill:%ld -> keys[%d]\n", target_node->keys[i], i);
         printf("fill:%p -> children[%d]\n", target_node->children[i], i);
 #endif
     }
     right_node->keys[i] = *anchor_key;
     right_node->children[i] = target_node->children[i];
 #ifdef DEBUG
-    printf("fill:%d -> keys[%d]\n", *anchor_key, i);
+    printf("fill:%ld -> keys[%d]\n", *anchor_key, i);
     printf("fill:%p -> children[%d]\n", target_node->children[i], i);
 #endif
     right_node->key_length += target_node->key_length + 1;

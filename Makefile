@@ -34,8 +34,13 @@ ifeq ($(time), time_part)
 else
 	TIME_PART :=
 endif
+ifeq ($(debug), 1)
+	DEBUG := -DDEBUG
+else
+	DEBUG :=
+endif
 
-DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART)
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(DEBUG)
 
 CC=gcc
 CXX=g++
