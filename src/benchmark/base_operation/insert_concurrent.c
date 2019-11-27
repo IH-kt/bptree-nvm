@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     } else {
         fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s, log_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path, log_path);
     }
-    size_t allocation_size = sizeof(PersistentLeafNode) * (warm_up + loop_times);
+    size_t allocation_size = (sizeof(PersistentLeafNode)/2 + 1) * (warm_up + loop_times) * 1.1;
 #ifdef NVHTM
     set_log_file_name(log_path);
     NVHTM_init(thread_max + 2);

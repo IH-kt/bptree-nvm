@@ -113,6 +113,7 @@ void LOG_init(int nb_threads, int fresh)
 
   if (NH_global_logs == NULL) {
     ALLOC_FN(NH_global_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
+    fprintf(stderr, "log_size = %lu\n", size_of_logs);
 
     LOG_global_ptr = ALLOC_MEM(log_file_name, size_of_logs);
     memset(LOG_global_ptr, 0, size_of_logs);

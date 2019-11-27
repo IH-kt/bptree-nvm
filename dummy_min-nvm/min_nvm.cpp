@@ -109,12 +109,13 @@ void MN_flush(void *addr, size_t size, int do_flush)
 
 	for (i = 0; i < new_size; i += size_cl) {
 		// TODO: addr may not be aligned
-		if (do_flush) {
+		// if (do_flush) {
 			// ts_s _ts1_ = rdtscp();
 			clflush(((char*) addr) + i); // does not need fence
 			// MN_count_spins++;
 			// MN_time_spins += rdtscp() - _ts1_;
-		}//  else
+		// }
+        //  else
 			// SPIN_PER_WRITE(1);
 	}
 }
