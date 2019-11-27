@@ -33,17 +33,10 @@ void initKeyValuePair(KeyValuePair *pair) {
 
 void initLeafNode(LeafNode *node, unsigned char tid) {
     int i;
-    PersistentLeafNode *new_pleaf = (PersistentLeafNode *)getTransientAddr(pst_mem_allocate(sizeof(PersistentLeafNode), tid));
-    for (i = 0; i < BITMAP_SIZE; i++) {
-        new_pleaf->header.bitmap[i] = 0;
-    }
-    new_pleaf->header.pnext = P_NULL;
     for (i = 0; i < MAX_PAIR; i++) {
-        new_pleaf->header.fingerprints[i] = 0;
-        initKeyValuePair(&new_pleaf->kv[i]);
+        initKeyValuePair(&node->kv[i]);
     }
-    new_pleaf->lock = 0;
-    node->pleaf = new_pleaf;
+    node->lock = 0;
     node->next = NULL;
     node->prev = NULL;
     node->key_length = 0;
@@ -62,13 +55,7 @@ void initInternalNode(InternalNode *node) {
     }
 }
 
-void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode, ppointer *pmem_head) {
-    tree->pmem_head = pmem_head;
-    if (leafHead != NULL) {
-        *pmem_head = getPersistentAddr(leafHead->pleaf);
-    } else {
-        *pmem_head = P_NULL;
-    }
+void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode) {
     tree->head = leafHead;
     tree->root = rootNode;
     rootNode->children_type = LEAF;
@@ -82,12 +69,12 @@ void initSearchResult(SearchResult *sr) {
 }
 
 LeafNode *newLeafNode(unsigned char tid) {
-    LeafNode *new = (LeafNode *)vol_mem_allocate(sizeof(LeafNode));
+    LeafNode *new = (LeafNode *)pst_mem_allocate(sizeof(LeafNode), tid);
     initLeafNode(new, 0);
     return new;
 }
 void destroyLeafNode(LeafNode *node, unsigned char tid) {
-    pst_mem_free(getPersistentAddr(node->pleaf), node->tid, tid);
+    pst_mem_free(getPersistentAddr(node), node->tid, tid);
 }
 
 InternalNode *newInternalNode() {
@@ -100,28 +87,27 @@ void destroyInternalNode(InternalNode *node) {
 }
 
 BPTree *newBPTree() {
-    ppointer *pmem_head = root_allocate(sizeof(ppointer), sizeof(PersistentLeafNode));
     BPTree *new = (BPTree *)vol_mem_allocate(sizeof(BPTree));
     InternalNode *rootNode = newInternalNode();
     // LeafNode *leafHead = newLeafNode();
-    initBPTree(new, NULL, rootNode, pmem_head);
+    initBPTree(new, NULL, rootNode);
     return new;
 }
 void destroyBPTree(BPTree *tree, unsigned char tid) {
     destroyLeafNode(tree->head, tid);
     destroyInternalNode(tree->root);
-    *tree->pmem_head = P_NULL;
-    root_free(tree->pmem_head);
+//    *tree->pmem_head = P_NULL;
+//    root_free(tree->pmem_head);
     vol_mem_free(tree);
 }
 
 int lockLeaf(LeafNode *target) {
-    return __sync_bool_compare_and_swap(&target->pleaf->lock, 0, 1);
+    return __sync_bool_compare_and_swap(&target->lock, 0, 1);
 }
 
 int unlockLeaf(LeafNode *target) {
-    target->pleaf->lock = 0;
-    persist(&target->pleaf->lock, sizeof(target->pleaf->lock));
+    target->lock = 0;
+    persist(&target->lock, sizeof(target->lock));
     return 1;
 }
 
@@ -136,18 +122,31 @@ int unlockBPTree(BPTree *target) {
 }
 
 int searchInLeaf(LeafNode *node, Key key) {
-    int i;
-    unsigned char key_fp = hash(key);
     if (node == NULL) {
         return -1;
     }
-    for (i = 0; i < MAX_PAIR; i++) {
-        if (GET_BIT(node->pleaf->header.bitmap, i) != 0 &&
-                node->pleaf->header.fingerprints[i] == key_fp &&
-                node->pleaf->kv[i].key == key) {
+    /*
+    for (int i = 0; i < node->key_length; i++) {
+        if (node->kv[i].key == key) {
             return i;
         }
     }
+    */
+	int left = 0;
+	int right = node->key_length;
+	while (left < right) {
+        // int mid = (right + left) / 2;
+		int mid = left + (right - left) / 2;
+        int cur_key = node->kv[mid].key;
+		if (cur_key == key) {
+            return mid;
+        }
+		if (key < cur_key) {
+			right = mid;
+		} else {
+			left = mid + 1;
+		}
+	}
     return -1;
 }
 
@@ -168,7 +167,7 @@ LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent,
     }
     int key_index = searchInInternal(current, target_key);
     if (current->children_type == LEAF) {
-        if (((LeafNode *)current->children[key_index])->pleaf->lock == 1) {
+        if (((LeafNode *)current->children[key_index])->lock == 1) {
             // _xabort(XABORT_STAT);
         }
         if (parent != NULL) {
@@ -208,87 +207,28 @@ void search(BPTree *bpt, Key target_key, SearchResult *sr, unsigned char tid) {
         // }
     }
 }
- 
-int findFirstAvailableSlot(LeafNode *target) {
-    int i;
-    for (i = 0; i < MAX_PAIR; i++) {
-        if (GET_BIT(target->pleaf->header.bitmap, i) == 0) {
-            break;
-        }
-    }
-    return i;
-}
 
 int compareKeyPositionPair(const void *a, const void *b) {
     return ((KeyPositionPair *)a)->key - ((KeyPositionPair *)b)->key;
 }
 
-void findSplitKey(LeafNode *target, Key *split_key, char *bitmap) {
-    int i;
-    KeyPositionPair pairs[MAX_PAIR];
-
-    // キーは全て有効（満杯の葉が入ってくるので）
-    for (i = 0; i < MAX_PAIR; i++) {
-        pairs[i].key = target->pleaf->kv[i].key;
-        pairs[i].position = i;
-    }
-
-    for (i = 0; i < BITMAP_SIZE; i++) {
-        bitmap[i] = 0;
-    }
-
-    qsort(pairs, MAX_PAIR, sizeof(KeyPositionPair), compareKeyPositionPair);
-#ifdef DEBUG
-    for (i = 0; i < MAX_PAIR; i++) {
-        printf("sorted[%d] = %d\n", i, pairs[i].key);
-    }
-#endif
-
-    *split_key = pairs[MAX_PAIR/2-1].key; // this becomes parent key
-
-    for (i = MAX_PAIR/2; i < MAX_PAIR; i++) {
-        SET_BIT(bitmap, pairs[i].position);
-    }
-#ifdef DEBUG
-    printf("leaf splitted at %d\n", *split_key);
-    for (i = 0; i < BITMAP_SIZE; i++) {
-        printf("bitmap[%d] = %x\n", i, bitmap[i]);
-    }
-#endif
+void findSplitKey(LeafNode *target, Key *split_key) {
+    *split_key = target->kv[MAX_PAIR/2-1].key; // this becomes parent key
 }
 
 Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode *new_leafnode) {
     if (new_leafnode == NULL) {
         new_leafnode = newLeafNode(tid);
     }
-    int i;
-    Key split_key;
-    char bitmap[BITMAP_SIZE];
-
-    for (i = 0; i < MAX_PAIR; i++) {
-        new_leafnode->pleaf->kv[i] = target->pleaf->kv[i];
-        new_leafnode->pleaf->header.fingerprints[i] = target->pleaf->header.fingerprints[i];
+    
+    int split_index = MAX_PAIR/2 - 1;
+    Key split_key = target->kv[split_index].key;
+    for (int i = 0; i < MAX_PAIR - split_index - 1; i++) {
+        new_leafnode->kv[i] = target->kv[(split_index + 1) + i];
+        initKeyValuePair(&target->kv[(split_index + 1) + i]);
     }
-    new_leafnode->pleaf->header.pnext = target->pleaf->header.pnext;
-    new_leafnode->pleaf->lock = target->pleaf->lock;
-    persist(new_leafnode->pleaf, sizeof(PersistentLeafNode));
 
-    findSplitKey(new_leafnode, &split_key, bitmap);
-
-    for (i = 0; i < BITMAP_SIZE; i++) {
-        new_leafnode->pleaf->header.bitmap[i] = bitmap[i];
-    }
-    persist(new_leafnode->pleaf->header.bitmap, BITMAP_SIZE * sizeof(bitmap[0]));
-
-    for (i = 0; i < BITMAP_SIZE; i++) {
-        target->pleaf->header.bitmap[i] = ~bitmap[i];
-    }
-    persist(target->pleaf->header.bitmap, BITMAP_SIZE * sizeof(bitmap[0]));
-
-    target->pleaf->header.pnext = getPersistentAddr(new_leafnode->pleaf);
-
-    persist(getTransientAddr(target->pleaf->header.pnext), sizeof(LeafNode *));
-
+    new_leafnode->lock = target->lock;
     new_leafnode->next = target->next;
     new_leafnode->prev = target;
     if (target->next != NULL) {
@@ -296,8 +236,8 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode 
     }
     target->next = new_leafnode;
 
-    target->key_length = MAX_PAIR/2;
-    new_leafnode->key_length = MAX_PAIR - MAX_PAIR/2;
+    target->key_length = split_index + 1;
+    new_leafnode->key_length = MAX_PAIR - split_index - 1;
 
     // insert new node
     if (newkv.key != UNUSED_KEY) {
@@ -307,7 +247,6 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode 
             insertNonfullLeaf(new_leafnode, newkv);
         }
     }
-
     return split_key;
 }
 
@@ -362,13 +301,21 @@ void insertNonfullInternal(InternalNode *target, Key key, void *child) {
 }
 
 void insertNonfullLeaf(LeafNode *node, KeyValuePair kv) {
-    int slot = findFirstAvailableSlot(node);
-    node->pleaf->kv[slot] = kv;
-    node->pleaf->header.fingerprints[slot] = hash(kv.key);
-    persist(&node->pleaf->kv[slot], sizeof(KeyValuePair));
-    persist(&node->pleaf->header.fingerprints[slot], sizeof(char));
-    SET_BIT(node->pleaf->header.bitmap, slot);
-    persist(&node->pleaf->header.bitmap[slot/8], sizeof(char));
+    if (node->key_length == 0) {
+        node->kv[0] = kv;
+        node->key_length++;
+        return;
+    }
+    // make space for insert
+    int slot;
+    for (slot = node->key_length; 0 < slot; slot--) {
+        if (node->kv[slot - 1].key < kv.key) {
+            break;
+        }
+        node->kv[slot] = node->kv[slot - 1];
+    }
+    // insert
+    node->kv[slot] = kv;
     node->key_length++;
 }
 
@@ -378,7 +325,7 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
     } else if (bpt->root->children[0] == NULL) {
         lockBPTree(bpt);
         LeafNode *new_leaf = newLeafNode(tid);
-        initBPTree(bpt, new_leaf, bpt->root, bpt->pmem_head);
+        initBPTree(bpt, new_leaf, bpt->root);
         insertNonfullLeaf(new_leaf, kv);
         unlockBPTree(bpt);
         return 1;
@@ -473,15 +420,7 @@ int insertRecursive(InternalNode *current, Key new_key, LeafNode *new_node, Key 
 }
 
 int findMaxKey(LeafNode *leaf) {
-    PersistentLeafNode *pleaf = leaf->pleaf;
-    int max_k = 0;
-    for(int i = 0; i < MAX_PAIR; i++) {
-        int k = pleaf->kv[i].key;
-        if(GET_BIT(pleaf->header.bitmap, i) && k > max_k) {
-            max_k = k;
-        }
-    }
-    return max_k;
+    return leaf->kv[leaf->key_length - 1].key;
 }
 
 // restructuring BPtree from leaf nodes
@@ -530,38 +469,12 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
             unlockLeaf(target);
             return 0;
         }
-        if (target->key_length >= MAX_PAIR) {
-            LeafNode *new_leaf = newLeafNode(tid);
-            KeyValuePair dummy = {UNUSED_KEY, INITIAL_VALUE};
-            split_key = splitLeaf(target, dummy, tid, new_leaf);
-            splitted_leaf = target;
-            if (new_kv.key > split_key) {
-                target = new_leaf;
-            }
-            target_index = searchInLeaf(target, new_kv.key);
-        }
-        int empty_slot_index = findFirstAvailableSlot(target);
         // _xend();
         // }
-        target->pleaf->kv[empty_slot_index] = new_kv;
-        target->pleaf->header.fingerprints[empty_slot_index] = hash(new_kv.key);
-        persist(&target->pleaf->kv[empty_slot_index], sizeof(KeyValuePair));
-        persist(&target->pleaf->header.fingerprints[empty_slot_index], sizeof(char));
-        unsigned char tmp_bitmap[BITMAP_SIZE];
-        int i;
-        memcpy(tmp_bitmap, target->pleaf->header.bitmap, BITMAP_SIZE);
-        CLR_BIT(tmp_bitmap, target_index);
-        SET_BIT(tmp_bitmap, empty_slot_index);
-        memcpy(target->pleaf->header.bitmap, tmp_bitmap, BITMAP_SIZE);
-        persist(target->pleaf->header.bitmap, BITMAP_SIZE);
+        target->kv[target_index] = new_kv;
+        //persist(&target->pleaf->kv[target_index], sizeof(KeyValuePair));
         // _xbegin();
-        if (splitted_leaf != NULL) {
-            insertParent(bpt, parent, split_key, new_leaf, splitted_leaf);
-            unlockLeaf(new_leaf);
-            unlockLeaf(splitted_leaf);
-        } else {
-            unlockLeaf(target);
-        }
+        unlockLeaf(target);
         // _xend();
     }
     return 1;
@@ -570,10 +483,10 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
 void deleteLeaf(BPTree *bpt, LeafNode *current, unsigned char tid) {
     if (current->prev == NULL) {
         bpt->head = current->next;
-        *bpt->pmem_head = current->pleaf->header.pnext;
-        persist(bpt->pmem_head, sizeof(ppointer));
+        //*bpt->pmem_head = current->pleaf->header.pnext;
+        //persist(bpt->pmem_head, sizeof(ppointer));
     } else {
-        current->prev->pleaf->header.pnext = current->pleaf->header.pnext;
+        //current->prev->pleaf->header.pnext = current->pleaf->header.pnext;
         current->prev->next = current->next;
     }
     if (current->next != NULL) {
@@ -826,6 +739,14 @@ int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
         return 0;
     }
     if (lockLeaf(target_leaf)) {
+        int keypos = searchInLeaf(target_leaf, target_key);
+        if (keypos == -1) {
+#ifdef DEBUG
+            printf("delete:the key doesn't exist. abort.\n");
+#endif
+            unlockLeaf(target_leaf);
+            return 0;
+        }
         if (target_leaf->key_length == 1) {
             if (target_leaf->prev != NULL) {
                 if (lockLeaf(target_leaf->prev)) {
@@ -847,15 +768,10 @@ int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
             }
         } else {
             // _xend();
-            int keypos = searchInLeaf(target_leaf, target_key);
-            if (keypos == -1) {
-#ifdef DEBUG
-                printf("delete:the key doesn't exist. abort.\n");
-#endif
-                return 0;
+            for (int i = keypos; i < target_leaf->key_length - 1; i++) {
+                target_leaf->kv[i] = target_leaf->kv[i + 1];
             }
-            CLR_BIT(target_leaf->pleaf->header.bitmap, keypos);
-            persist(target_leaf->pleaf->header.bitmap, BITMAP_SIZE);
+            initKeyValuePair(&target_leaf->kv[target_leaf->key_length - 1]);
             target_leaf->key_length--;
             unlockLeaf(target_leaf);
         }
@@ -870,24 +786,17 @@ void showLeafNode(LeafNode *node, int depth) {
     int i, j;
     for (j = 0; j < depth; j++)
         printf("\t");
-    printf("leaf:%p (persistent -> %p)\n", node, node->pleaf);
+    printf("leaf:%p\n", node);
     for (j = 0; j < depth; j++)
         printf("\t");
-    printf("\tnext = %p, prev = %p, pnext = %p\n", node->next, node->prev, getTransientAddr(node->pleaf->header.pnext));
+    printf("\tnext = %p, prev = %p\n", node->next, node->prev);
     for (j = 0; j < depth; j++)
         printf("\t");
     printf("\tlength = %d\n", node->key_length);
-    for (i = 0; i < MAX_PAIR; i++) {
+    for (i = 0; i < node->key_length; i++) {
         for (j = 0; j < depth; j++)
             printf("\t");
-        printf("\tbitmap[%d]:%d\n", i, GET_BIT(node->pleaf->header.bitmap, i));
-    }
-    for (i = 0; i < MAX_PAIR; i++) {
-        if ((GET_BIT(node->pleaf->header.bitmap, i)) == 0)
-            continue;
-        for (j = 0; j < depth; j++)
-            printf("\t");
-        printf("\tkv[%d]:fgp = %d, key = %ld, val = %d\n", i, node->pleaf->header.fingerprints[i], node->pleaf->kv[i].key, node->pleaf->kv[i].value);
+        printf("\tkv[%d]:key = %ld, val = %d\n", i, node->kv[i].key, node->kv[i].value);
     }
 }
 
@@ -923,4 +832,22 @@ void showInternalNode(InternalNode *node, int depth) {
 void showTree(BPTree *bpt, unsigned char tid) {
     printf("leaf head:%p\n", bpt->head);
     showInternalNode((InternalNode *)bpt->root, 0);
+}
+
+int sumLeafLength(BPTree *bpt) {
+    return _sumLeafLength(bpt->root);
+}
+
+int _sumLeafLength(InternalNode *node) {
+    int sum_leaf_length = 0;
+        for (int i = 0; i < node->key_length + 1; i++) {
+            if (node->children[i] != NULL) {
+                if (node->children_type == LEAF) {
+                    sum_leaf_length += ((LeafNode *)node->children[i])->key_length;
+                } else {
+                    sum_leaf_length += _sumLeafLength((InternalNode *)node->children[i]);
+                }
+            }
+        }
+    return sum_leaf_length;
 }
