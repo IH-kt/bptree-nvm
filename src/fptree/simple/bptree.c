@@ -1,4 +1,4 @@
-#include "fptree.h"
+#include "tree.h"
 #include "allocator.h"
 #ifdef CONCURRENT
 #  error CONCURRENT is defined
@@ -826,6 +826,14 @@ int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
         return 0;
     }
     if (lockLeaf(target_leaf)) {
+        int keypos = searchInLeaf(target_leaf, target_key);
+        if (keypos == -1) {
+#ifdef DEBUG
+            printf("delete:the key doesn't exist. abort.\n");
+#endif
+            unlockLeaf(target_leaf);
+            return 0;
+        }
         if (target_leaf->key_length == 1) {
             if (target_leaf->prev != NULL) {
                 if (lockLeaf(target_leaf->prev)) {
@@ -847,13 +855,6 @@ int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
             }
         } else {
             // _xend();
-            int keypos = searchInLeaf(target_leaf, target_key);
-            if (keypos == -1) {
-#ifdef DEBUG
-                printf("delete:the key doesn't exist. abort.\n");
-#endif
-                return 0;
-            }
             CLR_BIT(target_leaf->pleaf->header.bitmap, keypos);
             persist(target_leaf->pleaf->header.bitmap, BITMAP_SIZE);
             target_leaf->key_length--;

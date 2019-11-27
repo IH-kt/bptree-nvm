@@ -28,11 +28,12 @@ extern "C" {
 #include "allocator.h"
 extern ppointer PADDR_NULL;
 
-#define BITMAP_SIZE ((MAX_PAIR/8)+1)
+//#define BITMAP_SIZE ((MAX_PAIR/8)+1)
 
 /* definition of structs */
 
 /* bitmap operator */
+/*
 #define GET_BIT(bitmapaddr, index) (\
     (bitmapaddr[index/8] & (1 << ((index)%8))) >> (index)%8\
 )
@@ -56,6 +57,7 @@ extern ppointer PADDR_NULL;
     NVM_write_varsize(&bitmapaddr[index/8], &bt_tmp, sizeof(char)); \
 })
 #endif
+*/
 
 /* structs */
 
@@ -72,29 +74,18 @@ struct InternalNode {
     void *children[MAX_DEG];
 };
 
-struct LeafHeader {
-    unsigned char bitmap[BITMAP_SIZE];
-    ppointer pnext;
-    unsigned char fingerprints[MAX_PAIR];
-};
-
-struct PersistentLeafNode {
-    struct LeafHeader header;
+struct LeafNode {
+    unsigned char tid;
+    struct LeafNode *next;
+    struct LeafNode *prev;
+    int key_length;
     KeyValuePair kv[MAX_PAIR];
     unsigned char lock;
 };
 
-struct LeafNode {
-    unsigned char tid;
-    struct PersistentLeafNode *pleaf;
-    struct LeafNode *next;
-    struct LeafNode *prev;
-    int key_length;
-};
-
 struct BPTree {
     struct InternalNode *root;
-    ppointer *pmem_head;
+//    ppointer *pmem_head;
     struct LeafNode *head;
     int lock;
 };
@@ -109,7 +100,7 @@ struct KeyPositionPair {
     int position;
 };
 
-typedef struct PersistentLeafNode PersistentLeafNode;
+//typedef struct PersistentLeafNode PersistentLeafNode;
 typedef struct LeafNode LeafNode;
 typedef struct InternalNode InternalNode;
 typedef struct BPTree BPTree;
@@ -128,7 +119,8 @@ void showTime(unsigned int);
 void initKeyValuePair(KeyValuePair *);
 void initLeafNode(LeafNode *, unsigned char);
 void initInternalNode(InternalNode *);
-void initBPTree(BPTree *, LeafNode *, InternalNode *, ppointer *);
+//void initBPTree(BPTree *, LeafNode *, InternalNode *, ppointer *);
+void initBPTree(BPTree *, LeafNode *, InternalNode *);
 void initSearchResult(SearchResult *);
 
 LeafNode *newLeafNode(unsigned char);
@@ -145,7 +137,7 @@ void search(BPTree *, Key, SearchResult *, unsigned char);
 
 int findFirstAvailableSlot(LeafNode *);
 int compareKeyPositionPair(const void *, const void *);
-void findSplitKey(LeafNode *, Key *, char *);
+void findSplitKey(LeafNode *, Key *);
 Key splitLeaf(LeafNode *, KeyValuePair, unsigned char, LeafNode *);
 Key splitInternal(InternalNode *, InternalNode **, void *, Key);
 void insertNonfullInternal(InternalNode *, Key, void *);

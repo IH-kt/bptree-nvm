@@ -1,5 +1,5 @@
 include ./Makefile_location.inc
-VPATH = $(BUILD_DIR):$(TEST_SRC_DIR)/$(TYPE):$(BASE_BENCH_SRC_DIR):$(HTM_ALG_DIR)/bin:$(MIN_NVM_DIR)/bin
+VPATH = $(BUILD_DIR):$(TEST_SRC_DIR)/$(TYPE):$(TEST_SRC_DIR)/$(TREE):$(BASE_BENCH_SRC_DIR):$(HTM_ALG_DIR)/bin:$(MIN_NVM_DIR)/bin
 
 PMDK_DIR		:= $(HOME)/local
 PMDK_INCLUDES	:= -I$(PMDK_DIR)/include/
@@ -34,14 +34,20 @@ ifeq ($(time), time_part)
 else
 	TIME_PART :=
 endif
+ifeq ($(tree), bptree)
+	TREE_D		:= -DBPTREE
+	TREE_OBJ	:= $(BPTREE_SRC:%.c=%.o)
+else
+	TREE_D		:=
+	TREE_OBJ	:= $(FPTREE_SRC:%.c=%.o)
+endif
 
-DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART)
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D)
 
 CC=gcc
 CXX=g++
 CFLAGS=-O0 -g -march=native -pthread $(DEFINES) -I$(INCLUDE_DIR) $(NVHTM_CFLAGS)
 
-FPTREE_OBJ=$(FPTREE_SRC:%.c=%.o)
 ALLOCATOR_OBJ=$(ALLOCATOR_SRC:%.c=%.o)
 THREAD_MANAGER_OBJ=$(THREAD_MANAGER_SRC:%.c=%.o)
 
@@ -49,9 +55,13 @@ TEST_EXE		:= $(TEST_SRC_NAME:%.c=%.exe)
 BASE_BENCH_EXE	:= $(BASE_BENCH_SRC_NAME:%.c=%.exe)
 ALL_EXE			:= $(TEST_EXE) $(BASE_BENCH_EXE)
 
+# make-test:
+# 	echo $(TEST_SRC)
+# 	echo $(TEST_EXE)
+
 all: $(ALL_EXE)
 
-%.exe:%.o $(FPTREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(NVHTM_LIB)
+%.exe:%.o $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(NVHTM_LIB)
 	$(CXX) -o $(BUILD_DIR)/$@ $+ $(NVHTM_LIB) $(CFLAGS)
 
 %.o:%.c
