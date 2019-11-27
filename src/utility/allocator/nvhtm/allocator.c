@@ -14,10 +14,6 @@ long long persist_time = 0;
 
 #define DEFAULT_NODE_NUM 0 // デフォルトでフリーリストに入っている数
 
-typedef struct AllocatorHeader {
-    PAddr node_head;
-} AllocatorHeader;
-
 typedef struct FreeNode {
     struct FreeNode *next;
     void *node;
@@ -58,11 +54,14 @@ void *getFromArea(void **head, size_t node_size) {
     return new;
 }
 
-FreeNode *getFromList(FreeNode **head) {
+FreeNode *getFromList(FreeNode **head, FreeNode **tail) {
     if (*head != NULL) {
         FreeNode *node;
         node = *head;
         *head = node->next;
+        if (node->next == NULL) {
+            *tail = NULL;
+        }
         return node;
     }
     return NULL;
@@ -263,15 +262,23 @@ void root_free(ppointer *root) {
 }
 
 ppointer pst_mem_allocate(size_t size, unsigned char tid) {
+#ifdef DEBUG
+    printf("allocate %luB\n", size);
+#endif
     tid--;
     FreeNode *free_node;
     void *new_node;
     // assert (size == _tree_node_size);
-    if (_pmem_memory_root->local_free_list_tail_ary[tid][tid] != NULL &&
-        _pmem_memory_root->local_free_list_tail_ary[tid][tid] != _pmem_memory_root->local_free_list_head_ary[tid][tid]) {
-        free_node = getFromList(&_pmem_memory_root->local_free_list_head_ary[tid][tid]);
+#ifdef DEBUG
+    printf("tail = %p\n", _pmem_memory_root->local_free_list_tail_ary[tid][tid]);
+#endif
+    if (_pmem_memory_root->local_free_list_tail_ary[tid][tid] != NULL) {
+        free_node = getFromList(&_pmem_memory_root->local_free_list_head_ary[tid][tid], &_pmem_memory_root->local_free_list_tail_ary[tid][tid]);
         new_node = free_node->node;
         vol_mem_free(free_node);
+#ifdef DEBUG
+        printf("reusing free node\n");
+#endif
     } else {
         int i;
         for (i = 0; i < _number_of_thread; i++) {
@@ -279,18 +286,28 @@ ppointer pst_mem_allocate(size_t size, unsigned char tid) {
                 _pmem_memory_root->local_free_list_tail_ary[i][tid] != _pmem_memory_root->local_free_list_head_ary[i][tid]) {
                 while (!__sync_bool_compare_and_swap(&_pmem_memory_root->list_lock[i][tid], 0, 1))
                     _mm_pause();
-                free_node = getFromList(&_pmem_memory_root->local_free_list_head_ary[i][tid]);
+                free_node = getFromList(&_pmem_memory_root->local_free_list_head_ary[i][tid], &_pmem_memory_root->local_free_list_tail_ary[i][tid]);
                 _pmem_memory_root->list_lock[i][tid] = 0;
                 new_node = free_node->node;
                 vol_mem_free(free_node);
+#ifdef DEBUG
+                printf("take free node from %d\n", i);
+#endif
                 break;
             }
         }
         if (i == _number_of_thread) {
             while (!__sync_bool_compare_and_swap(&_pmem_memory_root->global_lock, 0, 1))
                 _mm_pause();
+            if (_pmem_memory_root->global_free_area_head + _tree_node_size > _pmem_mmap_head + _pmem_mmap_size) {
+                fprintf(stderr, "out of memory\n");
+                exit(1);
+            }
             new_node = getFromArea(&_pmem_memory_root->global_free_area_head, _tree_node_size);
             _pmem_memory_root->global_lock = 0;
+#ifdef DEBUG
+            printf("take free node from global\n");
+#endif
         }
     }
     return getPersistentAddr(new_node);

@@ -191,7 +191,7 @@ void search(BPTree *bpt, Key target_key, SearchResult *sr, unsigned char tid) {
     initSearchResult(sr);
 
 #ifdef DEBUG
-    printf("search: key = %d\n", targetkey);
+    printf("search: key = %ld\n", target_key);
 #endif
 
     if (bpt == NULL) {
@@ -240,7 +240,7 @@ void findSplitKey(LeafNode *target, Key *split_key, char *bitmap) {
     qsort(pairs, MAX_PAIR, sizeof(KeyPositionPair), compareKeyPositionPair);
 #ifdef DEBUG
     for (i = 0; i < MAX_PAIR; i++) {
-        printf("sorted[%d] = %d\n", i, pairs[i].key);
+        printf("sorted[%d] = %ld\n", i, pairs[i].key);
     }
 #endif
 
@@ -250,7 +250,7 @@ void findSplitKey(LeafNode *target, Key *split_key, char *bitmap) {
         SET_BIT(bitmap, pairs[i].position);
     }
 #ifdef DEBUG
-    printf("leaf splitted at %d\n", *split_key);
+    printf("leaf splitted at %ld\n", *split_key);
     for (i = 0; i < BITMAP_SIZE; i++) {
         printf("bitmap[%d] = %x\n", i, bitmap[i]);
     }
@@ -646,7 +646,7 @@ void shiftToLeft(InternalNode *target_node, Key *anchor_key, InternalNode *right
         target_node->keys[target_node->key_length + 1 + i] = right_node->keys[i];
         target_node->children[target_node->key_length + 1 + i] = right_node->children[i];
 #ifdef DEBUG
-        printf("move:%d to [%d]\n", right_node->keys[i], target_node->key_length + 1 + i);
+        printf("move:%ld to [%d]\n", right_node->keys[i], target_node->key_length + 1 + i);
         printf("move:%p to [%d]\n", right_node->children[i], target_node->key_length + 1 + i);
 #endif
     }
@@ -707,14 +707,14 @@ void mergeWithRight(InternalNode *target_node, InternalNode *right_node, Key *an
         right_node->keys[i] = target_node->keys[i];
         right_node->children[i] = target_node->children[i];
 #ifdef DEBUG
-        printf("fill:%d -> keys[%d]\n", target_node->keys[i], i);
+        printf("fill:%ld -> keys[%d]\n", target_node->keys[i], i);
         printf("fill:%p -> children[%d]\n", target_node->children[i], i);
 #endif
     }
     right_node->keys[i] = *anchor_key;
     right_node->children[i] = target_node->children[i];
 #ifdef DEBUG
-    printf("fill:%d -> keys[%d]\n", *anchor_key, i);
+    printf("fill:%ld -> keys[%d]\n", *anchor_key, i);
     printf("fill:%p -> children[%d]\n", target_node->children[i], i);
 #endif
     right_node->key_length += target_node->key_length + 1;
@@ -825,6 +825,9 @@ int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
     if (target_leaf == NULL) {
         return 0;
     }
+#ifdef DEBUG
+    printf("remove: target_leaf lock = %x\n", target_leaf->pleaf->lock);
+#endif
     if (lockLeaf(target_leaf)) {
         int keypos = searchInLeaf(target_leaf, target_key);
         if (keypos == -1) {
@@ -835,6 +838,14 @@ int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
             return 0;
         }
         if (target_leaf->key_length == 1) {
+            int keypos = searchInLeaf(target_leaf, target_key);
+            if (keypos == -1) {
+#ifdef DEBUG
+                printf("delete:the key doesn't exist. abort.\n");
+#endif
+                unlockLeaf(target_leaf);
+                return 0;
+            }
             if (target_leaf->prev != NULL) {
                 if (lockLeaf(target_leaf->prev)) {
                     // _xend();
@@ -861,6 +872,7 @@ int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
             unlockLeaf(target_leaf);
         }
     } else {
+        assert(0);
         // _xabort(XABORT_STAT);
     }
     return 1;

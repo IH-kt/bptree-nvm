@@ -41,8 +41,12 @@ else
 	TREE_D		:=
 	TREE_OBJ	:= $(FPTREE_SRC:%.c=%.o)
 endif
-
-DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D)
+ifeq ($(debug), 1)
+	DEBUG := -DDEBUG
+else
+	DEBUG :=
+endif
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG)
 
 CC=gcc
 CXX=g++
