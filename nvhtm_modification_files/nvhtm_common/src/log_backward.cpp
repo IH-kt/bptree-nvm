@@ -11,6 +11,7 @@ extern void *al_pool;
 #include <mutex>
 #include <vector>
 #include <unistd.h>
+#include <xmmintrin.h>
 
 using namespace std;
 
@@ -301,6 +302,7 @@ int LOG_checkpoint_backward_apply_one()
     GRANULE_TYPE *addr = *cl_iterator;
     MN_flush(addr, CACHE_LINE_SIZE, 1);
   }
+  _mm_sfence();
 
   // advance the pointers
   //    int freed_space = 0;
