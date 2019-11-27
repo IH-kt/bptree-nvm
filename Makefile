@@ -67,7 +67,7 @@ libhtm_sgl.a:
 	(cd nvhtm/DEPENDENCIES/htm_alg; ./compile.sh)
 
 libminimal_nvm.a:
-	cp -R $(ROOT_DIR)/dummy_min-nvm/* $(MIN_NVM_DIR)/src
+	cp -R $(ROOT_DIR)/dummy_min-nvm/* $(MIN_NVM_DIR)
 	(cd nvhtm-selfcontained/nvm-emulation; ./compile.sh)
 
 test-make:

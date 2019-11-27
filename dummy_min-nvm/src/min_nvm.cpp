@@ -1,6 +1,7 @@
 #include "min_nvm.h"
 #include <string.h>
 #include <mutex>
+#include <x86intrin.h>
 
 #ifndef ALLOC_FN
 #define ALLOC_FN(ptr, type, size) \
@@ -111,7 +112,8 @@ void MN_flush(void *addr, size_t size, int do_flush)
 		// TODO: addr may not be aligned
 		// if (do_flush) {
 			// ts_s _ts1_ = rdtscp();
-			clflush(((char*) addr) + i); // does not need fence
+			// clflush(((char*) addr) + i); // does not need fence
+            _mm_clwb(((char *) addr) + i);
 			// MN_count_spins++;
 			// MN_time_spins += rdtscp() - _ts1_;
 		// }
