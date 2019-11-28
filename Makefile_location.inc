@@ -14,6 +14,8 @@ else
 endif
 ifeq ($(tree), bptree)
 	TREE		:= bptree
+else ifeq ($(tree), merged)
+    TREE        := fptree-merged-bitmap
 else
 	TREE		:= fptree
 endif
