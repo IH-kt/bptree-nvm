@@ -1,7 +1,7 @@
 #ifdef CONCURRENT
 #  error "CONCURRENT is defined!"
 #endif
-#include "fptree.h"
+#include "tree.h"
 #include <stdlib.h>
 #include <time.h>
 
