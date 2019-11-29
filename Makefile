@@ -70,6 +70,7 @@ THREAD_MANAGER_OBJ=$(THREAD_MANAGER_SRC:%.c=%.o)
 TEST_EXE		:= $(TEST_SRC_NAME:%.c=%.exe)
 BASE_BENCH_EXE	:= $(BASE_BENCH_SRC_NAME:%.c=%.exe)
 ALL_EXE			:= $(TEST_EXE) $(BASE_BENCH_EXE)
+ALL_OBJ			:= $(ALL_EXE:%.exe=%.o)
 
 # make-test:
 # 	echo $(TEST_SRC)
@@ -100,7 +101,7 @@ test-make:
 	echo $(NVHTM_CFLAGS)
 
 clean:
-	rm -f $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ)
+	rm -f $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(ALL_OBJ)
 
 dist-clean: clean
 	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE)) $(NVHTM_LIB)
