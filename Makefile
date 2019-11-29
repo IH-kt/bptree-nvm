@@ -1,6 +1,8 @@
 include ./Makefile_location.inc
 VPATH = $(BUILD_DIR):$(TEST_SRC_DIR)/$(TYPE):$(TEST_SRC_DIR)/$(TREE):$(BASE_BENCH_SRC_DIR):$(HTM_ALG_DIR)/bin:$(MIN_NVM_DIR)/bin
 
+.PRECIOUS: %.o
+
 PMDK_DIR		:= $(HOME)/local
 PMDK_INCLUDES	:= -I$(PMDK_DIR)/include/
 PMDK_LIBS		:= -L$(PMDK_DIR)/lib -lpmem
@@ -46,10 +48,15 @@ ifeq ($(debug), 1)
 else
 	DEBUG :=
 endif
-DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG)
+ifeq ($(cw), 1)
+	CW	:= -DCOUNT_WRITE
+else
+	CW	:=
+endif
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW)
 
-CC=gcc
-CXX=g++
+CC=clang
+CXX=clang++
 CFLAGS=-O0 -g -march=native -pthread $(DEFINES) -I$(INCLUDE_DIR) $(NVHTM_CFLAGS)
 
 ALLOCATOR_OBJ=$(ALLOCATOR_SRC:%.c=%.o)

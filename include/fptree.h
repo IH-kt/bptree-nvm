@@ -9,9 +9,7 @@ extern "C" {
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
-// #ifdef USE_ASSERTION
-#  include <assert.h>
-// #endif
+#include <xmmintrin.h>
 #ifndef NPERSIST
 #  include <x86intrin.h>
 #endif
@@ -24,7 +22,6 @@ extern "C" {
 #  define TRANSACTION 1
 #  define LOCK 0
 #endif
-
 #include "allocator.h"
 extern ppointer PADDR_NULL;
 
@@ -36,22 +33,26 @@ extern ppointer PADDR_NULL;
 #define GET_BIT(bitmapaddr, index) (\
     (bitmapaddr[index/8] & (1 << ((index)%8))) >> (index)%8\
 )
-#define SET_BIT(bitmapaddr, index) (\
-    bitmapaddr[index/8] |= (1 << ((index)%8)) \
-)
-#define CLR_BIT(bitmapaddr, index) (\
-    bitmapaddr[index/8] &= ~(1 << ((index)%8)) \
-)
+#define SET_BIT(bitmapaddr, index) ({\
+    WRITE_COUNT_UP(); \
+    bitmapaddr[index/8] |= (1 << ((index)%8)); \
+})
+#define CLR_BIT(bitmapaddr, index) ({\
+    WRITE_COUNT_UP(); \
+    bitmapaddr[index/8] &= ~(1 << ((index)%8)); \
+})
 
 #ifdef NVHTM
 #  define GET_BIT_T(bitmapaddr, index) (\
     (NVM_read(&bitmapaddr[index/8]) & (1 << ((index)%8))) >> (index)%8\
 )
 #  define SET_BIT_T(bitmapaddr, index) ({\
+    WRITE_COUNT_UP(); \
     char bt_tmp = NVM_read(&bitmapaddr[index/8]) | (1 << ((index)%8));\
     NVM_write_varsize(&bitmapaddr[index/8], &bt_tmp, sizeof(char)); \
 })
 #  define CLR_BIT_T(bitmapaddr, index) ({\
+    WRITE_COUNT_UP(); \
     char bt_tmp = NVM_read(&bitmapaddr[index/8]) & ~(1 << ((index)%8));\
     NVM_write_varsize(&bitmapaddr[index/8], &bt_tmp, sizeof(char)); \
 })

@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
     }
 
     showTree(bpt, 0);
+    destroyBPTree(bpt, 0);
     destroyAllocator();
 
     return 0;

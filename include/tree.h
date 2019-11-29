@@ -4,6 +4,8 @@
 extern "C" {
 #  endif
 
+#include <assert.h>
+
 #define MIN_KEY 124
 #define MIN_DEG (MIN_KEY+1)
 #define MAX_KEY (2*MIN_KEY+1)
@@ -22,6 +24,20 @@ extern const Value INITIAL_VALUE;
 #else
 #  define UNUSED_KEY -1
 #  define INITIAL_VALUE 0
+#endif
+
+#ifdef COUNT_WRITE 
+    static unsigned long nvm_write_count = 0;
+#  define WRITE_COUNT_UP() (nvm_write_count++)
+#  define NVM_WRITE(p, v) ({\
+        WRITE_COUNT_UP();\
+        *p = v;\
+    })
+#  define GET_WRITE_COUNT() (nvm_write_count)
+#else
+#  define WRITE_COUNT_UP()
+#  define NVM_WRITE(p, v) (*p = v)
+#  define GET_WRITE_COUNT() (0)
 #endif
 
 /* structs */

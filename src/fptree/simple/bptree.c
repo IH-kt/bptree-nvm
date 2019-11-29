@@ -3,6 +3,8 @@
 #ifdef CONCURRENT
 #  error CONCURRENT is defined
 #endif
+#ifdef COUNT_WRITE
+#endif
 
 #ifndef NPERSIST
 void persist(void *target, size_t size) {
@@ -27,22 +29,22 @@ unsigned char hash(Key key) {
 
 /* initializer */
 void initKeyValuePair(KeyValuePair *pair) {
-    pair->key = UNUSED_KEY;
-    pair->value = INITIAL_VALUE;
+    NVM_WRITE(&pair->key, UNUSED_KEY);
+    NVM_WRITE(&pair->value, INITIAL_VALUE);
 }
 
 void initLeafNode(LeafNode *node, unsigned char tid) {
     int i;
     PersistentLeafNode *new_pleaf = (PersistentLeafNode *)getTransientAddr(pst_mem_allocate(sizeof(PersistentLeafNode), tid));
     for (i = 0; i < BITMAP_SIZE; i++) {
-        new_pleaf->header.bitmap[i] = 0;
+        NVM_WRITE(&new_pleaf->header.bitmap[i], 0);
     }
     new_pleaf->header.pnext = P_NULL;
     for (i = 0; i < MAX_PAIR; i++) {
-        new_pleaf->header.fingerprints[i] = 0;
+        NVM_WRITE(&new_pleaf->header.fingerprints[i], 0);
         initKeyValuePair(&new_pleaf->kv[i]);
     }
-    new_pleaf->lock = 0;
+    NVM_WRITE(&new_pleaf->lock, 0);
     node->pleaf = new_pleaf;
     node->next = NULL;
     node->prev = NULL;
@@ -65,9 +67,9 @@ void initInternalNode(InternalNode *node) {
 void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode, ppointer *pmem_head) {
     tree->pmem_head = pmem_head;
     if (leafHead != NULL) {
-        *pmem_head = getPersistentAddr(leafHead->pleaf);
+        NVM_WRITE(pmem_head, getPersistentAddr(leafHead->pleaf));
     } else {
-        *pmem_head = P_NULL;
+        NVM_WRITE(pmem_head, P_NULL);
     }
     tree->head = leafHead;
     tree->root = rootNode;
@@ -113,15 +115,21 @@ void destroyBPTree(BPTree *tree, unsigned char tid) {
     *tree->pmem_head = P_NULL;
     root_free(tree->pmem_head);
     vol_mem_free(tree);
+#ifdef COUNT_WRITE
+    fprintf(stderr, "write count: %lu\n", GET_WRITE_COUNT());
+#endif
 }
 
 int lockLeaf(LeafNode *target) {
+    WRITE_COUNT_UP();
     return __sync_bool_compare_and_swap(&target->pleaf->lock, 0, 1);
 }
 
 int unlockLeaf(LeafNode *target) {
+    WRITE_COUNT_UP();
     target->pleaf->lock = 0;
-    persist(&target->pleaf->lock, sizeof(target->pleaf->lock));
+    // persist(&target->pleaf->lock, sizeof(target->pleaf->lock));
+    _mm_sfence();
     return 1;
 }
 
@@ -131,7 +139,8 @@ int lockBPTree(BPTree *target) {
 
 int unlockBPTree(BPTree *target) {
     target->lock = 0;
-    persist(&target->lock, sizeof(target->lock));
+    // persist(&target->lock, sizeof(target->lock));
+    _mm_sfence();
     return 1;
 }
 
@@ -266,26 +275,26 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode 
     char bitmap[BITMAP_SIZE];
 
     for (i = 0; i < MAX_PAIR; i++) {
-        new_leafnode->pleaf->kv[i] = target->pleaf->kv[i];
-        new_leafnode->pleaf->header.fingerprints[i] = target->pleaf->header.fingerprints[i];
+        NVM_WRITE(&new_leafnode->pleaf->kv[i], target->pleaf->kv[i]);
+        NVM_WRITE(&new_leafnode->pleaf->header.fingerprints[i], target->pleaf->header.fingerprints[i]);
     }
-    new_leafnode->pleaf->header.pnext = target->pleaf->header.pnext;
-    new_leafnode->pleaf->lock = target->pleaf->lock;
+    NVM_WRITE(&new_leafnode->pleaf->header.pnext, target->pleaf->header.pnext);
+    NVM_WRITE(&new_leafnode->pleaf->lock, target->pleaf->lock);
     persist(new_leafnode->pleaf, sizeof(PersistentLeafNode));
 
     findSplitKey(new_leafnode, &split_key, bitmap);
 
     for (i = 0; i < BITMAP_SIZE; i++) {
-        new_leafnode->pleaf->header.bitmap[i] = bitmap[i];
+        NVM_WRITE(&new_leafnode->pleaf->header.bitmap[i], bitmap[i]);
     }
     persist(new_leafnode->pleaf->header.bitmap, BITMAP_SIZE * sizeof(bitmap[0]));
 
     for (i = 0; i < BITMAP_SIZE; i++) {
-        target->pleaf->header.bitmap[i] = ~bitmap[i];
+        NVM_WRITE(&target->pleaf->header.bitmap[i], ~bitmap[i]);
     }
     persist(target->pleaf->header.bitmap, BITMAP_SIZE * sizeof(bitmap[0]));
 
-    target->pleaf->header.pnext = getPersistentAddr(new_leafnode->pleaf);
+    NVM_WRITE(&target->pleaf->header.pnext, getPersistentAddr(new_leafnode->pleaf));
 
     persist(getTransientAddr(target->pleaf->header.pnext), sizeof(LeafNode *));
 
@@ -363,8 +372,8 @@ void insertNonfullInternal(InternalNode *target, Key key, void *child) {
 
 void insertNonfullLeaf(LeafNode *node, KeyValuePair kv) {
     int slot = findFirstAvailableSlot(node);
-    node->pleaf->kv[slot] = kv;
-    node->pleaf->header.fingerprints[slot] = hash(kv.key);
+    NVM_WRITE(&node->pleaf->kv[slot], kv);
+    NVM_WRITE(&node->pleaf->header.fingerprints[slot], hash(kv.key));
     persist(&node->pleaf->kv[slot], sizeof(KeyValuePair));
     persist(&node->pleaf->header.fingerprints[slot], sizeof(char));
     SET_BIT(node->pleaf->header.bitmap, slot);
@@ -531,7 +540,7 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
             return 0;
         }
         if (target->key_length >= MAX_PAIR) {
-            LeafNode *new_leaf = newLeafNode(tid);
+            new_leaf = newLeafNode(tid);
             KeyValuePair dummy = {UNUSED_KEY, INITIAL_VALUE};
             split_key = splitLeaf(target, dummy, tid, new_leaf);
             splitted_leaf = target;
@@ -543,8 +552,8 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
         int empty_slot_index = findFirstAvailableSlot(target);
         // _xend();
         // }
-        target->pleaf->kv[empty_slot_index] = new_kv;
-        target->pleaf->header.fingerprints[empty_slot_index] = hash(new_kv.key);
+        NVM_WRITE(&target->pleaf->kv[empty_slot_index], new_kv);
+        NVM_WRITE(&target->pleaf->header.fingerprints[empty_slot_index], hash(new_kv.key));
         persist(&target->pleaf->kv[empty_slot_index], sizeof(KeyValuePair));
         persist(&target->pleaf->header.fingerprints[empty_slot_index], sizeof(char));
         unsigned char tmp_bitmap[BITMAP_SIZE];
@@ -553,9 +562,11 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
         CLR_BIT(tmp_bitmap, target_index);
         SET_BIT(tmp_bitmap, empty_slot_index);
         memcpy(target->pleaf->header.bitmap, tmp_bitmap, BITMAP_SIZE);
+        WRITE_COUNT_UP();
         persist(target->pleaf->header.bitmap, BITMAP_SIZE);
         // _xbegin();
         if (splitted_leaf != NULL) {
+            assert(new_leaf != NULL);
             insertParent(bpt, parent, split_key, new_leaf, splitted_leaf);
             unlockLeaf(new_leaf);
             unlockLeaf(splitted_leaf);
@@ -570,10 +581,10 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
 void deleteLeaf(BPTree *bpt, LeafNode *current, unsigned char tid) {
     if (current->prev == NULL) {
         bpt->head = current->next;
-        *bpt->pmem_head = current->pleaf->header.pnext;
+        NVM_WRITE(&bpt->pmem_head, current->pleaf->header.pnext);
         persist(bpt->pmem_head, sizeof(ppointer));
     } else {
-        current->prev->pleaf->header.pnext = current->pleaf->header.pnext;
+        NVM_WRITE(&current->prev->pleaf->header.pnext, current->pleaf->header.pnext);
         current->prev->next = current->next;
     }
     if (current->next != NULL) {
@@ -787,7 +798,7 @@ int removeRecursive(BPTree *bpt, InternalNode *current, LeafNode *delete_target_
                 return 1;
             } else {
                 printf("delete: suspicious execution\n");
-                return -1; // bug?
+                assert(0);
             }
         } else {
             return 0;

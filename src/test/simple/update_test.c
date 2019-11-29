@@ -28,7 +28,8 @@ int main(int argc, char *argv[]) {
     bpt = newBPTree();
     kv.key = 1;
     kv.value = 1;
-    srand((unsigned) time(NULL));
+    // srand((unsigned) time(NULL));
+    srand(0);
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
         printf("insert %ld\n", kv.key);
@@ -51,6 +52,7 @@ int main(int argc, char *argv[]) {
     }
 
     showTree(bpt, 0);
+    destroyBPTree(bpt, 0);
     destroyAllocator();
 
     return 0;

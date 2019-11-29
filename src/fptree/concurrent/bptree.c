@@ -595,7 +595,7 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
             return 0;
         }
         if (target->key_length >= MAX_PAIR) {
-            LeafNode *new_leaf = newLeafNode(tid);
+            new_leaf = newLeafNode(tid);
             KeyValuePair dummy = {UNUSED_KEY, INITIAL_VALUE};
             split_key = splitLeaf(target, dummy, tid, new_leaf);
             splitted_leaf = target;
