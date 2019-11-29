@@ -1,4 +1,4 @@
-#include "fptree.h"
+#include "tree.h"
 #include "allocator.h"
 #include "nv-htm_wrapper.h"
 
@@ -6,56 +6,26 @@ typedef intptr_t NVHTM_WRITE_UNIT_T;
 const Key UNUSED_KEY = -1;
 const Value INITIAL_VALUE = 0;
 
+#ifdef COUNT_ABORT
+__thread unsigned int times_of_lock = 0;
+__thread unsigned int times_of_transaction = 0;
+#endif
+
 #ifdef TIME_PART
 __thread double internal_alloc_time = 0;
 __thread double leaf_alloc_time = 0;
 __thread double insert_part1 = 0;
 __thread double insert_part2 = 0;
 __thread double insert_part3 = 0;
-__thread unsigned int times_of_lock = 0;
-__thread unsigned int times_of_transaction = 0;
-#  define INTERNAL_ALLOC_TIME internal_alloc_time
-#  define LEAF_ALLOC_TIME leaf_alloc_time
-#  define INSERT_1_TIME insert_part1
-#  define INSERT_2_TIME insert_part2
-#  define INSERT_3_TIME insert_part3
-#  define INIT_TIME_VAR()     \
-    struct timespec stt, edt; \
-    double time_tmp = 0
-
-#  define START_MEJOR_TIME() \
-	clock_gettime(CLOCK_MONOTONIC_RAW, &stt)
-
-#  define FINISH_MEJOR_TIME(time_res) {         \
-	clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
-	time_tmp = 0;                             \
-	time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
-	time_tmp /= 1000000000;                   \
-	time_tmp += edt.tv_sec - stt.tv_sec;      \
-	time_res += time_tmp;                     \
-}
-
-void showTime(unsigned int tid) {
-	fprintf(stderr, "thread %d, insert_part1 = %lf\n", tid, insert_part1);
-	fprintf(stderr, "thread %d, insert_part2 = %lf\n", tid, insert_part2);
-	fprintf(stderr, "thread %d, insert_part3 = %lf\n", tid, insert_part3);
-	fprintf(stderr, "thread %d, lock = %u, transaction = %u\n", tid, times_of_lock, times_of_transaction);
-}
-
-#  define TRANSACTION_SUCCESS() times_of_transaction++
-#  define LOCK_SUCCESS() times_of_lock++
-#else
-#  define INTERNAL_ALLOC_TIME
-#  define LEAF_ALLOC_TIME
-#  define INSERT_1_TIME
-#  define INSERT_2_TIME
-#  define INSERT_3_TIME
-#  define INIT_TIME_VAR()
-#  define START_MEJOR_TIME()
-#  define FINISH_MEJOR_TIME(res)
-#  define TRANSACTION_SUCCESS()
-#  define LOCK_SUCCESS()
 #endif
+
+pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+void show_result_thread(unsigned char tid) {
+    pthread_mutex_lock(&mut);
+    SHOW_RESULT_THREAD(tid);
+    fflush(stderr);
+    pthread_mutex_unlock(&mut);
+}
 
 #define TRANSACTION_EXECUTION_INIT()    \
     int n_tries = 1;                    \
@@ -86,14 +56,6 @@ void showTime(unsigned int tid) {
         } while (lock && get_lock_loop_num < LOOP_RETRY_NUM); \
     }                                                         \
 }
-
-#ifdef TIME_PART
-#define TRANSACTION_SUCCESS() times_of_transaction++
-#define LOCK_SUCCESS() times_of_lock++
-#else
-#define TRANSACTION_SUCCESS()
-#define LOCK_SUCCESS()
-#endif
 
 #define TRANSACTION_EXECUTION_EXECUTE(tree, code, tid) {   \
     while (1) {                                            \
@@ -294,7 +256,7 @@ BPTree *newBPTree() {
     return new;
 }
 void destroyBPTree(BPTree *tree, unsigned char tid) {
-    destroyLeafNode(tree->head, tid);
+    // destroyLeafNode(tree->head, tid);
     destroyInternalNode(tree->root);
     *tree->pmem_head = P_NULL;
     root_free(tree->pmem_head);

@@ -5,6 +5,7 @@ extern "C" {
 #  endif
 
 #include <assert.h>
+#include <pthread.h>
 
 #define MIN_KEY 124
 #define MIN_DEG (MIN_KEY+1)
@@ -37,7 +38,7 @@ extern const Value INITIAL_VALUE;
 #else
 #  define WRITE_COUNT_UP()
 #  define NVM_WRITE(p, v) (*p = v)
-#  define GET_WRITE_COUNT() (0)
+#  define GET_WRITE_COUNT() (0l)
 #endif
 
 /* structs */

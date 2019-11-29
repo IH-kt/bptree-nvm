@@ -1,7 +1,7 @@
 #ifdef NVHTM
 #  error "NVHTM is defined!"
 #endif
-#include "fptree.h"
+#include "tree.h"
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
     bptreeRemove(bpt, kv.key, 0);
 
     showTree(bpt, 0);
+    destroyBPTree(bpt, 0);
     destroyAllocator();
     return 0;
 }

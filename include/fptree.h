@@ -58,6 +58,78 @@ extern ppointer PADDR_NULL;
 })
 #endif
 
+#ifdef COUNT_ABORT
+extern __thread unsigned int times_of_lock;
+extern __thread unsigned int times_of_transaction;
+
+#  define TRANSACTION_SUCCESS() times_of_transaction++
+#  define LOCK_SUCCESS() times_of_lock++
+#  define SHOW_COUNT_ABORT() {\
+	fprintf(stderr, "executed by lock = %u times\n", times_of_lock);\
+    fprintf(stderr, "executed by transaction = %u times\n", times_of_transaction);\
+}
+#else
+#  define TRANSACTION_SUCCESS()
+#  define LOCK_SUCCESS()
+#  define SHOW_COUNT_ABORT()
+#endif
+
+#ifdef TIME_PART
+#include <time.h>
+extern __thread double internal_alloc_time;
+extern __thread double leaf_alloc_time;
+extern __thread double insert_part1;
+extern __thread double insert_part2;
+extern __thread double insert_part3;
+#  define INTERNAL_ALLOC_TIME internal_alloc_time
+#  define LEAF_ALLOC_TIME leaf_alloc_time
+#  define INSERT_1_TIME insert_part1
+#  define INSERT_2_TIME insert_part2
+#  define INSERT_3_TIME insert_part3
+#  define INIT_TIME_VAR()     \
+    struct timespec stt, edt; \
+    double time_tmp = 0
+
+#  define START_MEJOR_TIME() \
+	clock_gettime(CLOCK_MONOTONIC_RAW, &stt)
+
+#  define FINISH_MEJOR_TIME(time_res) {         \
+	clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
+	time_tmp = 0;                             \
+	time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
+	time_tmp /= 1000000000;                   \
+	time_tmp += edt.tv_sec - stt.tv_sec;      \
+	time_res += time_tmp;                     \
+}
+
+#  define SHOW_TIME_PART() {\
+    fprintf(stderr, "allocating internal node = %lf\n", internal_alloc_time);\
+    fprintf(stderr, "allocating leaf node = %lf\n", leaf_alloc_time);\
+	fprintf(stderr, "insert_part1:new root = %lf\n", insert_part1);\
+	fprintf(stderr, "insert_part2:find leaf = %lf\n", insert_part2);\
+	fprintf(stderr, "insert_part3:update parent = %lf\n", insert_part3);\
+}
+#else
+#  define INTERNAL_ALLOC_TIME
+#  define LEAF_ALLOC_TIME
+#  define INSERT_1_TIME
+#  define INSERT_2_TIME
+#  define INSERT_3_TIME
+#  define INIT_TIME_VAR()
+#  define START_MEJOR_TIME()
+#  define FINISH_MEJOR_TIME(res)
+#  define SHOW_TIME_PART()
+#endif
+
+#  define SHOW_RESULT_THREAD(tid) {\
+    fprintf(stderr, "*******************Thread %d*******************\n", tid);\
+    SHOW_COUNT_ABORT();\
+    SHOW_TIME_PART();\
+    fprintf(stderr, "***********************************************\n");\
+}
+
+void show_result_thread(unsigned char);
+
 /* structs */
 
 #define LEAF 0
@@ -120,10 +192,6 @@ typedef struct KeyPositionPair KeyPositionPair;
 /* utils */
 unsigned char hash(Key);
 // char popcntcharsize(char);
-#ifdef TIME_PART
-void showTime(unsigned int);
-#include <time.h>
-#endif
 
 /* initializer */
 void initKeyValuePair(KeyValuePair *);

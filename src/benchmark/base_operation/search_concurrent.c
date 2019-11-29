@@ -33,9 +33,7 @@ void *insert_random(BPTree *bpt, void *arg) {
         }
         // showTree(bpt);
     }
-#ifdef TIME_PART
-    showTime(tid);
-#endif
+    show_result_thread(tid);
 #ifdef NVHTM
     NVHTM_thr_exit();
 #endif
@@ -56,9 +54,7 @@ void *search_random(BPTree *bpt, void *arg) {
         key = rand_r(&seed) % max_val + 1;
         search(bpt, key, &sr, tid);
     }
-#ifdef TIME_PART
-    showTime(tid);
-#endif
+    show_result_thread(tid);
 #ifdef NVHTM
     NVHTM_thr_exit();
 #endif
@@ -165,6 +161,8 @@ int main(int argc, char *argv[]) {
     printf("%lf\n", time);
 
     // showTree(bpt, 0);
+
+    destroyBPTree(bpt, 1);
 
     bptreeThreadDestroy();
 

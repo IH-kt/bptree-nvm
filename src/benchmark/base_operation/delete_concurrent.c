@@ -36,9 +36,7 @@ void *insert_random(BPTree *bpt, void *arg) {
         }
         // showTree(bpt);
     }
-#ifdef TIME_PART
-    showTime(tid);
-#endif
+    show_result_thread(tid);
 #ifdef NVHTM
     NVHTM_thr_exit();
 #endif
@@ -59,9 +57,7 @@ void *delete_random(BPTree *bpt, void *arg) {
         bptreeRemove(bpt, key, tid);
         // showTree(bpt);
     }
-#ifdef TIME_PART
-    showTime(tid);
-#endif
+    show_result_thread(tid);
 #ifdef NVHTM
     NVHTM_thr_exit();
 #endif
@@ -159,6 +155,8 @@ int main(int argc, char *argv[]) {
         free(NULL);
     }
     clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+
+    destroyBPTree(bpt, 1);
 
     bptreeThreadDestroy();
 

@@ -1,7 +1,7 @@
 #ifdef NVHTM
 #  error "NVHTM is defined!"
 #endif
-#include "fptree.h"
+#include "tree.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
@@ -87,6 +87,7 @@ int main(int argc, char *argv[]) {
     }
 
     showTree(bpt, 1);
+    destroyBPTree(bpt, 1);
     destroyAllocator();
 
     return 0;

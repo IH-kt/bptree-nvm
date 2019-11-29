@@ -3,8 +3,10 @@
 #ifdef CONCURRENT
 #  error CONCURRENT is defined
 #endif
-#ifdef COUNT_WRITE
-#endif
+
+void show_result_thread(unsigned char tid) {
+    SHOW_RESULT_THREAD(tid);
+}
 
 #ifndef NPERSIST
 void persist(void *target, size_t size) {
@@ -110,14 +112,12 @@ BPTree *newBPTree() {
     return new;
 }
 void destroyBPTree(BPTree *tree, unsigned char tid) {
-    destroyLeafNode(tree->head, tid);
+    // destroyLeafNode(tree->head, tid);
     destroyInternalNode(tree->root);
     *tree->pmem_head = P_NULL;
     root_free(tree->pmem_head);
     vol_mem_free(tree);
-#ifdef COUNT_WRITE
     fprintf(stderr, "write count: %lu\n", GET_WRITE_COUNT());
-#endif
 }
 
 int lockLeaf(LeafNode *target) {

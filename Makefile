@@ -53,10 +53,15 @@ ifeq ($(cw), 1)
 else
 	CW	:=
 endif
-DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW)
+ifeq ($(ca), 1)
+	CA	:= -DCOUNT_ABORT
+else
+	CA	:=
+endif
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA)
 
-CC=clang
-CXX=clang++
+CC=gcc
+CXX=g++
 CFLAGS=-O0 -g -march=native -pthread $(DEFINES) -I$(INCLUDE_DIR) $(NVHTM_CFLAGS)
 
 ALLOCATOR_OBJ=$(ALLOCATOR_SRC:%.c=%.o)
@@ -95,6 +100,7 @@ test-make:
 	echo $(NVHTM_CFLAGS)
 
 clean:
+	rm -f $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ)
 
 dist-clean: clean
 	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE)) $(NVHTM_LIB)
