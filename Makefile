@@ -40,7 +40,7 @@ ifeq ($(tree), bptree)
 	TREE_D		:= -DBPTREE
 	TREE_OBJ	:= $(BPTREE_SRC:%.c=%.o)
 else
-	TREE_D		:=
+	TREE_D		:= -DFPTREE
 	TREE_OBJ	:= $(FPTREE_SRC:%.c=%.o)
 endif
 ifeq ($(debug), 1)

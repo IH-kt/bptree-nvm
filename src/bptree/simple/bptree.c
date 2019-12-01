@@ -4,6 +4,10 @@
 #  error CONCURRENT is defined
 #endif
 
+void show_result_thread(unsigned char tid) {
+    SHOW_RESULT_THREAD(tid);
+}
+
 #ifndef NPERSIST
 void persist(void *target, size_t size) {
     int i;
@@ -39,6 +43,7 @@ void initLeafNode(LeafNode *node, unsigned char tid) {
     node->lock = 0;
     node->next = NULL;
     node->prev = NULL;
+    node->pnext = P_NULL;
     node->key_length = 0;
     node->tid = tid;
 }
@@ -56,6 +61,11 @@ void initInternalNode(InternalNode *node) {
 }
 
 void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode) {
+    if (leafHead != NULL) {
+        *tree->pmem_head = getPersistentAddr(leafHead);
+    } else {
+        *tree->pmem_head = P_NULL;
+    }
     tree->head = leafHead;
     tree->root = rootNode;
     rootNode->children_type = LEAF;
@@ -87,17 +97,18 @@ void destroyInternalNode(InternalNode *node) {
 }
 
 BPTree *newBPTree() {
+    ppointer *pmem_head = root_allocate(sizeof(ppointer), sizeof(LeafNode));
     BPTree *new = (BPTree *)vol_mem_allocate(sizeof(BPTree));
     InternalNode *rootNode = newInternalNode();
-    // LeafNode *leafHead = newLeafNode();
+    new->pmem_head = pmem_head;
     initBPTree(new, NULL, rootNode);
     return new;
 }
 void destroyBPTree(BPTree *tree, unsigned char tid) {
-    destroyLeafNode(tree->head, tid);
+    // destroyLeafNode(tree->head, tid);
     destroyInternalNode(tree->root);
-//    *tree->pmem_head = P_NULL;
-//    root_free(tree->pmem_head);
+    *tree->pmem_head = P_NULL;
+    root_free(tree->pmem_head);
     vol_mem_free(tree);
 }
 
@@ -230,11 +241,13 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode 
 
     new_leafnode->lock = target->lock;
     new_leafnode->next = target->next;
+    new_leafnode->pnext = getPersistentAddr(new_leafnode);
     new_leafnode->prev = target;
     if (target->next != NULL) {
         target->next->prev = new_leafnode;
     }
     target->next = new_leafnode;
+    target->pnext = getPersistentAddr(new_leafnode);
 
     target->key_length = split_index + 1;
     new_leafnode->key_length = MAX_PAIR - split_index - 1;
@@ -429,7 +442,7 @@ void insertLeaf(BPTree *emptyTree, LeafNode *leafHead) {
     root->children[0] = leafHead;
     emptyTree->head = leafHead;
 
-    LeafNode *target_leaf = leafHead->next;
+    LeafNode *target_leaf = getTransientAddr(leafHead->pnext);
     while(target_leaf != NULL) {
         Key split_key;
         InternalNode *split_node;
@@ -443,7 +456,7 @@ void insertLeaf(BPTree *emptyTree, LeafNode *leafHead) {
             new_root->children_type = INTERNAL;
             emptyTree->root = new_root;
         }
-        target_leaf = target_leaf->next;
+        target_leaf = getTransientAddr(target_leaf->pnext);
     }
 }
 
@@ -483,10 +496,10 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
 void deleteLeaf(BPTree *bpt, LeafNode *current, unsigned char tid) {
     if (current->prev == NULL) {
         bpt->head = current->next;
-        //*bpt->pmem_head = current->pleaf->header.pnext;
-        //persist(bpt->pmem_head, sizeof(ppointer));
+        *bpt->pmem_head = getPersistentAddr(current->pnext);
+        persist(bpt->pmem_head, sizeof(ppointer));
     } else {
-        //current->prev->pleaf->header.pnext = current->pleaf->header.pnext;
+        current->prev->pnext = current->pnext;
         current->prev->next = current->next;
     }
     if (current->next != NULL) {
@@ -834,10 +847,6 @@ void showTree(BPTree *bpt, unsigned char tid) {
     showInternalNode((InternalNode *)bpt->root, 0);
 }
 
-int sumLeafLength(BPTree *bpt) {
-    return _sumLeafLength(bpt->root);
-}
-
 int _sumLeafLength(InternalNode *node) {
     int sum_leaf_length = 0;
         for (int i = 0; i < node->key_length + 1; i++) {
@@ -850,4 +859,8 @@ int _sumLeafLength(InternalNode *node) {
             }
         }
     return sum_leaf_length;
+}
+
+int sumLeafLength(BPTree *bpt) {
+    return _sumLeafLength(bpt->root);
 }

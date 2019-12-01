@@ -53,6 +53,8 @@ typedef struct KeyValuePair {
 #  include "fptree.h"
 #endif
 
+void show_result_thread(unsigned char);
+
 BPTree *newBPTree();
 void destroyBPTree(BPTree *, unsigned char);
 void search(BPTree *, Key, SearchResult *, unsigned char);

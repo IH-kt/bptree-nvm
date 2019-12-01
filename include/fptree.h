@@ -128,8 +128,6 @@ extern __thread double insert_part3;
     fprintf(stderr, "***********************************************\n");\
 }
 
-void show_result_thread(unsigned char);
-
 /* structs */
 
 #define LEAF 0
