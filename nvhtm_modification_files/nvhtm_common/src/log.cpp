@@ -85,7 +85,7 @@ static inline void* apply_to_checkpoint(
   bool do_flush
 );
 
-static void init_log(NVLog_s *new_log, int tid, int fresh);
+static void init_log(NVLog_s **to_log, NVLog_s *new_log, int tid, int fresh);
 static int sort_logs();
 
 // ################ implementation header
@@ -113,9 +113,10 @@ void LOG_init(int nb_threads, int fresh)
 
   if (NH_global_logs == NULL) {
     ALLOC_FN(NH_global_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
+    ALLOC_FN(NH_global_checkpointing_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
     fprintf(stderr, "log_size = %lu\n", size_of_logs);
 
-    LOG_global_ptr = ALLOC_MEM(log_file_name, size_of_logs);
+    LOG_global_ptr = ALLOC_MEM(log_file_name, 2 * size_of_logs);
     memset(LOG_global_ptr, 0, size_of_logs);
     fresh = 1; // this is not init to 0
     // key_t key = KEY_LOGS;
@@ -143,7 +144,11 @@ void LOG_init(int nb_threads, int fresh)
   LOG_attach_shared_mem();
   for (i = 0; i < nb_threads; ++i) {
     NVLog_s *new_log = NH_global_logs[i];
-    init_log(new_log, i, fresh);
+    init_log(NH_global_logs, new_log, i, fresh);
+  }
+  for (i = 0; i < nb_threads; ++i) {
+    NVLog_s *new_log = NH_global_checkpointing_logs[i];
+    init_log(NH_global_checkpointing_logs, new_log, i, fresh);
   }
 
   sort_logs(); // TODO
@@ -157,11 +162,18 @@ void LOG_attach_shared_mem() {
   int i;
   size_t size_of_struct = sizeof(NVLog_s);
   size_t size_of_log = NVMHTM_LOG_SIZE /* / TM_nb_threads */;
+  size_t size_of_logs = (int)(NVMHTM_LOG_SIZE /* / TM_nb_threads */) * TM_nb_threads;
   aux_ptr = (char*) LOG_global_ptr;
   for (i = 0; i < TM_nb_threads; ++i) {
     NVLog_s *new_log = LOG_init_1thread(aux_ptr, size_of_log);
     aux_ptr += size_of_log;
     NH_global_logs[i] = new_log;
+  }
+  aux_ptr = ((char*) LOG_global_ptr) + size_of_logs;
+  for (i = 0; i < TM_nb_threads; ++i) {
+    NVLog_s *new_log = LOG_init_1thread(aux_ptr, size_of_log);
+    aux_ptr += size_of_log;
+    NH_global_checkpointing_logs[i] = new_log;
   }
 }
 
@@ -190,7 +202,7 @@ void LOG_alloc(int tid, const char *pool_file, int fresh)
   aux_ptr += used_size;
   NH_global_logs[i] = new_log;
 
-  init_log(new_log, tid, fresh);
+  init_log(NH_global_logs, new_log, tid, fresh);
 }
 
 void LOG_thr_init(int tid)
@@ -387,6 +399,8 @@ static void init_log(NVLog_s *new_log, int tid, int fresh)
   new_log->end_last_tx = -1;
   //}
   new_log->start_tx = -1;
+
+  new_log->persistent_checkpointing = 0;
 
   // printf("Init log %i\n", new_log->end);
   // TODO: loads a bit of the log to cache

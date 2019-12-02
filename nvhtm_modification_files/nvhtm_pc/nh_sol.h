@@ -9,6 +9,11 @@ extern "C"
 #include <sys/stat.h>
 #include <fcntl.h>
 
+extern size_t al_sz;
+extern char const *al_fn;
+extern void *al_pool;
+extern __thread char log_at_tx_start;
+
   #define MAXIMUM_OFFSET 400 // in cycles
 
 // TODO: remove the externs
@@ -17,18 +22,25 @@ extern "C"
     extern __thread int global_threadId_; \
     extern int nb_transfers; \
     extern long nb_of_done_transactions; \
-    while (*NH_checkpointer_state == 1 && nb_of_done_transactions < nb_transfers) { \
+    while (*NH_checkpointer_state & 0x1 == 1 && nb_of_done_transactions < nb_transfers) { \
       PAUSE(); \
     }
 
   #undef BEFORE_TRANSACTION_i
   #define BEFORE_TRANSACTION_i(tid, budget) \
+  while (*NH_checkpointer_state & 0x1) PAUSE();\
   LOG_get_ts_before_tx(tid); \
+  log_at_tx_start = *NH_checkpointer_state & 0x2;\
   LOG_before_TX(); \
   TM_inc_local_counter(tid);
 
   #undef BEFORE_COMMIT
   #define BEFORE_COMMIT(tid, budget, status) \
+    if (*NH_checkpointer_state & 0x2 != log_at_tx_start) {\
+      HTM_named_abort(2);\
+    } else {\
+      NH_global_logs[tid]->persistent_checkpointing = 1;\
+    }\
   ts_var = rdtscp(); /* must be the p version */  \
   if (LOG_count_writes(tid) > 0 && TM_nb_threads > 28) { \
     while ((rdtscp() - ts_var) < MAXIMUM_OFFSET); /* wait offset */ \
@@ -45,6 +57,7 @@ extern "C"
     CHECK_AND_REQUEST(tid); \
     TM_inc_local_counter(tid); \
     LOG_after_TX(); \
+    assert(__sync_bool_compare_and_swap(&NH_global_logs[tid]->persistent_checkpointing, 1, 0));\
   })
 
   #undef AFTER_ABORT
@@ -81,9 +94,6 @@ extern "C"
         al_pool = ALLOC_MEM(fn, size); \
         al_pool;\
 })
-extern size_t al_sz;
-extern char const *al_fn;
-extern void *al_pool;
 
 #undef NH_free
 #define NH_free(pool) FREE_MEM(pool, al_sz)

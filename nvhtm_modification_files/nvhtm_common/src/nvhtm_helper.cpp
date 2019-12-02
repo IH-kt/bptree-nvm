@@ -128,10 +128,6 @@ static pid_t pid;
 static ts_s time_chkp_1, time_chkp_2, time_chkp_total;
 static ts_s time_o_chkp_1, time_o_chkp_2;
 
-size_t al_sz = 0;
-char const *al_fn = NULL;
-void *al_pool = NULL;
-
 #ifdef DO_CHECKPOINT
 NVMHTM_mem_s *mem_instance;
 #endif /* DO_CHECKPOINT */
@@ -531,6 +527,7 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   #endif
 
   // good place for a memory barrier
+  _mm_sfence();
 
   NVMHTM_write_ts(id, ts); // Flush all together
   // SPIN_PER_WRITE(1);
@@ -702,7 +699,7 @@ void NVHTM_req_clear_log(/* int block */)
     __sync_synchronize();
   }
 
-  if (manager_mutex == 1 || *NH_checkpointer_state == 1) return; // somebody else got it
+  if (manager_mutex == 1 || *NH_checkpointer_state & 0x1 == 1) return; // somebody else got it
 
   while (!__sync_bool_compare_and_swap(&manager_mutex, 0, 1)) {
     if (manager_mutex != 0) // somebody else got it
@@ -710,9 +707,9 @@ void NVHTM_req_clear_log(/* int block */)
   }
   retries_counter++;
   // if MANAGER is IDLE --> grab lock and make it work
-  if (*NH_checkpointer_state == 0) {
+  if (*NH_checkpointer_state & 0x1 == 0) {
     // cool, no one is requesting
-    *NH_checkpointer_state = 1; // BUSY
+    *NH_checkpointer_state |= 0x1; // BUSY
     __sync_synchronize();
   }
   manager_mutex = 0;
@@ -796,7 +793,7 @@ static void fork_manager()
 
   // printf("PID: %i\n", pid);
 
-  while (*NH_checkpointer_state == 1) PAUSE();
+  while (*NH_checkpointer_state & 0x1 == 1) PAUSE();
   #endif
 }
 
@@ -811,10 +808,10 @@ static void * server(void * args)
 
     req = 0;
 
-    *NH_checkpointer_state = 0; // IDLE
+    *NH_checkpointer_state &= ~0x1; // IDLE
     __sync_synchronize();
 
-    while (LOG_THRESHOLD > 0.0D && *NH_checkpointer_state == 0) {
+    while (LOG_THRESHOLD > 0.0D && *NH_checkpointer_state & 0x1 == 0) {
       PAUSE();
       // __sync_synchronize();
     }
@@ -874,6 +871,14 @@ static void * manage_checkpoint(void * args)
   __sync_synchronize();
 
   return NULL;
+}
+
+static void flip_log() {
+  if (*NH_checkpointer_state & 0x2) {
+    *NH_checkpointer_state &= ~0x2;
+  } else {
+    *NH_checkpointer_state |= 0x2;
+  }
 }
 
 static int loop_checkpoint_manager()
@@ -942,6 +947,7 @@ if (LOG_is_logged_tx()) {
       }
     }
     #elif SORT_ALG == 5
+    flip_log();
     LOG_checkpoint_backward();
     #endif
     // LOG_move_start_ptrs();
