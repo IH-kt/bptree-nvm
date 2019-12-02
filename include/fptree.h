@@ -32,31 +32,6 @@ extern ppointer PADDR_NULL;
 
 /* definition of structs */
 
-/* bitmap operator */
-#define GET_BIT(bitmapaddr, index) (\
-    (bitmapaddr[index/8] & (1 << ((index)%8))) >> (index)%8\
-)
-#define SET_BIT(bitmapaddr, index) (\
-    bitmapaddr[index/8] |= (1 << ((index)%8)) \
-)
-#define CLR_BIT(bitmapaddr, index) (\
-    bitmapaddr[index/8] &= ~(1 << ((index)%8)) \
-)
-
-#ifdef NVHTM
-#  define GET_BIT_T(bitmapaddr, index) (\
-    (NVM_read(&bitmapaddr[index/8]) & (1 << ((index)%8))) >> (index)%8\
-)
-#  define SET_BIT_T(bitmapaddr, index) ({\
-    char bt_tmp = NVM_read(&bitmapaddr[index/8]) | (1 << ((index)%8));\
-    NVM_write_varsize(&bitmapaddr[index/8], &bt_tmp, sizeof(char)); \
-})
-#  define CLR_BIT_T(bitmapaddr, index) ({\
-    char bt_tmp = NVM_read(&bitmapaddr[index/8]) & ~(1 << ((index)%8));\
-    NVM_write_varsize(&bitmapaddr[index/8], &bt_tmp, sizeof(char)); \
-})
-#endif
-
 /* structs */
 
 #define LEAF 0
@@ -73,7 +48,6 @@ struct InternalNode {
 };
 
 struct LeafHeader {
-    unsigned char bitmap[BITMAP_SIZE];
     ppointer pnext;
     unsigned char fingerprints[MAX_PAIR];
 };
@@ -145,7 +119,7 @@ void search(BPTree *, Key, SearchResult *, unsigned char);
 
 int findFirstAvailableSlot(LeafNode *);
 int compareKeyPositionPair(const void *, const void *);
-void findSplitKey(LeafNode *, Key *, char *);
+void findSplitKey(LeafNode *, Key *, unsigned char *);
 Key splitLeaf(LeafNode *, KeyValuePair, unsigned char, LeafNode *);
 Key splitInternal(InternalNode *, InternalNode **, void *, Key);
 void insertNonfullInternal(InternalNode *, Key, void *);
