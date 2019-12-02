@@ -1,7 +1,7 @@
 #ifndef CONCURRENT
 #  error "CONCURRENT is not defined!"
 #endif
-#include "fptree.h"
+#include "tree.h"
 #include "thread_manager.h"
 #include <stdlib.h>
 #include <time.h>
@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
     NVHTM_init(thread_num + 1);
     void *pool = NH_alloc("data", allocation_size);
     printf("pool = %p\n", pool);
+    NVHTM_thr_init();
     initAllocator(pool, "data", allocation_size, thread_num);
     NVHTM_clear();
     bpt = newBPTree();
@@ -87,6 +88,7 @@ int main(int argc, char *argv[]) {
     showTree(bpt, 0);
     destroyAllocator();
 
+    NVHTM_thr_exit();
     NVHTM_shutdown();
 
     return 0;

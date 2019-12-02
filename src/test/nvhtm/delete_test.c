@@ -1,4 +1,4 @@
-#include "fptree.h"
+#include "tree.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
     void *pool = NH_alloc("./data", allocation_size);
     NVHTM_clear();
     NVHTM_cpy_to_checkpoint(pool);
+    NVHTM_thr_init();
     initAllocator(pool, "data", allocation_size, 1);
 
     bpt = newBPTree();
@@ -85,6 +86,7 @@ int main(int argc, char *argv[]) {
 
     showTree(bpt, 1);
     destroyAllocator();
+    NVHTM_thr_exit();
     NVHTM_shutdown();
 
     return 0;

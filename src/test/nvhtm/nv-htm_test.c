@@ -116,6 +116,7 @@ int main(int argc, char *argv[]) {
     NVHTM_clear();
 
     NVHTM_cpy_to_checkpoint(pool);
+    NVHTM_thr_init();
 
     initAllocator(pool, "data", pool_sz, 3);
 
@@ -150,6 +151,7 @@ int main(int argc, char *argv[]) {
 
     destroyAllocator();
 
+    NVHTM_thr_exit();
     NVHTM_shutdown();
 
     return 0;
