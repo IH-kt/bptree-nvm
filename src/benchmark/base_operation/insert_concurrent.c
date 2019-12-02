@@ -93,6 +93,7 @@ int main(int argc, char *argv[]) {
     NVHTM_clear();
     NVHTM_cpy_to_checkpoint(pool);
     initAllocator(pool, pmem_path, allocation_size, thread_max + 1);
+    NVHTM_thr_init();
 #else
     initAllocator(NULL, pmem_path, allocation_size, thread_max + 1);
 #endif
@@ -154,6 +155,7 @@ int main(int argc, char *argv[]) {
     destroyAllocator();
 
 #ifdef NVHTM
+    NVHTM_thr_exit();
     NVHTM_shutdown();
 #endif
 

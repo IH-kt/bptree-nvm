@@ -119,6 +119,8 @@ int main(int argc, char *argv[]) {
 
     initAllocator(pool, "data", pool_sz, 1);
 
+    NVHTM_thr_init();
+
     bpt = newBPTree();
 
     pthread_t tid[1];
@@ -143,6 +145,8 @@ int main(int argc, char *argv[]) {
     showTree(bpt, 0);
 
     destroyAllocator();
+
+    NVHTM_thr_exit();
 
     NVHTM_shutdown();
 
