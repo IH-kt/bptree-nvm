@@ -58,7 +58,13 @@ ifeq ($(ca), 1)
 else
 	CA	:=
 endif
-DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA)
+ifeq ($(fw), 1)
+	FW	:= -DFREQ_WRITE
+else
+	FW	:=
+endif
+
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA) $(FW)
 
 CC=gcc
 CXX=g++
@@ -87,9 +93,11 @@ all: $(ALL_EXE)
 $(NVHTM_LIB): libhtm_sgl.a libminimal_nvm.a
 	cp -R $(ROOT_DIR)/nvhtm_modification_files/* $(NVHTM_DIR)
 	make -C nvhtm $(NVHTM_MAKE_ARGS)
+	mkdir -p $(BUILD_DIR)
 	mv nvhtm/libnh.a $(NVHTM_LIB)
 
 libhtm_sgl.a:
+	cp -R $(ROOT_DIR)/nvhtm_modification_files/* $(NVHTM_DIR)
 	(cd nvhtm/DEPENDENCIES/htm_alg; ./compile.sh)
 
 libminimal_nvm.a:

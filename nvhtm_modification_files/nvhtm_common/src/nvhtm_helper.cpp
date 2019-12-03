@@ -128,10 +128,6 @@ static pid_t pid;
 static ts_s time_chkp_1, time_chkp_2, time_chkp_total;
 static ts_s time_o_chkp_1, time_o_chkp_2;
 
-size_t al_sz = 0;
-char const *al_fn = NULL;
-void *al_pool = NULL;
-
 #ifdef DO_CHECKPOINT
 NVMHTM_mem_s *mem_instance;
 #endif /* DO_CHECKPOINT */
@@ -750,6 +746,7 @@ static void fork_manager()
   pid = fork();
 
   if (pid == 0) {
+      MN_enter();
     LOG_init(TM_nb_threads, 1); // reattach
     // printf("Maximum supported CPUs: %i\n", MAX_PHYS_THRS);
 
