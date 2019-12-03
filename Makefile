@@ -58,7 +58,12 @@ ifeq ($(ca), 1)
 else
 	CA	:=
 endif
-DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA)
+ifeq ($(fw), 1)
+	FW	:= -DFREQ_WRITE
+else
+	FW	:=
+endif
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA) $(FW)
 
 CC=gcc
 CXX=g++

@@ -1,4 +1,4 @@
-#include "fptree.h"
+#include "tree.h"
 #include <stdlib.h>
 #include <time.h>
 
