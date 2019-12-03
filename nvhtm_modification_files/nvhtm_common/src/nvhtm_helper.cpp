@@ -746,7 +746,6 @@ static void fork_manager()
   pid = fork();
 
   if (pid == 0) {
-      MN_enter();
     LOG_init(TM_nb_threads, 1); // reattach
     // printf("Maximum supported CPUs: %i\n", MAX_PHYS_THRS);
 
