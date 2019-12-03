@@ -43,10 +43,9 @@ static int freq_write_buf_index = 0;
      }\
 }
 #    define WRITE_COUNT_UP(sz) {\
-        wrote_size_tmp += (sz);\
-        unsigned int tmp = wrote_size_tmp;\
-        if (tmp > FREQ_INTERVAL) {\
-            if (__sync_bool_compare_and_swap(&wrote_size_tmp, tmp, 0)) {\
+        unsigned int tmp = __sync_fetch_and_add(&wrote_size_tmp, (sz));\
+        if (tmp + (sz) > FREQ_INTERVAL) {\
+            if (__sync_bool_compare_and_swap(&wrote_size_tmp, tmp + (sz), 0)) {\
                 struct timespec tm;\
                 double time_tmp = 0;\
                 clock_gettime(CLOCK_MONOTONIC_RAW, &tm);\
@@ -75,9 +74,10 @@ static int freq_write_buf_index = 0;
     })
 #  define GET_WRITE_COUNT() (nvm_write_count)
 #else
-#  define WRITE_COUNT_UP()
+#  define WRITE_COUNT_UP(sz)
 #  define NVM_WRITE(p, v) (*p = v)
 #  define GET_WRITE_COUNT() (0l)
+#  define SHOW_FREQ_WRITE()
 #endif
 
 /* structs */

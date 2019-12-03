@@ -75,6 +75,7 @@ void NVHTM_init_(int _nb_threads)
     // printf("Size of cache line: %i\n", CACHE_LINE_SIZE);
 
     MN_learn_nb_nops();
+    MN_enter();
 }
 
 void NVHTM_start_stats()
@@ -301,6 +302,7 @@ void NVHTM_shutdown()
 
 	// TODO: if gnuplot file
 	stats_to_gnuplot_file((char*) STATS_FILE);
+    MN_exit();
 }
 
 void NVHTM_reduce_logs()

@@ -2,6 +2,11 @@
 #include <string.h>
 #include <mutex>
 #include <x86intrin.h>
+#include <sys/shm.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <assert.h>
 
 #ifndef ALLOC_FN
 #define ALLOC_FN(ptr, type, size) \
@@ -32,6 +37,15 @@ long long MN_count_writes_to_PM_total;
 __thread CL_ALIGN NH_spin_info_s MN_info;
 
 static std::mutex mtx;
+#ifndef FREQ_WRITE_BUFSZ
+#  define FREQ_WRITE_BUFSZ 60 * 60 * 16
+#endif
+#ifndef FREQ_INTERVAL
+#  define FREQ_INTERVAL 64 * 1024
+#endif
+unsigned int *nvhtm_wrote_size_tmp = NULL;
+char *nvhtm_freq_write_buf;
+int *nvhtm_freq_write_buf_index = NULL;
 
 int SPIN_PER_WRITE(int nb_writes)
 {
@@ -45,6 +59,22 @@ int SPIN_PER_WRITE(int nb_writes)
 int MN_write(void *addr, void *buf, size_t size, int to_aux)
 {
 	MN_count_writes++;
+    unsigned int tmp = __sync_fetch_and_add(nvhtm_wrote_size_tmp, size);
+    if (tmp + size > FREQ_INTERVAL) {
+        if (__sync_bool_compare_and_swap(nvhtm_wrote_size_tmp, tmp + size, 0)) {
+            struct timespec tm;
+            double time_tmp = 0;
+            clock_gettime(CLOCK_MONOTONIC_RAW, &tm);
+            time_tmp += tm.tv_nsec;  
+            time_tmp /= 1000000000;                   
+            time_tmp += tm.tv_sec;      
+            if (*nvhtm_freq_write_buf_index + 16 <= FREQ_WRITE_BUFSZ) {
+                sprintf(nvhtm_freq_write_buf + *nvhtm_freq_write_buf_index, "%15lf\n", time_tmp);
+                *nvhtm_freq_write_buf_index += 16;
+            }
+        }
+        assert(*nvhtm_wrote_size_tmp < FREQ_INTERVAL);
+    }
 	// if (to_aux) {
 	// 	// it means it does not support CoW (dynamic mallocs?)
 	// 	if (aux_pool == NULL) aux_pool = (int*)malloc(SIZE_AUX_POOL);
@@ -87,6 +117,61 @@ void MN_thr_enter()
 	NH_spins_per_100 = SPINS_PER_100NS;
 }
 
+void MN_enter()
+{
+    int err;
+    int fd = open("wrote_size_tmp.tmp", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    if (fd == -1) {
+        if (fd == -1) {
+            perror("open");
+            exit(1);
+        }
+    }
+    err = posix_fallocate(fd, 0, sizeof(unsigned int));
+    nvhtm_wrote_size_tmp = (unsigned int*)mmap(NULL, sizeof(unsigned int), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+    if (nvhtm_wrote_size_tmp == MAP_FAILED) {
+        perror("mmap");
+        exit(1);
+    }
+    close(fd);
+    *nvhtm_wrote_size_tmp = 0;
+
+    fd = open("write_freq_buf_index.tmp", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+    if (fd == -1) {
+        if (fd == -1) {
+            perror("open");
+            exit(1);
+        }
+    }
+    err = posix_fallocate(fd, 0, sizeof(int));
+    nvhtm_freq_write_buf_index = (int*)mmap(NULL, sizeof(int), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+    if (nvhtm_freq_write_buf_index == MAP_FAILED) {
+        perror("mmap");
+        exit(1);
+    }
+    close(fd);
+    *nvhtm_freq_write_buf_index = 0;
+
+    fd = open("nvhtm_write_freq.txt", O_RDWR);
+    if (fd == -1) {
+        if (errno == ENOENT) {
+            fd = open("nvhtm_write_freq.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+        }
+        if (fd == -1) {
+            perror("open");
+            exit(1);
+        }
+    }
+    err = posix_fallocate(fd, 0, FREQ_WRITE_BUFSZ);
+    nvhtm_freq_write_buf = (char *)mmap(NULL, FREQ_WRITE_BUFSZ, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+    if (nvhtm_freq_write_buf == MAP_FAILED) {
+        perror("mmap");
+        exit(1);
+    }
+    *nvhtm_freq_write_buf= 0;
+    close(fd);
+}
+
 void MN_thr_exit()
 {
 	mtx.lock();
@@ -94,6 +179,16 @@ void MN_thr_exit()
 	MN_time_spins_total         += MN_time_spins;
 	MN_count_writes_to_PM_total += MN_count_writes;
 	mtx.unlock();
+}
+
+void MN_exit()
+{
+    int fd = open("nvhtm_write_freq.txt", O_RDWR);
+    ftruncate(fd, *nvhtm_freq_write_buf_index);
+    close(fd);
+    munmap(nvhtm_freq_write_buf, FREQ_WRITE_BUFSZ);
+    munmap(nvhtm_freq_write_buf_index, sizeof(int));
+    munmap(nvhtm_wrote_size_tmp, sizeof(unsigned int));
 }
 
 void MN_flush(void *addr, size_t size, int do_flush)
