@@ -35,7 +35,7 @@ void bptreeThreadInit(unsigned int flag) {
 
 void bptreeThreadDestroy() {
     if (sem != NULL) {
-        // vol_mem_free(sem); ??
+        vol_mem_free(sem);
         if (sem_destroy(sem) == -1) {
 	    perror("sem_destroy");
 	}

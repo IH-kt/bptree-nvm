@@ -1,8 +1,9 @@
 ifeq ($(type), nvhtm)
 NVHTM_DIR       := $(ROOT_DIR)/nvhtm
-NVM_DEP_DIR     := $(ROOT_DIR)/nvhtm/DEPENDENCIES
-HTM_ALG_DIR     := $(ROOT_DIR)/nvhtm/DEPENDENCIES/htm_alg
-MIN_NVM_DIR     := $(ROOT_DIR)/nvhtm-selfcontained/nvm-emulation
+NVM_DEP_DIR     := $(NVHTM_DIR)/DEPENDENCIES
+HTM_ALG_DIR     := $(NVM_DEP_DIR)/htm_alg
+NVHTM_SC_DIR    := $(ROOT_DIR)/nvhtm-selfcontained
+MIN_NVM_DIR     := $(NVHTM_SC_DIR)/nvm-emulation
 
 NVHTM_INCLUDES  := -I$(NVHTM_DIR)/common/ -I$(MIN_NVM_DIR)/include/\
                    -I$(NVM_DEP_DIR)/arch_dep/include/ -I$(HTM_ALG_DIR)/include/\
