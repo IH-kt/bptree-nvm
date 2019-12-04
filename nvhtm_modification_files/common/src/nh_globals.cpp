@@ -58,8 +58,9 @@ CL_ALIGN unsigned long long LOG_global_counter;
 tx_counters_s CL_ALIGN *htm_tx_val_counters;
 __thread CL_ALIGN int LOG_nb_writes;
 
-
 size_t al_sz = 0;
 char const *al_fn = NULL;
 void *al_pool = NULL;
 __thread char log_at_tx_start = 0;
+
+int *persistent_checkpointing = NULL;

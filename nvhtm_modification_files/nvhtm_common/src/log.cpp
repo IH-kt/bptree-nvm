@@ -116,7 +116,7 @@ void LOG_init(int nb_threads, int fresh)
     ALLOC_FN(NH_global_checkpointing_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
     fprintf(stderr, "log_size = %lu\n", size_of_logs);
 
-    LOG_global_ptr = ALLOC_MEM(log_file_name, 2 * size_of_logs);
+    LOG_global_ptr = ALLOC_MEM(log_file_name, size_of_logs * 2);
     memset(LOG_global_ptr, 0, size_of_logs);
     fresh = 1; // this is not init to 0
     // key_t key = KEY_LOGS;
@@ -162,7 +162,7 @@ void LOG_attach_shared_mem() {
   int i;
   size_t size_of_struct = sizeof(NVLog_s);
   size_t size_of_log = NVMHTM_LOG_SIZE /* / TM_nb_threads */;
-  size_t size_of_logs = (int)(NVMHTM_LOG_SIZE /* / TM_nb_threads */) * TM_nb_threads;
+  size_t size_of_logs = (int)(NVMHTM_LOG_SIZE) * TM_nb_threads;
   aux_ptr = (char*) LOG_global_ptr;
   for (i = 0; i < TM_nb_threads; ++i) {
     NVLog_s *new_log = LOG_init_1thread(aux_ptr, size_of_log);
@@ -389,7 +389,7 @@ static int sort_logs()
 }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-static void init_log(NVLog_s *new_log, int tid, int fresh)
+static void init_log(NVLog_s **to_log, NVLog_s *new_log, int tid, int fresh)
 {
   new_log->tid = tid;
   //if (fresh || new_log->start >= new_log->size_of_log
@@ -400,10 +400,8 @@ static void init_log(NVLog_s *new_log, int tid, int fresh)
   //}
   new_log->start_tx = -1;
 
-  new_log->persistent_checkpointing = 0;
-
   // printf("Init log %i\n", new_log->end);
   // TODO: loads a bit of the log to cache
 
-  NH_global_logs[tid] = new_log;
+  to_log[tid] = new_log;
 }

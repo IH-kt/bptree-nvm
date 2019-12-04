@@ -87,9 +87,11 @@ all: $(ALL_EXE)
 $(NVHTM_LIB): libhtm_sgl.a libminimal_nvm.a
 	cp -R $(ROOT_DIR)/nvhtm_modification_files/* $(NVHTM_DIR)
 	make -C nvhtm $(NVHTM_MAKE_ARGS)
+	mkdir -p $(BUILD_DIR)
 	mv nvhtm/libnh.a $(NVHTM_LIB)
 
 libhtm_sgl.a:
+	cp -R $(ROOT_DIR)/nvhtm_modification_files/* $(NVHTM_DIR)
 	(cd nvhtm/DEPENDENCIES/htm_alg; ./compile.sh)
 
 libminimal_nvm.a:

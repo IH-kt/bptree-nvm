@@ -431,6 +431,11 @@ void NVMHTM_init_thrs(int nb_threads)
 
   *NH_checkpointer_state = 0;
 
+  persistent_checkpointing = (int *)ALLOC_MEM("ckp_shm.shm", sizeof (int) * nb_threads);
+  for (int i = 0; i < nb_threads; i++) {
+      persistent_checkpointing[i] = 0;
+  }
+
   if (!is_started) {
     is_started = true;
     #if DO_CHECKPOINT == 1
@@ -741,7 +746,7 @@ static void dangerous_threads(int id, bitset<MAX_NB_THREADS> & threads_set)
 static void fork_manager()
 {
   #if DO_CHECKPOINT == 5
-  *NH_checkpointer_state = 1; // BUSY
+  *NH_checkpointer_state |= 0x1; // BUSY
   __sync_synchronize();
 
   pid = fork();
@@ -833,12 +838,12 @@ static void * manage_checkpoint(void * args)
   // int nb_applied_txs = 0;
   while (!is_exit) {
 
-    *NH_checkpointer_state = 0;
+    *NH_checkpointer_state &= ~0x1;
     __sync_synchronize();
 
     // printf("Received message!\n");
 
-    while (LOG_THRESHOLD > 0.0D && *NH_checkpointer_state == 0 /* IDLE */) {
+    while (LOG_THRESHOLD > 0.0D && *NH_checkpointer_state & 0x1 == 0 /* IDLE */) {
       // waits for requests
       if (is_exit) {
         break;

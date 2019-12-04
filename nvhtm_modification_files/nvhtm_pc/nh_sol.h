@@ -9,11 +9,6 @@ extern "C"
 #include <sys/stat.h>
 #include <fcntl.h>
 
-extern size_t al_sz;
-extern char const *al_fn;
-extern void *al_pool;
-extern __thread char log_at_tx_start;
-
   #define MAXIMUM_OFFSET 400 // in cycles
 
 // TODO: remove the externs
@@ -26,9 +21,18 @@ extern __thread char log_at_tx_start;
       PAUSE(); \
     }
 
+#undef BEFORE_SGL_BEGIN
+#define BEFORE_SGL_BEGIN(tid) {\
+    int tmp = *NH_checkpointer_state & 0x2;\
+    if (tmp != log_at_tx_start) {\
+        printf("sgl:st=%x, tm=%x\n", tmp, log_at_tx_start);\
+        assert(0);\
+    }\
+        persistent_checkpointing[tid] = 1;\
+}
+
   #undef BEFORE_TRANSACTION_i
   #define BEFORE_TRANSACTION_i(tid, budget) \
-  while (*NH_checkpointer_state & 0x1) PAUSE();\
   LOG_get_ts_before_tx(tid); \
   log_at_tx_start = *NH_checkpointer_state & 0x2;\
   LOG_before_TX(); \
@@ -36,10 +40,12 @@ extern __thread char log_at_tx_start;
 
   #undef BEFORE_COMMIT
   #define BEFORE_COMMIT(tid, budget, status) \
-    if (*NH_checkpointer_state & 0x2 != log_at_tx_start) {\
-      HTM_named_abort(2);\
+    int tmp = *NH_checkpointer_state & 0x2;\
+    if (tmp != log_at_tx_start) {\
+        printf("com:st=%x, tm=%x\n", *NH_checkpointer_state & 0x2, log_at_tx_start);\
+        assert(0);\
     } else {\
-      NH_global_logs[tid]->persistent_checkpointing = 1;\
+        persistent_checkpointing[tid] = 1;\
     }\
   ts_var = rdtscp(); /* must be the p version */  \
   if (LOG_count_writes(tid) > 0 && TM_nb_threads > 28) { \
@@ -57,7 +63,7 @@ extern __thread char log_at_tx_start;
     CHECK_AND_REQUEST(tid); \
     TM_inc_local_counter(tid); \
     LOG_after_TX(); \
-    assert(__sync_bool_compare_and_swap(&NH_global_logs[tid]->persistent_checkpointing, 1, 0));\
+    assert(__sync_bool_compare_and_swap(&persistent_checkpointing[tid], 1, 0));\
   })
 
   #undef AFTER_ABORT
@@ -94,6 +100,9 @@ extern __thread char log_at_tx_start;
         al_pool = ALLOC_MEM(fn, size); \
         al_pool;\
 })
+extern size_t al_sz;
+extern char const *al_fn;
+extern void *al_pool;
 
 #undef NH_free
 #define NH_free(pool) FREE_MEM(pool, al_sz)
