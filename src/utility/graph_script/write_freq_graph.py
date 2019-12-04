@@ -7,22 +7,29 @@ timestamps = []
 for line in sys.stdin:
     timestamps.append(float(line))
 diff = []
+freq = []
+passed_time = []
+start = timestamps[0]
 prev = timestamps[0]
 for ts in timestamps[1:]:
     diff.append(ts - prev)
+    freq.append(256 * 1024 / (ts - prev))
     prev = ts
+    passed_time.append(ts - start)
 
-print("timestamps =", timestamps)
-print("diff =", diff)
+# print("timestamps =", timestamps)
+# print("diff =", diff)
+# print("freq =", diff)
+# print(passed_time)
 
-diff_index = list(range(1, len(timestamps)))
-major_fmt = list(map(str, diff_index))
+freq_index = list(range(1, len(timestamps)))
+major_fmt = list(map(str, passed_time))
 major_fmt.insert(0, "")
 
-diff_df = pd.DataFrame(diff, index=diff_index, columns=['sec'])
-ax = diff_df.plot()
-ax.set_xlabel('number of times')
-ax.set_ylabel('second')
+freq_df = pd.DataFrame(freq, index=freq_index, columns=['sec'])
+ax = freq_df.plot()
+ax.set_xlabel('passed time')
+ax.set_ylabel('write amound (byte/sec)')
 ax.ticklabel_format(style='plain', axis='x')
 pl.savefig('write_freq.png')
 pl.savefig('write_freq.eps')
