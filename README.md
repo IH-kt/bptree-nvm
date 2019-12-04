@@ -16,17 +16,8 @@ main関数はsrc/test内のテスト用コード，src/benchmark内のベンチ�
 
 res/以下に実験の結果が置いてある
 
-## ブランチ一覧
+## 未mergeブランチ一覧
 
-- re-implement-updateParent：updateParent（insertParentに改名）の仕様変更に伴い実装し直す用（merge済み）
-- implement-delete：deleteを実装する用（merge済み）
-- test-single-thread：シングルスレッドでの動作確認用コードを追加する用（merge済み）
-- concurrent：HTMを使って並行化する用（merge済み）
-- allocator：並行アロケータの実装用（merge済み）
-- benchmark：ベンチマークプログラム作成用（merge済み）
-	- ベンチマーク自体は動作する
-	- グラフ生成がイマイチ
-- implement-replaced-minnvm：NV-HTMのNVMエミュレータを実NVMに置き換える用（merge済み）
-	- 結局エミュレータ自体は空にしただけ
-	- NH_allocのmmapへの置き換え
-	- shmgetによる共有メモリで実装されていたログをmmapに置き換え
+- merged-bitmap：bitmapを廃止してfingerprintの0を特別扱いすることで葉ノードを圧縮する実装
+- double-buffering：ログ領域を二つ用意して切り替えるようにすることで停止時間を減らす実装
+- plain-nvhtm-tree：通常のB<sup>+</sup>-TreeをNVHTMを使ってpersistent化した場合の実装
