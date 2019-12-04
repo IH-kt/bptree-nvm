@@ -32,7 +32,7 @@ static unsigned long nvm_write_count = 0;
 
 #  ifdef FREQ_WRITE
 #    define FREQ_WRITE_BUFSZ 60 * 60 * 16
-#    define FREQ_INTERVAL 64 * 1024
+#    define FREQ_INTERVAL 256 * 1024
 static unsigned int wrote_size_tmp = 0;
 static char freq_write_buf[FREQ_WRITE_BUFSZ];
 static int freq_write_buf_index = 0;
@@ -58,8 +58,14 @@ static int freq_write_buf_index = 0;
         nvm_write_count++;\
     }
 #    define SHOW_FREQ_WRITE() {\
-       freq_write_buf[freq_write_buf_index] = '\0';\
-       fprintf(stderr, "%s", freq_write_buf);\
+       FILE *ofile = fopen("write_freq.txt", "a");\
+       if (ofile == NULL) {\
+           perror("SHOW_FREQ_WRITE");\
+       } else {\
+           freq_write_buf[freq_write_buf_index] = '\0';\
+           fprintf(ofile, "%s", freq_write_buf);/*fprintf(stderr, "%s", freq_write_buf);*/\
+           fclose(ofile);\
+       }\
      }
 
 #  else
