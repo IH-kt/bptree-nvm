@@ -38,7 +38,7 @@ __thread CL_ALIGN NH_spin_info_s MN_info;
 
 static std::mutex mtx;
 #ifndef FREQ_WRITE_BUFSZ
-#  define FREQ_WRITE_BUFSZ 60 * 60 * 16
+#  define FREQ_WRITE_BUFSZ 2 * 60 * 60 * 16
 #endif
 #ifndef FREQ_INTERVAL
 #  define FREQ_INTERVAL 256 * 1024
@@ -71,6 +71,8 @@ int MN_write(void *addr, void *buf, size_t size, int to_aux)
             if (*nvhtm_freq_write_buf_index + 16 <= FREQ_WRITE_BUFSZ) {
                 sprintf(nvhtm_freq_write_buf + *nvhtm_freq_write_buf_index, "%15lf\n", time_tmp);
                 *nvhtm_freq_write_buf_index += 16;
+            } else {
+                fprintf(stderr, "freq_write: buffer size over\n");
             }
         }
         assert(*nvhtm_wrote_size_tmp < FREQ_INTERVAL);
