@@ -21,6 +21,8 @@ major_fmt.insert(0, "")
 
 diff_df = pd.DataFrame(diff, index=diff_index, columns=['sec'])
 ax = diff_df.plot()
+ax.set_xlabel('number of times')
+ax.set_ylabel('second')
 ax.ticklabel_format(style='plain', axis='x')
 pl.savefig('write_freq.png')
 pl.savefig('write_freq.eps')
