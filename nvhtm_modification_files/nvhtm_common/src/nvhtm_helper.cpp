@@ -498,6 +498,7 @@ void NVMHTM_shutdown()
   / (double) CPU_MAX_FREQ / 1000.0D) / (double) TM_nb_threads / time_taken);
   fprintf(stderr, "--- Nb. checkpoints %lli\n", NH_nb_checkpoints);
   fprintf(stderr, "--- Time blocked %e ms!\n", (double) time_chkp_total / ((double) CPU_MAX_FREQ));
+
 }
 
 void NVMHTM_write_ts(int id, ts_s ts)
@@ -752,6 +753,7 @@ static void fork_manager()
   pid = fork();
 
   if (pid == 0) {
+      MN_enter();
     LOG_init(TM_nb_threads, 1); // reattach
     // printf("Maximum supported CPUs: %i\n", MAX_PHYS_THRS);
 
