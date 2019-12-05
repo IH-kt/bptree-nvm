@@ -17,13 +17,13 @@ extern "C"
     extern __thread int global_threadId_; \
     extern int nb_transfers; \
     extern long nb_of_done_transactions; \
-    while (*NH_checkpointer_state & 0x1 == 1 && nb_of_done_transactions < nb_transfers) { \
+    while (((*NH_checkpointer_state) & 0x1) == 1 && nb_of_done_transactions < nb_transfers) { \
       PAUSE(); \
     }
 
 #undef BEFORE_SGL_BEGIN
 #define BEFORE_SGL_BEGIN(tid) {\
-    int tmp = *NH_checkpointer_state & 0x2;\
+    int tmp = (*NH_checkpointer_state) & 0x2;\
     if (tmp != log_at_tx_start) {\
         printf("sgl:st=%x, tm=%x\n", tmp, log_at_tx_start);\
         assert(0);\
@@ -34,15 +34,15 @@ extern "C"
   #undef BEFORE_TRANSACTION_i
   #define BEFORE_TRANSACTION_i(tid, budget) \
   LOG_get_ts_before_tx(tid); \
-  log_at_tx_start = *NH_checkpointer_state & 0x2;\
+  log_at_tx_start = (*NH_checkpointer_state) & 0x2;\
   LOG_before_TX(); \
   TM_inc_local_counter(tid);
 
   #undef BEFORE_COMMIT
   #define BEFORE_COMMIT(tid, budget, status) \
-    int tmp = *NH_checkpointer_state & 0x2;\
+    int tmp = (*NH_checkpointer_state) & 0x2;\
     if (tmp != log_at_tx_start) {\
-        printf("com:st=%x, tm=%x\n", *NH_checkpointer_state & 0x2, log_at_tx_start);\
+        printf("com:st=%x, tm=%x\n", (*NH_checkpointer_state) & 0x2, log_at_tx_start);\
         assert(0);\
     } else {\
         persistent_checkpointing[tid] = 1;\

@@ -105,7 +105,7 @@ extern "C"
 			ts1_wait_log_time = rdtscp(); \
 			while (distance_ptr(log->start, log->end) > \
 				(LOG_local_state.size_of_log - 32)) { \
-					if (*NH_checkpointer_state & 0x1 == 0) sem_post(NH_chkp_sem); \
+					if (((*NH_checkpointer_state) & 0x1) == 0) sem_post(NH_chkp_sem); \
 					PAUSE(); \
 			} \
 			NH_count_blocks++; \
@@ -123,16 +123,13 @@ extern "C"
 		ts_s ts1_wait_log_time, ts2_wait_log_time; \
 		ts1_wait_log_time = rdtscp(); \
 		NVLog_s *log = NH_global_logs[TM_tid_var]; \
-		if ((LOG_local_state.counter == distance_ptr(log->start, log->end) \
+		while ((LOG_local_state.counter == distance_ptr(log->start, log->end) \
 			&& (LOG_local_state.size_of_log - LOG_local_state.counter) < WAIT_DISTANCE) \
 			|| (distance_ptr(log->end, log->start) < WAIT_DISTANCE \
 			&& log->end != log->start)) { \
-				if (*NH_checkpointer_state & 0x1 == 0) { \
-					sem_post(NH_chkp_sem); \
-					NOTIFY_CHECKPOINT; \
-				} \
+				if (((*NH_checkpointer_state) & 0x1) == 0) sem_post(NH_chkp_sem); \
+				PAUSE(); \
 		} \
-		while (*NH_checkpointer_state & 0x1 == 1) PAUSE();\
 		NH_count_blocks++; \
 		LOG_before_TX(); \
 		ts2_wait_log_time = rdtscp(); \
@@ -161,7 +158,7 @@ extern "C"
 
 	#endif /* DO_CHECKPOINT */
 
-	void set_log_file_name(char const *);
+    void set_log_file_name(char const *);
 	void LOG_init(int nb_threads, int fresh);
 	void LOG_alloc(int tid, const char *pool_file, int fresh);
 	void LOG_thr_init(int tid);
@@ -221,7 +218,7 @@ extern "C"
 		LOG_local_state.counter = distance_ptr((int)LOG_local_state.start, \
 		(int)LOG_local_state.end); \
 		if (LOG_local_state.counter >= APPLY_BACKWARD_VAL) { \
-			if (*NH_checkpointer_state & 0x1 == 0) sem_post(NH_chkp_sem); \
+			if (((*NH_checkpointer_state) & 0x1) == 0) sem_post(NH_chkp_sem); \
 		} \
 		/* prefetch */ \
 		if (LOG_local_state.counter < LOG_local_state.size_of_log - 16) { \
@@ -256,7 +253,7 @@ extern "C"
 		log_start = log->start; \
 		MN_write(&(log->end), &(LOG_local_state.end), \
 			sizeof(LOG_local_state.end), 0); \
-		/* MN_count_spins++; */ \
+		/* MN_count_spins++; */\
 		/* log->end = LOG_local_state.end; */ \
 		__sync_synchronize(); \
 	})

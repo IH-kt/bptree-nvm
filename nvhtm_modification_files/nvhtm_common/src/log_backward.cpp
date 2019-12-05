@@ -101,7 +101,7 @@ int LOG_checkpoint_backward_apply_one()
   } CL_BLOCK;
 
   sem_wait(NH_chkp_sem);
-  *NH_checkpointer_state |= 0x1; // doing checkpoint
+  *NH_checkpointer_state = (*NH_checkpointer_state) | 0x1; // doing checkpoint
   __sync_synchronize();
 
   // stores the possible repeated writes
@@ -137,7 +137,7 @@ int LOG_checkpoint_backward_apply_one()
   }
   // Only apply log if someone passed the threshold mark
   if ((!too_full && too_empty) || !someone_passed) {
-    *NH_checkpointer_state &= ~0x1; // doing checkpoint
+    *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1; // doing checkpoint
     __sync_synchronize();
     return 1; // try again later
   }
@@ -232,7 +232,7 @@ int LOG_checkpoint_backward_apply_one()
   }
 
   if (!target_ts) {
-    *NH_checkpointer_state &= ~0x1; // doing checkpoint
+    *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1; // doing checkpoint
     __sync_synchronize();
     return 1; // there isn't enough transactions
   }
@@ -340,7 +340,7 @@ int LOG_checkpoint_backward_apply_one()
     // log->start = pos_to_start[i];
     // TODO: snapshot the old ptrs before moving them
   }
-  *NH_checkpointer_state &= ~0x1;
+  *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1;
   __sync_synchronize();
   return 0;
 }

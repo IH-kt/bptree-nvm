@@ -705,7 +705,7 @@ void NVHTM_req_clear_log(/* int block */)
     __sync_synchronize();
   }
 
-  if (manager_mutex == 1 || *NH_checkpointer_state & 0x1 == 1) return; // somebody else got it
+  if (manager_mutex == 1 || ((*NH_checkpointer_state) & 0x1) == 1) return; // somebody else got it
 
   while (!__sync_bool_compare_and_swap(&manager_mutex, 0, 1)) {
     if (manager_mutex != 0) // somebody else got it
@@ -713,9 +713,9 @@ void NVHTM_req_clear_log(/* int block */)
   }
   retries_counter++;
   // if MANAGER is IDLE --> grab lock and make it work
-  if (*NH_checkpointer_state & 0x1 == 0) {
+  if (((*NH_checkpointer_state) & 0x1) == 0) {
     // cool, no one is requesting
-    *NH_checkpointer_state |= 0x1; // BUSY
+    *NH_checkpointer_state = (*NH_checkpointer_state) | 0x1; // BUSY
     __sync_synchronize();
   }
   manager_mutex = 0;
@@ -747,7 +747,7 @@ static void dangerous_threads(int id, bitset<MAX_NB_THREADS> & threads_set)
 static void fork_manager()
 {
   #if DO_CHECKPOINT == 5
-  *NH_checkpointer_state |= 0x1; // BUSY
+  *NH_checkpointer_state = (*NH_checkpointer_state) | 0x1; // BUSY
   __sync_synchronize();
 
   pid = fork();
@@ -800,7 +800,7 @@ static void fork_manager()
 
   // printf("PID: %i\n", pid);
 
-  while (*NH_checkpointer_state & 0x1 == 1) PAUSE();
+  while (((*NH_checkpointer_state) & 0x1) == 1) PAUSE();
   #endif
 }
 
@@ -815,10 +815,10 @@ static void * server(void * args)
 
     req = 0;
 
-    *NH_checkpointer_state &= ~0x1; // IDLE
+    *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1; // IDLE
     __sync_synchronize();
 
-    while (LOG_THRESHOLD > 0.0D && *NH_checkpointer_state & 0x1 == 0) {
+    while (LOG_THRESHOLD > 0.0D && ((*NH_checkpointer_state) & 0x1) == 0) {
       PAUSE();
       // __sync_synchronize();
     }
@@ -840,12 +840,12 @@ static void * manage_checkpoint(void * args)
   // int nb_applied_txs = 0;
   while (!is_exit) {
 
-    *NH_checkpointer_state &= ~0x1;
+    *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1;
     __sync_synchronize();
 
     // printf("Received message!\n");
 
-    while (LOG_THRESHOLD > 0.0D && *NH_checkpointer_state & 0x1 == 0 /* IDLE */) {
+    while (LOG_THRESHOLD > 0.0D && ((*NH_checkpointer_state) & 0x1) == 0 /* IDLE */) {
       // waits for requests
       if (is_exit) {
         break;
@@ -878,14 +878,6 @@ static void * manage_checkpoint(void * args)
   __sync_synchronize();
 
   return NULL;
-}
-
-static void flip_log() {
-  if (*NH_checkpointer_state & 0x2) {
-    *NH_checkpointer_state &= ~0x2;
-  } else {
-    *NH_checkpointer_state |= 0x2;
-  }
 }
 
 static int loop_checkpoint_manager()
@@ -954,7 +946,6 @@ if (LOG_is_logged_tx()) {
       }
     }
     #elif SORT_ALG == 5
-    flip_log();
     LOG_checkpoint_backward();
     #endif
     // LOG_move_start_ptrs();
