@@ -112,11 +112,13 @@ void LOG_init(int nb_threads, int fresh)
   // printf("Number of threads: %i\n", TM_nb_threads);
 
   if (NH_global_logs == NULL) {
-    ALLOC_FN(NH_global_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
-    ALLOC_FN(NH_global_checkpointing_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
+    char *log_pool = ALLOC_MEM(log_file_name, 2 * (CACHE_LINE_SIZE * nb_threads) + size_of_logs * 2);
+    NH_global_logs = (NVLog_s**)log_pool;
+    NH_global_checkpointing_logs = (NVLog_s**)(log_pool + CACHE_LINE_SIZE * nb_threads);
     fprintf(stderr, "log_size = %lu\n", size_of_logs);
+    fprintf(stderr, "log_size_per_thread = %lu\n", (unsigned long)NVMHTM_LOG_SIZE)
 
-    LOG_global_ptr = ALLOC_MEM(log_file_name, size_of_logs * 2);
+    LOG_global_ptr = log_pool + 2 * (CACHE_LINE_SIZE * nb_threads);
     memset(LOG_global_ptr, 0, size_of_logs);
     fresh = 1; // this is not init to 0
     // key_t key = KEY_LOGS;

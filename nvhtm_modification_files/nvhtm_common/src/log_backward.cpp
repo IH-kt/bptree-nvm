@@ -76,7 +76,7 @@ static void wait_persistent_checkpointing(NVLog_s **log) {
                 break;
             }
         }
-        if (i < TM_nb_threads) {
+        if (i >= TM_nb_threads) {
             break;
         }
         PAUSE();
@@ -143,9 +143,14 @@ int LOG_checkpoint_backward_apply_one()
   }
   // ---------------------------------------------------------------
 
-  // wait_persistent_checkpointing(NH_global_logs);
+  wait_persistent_checkpointing(NH_global_logs);
   printf("flipping\n");
-  // *NH_checkpointer_state ^= 0x2;
+  *NH_checkpointer_state = (*NH_checkpointer_state) ^ 0x2;
+  NVLog_s **log_tmp = NH_global_logs;
+  NH_global_logs = NH_global_checkpointing_logs;
+  NH_global_checkpointing_logs = log_tmp;
+  _mm_sfence();
+  *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1; // doing checkpoint
 
   // first find target_ts, then the remaining TSs
   // TODO: keep the minimum anchor
@@ -232,7 +237,7 @@ int LOG_checkpoint_backward_apply_one()
   }
 
   if (!target_ts) {
-    *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1; // doing checkpoint
+    // *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1; // doing checkpoint
     __sync_synchronize();
     return 1; // there isn't enough transactions
   }
@@ -340,7 +345,7 @@ int LOG_checkpoint_backward_apply_one()
     // log->start = pos_to_start[i];
     // TODO: snapshot the old ptrs before moving them
   }
-  *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1;
+  // *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1;
   __sync_synchronize();
   return 0;
 }

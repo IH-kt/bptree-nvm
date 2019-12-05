@@ -98,27 +98,32 @@ extern "C"
 	#define CHECK_LOG_ABORT(TM_tid_var, TM_status_var) /* empty */
 
 	#elif DO_CHECKPOINT == 5 || DO_CHECKPOINT == 1 /* FORK || PERIODIC */
-	#define WAIT_MORE_LOG(log) ({ \
-		if (WAIT_LOG_CONDITION) { \
-			ts_s ts1_wait_log_time, ts2_wait_log_time; \
-			if (HTM_test()) HTM_named_abort(CODE_LOG_ABORT); \
-			ts1_wait_log_time = rdtscp(); \
-			while (distance_ptr(log->start, log->end) > \
-				(LOG_local_state.size_of_log - 32)) { \
-					if (((*NH_checkpointer_state) & 0x1) == 0) sem_post(NH_chkp_sem); \
-					PAUSE(); \
-			} \
-			NH_count_blocks++; \
-			LOG_before_TX(); \
-			ts2_wait_log_time = rdtscp(); \
-			NH_time_blocked += rdtscp() - ts1_wait_log_time; \
-			/*double lat = (double)(ts2_wait_log_time - ts1_wait_log_time) / (double)CPU_MAX_FREQ; \
-			 if (lat > 100) printf("Blocked for %f ms\n", lat); */ \
-		} \
-	})
+#define WAIT_MORE_LOG(log) ({                                                                  \
+	if (WAIT_LOG_CONDITION)                                                                    \
+	{                                                                                          \
+		ts_s ts1_wait_log_time, ts2_wait_log_time;                                             \
+		if (HTM_test())                                                                        \
+			HTM_named_abort(CODE_LOG_ABORT);                                                   \
+		assert(0); /* stopped during lock execution */                                         \
+		ts1_wait_log_time = rdtscp();                                                          \
+		while (distance_ptr(log->start, log->end) >                                            \
+			   (LOG_local_state.size_of_log - 32))                                             \
+		{                                                                                      \
+			if (((*NH_checkpointer_state) & 0x1) == 0)                                         \
+				sem_post(NH_chkp_sem);                                                         \
+			PAUSE();                                                                           \
+		}                                                                                      \
+		NH_count_blocks++;                                                                     \
+		LOG_before_TX();                                                                       \
+		ts2_wait_log_time = rdtscp();                                                          \
+		NH_time_blocked += rdtscp() - ts1_wait_log_time;                                       \
+		/*double lat = (double)(ts2_wait_log_time - ts1_wait_log_time) / (double)CPU_MAX_FREQ; \
+		 if (lat > 100) printf("Blocked for %f ms\n", lat); */                                 \
+	}                                                                                          \
+})
 
 	// TODO: there are aborts marked as EXPLICIT when the log is empty, WHY?
-	#define CHECK_LOG_ABORT(TM_tid_var, TM_status_var) \
+#define CHECK_LOG_ABORT(TM_tid_var, TM_status_var) \
 	if (HTM_is_named(TM_status_var) == CODE_LOG_ABORT) { \
 		ts_s ts1_wait_log_time, ts2_wait_log_time; \
 		ts1_wait_log_time = rdtscp(); \
@@ -131,6 +136,7 @@ extern "C"
 				PAUSE(); \
 		} \
 		NH_count_blocks++; \
+		nvm_htm_local_log = NH_global_logs[TM_tid_var];\
 		LOG_before_TX(); \
 		ts2_wait_log_time = rdtscp(); \
 		NH_time_blocked += ts2_wait_log_time - ts1_wait_log_time; \
@@ -168,98 +174,109 @@ extern "C"
 
 	void LOG_attach_shared_mem();
 
-	#define LOG_push_entry(log, entry) ({ \
-		int end = LOG_local_state.end/* log->end */, new_end; \
-		LOG_local_state.counter++; \
-		new_end = ptr_mod_log(end, 1); \
-		/*log->ptr[end].addr = entry.addr; log->ptr[end].value = entry.value;*/ \
-		MN_count_writes++; memcpy(&(log->ptr[end]), &entry, sizeof(NVLogEntry_s)); \
-		/*TODO: this aborts the transactions: */ \
-		/*MN_write(&(log->ptr[end]), &(entry), sizeof(NVLogEntry_s), 0);*/ \
-		/* log->end */ LOG_local_state.end = new_end; \
-		assert(new_end < LOG_local_state.size_of_log); \
-		new_end; \
-	})
+#define LOG_push_entry(log, entry) ({                                       \
+	int end = LOG_local_state.end /* log->end */, new_end;                  \
+	LOG_local_state.counter++;                                              \
+	new_end = ptr_mod_log(end, 1);                                          \
+	/*log->ptr[end].addr = entry.addr; log->ptr[end].value = entry.value;*/ \
+	MN_count_writes++;                                                      \
+	memcpy(&(log->ptr[end]), &entry, sizeof(NVLogEntry_s));                 \
+	/*TODO: this aborts the transactions: */                                \
+	/*MN_write(&(log->ptr[end]), &(entry), sizeof(NVLogEntry_s), 0);*/      \
+	/* log->end */ LOG_local_state.end = new_end;                           \
+	assert(new_end < LOG_local_state.size_of_log);                          \
+	new_end;                                                                \
+})
 
-	// this is called inside of the transaction
-	// void LOG_push_addr(int tid, GRANULE_TYPE *addr, GRANULE_TYPE value);
-	#define LOG_push_addr(tid, adr, val) ({ \
-		int id = TM_tid_var; \
-		NVLog_s *log = tid == id ? nvm_htm_local_log : NH_global_logs[tid]; \
-		WAIT_MORE_LOG(log); /* only waits on the addr */ \
-		int end = LOG_local_state.end/* log->end */, new_end; \
-		NVLogEntry_s entry; \
-		entry.addr = (GRANULE_TYPE*)adr; \
-		entry.value = (GRANULE_TYPE)val; \
-		new_end = LOG_push_entry(log, entry); \
-	})
+// this is called inside of the transaction
+// void LOG_push_addr(int tid, GRANULE_TYPE *addr, GRANULE_TYPE value);
+#define LOG_push_addr(tid, adr, val) ({                                 \
+	int id = TM_tid_var;                                                \
+	NVLog_s *log = tid == id ? nvm_htm_local_log : NH_global_logs[tid]; \
+	WAIT_MORE_LOG(log); /* only waits on the addr */                    \
+	int end = LOG_local_state.end /* log->end */, new_end;              \
+	NVLogEntry_s entry;                                                 \
+	entry.addr = (GRANULE_TYPE *)adr;                                   \
+	entry.value = (GRANULE_TYPE)val;                                    \
+	new_end = LOG_push_entry(log, entry);                               \
+})
 
-	// void LOG_push_ts(int tid, ts_s ts);
-	#define LOG_push_ts(tid, ts) ({ \
-		int id = TM_tid_var; \
-		NVLog_s *log = tid == id ? nvm_htm_local_log : NH_global_logs[tid]; \
-		int end = LOG_local_state.end, new_end; \
-		NVLogEntry_s entry; \
-		entry.addr = (GRANULE_TYPE*) LOG_TS; \
-		entry.value = ts; \
-		new_end = LOG_push_entry(log, entry); \
-		log->start_tx = new_end; \
-		log->end_last_tx = end; \
-	})
+// void LOG_push_ts(int tid, ts_s ts);
+#define LOG_push_ts(tid, ts) ({                                         \
+	int id = TM_tid_var;                                                \
+	NVLog_s *log = tid == id ? nvm_htm_local_log : NH_global_logs[tid]; \
+	int end = LOG_local_state.end, new_end;                             \
+	NVLogEntry_s entry;                                                 \
+	entry.addr = (GRANULE_TYPE *)LOG_TS;                                \
+	entry.value = ts;                                                   \
+	new_end = LOG_push_entry(log, entry);                               \
+	log->start_tx = new_end;                                            \
+	log->end_last_tx = end;                                             \
+})
 
 	void LOG_push_malloc(int tid, GRANULE_TYPE *addr);
 
 	// also prefetch a bit
-	#define LOG_before_TX() ({ \
-		NVLog_s *log = NH_global_logs[TM_tid_var]; \
-		LOG_nb_writes = 0; \
-		LOG_local_state.start = log->start; \
-		LOG_local_state.end = log->end; \
-		LOG_local_state.counter = distance_ptr((int)LOG_local_state.start, \
-		(int)LOG_local_state.end); \
-		if (LOG_local_state.counter >= APPLY_BACKWARD_VAL) { \
-			if (((*NH_checkpointer_state) & 0x1) == 0) sem_post(NH_chkp_sem); \
-		} \
-		/* prefetch */ \
-		if (LOG_local_state.counter < LOG_local_state.size_of_log - 16) { \
-			NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 1)].value = 0; \
-			NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 3)].value = 0; \
-		} \
-		if (LOG_local_state.counter < LOG_local_state.size_of_log - 128) { \
-			NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 8)].value = 0; \
-			NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 16)].value = 0; \
-			NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 24)].value = 0; \
-			NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 32)].value = 0; \
-			NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 64)].value = 0; \
-		} \
-	})
+#define LOG_before_TX() ({                                                               \
+	NVLog_s *log = NH_global_logs[TM_tid_var];                                           \
+	LOG_nb_writes = 0;                                                                   \
+	LOG_local_state.start = log->start;                                                  \
+	LOG_local_state.end = log->end;                                                      \
+	LOG_local_state.counter = distance_ptr((int)LOG_local_state.start,                   \
+										   (int)LOG_local_state.end);                    \
+	if (LOG_local_state.counter >= APPLY_BACKWARD_VAL)                                   \
+	{                                                                                    \
+		if (((*NH_checkpointer_state) & 0x1) == 0)                                       \
+		{                                                                                \
+			sem_post(NH_chkp_sem);                                                       \
+			PAUSE();                                                                     \
+		}                                                                                \
+		while ((*NH_checkpointer_state) & 0x1)                                           \
+			PAUSE();                                                                     \
+	}                                                                                    \
+	/* prefetch */                                                                       \
+	if (LOG_local_state.counter < LOG_local_state.size_of_log - 16)                      \
+	{                                                                                    \
+		NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 1)].value = 0;  \
+		NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 3)].value = 0;  \
+	}                                                                                    \
+	if (LOG_local_state.counter < LOG_local_state.size_of_log - 128)                     \
+	{                                                                                    \
+		NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 8)].value = 0;  \
+		NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 16)].value = 0; \
+		NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 24)].value = 0; \
+		NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 32)].value = 0; \
+		NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 64)].value = 0; \
+	}                                                                                    \
+})
 
-	#if DO_CHECKPOINT == 4
-	#define LOG_after_TX() ({ \
-		NVLog_s *log = NH_global_logs[TM_tid_var]; \
-		MN_write(&(log->end), &(LOG_local_state.end), \
-			sizeof(LOG_local_state.end), 0); \
-		MN_count_spins++; \
-		/*log->end = LOG_local_state.end;*/ \
-		__sync_synchronize(); \
-	})
-	#else
-	#define LOG_after_TX() ({ \
-		NVLog_s *log = NH_global_logs[TM_tid_var]; \
-		int log_end, log_start; \
-		log_end = log->end; log_start = log->start; \
-		while (!(distance_ptr(log_start, log_end) <= \
-		distance_ptr(log_start, LOG_local_state.end))) \
-		log_start = log->start; \
-		MN_write(&(log->end), &(LOG_local_state.end), \
-			sizeof(LOG_local_state.end), 0); \
-		/* MN_count_spins++; */\
-		/* log->end = LOG_local_state.end; */ \
-		__sync_synchronize(); \
-	})
-	#endif
+#if DO_CHECKPOINT == 4
+#define LOG_after_TX() ({                         \
+	NVLog_s *log = NH_global_logs[TM_tid_var];    \
+	MN_write(&(log->end), &(LOG_local_state.end), \
+			 sizeof(LOG_local_state.end), 0);     \
+	MN_count_spins++;                             \
+	/*log->end = LOG_local_state.end;*/           \
+	__sync_synchronize();                         \
+})
+#else
+#define LOG_after_TX() ({                                   \
+	NVLog_s *log = NH_global_logs[TM_tid_var];              \
+	int log_end, log_start;                                 \
+	log_end = log->end;                                     \
+	log_start = log->start;                                 \
+	while (!(distance_ptr(log_start, log_end) <=            \
+			 distance_ptr(log_start, LOG_local_state.end))) \
+		log_start = log->start;                             \
+	MN_write(&(log->end), &(LOG_local_state.end),           \
+			 sizeof(LOG_local_state.end), 0);               \
+	/* MN_count_spins++; */                                 \
+	/* log->end = LOG_local_state.end; */                   \
+	__sync_synchronize();                                   \
+})
+#endif
 
-	#define LOG_count_writes(tid) ({ LOG_nb_writes; })
+#define LOG_count_writes(tid) ({ LOG_nb_writes; })
 
 	void LOG_get_ts_before_tx(int tid);
 
