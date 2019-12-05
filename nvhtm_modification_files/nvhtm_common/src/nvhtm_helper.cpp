@@ -940,7 +940,6 @@ if (LOG_is_logged_tx()) {
       }
     }
     #elif SORT_ALG == 5
-    // flip_log();
     LOG_checkpoint_backward();
     #endif
     // LOG_move_start_ptrs();

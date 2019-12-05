@@ -158,6 +158,7 @@ extern "C"
 
 	#endif /* DO_CHECKPOINT */
 
+	void set_log_file_name(char const *);
 	void LOG_init(int nb_threads, int fresh);
 	void LOG_alloc(int tid, const char *pool_file, int fresh);
 	void LOG_thr_init(int tid);
@@ -252,7 +253,7 @@ extern "C"
 		log_start = log->start; \
 		MN_write(&(log->end), &(LOG_local_state.end), \
 			sizeof(LOG_local_state.end), 0); \
-		MN_count_spins++; \
+		/* MN_count_spins++; */ \
 		/* log->end = LOG_local_state.end; */ \
 		__sync_synchronize(); \
 	})
@@ -273,8 +274,6 @@ extern "C"
 	// This one moves start to start_ptr (may cause some contention)
 	void LOG_move_start_ptrs();
 	void LOG_handle_checkpoint();
-
-    void set_log_file_name(const char *);
 
 	#define ptr_mod_log(ptr, inc) ({ \
 		LOG_MOD2((long long)ptr + (long long)inc, LOG_local_state.size_of_log); \
