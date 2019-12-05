@@ -65,8 +65,13 @@ else
 	FW	:=
 	DMN_DIR	:= $(ROOT_DIR)/dummy_min-nvm
 endif
+ifeq ($(ts), 1)
+	TS	:= -DTRANSACTION_SIZE
+else
+	TS	:=
+endif
 
-DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA) $(FW)
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA) $(FW) $(TS)
 
 CC=gcc
 CXX=g++

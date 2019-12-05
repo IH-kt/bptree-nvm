@@ -19,6 +19,11 @@ __thread double insert_part2 = 0;
 __thread double insert_part3 = 0;
 #endif
 
+#ifdef TRANSACTION_SIZE
+__thread unsigned int transaction_counter = 0;
+__thread unsigned int transaction_counter_max = 0;
+#endif
+
 pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 void show_result_thread(unsigned char tid) {
     pthread_mutex_lock(&mut);
@@ -27,93 +32,7 @@ void show_result_thread(unsigned char tid) {
     pthread_mutex_unlock(&mut);
 }
 
-#define TRANSACTION_EXECUTION_INIT()    \
-    int n_tries = 1;                    \
-    int status = _XABORT_EXPLICIT;      \
-    unsigned char method = TRANSACTION; \
-    unsigned int wait_times = 1;
-
-#define TRANSACTION_EXECUTION_ABORT() { \
-    _xabort(XABORT_STAT);               \
-}
-
-#define TRANSACTION_RETRY_LOCK(tree, tid) { \
-    unlockBPTree(tree, tid);           \
-    sched_yield();                     \
-    continue;                          \
-}
-
-// #define GET_LOCK_LOOP(lock, lock_code, success) {             \
-    unsigned int get_lock_loop_num = 1;                       \
-    while (get_lock_loop_num < LOOP_RETRY_NUM) {              \
-        success = lock_code;                                  \
-        if (success) {                                        \
-            break;                                            \
-        }                                                     \
-        do {                                                  \
-            _mm_pause();                                      \
-            get_lock_loop_num++;                              \
-        } while (lock && get_lock_loop_num < LOOP_RETRY_NUM); \
-    }                                                         \
-}
-
-#define TRANSACTION_EXECUTION_EXECUTE(tree, code, tid) {   \
-    while (1) {                                            \
-        if (method == TRANSACTION) {                       \
-            status = _xbegin();                            \
-            if (tree->lock) {                              \
-                TRANSACTION_EXECUTION_ABORT();             \
-            }                                              \
-        } else {                                           \
-            while (!lockBPTree(tree, tid)) {               \
-                do {                                       \
-                    _mm_pause();                           \
-                } while (tree->lock);                      \
-            }                                              \
-        }                                                  \
-        if (status == _XBEGIN_STARTED || method == LOCK) { \
-            {code};                                        \
-            if (method == TRANSACTION) {                   \
-                _xend();                                   \
-		TRANSACTION_SUCCESS();                     \
-            } else {                                       \
-                unlockBPTree(tree, tid);                   \
-		LOCK_SUCCESS();                            \
-            }                                              \
-            break;                                         \
-        } else {                                           \
-            if (tree->lock) {                              \
-                do {                                       \
-                    _mm_pause();                           \
-                } while (tree->lock);                      \
-            }                                              \
-            if (n_tries < RETRY_NUM) {                     \
-                wait_times = 1 << n_tries;                 \
-                while (wait_times--);                      \
-            } else {                                       \
-                method = LOCK;                             \
-            }                                              \
-            n_tries++;                                     \
-        }                                                  \
-    }                                                      \
-}
-
-#if defined(NPERSIST)
 void persist(void *target, size_t size) { /* EMPTY */ }
-#else
-void persist(void *target, size_t size) {
-    // nvhtm need not persist
-//     int i;
-//     for (i = 0; i < (size-1)/64 + 1; i++) {
-// #  ifdef CLWB
-//         _mm_clwb(target + i * 64);
-// #  else
-//         _mm_clflush(target + i * 64);
-// #  endif
-//     }
-//     _mm_sfence();
-}
-#endif
 
 /* utils */
 unsigned char hash(Key key) {

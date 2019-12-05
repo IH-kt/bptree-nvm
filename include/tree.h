@@ -27,6 +27,26 @@ extern const Value INITIAL_VALUE;
 #  define INITIAL_VALUE 0
 #endif
 
+#ifdef TRANSACTION_SIZE
+extern __thread unsigned int transaction_counter;
+extern __thread unsigned int transaction_counter_max;
+#  define COUNTUP_TRANSACTION_SIZE() {\
+        transaction_counter++;\
+    }
+#  define UPDATE_TRANSACTION_SIZE() {\
+        if (transaction_counter > transaction_counter_max)\
+            transaction_counter_max = transaction_counter;\
+        transaction_counter = 0;\
+    }
+#  define SHOW_TRANSACTION_SIZE() {\
+        fprintf(stderr, "max of transaction size = %u\n", transaction_counter_max);\
+    }
+#else
+#  define COUNTUP_TRANSACTION_SIZE()
+#  define UPDATE_TRANSACTION_SIZE()
+#  define SHOW_TRANSACTION_SIZE()
+#endif
+
 #ifdef COUNT_WRITE 
 static unsigned long nvm_write_count = 0;
 
@@ -81,7 +101,9 @@ static int freq_write_buf_index = 0;
 #  define GET_WRITE_COUNT() (nvm_write_count)
 #else
 #  define WRITE_COUNT_UP(sz)
-#  define NVM_WRITE(p, v) (*p = v)
+#  define NVM_WRITE(p, v) ({\
+        (*p = v);\
+    })
 #  define GET_WRITE_COUNT() (0l)
 #  define SHOW_FREQ_WRITE()
 #endif

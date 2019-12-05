@@ -3,8 +3,14 @@
 #  ifdef NVHTM
 #    include "nvhtm.h"
 #    define NVHTM_begin() NH_begin()
-#    define NVHTM_end() NH_commit()
-#    define NVM_write(p, val) NH_write(p, val)
+#    define NVHTM_end() {\
+       NH_commit();\
+       UPDATE_TRANSACTION_SIZE();\
+     }
+#    define NVM_write(p, val) {\
+       NH_write(p, val);\
+       COUNTUP_TRANSACTION_SIZE();\
+     }
 #    define NVM_read(p) NH_read(p)
 #  else
 #    define NVHTM_begin()
