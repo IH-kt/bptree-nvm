@@ -14,6 +14,8 @@ extern void *al_pool;
 #include <xmmintrin.h>
 
 using namespace std;
+NVLog_s **NH_global_checkpointing_logs;
+static int log_select = 0;
 
 // pos has an hint, return the next tx after the given ts
 static ts_s max_tx_after(NVLog_s *log, int start, ts_s target, int *pos)
@@ -40,7 +42,7 @@ static int max_next_log(int *pos, int starts[], int ends[])
   int count_ends = 0;
   for (i = 0; i < TM_nb_threads; ++i) {
     max_ts[i] = 0;
-    NVLog_s *log = NH_global_logs[i];
+    NVLog_s *log = NH_global_checkpointing_logs[i];
     ts_s ts = entry_is_ts(log->ptr[pos[i]]);
     while (!ts && pos[i] != starts[i]) {
       pos[i] = ptr_mod_log(pos[i], -1);
@@ -70,13 +72,20 @@ static int max_next_log(int *pos, int starts[], int ends[])
 
 static void wait_persistent_checkpointing(NVLog_s **log) {
     int i;
-    while (1) {
-        for (i = 0; i < TM_nb_threads; i++) {
-            if (persistent_checkpointing[i] != 0) {
-                break;
-            }
+    for (i = 0; i < TM_nb_threads; i++) {
+        if (persistent_checkpointing[i] != 0) {
+            break;
         }
-        if (i >= TM_nb_threads) {
+    }
+    if (i >= TM_nb_threads) {
+        return;
+    }
+    while (1) {
+        int pc_sum = 0;
+        for (i = 0; i < TM_nb_threads; i++) {
+            pc_sum = pc_sum + persistent_checkpointing[i];
+        }
+        if (pc_sum == 0) {
             break;
         }
         PAUSE();
@@ -100,8 +109,10 @@ int LOG_checkpoint_backward_apply_one()
     char bit_map;
   } CL_BLOCK;
 
+  assert(!(*NH_checkpointer_state));
   sem_wait(NH_chkp_sem);
-  *NH_checkpointer_state = (*NH_checkpointer_state) | 0x1; // doing checkpoint
+  // printf("received semaphore\n");
+  __sync_bool_compare_and_swap(NH_checkpointer_state, 0, 1); // doing checkpoint
   __sync_synchronize();
 
   // stores the possible repeated writes
@@ -134,28 +145,42 @@ int LOG_checkpoint_backward_apply_one()
       j = ends[i];
       someone_passed = true;
     }
+    if (log->size_of_log - dist < 256) {
+      someone_passed = true;
+    }
   }
   // Only apply log if someone passed the threshold mark
   if ((!too_full && too_empty) || !someone_passed) {
-    *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1; // doing checkpoint
+    __sync_bool_compare_and_swap(NH_checkpointer_state, 1, 0); // doing checkpoint
     __sync_synchronize();
+    // printf("checkpoint: retry\n");
     return 1; // try again later
   }
   // ---------------------------------------------------------------
 
   wait_persistent_checkpointing(NH_global_logs);
-  printf("flipping\n");
-  *NH_checkpointer_state = (*NH_checkpointer_state) ^ 0x2;
-  NVLog_s **log_tmp = NH_global_logs;
-  NH_global_logs = NH_global_checkpointing_logs;
-  NH_global_checkpointing_logs = log_tmp;
-  _mm_sfence();
-  *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1; // doing checkpoint
+  // printf("flipping: current log = %p, log1 = %p, log2 = %p\n", NH_global_logs, _NH_global_logs1, _NH_global_logs2);
+  // for (int thr = 0; thr < TM_nb_threads; thr++) {
+  //     printf("%d:NH_global_logs1 start->%d, end->%d\n", thr, _NH_global_logs1[thr]->start, _NH_global_logs1[thr]->end);
+  // }
+  // for (int thr = 0; thr < TM_nb_threads; thr++) {
+  //     printf("%d:NH_global_logs2 start->%d, end->%d\n", thr, _NH_global_logs2[thr]->start, _NH_global_logs2[thr]->end);
+  // }
+  if (log_select) {
+      NH_global_logs = _NH_global_logs1;
+      NH_global_checkpointing_logs = _NH_global_logs2;
+  } else {
+      NH_global_logs = _NH_global_logs2;
+      NH_global_checkpointing_logs = _NH_global_logs1;
+  }
+  log_select = log_select ^ 0x1;
+  __sync_synchronize();
+  __sync_bool_compare_and_swap(NH_checkpointer_state, 1, 0); // doing checkpoint
 
   // first find target_ts, then the remaining TSs
   // TODO: keep the minimum anchor
   for (i = 0; i < TM_nb_threads; ++i) {
-    log = NH_global_logs[i];
+    log = NH_global_checkpointing_logs[i];
 
     starts[i] = log->start;
     ends[i] = log->end;
@@ -211,7 +236,7 @@ int LOG_checkpoint_backward_apply_one()
   // other TSs smaller than target
   // TODO: sweep from the threshold backward only
   for (i = 0; i < TM_nb_threads; ++i) {
-    log = NH_global_logs[i];
+    log = NH_global_checkpointing_logs[i];
     ts_s ts = 0;
     // find the maximum TS of other TXs smaller than target_ts
 
@@ -239,6 +264,7 @@ int LOG_checkpoint_backward_apply_one()
   if (!target_ts) {
     // *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1; // doing checkpoint
     __sync_synchronize();
+    printf("checkpoint: not enough log\n");
     return 1; // there isn't enough transactions
   }
 
@@ -259,7 +285,7 @@ int LOG_checkpoint_backward_apply_one()
       break;
     }
 
-    log = NH_global_logs[next_log];
+    log = NH_global_checkpointing_logs[next_log];
 
     target_ts = max_tx_after(log, starts[next_log], target_ts, &(pos[next_log])); // updates the ptr
     // time_ts4 += rdtscp() - time_ts3;
@@ -331,7 +357,7 @@ int LOG_checkpoint_backward_apply_one()
   // advance the pointers
   //    int freed_space = 0;
   for (i = 0; i < TM_nb_threads; ++i) {
-    log = NH_global_logs[i];
+    log = NH_global_checkpointing_logs[i];
     //        freed_space += distance_ptr(log->start, pos_to_start[i]);
     assert(starts[i] == log->start); // only this thread changes this
     // either in the boundary or just cleared the log

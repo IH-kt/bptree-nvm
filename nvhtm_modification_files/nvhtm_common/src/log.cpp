@@ -111,14 +111,18 @@ void LOG_init(int nb_threads, int fresh)
 
   // printf("Number of threads: %i\n", TM_nb_threads);
 
-  if (NH_global_logs == NULL) {
-    char *log_pool = ALLOC_MEM(log_file_name, 2 * (CACHE_LINE_SIZE * nb_threads) + size_of_logs * 2);
-    NH_global_logs = (NVLog_s**)log_pool;
-    NH_global_checkpointing_logs = (NVLog_s**)(log_pool + CACHE_LINE_SIZE * nb_threads);
+  if (nh_glog_ref == NULL) {
+    char *log_pool = (char *)ALLOC_MEM(log_file_name, sizeof(NVLog_s **) + 2 * (CACHE_LINE_SIZE * nb_threads) + size_of_logs * 2);
+    nh_glog_ref = (NVLog_s***)log_pool;
+    _NH_global_logs1 = (NVLog_s**)(log_pool + sizeof(NVLog_s **));
+    _NH_global_logs2 = (NVLog_s**)(log_pool + sizeof(NVLog_s **) + CACHE_LINE_SIZE * nb_threads);
+    *nh_glog_ref = _NH_global_logs1;
     fprintf(stderr, "log_size = %lu\n", size_of_logs);
-    fprintf(stderr, "log_size_per_thread = %lu\n", (unsigned long)NVMHTM_LOG_SIZE)
+    fprintf(stderr, "log_size_per_thread = %lu\n", (unsigned long)NVMHTM_LOG_SIZE);
+    fprintf(stderr, "log1 = %p\n", _NH_global_logs1);
+    fprintf(stderr, "log2 = %p\n", _NH_global_logs2);
 
-    LOG_global_ptr = log_pool + 2 * (CACHE_LINE_SIZE * nb_threads);
+    LOG_global_ptr = log_pool + sizeof(NVLog_s **) + 2 * (CACHE_LINE_SIZE * nb_threads);
     memset(LOG_global_ptr, 0, size_of_logs);
     fresh = 1; // this is not init to 0
     // key_t key = KEY_LOGS;
@@ -145,12 +149,12 @@ void LOG_init(int nb_threads, int fresh)
 
   LOG_attach_shared_mem();
   for (i = 0; i < nb_threads; ++i) {
-    NVLog_s *new_log = NH_global_logs[i];
-    init_log(NH_global_logs, new_log, i, fresh);
+    NVLog_s *new_log = _NH_global_logs1[i];
+    init_log(_NH_global_logs1, new_log, i, fresh);
   }
   for (i = 0; i < nb_threads; ++i) {
-    NVLog_s *new_log = NH_global_checkpointing_logs[i];
-    init_log(NH_global_checkpointing_logs, new_log, i, fresh);
+    NVLog_s *new_log = _NH_global_logs2[i];
+    init_log(_NH_global_logs2, new_log, i, fresh);
   }
 
   sort_logs(); // TODO
@@ -169,13 +173,12 @@ void LOG_attach_shared_mem() {
   for (i = 0; i < TM_nb_threads; ++i) {
     NVLog_s *new_log = LOG_init_1thread(aux_ptr, size_of_log);
     aux_ptr += size_of_log;
-    NH_global_logs[i] = new_log;
+    _NH_global_logs1[i] = new_log;
   }
-  aux_ptr = ((char*) LOG_global_ptr) + size_of_logs;
   for (i = 0; i < TM_nb_threads; ++i) {
     NVLog_s *new_log = LOG_init_1thread(aux_ptr, size_of_log);
     aux_ptr += size_of_log;
-    NH_global_checkpointing_logs[i] = new_log;
+    _NH_global_logs2[i] = new_log;
   }
 }
 

@@ -7,8 +7,10 @@
 // ### LOG VARIABLES ##################################
 // ####################################################
 // global
-extern CL_ALIGN NVLog_s **NH_global_logs;
-extern CL_ALIGN NVLog_s **NH_global_checkpointing_logs;
+#define NH_global_logs (*nh_glog_ref)
+extern CL_ALIGN NVLog_s ***nh_glog_ref;
+extern CL_ALIGN NVLog_s **_NH_global_logs1;
+extern CL_ALIGN NVLog_s **_NH_global_logs2;
 extern void* LOG_global_ptr;
 // thread local
 extern __thread CL_ALIGN NVLog_s *nvm_htm_local_log;

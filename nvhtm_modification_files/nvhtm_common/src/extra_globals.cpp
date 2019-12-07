@@ -4,8 +4,10 @@
 // ### LOG VARIABLES ##################################
 // ####################################################
 // global
-CL_ALIGN NVLog_s **NH_global_logs;
-CL_ALIGN NVLog_s **NH_global_checkpointing_logs;
+
+CL_ALIGN NVLog_s ***nh_glog_ref;
+CL_ALIGN NVLog_s **_NH_global_logs1;
+CL_ALIGN NVLog_s **_NH_global_logs2;
 void* LOG_global_ptr;
 int is_sigsegv = 0;
 // thread local

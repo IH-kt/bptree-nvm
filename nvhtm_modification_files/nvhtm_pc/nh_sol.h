@@ -17,47 +17,80 @@ extern "C"
     extern __thread int global_threadId_; \
     extern int nb_transfers; \
     extern long nb_of_done_transactions; \
-    while (((*NH_checkpointer_state) & 0x1) == 1 && nb_of_done_transactions < nb_transfers) { \
+    while (*NH_checkpointer_state == 1 && nb_of_done_transactions < nb_transfers) { \
       PAUSE(); \
     }
 
-#undef BEFORE_SGL_BEGIN
-#define BEFORE_SGL_BEGIN(tid)                                                \
-  {                                                                          \
-    if (NH_global_logs[tid].size_of_log - NH_global_logs[tid].counter < 256) \
-    {                                                                        \
-      printf("sgl %d: not enough space\n", tid);                             \
-      sem_post(NH_chkp_sem);                                                 \
-      while ((*NH_checkpointer_state) & 0x1)                                 \
-      {                                                                      \
-        PAUSE();                                                             \
-      }                                                                      \
-      persistent_checkpointing[tid] = 1;                                     \
-      _mm_sfence();                                                          \
-    }                                                                        \
-    log_at_tx_start = (*NH_checkpointer_state) & 0x2;                        \
-    nvm_htm_local_log = NH_global_logs[tid];                                 \
-    LOG_before_TX();                                                         \
+#undef AFTER_SGL_BEGIN
+#define AFTER_SGL_BEGIN(tid)                                                     \
+  {                                                                               \
+    int id = TM_tid_var;\
+    TM_inc_fallback(tid);\
+    while (*NH_checkpointer_state) {                                        \
+        if (persistent_checkpointing[id]) persistent_checkpointing[id] = 0;\
+      PAUSE();                                                                    \
+    }\
+    persistent_checkpointing[id] = 1;                                            \
+    /*printf("before_sgl_begin set:%d\n", tid);*/\
+    __sync_synchronize();                                                         \
+    log_at_tx_start = NH_global_logs;                                               \
+    nvm_htm_local_log = NH_global_logs[id];                                      \
+	LOG_local_state.start = nvm_htm_local_log->start;                                                  \
+	LOG_local_state.end = nvm_htm_local_log->end;                                                      \
+	LOG_local_state.counter = distance_ptr((int)LOG_local_state.start,                   \
+										   (int)LOG_local_state.end);                    \
+    if ((LOG_local_state.size_of_log - LOG_local_state.counter) < 256)            \
+    {                                                                             \
+      /*printf("sgl %d: not enough space -> %d - %d\n", tid, LOG_local_state.size_of_log, LOG_local_state.counter)*/;                                  \
+      persistent_checkpointing[id] = 0;                                          \
+    /*printf("before_sgl_begin unset:%d\n", tid);*/\
+      __sync_synchronize();                                                       \
+      sem_post(NH_chkp_sem);                                                      \
+      while ((LOG_local_state.size_of_log - LOG_local_state.counter) < 256)       \
+      {                                                                           \
+        PAUSE();                                                                  \
+          nvm_htm_local_log = NH_global_logs[id];                                      \
+          LOG_local_state.start = nvm_htm_local_log->start;                                                  \
+          LOG_local_state.end = nvm_htm_local_log->end;                                                      \
+          LOG_local_state.counter = distance_ptr((int)LOG_local_state.start,                   \
+                  (int)LOG_local_state.end);                    \
+          /*printf("after_sgl_begin\n");*/\
+      }                                                                           \
+      _mm_sfence();                                                               \
+      persistent_checkpointing[id] = 1;                                          \
+    /*printf("before_sgl_begin2 set:%d\n", tid);*/\
+      __sync_synchronize();                                                       \
+      log_at_tx_start = NH_global_logs;                                             \
+      nvm_htm_local_log = NH_global_logs[id];                                    \
+      LOG_local_state.start = nvm_htm_local_log->start;                                                  \
+      LOG_local_state.end = nvm_htm_local_log->end;                                                      \
+      LOG_local_state.counter = distance_ptr((int)LOG_local_state.start,                   \
+              (int)LOG_local_state.end);                    \
+    }                                                                             \
+  /*printf("AftrSGLBgn %d-%d: start = %d, end = %d, local start = %d, local end = %d\n", tid, id, NH_global_logs[id]->start, NH_global_logs[id]->end, LOG_local_state.start, LOG_local_state.end);*/\
   }
 
 #undef BEFORE_TRANSACTION_i
 #define BEFORE_TRANSACTION_i(tid, budget)           \
+  while (*NH_checkpointer_state) { if (persistent_checkpointing[TM_tid_var]) persistent_checkpointing[TM_tid_var] = 0; }        \
   LOG_get_ts_before_tx(tid);                        \
   LOG_before_TX();                                  \
-  log_at_tx_start = (*NH_checkpointer_state) & 0x2; \
-  nvm_htm_local_log = NH_global_logs[tid];          \
+  log_at_tx_start = NH_global_logs;                   \
+  nvm_htm_local_log = NH_global_logs[TM_tid_var];          \
+  /*printf("BfrTrnsctn %d-%d: start = %d, end = %d, local start = %d, local end = %d\n", tid, TM_tid_var, NH_global_logs[TM_tid_var]->start, NH_global_logs[TM_tid_var]->end, LOG_local_state.start, LOG_local_state.end);*/\
   TM_inc_local_counter(tid);
 
 #undef BEFORE_COMMIT
 #define BEFORE_COMMIT(tid, budget, status)             \
-  int tmp = (*NH_checkpointer_state) & 0x2;            \
-  if (tmp != log_at_tx_start)                          \
+  persistent_checkpointing[TM_tid_var] = 1;                   \
+    /*printf("before_commit set:%d\n", tid);*/\
+  if (NH_global_logs != log_at_tx_start)                          \
   {                                                    \
-    if (HTM_test())                                    \
-      HTM_named_abort(2);                              \
+    if (HTM_test()) HTM_named_abort(2);                \
+    fprintf(stderr, "before_commit:%d-%d\n", TM_tid_var, tid);\
     assert(0); /* flipped during lock execution */     \
   }                                                    \
-  persistent_checkpointing[tid] = 1;                   \
+  if (HTM_test() && ((*NH_checkpointer_state) || NH_global_logs[TM_tid_var]->start != LOG_local_state.start)) HTM_named_abort(2);\
   ts_var = rdtscp(); /* must be the p version */       \
   if (LOG_count_writes(tid) > 0 && TM_nb_threads > 28) \
   {                                                    \
@@ -66,25 +99,41 @@ extern "C"
   }
 
 #undef AFTER_TRANSACTION_i
-#define AFTER_TRANSACTION_i(tid, budget) ({                                   \
-  int nb_writes = LOG_count_writes(tid);                                      \
+#define AFTER_TRANSACTION_i(_tid, budget) ({                                   \
+  /*printf("AftTrnsctn %d-%d: start = %d, end = %d, local start = %d, local end = %d\n", _tid, TM_tid_var, NH_global_logs[TM_tid_var]->start, NH_global_logs[TM_tid_var]->end, LOG_local_state.start, LOG_local_state.end);*/\
+  if (((*NH_checkpointer_state) && persistent_checkpointing[TM_tid_var] != 1) || log_at_tx_start != NH_global_logs) {\
+    printf("didn't aborted???\n");\
+    assert(0);\
+  }\
+  int id = TM_tid_var;\
+  int nb_writes = LOG_count_writes(_tid);                                      \
   if (nb_writes)                                                              \
   {                                                                           \
-    htm_tx_val_counters[tid].global_counter = ts_var;                         \
+    htm_tx_val_counters[_tid].global_counter = ts_var;                         \
     __sync_synchronize();                                                     \
-    NVMHTM_commit(tid, ts_var, nb_writes);                                    \
+    NVMHTM_commit(id, ts_var, nb_writes);                                    \
   }                                                                           \
-  CHECK_AND_REQUEST(tid);                                                     \
-  TM_inc_local_counter(tid);                                                  \
+  CHECK_AND_REQUEST(_tid);                                                     \
+  TM_inc_local_counter(_tid);                                                  \
   LOG_after_TX();                                                             \
-  assert(__sync_bool_compare_and_swap(&persistent_checkpointing[tid], 1, 0)); \
+  assert(__sync_bool_compare_and_swap(&persistent_checkpointing[id], 1, 0)); \
+    /*printf("after_transaction unset:%d\n", _tid);*/\
 })
 
 #undef AFTER_ABORT
 #define AFTER_ABORT(tid, budget, status)                                       \
   /* NH_tx_time += rdtscp() - TM_ts1; */                                       \
+  while (*NH_checkpointer_state) { \
+      if (persistent_checkpointing[TM_tid_var]) {\
+          persistent_checkpointing[TM_tid_var] = 0; \
+      } \
+    PAUSE(); \
+  }        \
+  /*printf("AbortState %d-%d: status = %x\n", tid, TM_tid_var, status);*/\
   CHECK_LOG_ABORT(tid, status);                                                \
+  log_at_tx_start = NH_global_logs;                                             \
   LOG_get_ts_before_tx(tid);                                                   \
+  /*printf("AfterAbort %d-%d: start = %d, end = %d, local start = %d, local end = %d\n", tid, TM_tid_var, NH_global_logs[tid]->start, NH_global_logs[tid]->end, LOG_local_state.start, LOG_local_state.end);*/\
   __sync_synchronize();                                                        \
   ts_var = rdtscp();                                                           \
   htm_tx_val_counters[tid].global_counter = ts_var;                            \
