@@ -763,15 +763,13 @@ static void fork_manager()
       set_affinity_at(MAX_PHYS_THRS - 1);
     }
 
-    /*
     struct sigaction sa_sigsegv;
     memset(&sa_sigsegv, 0, sizeof(struct sigaction));
     sigemptyset(&sa_sigsegv.sa_mask);
     sa_sigsegv.sa_sigaction = segfault_sigaction;
-    sa_.sa_flags     = 0;
+    sa_sigsegv.sa_flags     = 0;
 
     sigaction(SIGSEGV, &sa_sigsegv, NULL); // apply log does not SIGSEGV
-    */
 
     // handles SIGINT from parent
     struct sigaction sa;
@@ -971,19 +969,20 @@ if (LOG_is_logged_tx()) {
 
 static void segfault_sigaction(int signal, siginfo_t *si, void *uap)
 {
-  static intptr_t old_addr = -1;
-  intptr_t new_addr = (intptr_t) si->si_addr; // 6 is log_2(CACHE_LINE_SIZE)
-  new_addr = ((new_addr >> 6) << 6);
-  mmap(si->si_addr, 1024, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, -1, 0);
-  if (old_addr == (intptr_t) si->si_addr) {
-    printf("SIGSEGV addr=%p\n", si->si_addr);
+  // static intptr_t old_addr = -1;
+  // intptr_t new_addr = (intptr_t) si->si_addr; // 6 is log_2(CACHE_LINE_SIZE)
+  // new_addr = ((new_addr >> 6) << 6);
+  // mmap(si->si_addr, 1024, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED, -1, 0);
+  // if (old_addr == (intptr_t) si->si_addr) {
+    fprintf(stderr, "SIGSEGV addr=%p\n", si->si_addr);
+    exit(1);
     // ucontext_t *context = (ucontext_t*)uap;
     // context->uc_mcontext.gregs[REG_RIP] += 0x04; // TODO: ignore load
     // exit(EXIT_FAILURE);
-  }
-  else {
-    old_addr = (intptr_t) si->si_addr;
-  }
+  // }
+  // else {
+  //   old_addr = (intptr_t) si->si_addr;
+  // }
   // is_sigsegv = 1;
   // __sync_synchronize();
   // TODO:
