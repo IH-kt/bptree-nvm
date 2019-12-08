@@ -128,9 +128,9 @@ void insertFirstLeafNode_T(BPTree *tree, LeafNode *leafHead) {
 void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode, ppointer *pmem_head) {
     tree->pmem_head = pmem_head;
     tree->root = rootNode;
-    // NVHTM_begin();
+    NVHTM_begin();
     insertFirstLeafNode(tree, leafHead);
-    // NVHTM_end();
+    NVHTM_end();
     tree->lock = 0;
 }
 
