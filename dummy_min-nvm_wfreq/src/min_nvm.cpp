@@ -75,7 +75,6 @@ int MN_write(void *addr, void *buf, size_t size, int to_aux)
                 fprintf(stderr, "freq_write: buffer size over\n");
             }
         }
-        assert(*nvhtm_wrote_size_tmp < FREQ_INTERVAL);
     }
 	// if (to_aux) {
 	// 	// it means it does not support CoW (dynamic mallocs?)
