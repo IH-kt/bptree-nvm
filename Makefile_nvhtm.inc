@@ -13,4 +13,9 @@ NVHTM_LIBS      := -L$(MIN_NVM_DIR)/bin -L$(HTM_ALG_DIR)/bin -lhtm_sgl -lminimal
 NVHTM_CFLAGS    := $(NVHTM_DEFINES) $(NVHTM_INCLUDES) $(PMDK_INCLUDES) -lpthread -mrtm $(NVHTM_LIBS) $(PMDK_LIBS)
 
 NVHTM_MAKE_ARGS := SOLUTION=4 DO_CHECKPOINT=5 SORT_ALG=5 USE_MIN_NVM=0 # LOG_SIZE=10000000
+ifeq ($(db), 1)
+    NVHTM_MOD_DIR   := $(ROOT_DIR)/nvhtm_modification_files_double_buffering
+else
+    NVHTM_MOD_DIR   := $(ROOT_DIR)/nvhtm_modification_files_plain
+endif
 endif
