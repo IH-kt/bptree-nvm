@@ -26,7 +26,6 @@ extern "C"
   {                                                                               \
     int id = TM_tid_var;\
     TM_inc_fallback(tid);\
-    while (sem_trywait(NH_chkp_sem) != -1);\
     while (*NH_checkpointer_state) {                                        \
         if (persistent_checkpointing[id]) persistent_checkpointing[id] = 0;\
       PAUSE();                                                                    \
@@ -51,7 +50,7 @@ extern "C"
           int sem_val;\
           sem_post(NH_chkp_sem);                                                      \
           sem_getvalue(NH_chkp_sem, &sem_val);\
-          while (log_at_tx_start == NH_global_logs && sem_val > 0) {\
+          while (log_at_tx_start == NH_global_logs && sem_val > 0 && (*NH_checkpointer_state)) {\
               sem_getvalue(NH_chkp_sem, &sem_val);\
               PAUSE();                                                                  \
           }\
@@ -60,6 +59,7 @@ extern "C"
           LOG_local_state.end = nvm_htm_local_log->end;                                                      \
           LOG_local_state.counter = distance_ptr((int)LOG_local_state.start,                   \
                   (int)LOG_local_state.end);                    \
+          log_at_tx_start = NH_global_logs;\
           /*printf("after_sgl_begin\n");*/\
       }                                                                           \
       _mm_sfence();                                                               \

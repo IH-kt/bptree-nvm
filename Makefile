@@ -79,9 +79,6 @@ TEST_EXE		:= $(TEST_SRC_NAME:%.c=%.exe)
 BASE_BENCH_EXE	:= $(BASE_BENCH_SRC_NAME:%.c=%.exe)
 ALL_EXE			:= $(TEST_EXE) $(BASE_BENCH_EXE)
 
-make-test:
-	echo $(NVHTM_MOD_DIR)
-
 all: $(ALL_EXE)
 
 %.exe:%.o $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(NVHTM_LIB)
