@@ -581,7 +581,7 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
 void deleteLeaf(BPTree *bpt, LeafNode *current, unsigned char tid) {
     if (current->prev == NULL) {
         bpt->head = current->next;
-        NVM_WRITE(&bpt->pmem_head, current->pleaf->header.pnext);
+        NVM_WRITE(bpt->pmem_head, current->pleaf->header.pnext);
         persist(bpt->pmem_head, sizeof(ppointer));
     } else {
         NVM_WRITE(&current->prev->pleaf->header.pnext, current->pleaf->header.pnext);

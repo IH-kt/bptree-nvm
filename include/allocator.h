@@ -30,7 +30,6 @@ typedef struct PAddr PAddr;
 typedef struct PAddr ppointer;
 extern ppointer PADDR_NULL;
 #  define P_NULL PADDR_NULL
-#  define V_NULL NULL
 
 typedef struct AllocatorHeader {
     PAddr node_head;
@@ -38,7 +37,6 @@ typedef struct AllocatorHeader {
 #else
 typedef void * ppointer;
 #  define P_NULL NULL
-#  define V_NULL NULL
 
 typedef void AllocatorHeader;
 #endif

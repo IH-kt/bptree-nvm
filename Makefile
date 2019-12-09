@@ -40,7 +40,7 @@ ifeq ($(tree), bptree)
 	TREE_D		:= -DBPTREE
 	TREE_OBJ	:= $(BPTREE_SRC:%.c=%.o)
 else
-	TREE_D		:=
+	TREE_D		:= -DFPTREE
 	TREE_OBJ	:= $(FPTREE_SRC:%.c=%.o)
 endif
 ifeq ($(debug), 1)
@@ -83,6 +83,7 @@ THREAD_MANAGER_OBJ=$(THREAD_MANAGER_SRC:%.c=%.o)
 TEST_EXE		:= $(TEST_SRC_NAME:%.c=%.exe)
 BASE_BENCH_EXE	:= $(BASE_BENCH_SRC_NAME:%.c=%.exe)
 ALL_EXE			:= $(TEST_EXE) $(BASE_BENCH_EXE)
+ALL_OBJ			:= $(ALL_EXE:%.exe=%.o)
 
 all: $(ALL_EXE)
 
@@ -112,7 +113,7 @@ test-make:
 	echo $(NVHTM_CFLAGS)
 
 clean:
-	rm -f $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(ALL_EXE:%.exe=%.o)
+	rm -f $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(ALL_OBJ)
 
 dist-clean: clean
 	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE)) $(NVHTM_LIB) $(MIN_NVM_DIR)/bin/libminimal_nvm.a $(NVHTM_DIR)/DEPENDENCIES/htm_alg/bin/libhtm_sgl.a

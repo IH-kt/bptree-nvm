@@ -24,32 +24,64 @@ int main(int argc, char *argv[]) {
     } else {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
-    initAllocator(NULL, "data", sizeof(LeafNode) * loop_times / MAX_KEY * 2, 1);
+#ifdef BPTREE
+    initAllocator(NULL, "data", sizeof(LeafNode) * (loop_times / (MAX_PAIR / 2) + 1) + sizeof(AllocatorHeader), 1);
+#else
+    initAllocator(NULL, "data", sizeof(PersistentLeafNode) * (loop_times / (MAX_PAIR / 2) + 1) + sizeof(AllocatorHeader), 1);
+#endif
     bpt = newBPTree();
     kv.key = 1;
     kv.value = 1;
-    srand((unsigned) time(NULL));
+    for (int i = 1; i <= loop_times; i++) {
+        kv.key = i;
+        printf("insert %ld\n", kv.key);
+        if (insert(bpt, kv, 1)) {
+            printf("success\n");
+        } else {
+            printf("failure\n");
+        }
+    }
+    for (int i = 1; i <= loop_times; i++) {
+        kv.key = i;
+        printf("delete %ld\n", kv.key);
+        if (bptreeRemove(bpt, kv.key, 1)) {
+            printf("success\n");
+        } else {
+            printf("failure\n");
+            assert(0);
+        }
+    }
+    showTree(bpt, 1);
+    srand(loop_times);
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
         printf("insert %ld\n", kv.key);
-        if (insert(bpt, kv, 0)) {
+        if (insert(bpt, kv, 1)) {
             printf("success\n");
         } else {
             printf("failure\n");
         }
     }
+    srand(loop_times);
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
         printf("delete %ld\n", kv.key);
-        if (bptreeRemove(bpt, kv.key, 0)) {
+        if (bptreeRemove(bpt, kv.key, 1)) {
             printf("success\n");
         } else {
             printf("failure\n");
+            SearchResult sr;
+            search(bpt, kv.key, &sr, 1);
+            printf("sr = (%p, %d)\n", sr.node, sr.index);
+            // showTree(bpt, 1);
+            if (sr.index != -1) {
+                assert(0);
+            }
         }
     }
 
-    showTree(bpt, 0);
-    destroyBPTree(bpt, 0);
+    showTree(bpt, 1);
+    destroyBPTree(bpt, 1);
     destroyAllocator();
 
     return 0;

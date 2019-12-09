@@ -24,35 +24,39 @@ int main(int argc, char *argv[]) {
     } else {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
-    initAllocator(NULL, "data", sizeof(LeafNode) * loop_times / MAX_KEY * 2, 1);
+#ifdef BPTREE
+    initAllocator(NULL, "data", sizeof(LeafNode) * (loop_times * 2 / (MAX_PAIR / 2) + 1 + sizeof(AllocatorHeader)), 1);
+#else
+    initAllocator(NULL, "data", sizeof(PersistentLeafNode) * (loop_times * 2 / (MAX_PAIR / 2) + 1 + sizeof(AllocatorHeader)), 1);
+#endif
     bpt = newBPTree();
     kv.key = 1;
     kv.value = 1;
-    // srand((unsigned) time(NULL));
-    srand(0);
+    srand(loop_times);
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
         printf("insert %ld\n", kv.key);
-        if (insert(bpt, kv, 0)) {
+        if (insert(bpt, kv, 1)) {
             printf("success\n");
         } else {
             printf("failure\n");
         }
     }
-    kv.value = 2;
-    srand(1);
+    showTree(bpt, 1);
+    srand(loop_times);
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
-        printf("update %ld\n", kv.key);
-        if (bptreeUpdate(bpt, kv, 0)) {
+        printf("insert %ld\n", kv.key);
+        if (bptreeUpdate(bpt, kv, 1)) {
             printf("success\n");
         } else {
             printf("failure\n");
+            assert(0);
         }
     }
 
-    showTree(bpt, 0);
-    destroyBPTree(bpt, 0);
+    showTree(bpt, 1);
+    destroyBPTree(bpt, 1);
     destroyAllocator();
 
     return 0;

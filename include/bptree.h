@@ -28,6 +28,8 @@ extern "C" {
 #include "allocator.h"
 extern ppointer PADDR_NULL;
 
+#  define SHOW_RESULT_THREAD(tid)
+
 //#define BITMAP_SIZE ((MAX_PAIR/8)+1)
 
 /* definition of structs */
@@ -78,6 +80,7 @@ struct LeafNode {
     unsigned char tid;
     struct LeafNode *next;
     struct LeafNode *prev;
+    ppointer pnext;
     int key_length;
     KeyValuePair kv[MAX_PAIR];
     unsigned char lock;
@@ -88,6 +91,7 @@ struct BPTree {
 //    ppointer *pmem_head;
     struct LeafNode *head;
     int lock;
+    ppointer *pmem_head;
 };
 
 struct SearchResult {
