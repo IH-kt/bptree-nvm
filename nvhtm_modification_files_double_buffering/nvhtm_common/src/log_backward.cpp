@@ -175,6 +175,7 @@ int LOG_checkpoint_backward_apply_one()
   }
   log_select = log_select ^ 0x1;
   __sync_synchronize();
+  while (sem_trywait(NH_chkp_sem) != -1);
   __sync_bool_compare_and_swap(NH_checkpointer_state, 1, 0); // doing checkpoint
 
   // first find target_ts, then the remaining TSs

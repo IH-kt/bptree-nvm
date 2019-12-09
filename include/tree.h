@@ -47,66 +47,65 @@ extern __thread unsigned int transaction_counter_max;
 #  define SHOW_TRANSACTION_SIZE()
 #endif
 
-#ifdef COUNT_WRITE 
-static unsigned long nvm_write_count = 0;
-
-#  ifdef FREQ_WRITE
-#    define FREQ_WRITE_BUFSZ 60 * 60 * 16
-#    define FREQ_INTERVAL 256 * 1024
+#ifdef FREQ_WRITE
+#  define FREQ_WRITE_BUFSZ 60 * 60 * 16
+#  define FREQ_INTERVAL 256 * 1024
 static unsigned int wrote_size_tmp = 0;
 static char freq_write_buf[FREQ_WRITE_BUFSZ];
 static int freq_write_buf_index = 0;
-#    define WRITE_FREQ_LOG(time) {\
-     if (freq_write_buf_index + 16 <= FREQ_WRITE_BUFSZ) {\
-       sprintf(freq_write_buf + freq_write_buf_index, "%15lf\n", time);\
-       freq_write_buf_index += 16;\
-     }\
+#  define WRITE_FREQ_LOG(time) {\
+   if (freq_write_buf_index + 16 <= FREQ_WRITE_BUFSZ) {\
+     sprintf(freq_write_buf + freq_write_buf_index, "%15lf\n", time);\
+     freq_write_buf_index += 16;\
+   }\
 }
-#    define WRITE_COUNT_UP(sz) {\
-        unsigned int tmp = __sync_fetch_and_add(&wrote_size_tmp, (sz));\
-        if (tmp + (sz) > FREQ_INTERVAL) {\
-            if (__sync_bool_compare_and_swap(&wrote_size_tmp, tmp + (sz), 0)) {\
-                struct timespec tm;\
-                double time_tmp = 0;\
-                clock_gettime(CLOCK_MONOTONIC_RAW, &tm);\
-                time_tmp += tm.tv_nsec;  \
-                time_tmp /= 1000000000;                   \
-                time_tmp += tm.tv_sec;      \
-                WRITE_FREQ_LOG(time_tmp);\
-            }\
-        }\
-        nvm_write_count++;\
-    }
-#    define SHOW_FREQ_WRITE() {\
-       FILE *ofile = fopen("write_freq.txt", "a");\
-       if (ofile == NULL) {\
-           perror("SHOW_FREQ_WRITE");\
-       } else {\
-           freq_write_buf[freq_write_buf_index] = '\0';\
-           fprintf(ofile, "%s", freq_write_buf);/*fprintf(stderr, "%s", freq_write_buf);*/\
-           fclose(ofile);\
-       }\
-     }
+#  define WRITE_FREQ_ADD(sz) {\
+      unsigned int tmp = __sync_fetch_and_add(&wrote_size_tmp, (sz));\
+      if (tmp + (sz) > FREQ_INTERVAL) {\
+          if (__sync_bool_compare_and_swap(&wrote_size_tmp, tmp + (sz), 0)) {\
+              struct timespec tm;\
+              double time_tmp = 0;\
+              clock_gettime(CLOCK_MONOTONIC_RAW, &tm);\
+              time_tmp += tm.tv_nsec;  \
+              time_tmp /= 1000000000;                   \
+              time_tmp += tm.tv_sec;      \
+              WRITE_FREQ_LOG(time_tmp);\
+          }\
+      }\
+  }
+#  define SHOW_FREQ_WRITE() {\
+     FILE *ofile = fopen("write_freq.txt", "w");\
+     if (ofile == NULL) {\
+         perror("SHOW_FREQ_WRITE");\
+     } else {\
+         freq_write_buf[freq_write_buf_index] = '\0';\
+         fprintf(ofile, "%s", freq_write_buf);/*fprintf(stderr, "%s", freq_write_buf);*/\
+         fclose(ofile);\
+     }\
+   }
 
-#  else
-
-#    define WRITE_COUNT_UP(sz) ({\
-        nvm_write_count++;\
-     })
-#  endif
-#  define NVM_WRITE(p, v) ({\
-        WRITE_COUNT_UP(sizeof(v));\
-        *p = v;\
-    })
-#  define GET_WRITE_COUNT() (nvm_write_count)
 #else
-#  define WRITE_COUNT_UP(sz)
-#  define NVM_WRITE(p, v) ({\
-        (*p = v);\
-    })
-#  define GET_WRITE_COUNT() (0l)
+#  define WRITE_FREQ_ADD(sz)
 #  define SHOW_FREQ_WRITE()
 #endif
+
+#ifdef COUNT_WRITE 
+static unsigned long nvm_write_count = 0;
+
+#  define WRITE_COUNT_UP() ({\
+      __sync_fetch_and_add(&nvm_write_count, 1);\
+   })
+#  define GET_WRITE_COUNT() (nvm_write_count)
+#else
+#  define WRITE_COUNT_UP()
+#  define GET_WRITE_COUNT() (0l)
+#endif
+
+#define NVM_WRITE(p, v) ({\
+      WRITE_COUNT_UP();\
+      WRITE_FREQ_ADD(sizeof(v));\
+      (*p = v);\
+  })
 
 /* structs */
 typedef struct KeyValuePair {

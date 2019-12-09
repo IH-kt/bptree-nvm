@@ -48,7 +48,7 @@ extern "C"
       while ((LOG_local_state.size_of_log - LOG_local_state.counter) < 256)       \
       {                                                                           \
           int sem_val;\
-          sem_post(NH_chkp_sem);                                                      \
+          if ((*NH_checkpointer_state) == 0) sem_post(NH_chkp_sem);                                                      \
           sem_getvalue(NH_chkp_sem, &sem_val);\
           while (log_at_tx_start == NH_global_logs && sem_val > 0 && (*NH_checkpointer_state)) {\
               sem_getvalue(NH_chkp_sem, &sem_val);\

@@ -34,11 +34,11 @@ extern ppointer PADDR_NULL;
     (bitmapaddr[index/8] & (1 << ((index)%8))) >> (index)%8\
 )
 #define SET_BIT(bitmapaddr, index) ({\
-    WRITE_COUNT_UP(1); \
+    WRITE_COUNT_UP(); \
     bitmapaddr[index/8] |= (1 << ((index)%8)); \
 })
 #define CLR_BIT(bitmapaddr, index) ({\
-    WRITE_COUNT_UP(1); \
+    WRITE_COUNT_UP(); \
     bitmapaddr[index/8] &= ~(1 << ((index)%8)); \
 })
 
@@ -47,12 +47,12 @@ extern ppointer PADDR_NULL;
     (NVM_read(&bitmapaddr[index/8]) & (1 << ((index)%8))) >> (index)%8\
 )
 #  define SET_BIT_T(bitmapaddr, index) ({\
-    WRITE_COUNT_UP(1); \
+    WRITE_COUNT_UP(); \
     char bt_tmp = NVM_read(&bitmapaddr[index/8]) | (1 << ((index)%8));\
     NVM_write_varsize(&bitmapaddr[index/8], &bt_tmp, sizeof(char)); \
 })
 #  define CLR_BIT_T(bitmapaddr, index) ({\
-    WRITE_COUNT_UP(1); \
+    WRITE_COUNT_UP(); \
     char bt_tmp = NVM_read(&bitmapaddr[index/8]) & ~(1 << ((index)%8));\
     NVM_write_varsize(&bitmapaddr[index/8], &bt_tmp, sizeof(char)); \
 })
