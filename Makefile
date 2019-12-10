@@ -98,7 +98,7 @@ make-test:
 	$(CXX) -o $(BUILD_DIR)/$@ $+ $(NVHTM_LIB) $(CFLAGS)
 
 %.o:%.c $(BUILD_DIR)
-	$(CC) -o $@ $(CFLAGS) -c $+
+	$(CC) -o $@ $(CFLAGS) -c $<
 
 $(NVHTM_LIB): libhtm_sgl.a libminimal_nvm.a
 	cp -R $(NVHTM_MOD_DIR)/* $(NVHTM_DIR)

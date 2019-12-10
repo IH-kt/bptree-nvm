@@ -7,12 +7,6 @@ extern "C" {
 #include <assert.h>
 #include <pthread.h>
 
-#define MIN_KEY 124
-#define MIN_DEG (MIN_KEY+1)
-#define MAX_KEY (2*MIN_KEY+1)
-#define MAX_DEG (MAX_KEY+1)
-#define MAX_PAIR 253 
-
 /* definition of structs */
 /* value should be NULL and key must be 0 when pair is unused.
  * valid key should be larger than 0.

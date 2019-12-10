@@ -25,6 +25,12 @@ extern "C" {
 #  define LOCK 0
 #endif
 
+#define MIN_KEY 124
+#define MIN_DEG (MIN_KEY+1)
+#define MAX_KEY (2*MIN_KEY+1)
+#define MAX_DEG (MAX_KEY+1)
+#define MAX_PAIR 253 
+
 #include "allocator.h"
 extern ppointer PADDR_NULL;
 
