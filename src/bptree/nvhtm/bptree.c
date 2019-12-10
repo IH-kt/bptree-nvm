@@ -67,23 +67,18 @@ void initLeafNode(LeafNode *node, unsigned char tid) {
     int i;
     char zchar = 0;
     int zint = 0;
-    for (i = 0; i < MAX_PAIR; i++) {
-        initKeyValuePair(&node->kv[i]);
-    }
-    ppointer new_pleaf_p = pst_mem_allocate(sizeof(LeafNode), tid);
-    LeafNode *new_pleaf = (LeafNode *)getTransientAddr(new_pleaf_p);
     // ここのトランザクションは呼び出し元で実装されていることを前提として削除
     // NVHTM_begin();
     void *null_var = NULL;
-    NVM_write_varsize(&new_pleaf->next, &null_var, sizeof(NULL));
-    NVM_write_varsize(&new_pleaf->prev, &null_var, sizeof(NULL));
-    NVM_write_varsize(&new_pleaf->pnext, &P_NULL, sizeof(P_NULL));
+    NVM_write_varsize(&node->next, &null_var, sizeof(NULL));
+    NVM_write_varsize(&node->prev, &null_var, sizeof(NULL));
+    NVM_write_varsize(&node->pnext, &P_NULL, sizeof(P_NULL));
     for (i = 0; i < MAX_PAIR; i++) {
-        initKeyValuePair(&new_pleaf->kv[i]);
+        initKeyValuePair(&node->kv[i]);
     }
-    NVM_write_varsize(&new_pleaf->lock, &zchar, sizeof(char));
-    NVM_write_varsize(&new_pleaf->key_length, &zint, sizeof(int));
-    NVM_write_varsize(&new_pleaf->tid, &tid, sizeof(unsigned char));
+    NVM_write_varsize(&node->lock, &zchar, sizeof(char));
+    NVM_write_varsize(&node->key_length, &zint, sizeof(int));
+    NVM_write_varsize(&node->tid, &tid, sizeof(unsigned char));
     // NVHTM_end();
 }
 
