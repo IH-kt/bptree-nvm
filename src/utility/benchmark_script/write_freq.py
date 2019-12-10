@@ -7,35 +7,35 @@ import os
 import subprocess
 import csv
 import pandas as pd
+import shutil
 exefiles = ["insert_concurrent.exe"]
-exp_loop_times = range(3)
-warmup_num = 500000 # 元からある要素の数
-trial_num = 500000 # 検索・追加する回数
-thread_num = [17] # スレッド数
+warmup_num = int(sys.argv[1]) # 元からある要素の数
+trial_num = int(sys.argv[2]) # 検索・追加する回数
+thread_num = eval(sys.argv[3]) # スレッド数
 # vrampath = "/home/iiboshi/dramdir"
-pmempath = "/mnt/nvmm/iiboshi/data"
-pmemlogpath = "/mnt/nvmm/iiboshi/log"
+pmempath = sys.argv[4]
+pmemlogpath = sys.argv[5]
 # linestyles = ["ro-", "b.-", "gs-", "k+-", "y^-", "c*-", "m1-", "kD-", "kx-", "k3-"]
 
-def exp():
+print(thread_num)
+
+def exp_loop():
     try:
-        cmd = ['./' + exefiles[0], str(warmup_num), str(trial_num), str(warmup_num + trial_num), str(thread_num[0]), pmempath, pmemlogpath]
-        print(cmd)
-        result = subprocess.run(cmd, stdout = subprocess.PIPE, stderr = None).stdout.decode("utf8")
+        for i in thread_num:
+            cmd = ['./' + exefiles[0], str(warmup_num), str(trial_num), str(warmup_num + trial_num), str(i), pmempath, pmemlogpath]
+            print(cmd)
+            spres = subprocess.run(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+            shutil.move('./write_freq.txt', './write_freq' + str(i) + '.txt')
+            with open(exefiles[0] + ".thr" + str(i) + ".dmp", mode='w', encoding="utf-8") as f:
+                f.write(spres.stderr.decode("utf8"))
     except NameError as err:
         print("NameError: {0}".format(err))
     except:
         print("execution error.", sys.exc_info());
-    return result
 
 for fn in exefiles:
     if not os.path.exists(fn):
         print(fn + " not exists.")
         sys.exit()
 
-results = exp()
-
-print(results)
-np.save('result_raw.npy', results)
-results_dataframe = pd.DataFrame(results, index=exefiles, columns=thread_num).T
-results_dataframe.to_csv('result.csv')
+exp_loop()

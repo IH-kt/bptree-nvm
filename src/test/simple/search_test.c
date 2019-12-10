@@ -9,6 +9,7 @@
 int main(int argc, char *argv[]) {
     BPTree *bpt;
     KeyValuePair kv;
+    SearchResult sr;
     int loop_times = 40;
     int max_val = 1000;
     if (argc > 1) {
@@ -43,7 +44,6 @@ int main(int argc, char *argv[]) {
         }
     }
     showTree(bpt, 1);
-    SearchResult sr;
     for (int i = 1; i <= loop_times; i++) {
         kv.key = i;
         printf("search %ld\n", kv.key);

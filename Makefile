@@ -25,11 +25,13 @@ else
 	CONCURRENT :=
 endif
 ifeq ($(type), nvhtm)
-	CONCURRENT := -DCONCURRENT
-	NVHTM := -DNVHTM
-	NVHTM_LIB := $(BUILD_DIR)/libnh.a
+	CONCURRENT	:= -DCONCURRENT
+	NVHTM		:= -DNVHTM
+	NVHTM_LIB	:= $(BUILD_DIR)/libnh.a
+	NVHTM_CLEAN	:= nvhtm-clean
 else
 	NVHTM :=
+	NVHTM_CLEAN	:=
 endif
 ifeq ($(time), time_part)
 	TIME_PART := -DTIME_PART
@@ -62,7 +64,7 @@ ifeq ($(fw), 1)
 	FW		:= -DFREQ_WRITE
 	DMN_DIR	:= $(ROOT_DIR)/dummy_min-nvm_wfreq
 else
-	FW	:=
+	FW		:=
 	DMN_DIR	:= $(ROOT_DIR)/dummy_min-nvm
 endif
 ifeq ($(ts), 1)
@@ -73,8 +75,6 @@ endif
 
 DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA) $(FW) $(TS)
 
-CC=gcc
-CXX=g++
 CFLAGS=-O0 -g -march=native -pthread $(DEFINES) -I$(INCLUDE_DIR) $(NVHTM_CFLAGS)
 
 ALLOCATOR_OBJ=$(ALLOCATOR_SRC:%.c=%.o)
@@ -87,11 +87,17 @@ ALL_OBJ			:= $(ALL_EXE:%.exe=%.o)
 
 all: $(ALL_EXE)
 
+include ./Makefile_bench.inc
+
+make-test:
+	echo $(NVHTM_MAKE_ARGS)
+	echo $(logsz)
+	echo $(LOGSZ)
+
 %.exe:%.o $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(NVHTM_LIB)
 	$(CXX) -o $(BUILD_DIR)/$@ $+ $(NVHTM_LIB) $(CFLAGS)
 
-%.o:%.c
-	mkdir -p $(BUILD_DIR)
+%.o:%.c $(BUILD_DIR)
 	$(CC) -o $@ $(CFLAGS) -c $+
 
 $(NVHTM_LIB): libhtm_sgl.a libminimal_nvm.a
@@ -109,13 +115,16 @@ libminimal_nvm.a:
 	cp -R $(DMN_DIR)/* $(MIN_NVM_DIR)
 	(cd $(MIN_NVM_DIR); ./compile.sh)
 
-test-make:
-	echo $(NVHTM_CFLAGS)
-
 clean:
 	rm -f $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(ALL_OBJ)
 
-dist-clean: clean
-	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE)) $(NVHTM_LIB) $(MIN_NVM_DIR)/bin/libminimal_nvm.a $(NVHTM_DIR)/DEPENDENCIES/htm_alg/bin/libhtm_sgl.a
-	(cd $(NVHTM_DIR); git checkout .; make clean)
-	(cd $(NVHTM_SC_DIR); git checkout .)
+nvhtm-clean:
+	rm -f $(NVHTM_LIB) $(MIN_NVM_DIR)/bin/libminimal_nvm.a $(NVHTM_DIR)/DEPENDENCIES/htm_alg/bin/libhtm_sgl.a
+	(cd $(NVHTM_DIR) && git checkout . && make clean)
+	(cd $(NVHTM_SC_DIR) && git checkout .)
+
+dist-clean: clean $(NVHTM_CLEAN)
+	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE))
+
+$(BUILD_DIR):
+	mkdir -p build

@@ -9,12 +9,11 @@ import csv
 import pandas as pd
 exefiles = ["insert_concurrent.exe", "search_concurrent.exe", "delete_concurrent.exe"]
 exp_loop_times = range(3)
-warmup_num = 50000000 # 元からある要素の数
-trial_num = 50000000 # 検索・追加する回数
-thread_num = range(1, 27, 5) # スレッド数
-# vrampath = "/home/iiboshi/dramdir"
-pmempath = "/mnt/nvmm/iiboshi/data"
-pmemlogpath = "/mnt/nvmm/iiboshi/log"
+warmup_num = int(sys.argv[1]) # 元からある要素の数
+trial_num = int(sys.argv[2]) # 検索・追加する回数
+thread_num = eval(sys.argv[3]) # スレッド数
+pmempath = sys.argv[4]
+pmemlogpath = sys.argv[5]
 # linestyles = ["ro-", "b.-", "gs-", "k+-", "y^-", "c*-", "m1-", "kD-", "kx-", "k3-"]
 
 def exp_loop(filename, mode, mempath):
@@ -28,9 +27,10 @@ def exp_loop(filename, mode, mempath):
             print(cmd)
             for j in exp_loop_times:
                 print("trial " + str(j+1))
-                spres = subprocess.run(cmd, stdout = subprocess.PIPE, stderr = None).stdout.decode("utf8")
-                print(spres);
-                inner_result_array.append(float(spres));
+                spres = subprocess.run(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+                inner_result_array.append(float(spres.stdout.decode("utf8")));
+                with open(filename + ".thr" + str(i) + ".dmp", mode='w', encoding="utf-8") as f:
+                    f.write(spres.stderr.decode("utf8"))
             result_array.append(inner_result_array);
     except NameError as err:
         print("NameError: {0}".format(err))
@@ -47,34 +47,6 @@ results = []
 for fn in exefiles:
     results.append(exp_loop(fn, "i", ""))
 
-print(results)
 np.save('result_raw.npy', results)
 results_dataframe = pd.DataFrame(np.median(results, axis=2), index=exefiles, columns=thread_num).T
-print(results_dataframe)
-print("max=", results_dataframe.max().max())
 results_dataframe.to_csv('result.csv')
-results_dataframe.plot(xlim=[1, max(thread_num)], ylim=[0, results_dataframe.max().max() * 1.1])
-plt.savefig('result_fig.png')
-# 
-# isres.plot(style=linestyles, logy=True)
-# plt.savefig('insres.png')
-# insert_file = open('insert_result.csv', 'w')
-# search_file = open('search_result.csv', 'w')
-# 
-# insert_writer = csv.writer(insert_file, lineterminator='\n')
-# search_writer = csv.writer(search_file, lineterminator='\n')
-# insert_writer.writerows(insert_results[0])
-# search_writer.writerows(search_results[0])
-# 
-# insert_file.close()
-# search_file.close()
-
-# insert_vram_result_np = np.array(insert_vram_result)
-# search_vram_result_np = np.array(search_vram_result)
-# 
-# insert_vram_result_np = np.sort(insert_vram_result, axis = 1)
-# search_vram_result_np = np.sort(search_vram_result, axis = 1)
-# 
-# insert_vram_result_mean = np.mean(insert_vram_result_np, axis = 1)
-# insert_vram_result_min10 = insert_vram_result_np[(insert_vram_result_np.shape[0]/10)]
-# insert_vram_result_max90 = insert_vram_result_np[(insert_vram_result_np.shape[0]* 9/10)]

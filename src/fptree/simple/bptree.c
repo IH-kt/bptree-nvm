@@ -118,6 +118,7 @@ void destroyBPTree(BPTree *tree, unsigned char tid) {
     root_free(tree->pmem_head);
     vol_mem_free(tree);
     fprintf(stderr, "write count: %lu\n", GET_WRITE_COUNT());
+    SHOW_FREQ_WRITE();
 }
 
 int lockLeaf(LeafNode *target) {

@@ -2,6 +2,7 @@ ROOT_DIR    := .
 BUILD_DIR   := $(ROOT_DIR)/build
 SRC_DIR     := $(ROOT_DIR)/src
 INCLUDE_DIR := $(ROOT_DIR)/include
+RESULT_DIR  := $(ROOT_DIR)/res
 
 SIMPLE      := simple
 CONCURRENT  := concurrent
