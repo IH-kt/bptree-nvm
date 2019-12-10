@@ -119,9 +119,6 @@ int LOG_checkpoint_backward_apply_one()
   unordered_map<GRANULE_TYPE*, CL_BLOCK> writes_map;
   vector<GRANULE_TYPE*> writes_list;
 
-  writes_list.reserve(32000);
-  writes_map.reserve(32000);
-
   // find target ts, and the idx in the log
   ts_s target_ts = 0;
   int pos[TM_nb_threads], pos_to_start[TM_nb_threads];
@@ -134,18 +131,18 @@ int LOG_checkpoint_backward_apply_one()
     log_end = log->end;
     dist = distance_ptr(log_start, log_end);
     // sum_dist += dist;
-    if (dist < TOO_EMPTY) {
-      too_empty = true;
-    }
-    if (dist > TOO_FULL) {
-      someone_passed = true;
-      too_full = true;
-    }
+    // if (dist < TOO_EMPTY) {
+    //   too_empty = true;
+    // }
+    // if (dist > TOO_FULL) {
+    //   someone_passed = true;
+    //   too_full = true;
+    // }
     if (dist > APPLY_BACKWARD_VAL) {
       j = ends[i];
       someone_passed = true;
     }
-    if (log->size_of_log - dist < 256) {
+    if (log->size_of_log - dist < 2048) {
       someone_passed = true;
     }
   }
@@ -177,6 +174,9 @@ int LOG_checkpoint_backward_apply_one()
   __sync_synchronize();
   while (sem_trywait(NH_chkp_sem) != -1);
   __sync_bool_compare_and_swap(NH_checkpointer_state, 1, 0); // doing checkpoint
+
+  writes_list.reserve(32000);
+  writes_map.reserve(32000);
 
   // first find target_ts, then the remaining TSs
   // TODO: keep the minimum anchor

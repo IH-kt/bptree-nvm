@@ -63,7 +63,7 @@ void initKeyValuePair(KeyValuePair *pair) {
 }
 
 void initLeafNode(LeafNode *node, unsigned char tid) {
-    int test[1]; printf("%d", test[100]);
+    //int test[1]; printf("%d", test[100]);
     int i;
     char zchar = 0;
     int zint = 0;
@@ -259,7 +259,7 @@ int compareKeyPositionPair(const void *a, const void *b) {
 }
 
 void findSplitKey(LeafNode *target, Key *split_key) {
-    showLeafNode(target, 1);
+    // showLeafNode(target, 1);
     *split_key = NVM_read(&target->kv[MAX_PAIR/2-1].key); // this becomes parent key
 }
 

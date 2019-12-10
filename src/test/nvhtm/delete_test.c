@@ -22,7 +22,11 @@ int main(int argc, char *argv[]) {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
 
+#ifdef BPTREE
+    size_t allocation_size = sizeof(LeafNode) * ((loop_times / (MAX_PAIR / 2)) + 3) + sizeof(AllocatorHeader);
+#else
     size_t allocation_size = sizeof(PersistentLeafNode) * ((loop_times / (MAX_PAIR / 2)) + 3) + sizeof(AllocatorHeader);
+#endif
     set_log_file_name("./log");
     NVHTM_init(3);
     void *pool = NH_alloc("./data", allocation_size);

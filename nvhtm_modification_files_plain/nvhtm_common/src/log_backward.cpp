@@ -86,6 +86,7 @@ int LOG_checkpoint_backward_apply_one()
   } CL_BLOCK;
 
   sem_wait(NH_chkp_sem);
+  _mm_sfence();
   *NH_checkpointer_state = 1; // doing checkpoint
   __sync_synchronize();
 

@@ -102,7 +102,11 @@ int main(int argc, char *argv[]) {
 
     NVHTM_init(2);
 
+#ifdef BPTREE
+    size_t pool_sz = sizeof(LeafNode) * loop_times + 100000;
+#else
     size_t pool_sz = sizeof(PersistentLeafNode) * loop_times + 100000;
+#endif
     printf("pool_sz=%lu\n", pool_sz);
     void *pool = NH_alloc("data", pool_sz);
     // void *pool = NH_alloc(pool_sz);

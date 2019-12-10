@@ -249,8 +249,10 @@ extern "C"
 		int log_end, log_start; \
 		log_end = log->end; log_start = log->start; \
 		while (!(distance_ptr(log_start, log_end) <= \
-		distance_ptr(log_start, LOG_local_state.end))) \
+		distance_ptr(log_start, LOG_local_state.end))) {\
 		log_start = log->start; \
+        if (*NH_checkpointer_state == 0) sem_post(NH_chkp_sem); \
+        }\
 		MN_write(&(log->end), &(LOG_local_state.end), \
 			sizeof(LOG_local_state.end), 0); \
 		/* MN_count_spins++; */ \

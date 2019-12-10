@@ -22,7 +22,11 @@ int main(int argc, char *argv[]) {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
 
+#ifdef BPTREE
+    size_t allocation_size = sizeof(LeafNode) * ((loop_times * 2 / (MAX_PAIR / 2)) + 3) + sizeof(AllocatorHeader);
+#else
     size_t allocation_size = sizeof(PersistentLeafNode) * ((loop_times * 2 / (MAX_PAIR / 2)) + 3) + sizeof(AllocatorHeader);
+#endif
     set_log_file_name("./log");
     NVHTM_init(3);
     void *pool = NH_alloc("./data", allocation_size);
@@ -34,7 +38,6 @@ int main(int argc, char *argv[]) {
     bpt = newBPTree();
     kv.key = 1;
     kv.value = 1;
-    NVHTM_thr_init();
     for (int i = 1; i <= loop_times; i++) {
         kv.key = i;
         printf("insert %ld\n", kv.key);
@@ -55,7 +58,6 @@ int main(int argc, char *argv[]) {
             printf("failure\n");
         }
     }
-    NVHTM_thr_exit();
 
     showTree(bpt, 1);
     destroyAllocator();

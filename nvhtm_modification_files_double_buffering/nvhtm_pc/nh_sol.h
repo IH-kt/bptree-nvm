@@ -39,13 +39,14 @@ extern "C"
 	LOG_local_state.end = nvm_htm_local_log->end;                                                      \
 	LOG_local_state.counter = distance_ptr((int)LOG_local_state.start,                   \
 										   (int)LOG_local_state.end);                    \
-    if ((LOG_local_state.size_of_log - LOG_local_state.counter) < 256)            \
+    if ((LOG_local_state.size_of_log - LOG_local_state.counter) < 2048)            \
     {                                                                             \
       /*printf("sgl %d: not enough space -> %d - %d\n", tid, LOG_local_state.size_of_log, LOG_local_state.counter);*/                                  \
       persistent_checkpointing[id] = 0;                                          \
     /*printf("before_sgl_begin unset:%d\n", tid);*/\
       __sync_synchronize();                                                       \
-      while ((LOG_local_state.size_of_log - LOG_local_state.counter) < 256)       \
+      while (sem_trywait(NH_chkp_sem) != -1);\
+      while ((LOG_local_state.size_of_log - LOG_local_state.counter) < 2048)       \
       {                                                                           \
           int sem_val;\
           if ((*NH_checkpointer_state) == 0) sem_post(NH_chkp_sem);                                                      \
@@ -72,7 +73,7 @@ extern "C"
       LOG_local_state.end = nvm_htm_local_log->end;                                                      \
       LOG_local_state.counter = distance_ptr((int)LOG_local_state.start,                   \
               (int)LOG_local_state.end);                    \
-      /*printf("sgl %d: exiting -> %d - %d\n", tid, LOG_local_state.size_of_log, LOG_local_state.counter);*/                                  \
+      /*printf("sgl %d: exiting -> %d - %d\n", tid, LOG_local_state.size_of_log, LOG_local_state.counter)*/;                                  \
     }                                                                             \
   /*printf("AftrSGLBgn %d-%d: start = %d, end = %d, local start = %d, local end = %d, counter = %d\n", tid, id, NH_global_logs[id]->start, NH_global_logs[id]->end, LOG_local_state.start, LOG_local_state.end, LOG_local_state.counter);*/\
   }
