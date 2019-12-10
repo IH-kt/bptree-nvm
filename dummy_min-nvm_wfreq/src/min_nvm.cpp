@@ -153,10 +153,10 @@ void MN_enter()
     close(fd);
     *nvhtm_freq_write_buf_index = 0;
 
-    fd = open("nvhtm_write_freq.txt", O_RDWR);
+    fd = open("write_freq.txt", O_RDWR);
     if (fd == -1) {
         if (errno == ENOENT) {
-            fd = open("nvhtm_write_freq.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+            fd = open("write_freq.txt", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
         }
         if (fd == -1) {
             perror("open");
