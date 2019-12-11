@@ -431,9 +431,9 @@ void NVMHTM_init_thrs(int nb_threads)
 
   *NH_checkpointer_state = 0;
 
-  persistent_checkpointing = (int *)ALLOC_MEM("ckp_shm.shm", sizeof (int) * nb_threads);
+  persistent_checkpointing = (pschkp_t *)ALLOC_MEM("ckp_shm.shm", sizeof (pschkp_t) * nb_threads);
   for (int i = 0; i < nb_threads; i++) {
-      persistent_checkpointing[i] = 0;
+      persistent_checkpointing[i].flag = 0;
   }
 
   if (!is_started) {

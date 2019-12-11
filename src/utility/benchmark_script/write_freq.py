@@ -28,6 +28,7 @@ def exp_loop():
             shutil.move('./write_freq.txt', './write_freq' + str(i) + '.txt')
             with open(exefiles[0] + ".thr" + str(i) + ".dmp", mode='w', encoding="utf-8") as f:
                 f.write(spres.stderr.decode("utf8"))
+                f.write(spres.stdout.decode("utf8"))
     except NameError as err:
         print("NameError: {0}".format(err))
     except:

@@ -393,3 +393,18 @@ static void init_log(NVLog_s *new_log, int tid, int fresh)
 
   NH_global_logs[tid] = new_log;
 }
+
+void NH_start_freq() {
+    MN_start_freq();
+}
+
+void NH_reset_nb_cp() {
+    *NH_checkpointer_state = 2;
+    sem_post(NH_chkp_sem);
+    while (*NH_checkpointer_state != 4) {
+        __sync_bool_compare_and_swap(NH_checkpointer_state, 0, 2);
+        PAUSE();
+    }
+    *NH_checkpointer_state = 0;
+    return;
+}

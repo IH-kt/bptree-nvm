@@ -65,7 +65,6 @@ extern CL_ALIGN tx_counters_s *htm_tx_val_counters;
 extern CL_ALIGN __thread int LOG_nb_writes;
 
 extern __thread void *log_at_tx_start;
-extern int *persistent_checkpointing;
 
 // ##########################
 // include from the solution

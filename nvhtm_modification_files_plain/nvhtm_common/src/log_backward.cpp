@@ -86,6 +86,15 @@ int LOG_checkpoint_backward_apply_one()
   } CL_BLOCK;
 
   sem_wait(NH_chkp_sem);
+  if ((*NH_checkpointer_state) == 2) {
+      fprintf(stderr, "clearing Nb. checkpoints: %lld\n", NH_nb_checkpoints);
+      NH_nb_checkpoints = 0;
+      *NH_checkpointer_state = 4;
+      while (*NH_checkpointer_state != 0) {
+          PAUSE();
+      }
+      return 0;
+  }
   _mm_sfence();
   *NH_checkpointer_state = 1; // doing checkpoint
   __sync_synchronize();
@@ -318,7 +327,7 @@ int LOG_checkpoint_backward_apply_one()
     //            printf("s:%i t:%i e:%i d1:%i d2:%i \n", starts[i], pos_to_start[i], ends[i],
     //                   distance_ptr(starts[i], ends[i]), distance_ptr(pos_to_start[i], ends[i]));
 
-    MN_write(&(log->start), &(pos_to_start[i]), sizeof(int), 0);
+    MN_write(&(log->start), &(pos_to_start[i]), sizeof(int), 1);
     // log->start = pos_to_start[i];
     // TODO: snapshot the old ptrs before moving them
   }

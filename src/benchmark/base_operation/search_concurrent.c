@@ -149,6 +149,11 @@ int main(int argc, char *argv[]) {
     arg[i]->loop = loop_times / thread_max + loop_times % thread_max;
     tid_array[i] = bptreeCreateThread(bpt, search_random, arg[i]);
 
+#ifdef NVHTM
+    NH_start_freq();
+#else
+    FREQ_WRITE_START();
+#endif
     clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
     bptreeStartThread();
 

@@ -6,6 +6,13 @@ __thread unsigned int times_of_lock = 0;
 __thread unsigned int times_of_transaction = 0;
 #endif
 
+#ifdef FREQ_WRITE
+unsigned int wrote_size_tmp = 0;
+char freq_write_buf[FREQ_WRITE_BUFSZ];
+int freq_write_buf_index = 0;
+int freq_write_start = 0;
+#endif
+
 #ifdef TIME_PART
 __thread double internal_alloc_time = 0;
 __thread double leaf_alloc_time = 0;

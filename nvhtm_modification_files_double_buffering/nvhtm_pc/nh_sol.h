@@ -27,10 +27,10 @@ extern "C"
     int id = TM_tid_var;\
     TM_inc_fallback(tid);\
     while (*NH_checkpointer_state) {                                        \
-        if (persistent_checkpointing[id]) persistent_checkpointing[id] = 0;\
+        if (persistent_checkpointing[id].flag) persistent_checkpointing[id].flag = 0;\
       PAUSE();                                                                    \
     }\
-    persistent_checkpointing[id] = 1;                                            \
+    persistent_checkpointing[id].flag = 1;                                            \
     /*printf("before_sgl_begin set:%d\n", tid);*/\
     __sync_synchronize();                                                         \
     log_at_tx_start = NH_global_logs;                                               \
@@ -42,7 +42,7 @@ extern "C"
     if ((LOG_local_state.size_of_log - LOG_local_state.counter) < 2048)            \
     {                                                                             \
       /*printf("sgl %d: not enough space -> %d - %d\n", tid, LOG_local_state.size_of_log, LOG_local_state.counter);*/                                  \
-      persistent_checkpointing[id] = 0;                                          \
+      persistent_checkpointing[id].flag = 0;                                          \
     /*printf("before_sgl_begin unset:%d\n", tid);*/\
       __sync_synchronize();                                                       \
       while (sem_trywait(NH_chkp_sem) != -1);\
@@ -64,7 +64,7 @@ extern "C"
           /*printf("after_sgl_begin\n");*/\
       }                                                                           \
       _mm_sfence();                                                               \
-      persistent_checkpointing[id] = 1;                                          \
+      persistent_checkpointing[id].flag = 1;                                          \
     /*printf("before_sgl_begin2 set:%d\n", tid);*/\
       __sync_synchronize();                                                       \
       log_at_tx_start = NH_global_logs;                                             \
@@ -80,7 +80,7 @@ extern "C"
 
 #undef BEFORE_TRANSACTION_i
 #define BEFORE_TRANSACTION_i(tid, budget)           \
-  while (*NH_checkpointer_state) { if (persistent_checkpointing[TM_tid_var]) persistent_checkpointing[TM_tid_var] = 0; }        \
+  while (*NH_checkpointer_state) { if (persistent_checkpointing[TM_tid_var].flag) persistent_checkpointing[TM_tid_var].flag = 0; }        \
   LOG_get_ts_before_tx(tid);                        \
   LOG_before_TX();                                  \
   log_at_tx_start = NH_global_logs;                   \
@@ -90,7 +90,7 @@ extern "C"
 
 #undef BEFORE_COMMIT
 #define BEFORE_COMMIT(tid, budget, status)             \
-  persistent_checkpointing[TM_tid_var] = 1;                   \
+  persistent_checkpointing[TM_tid_var].flag = 1;                   \
     /*printf("before_commit set:%d\n", tid);*/\
   if (NH_global_logs != log_at_tx_start)                          \
   {                                                    \
@@ -109,7 +109,7 @@ extern "C"
 #undef AFTER_TRANSACTION_i
 #define AFTER_TRANSACTION_i(_tid, budget) ({                                   \
   /*printf("AftTrnsctn %d-%d: start = %d, end = %d, local start = %d, local end = %d\n", _tid, TM_tid_var, NH_global_logs[TM_tid_var]->start, NH_global_logs[TM_tid_var]->end, LOG_local_state.start, LOG_local_state.end);*/\
-  if (((*NH_checkpointer_state) && persistent_checkpointing[TM_tid_var] != 1) || log_at_tx_start != NH_global_logs) {\
+  if (((*NH_checkpointer_state) && persistent_checkpointing[TM_tid_var].flag != 1) || log_at_tx_start != NH_global_logs) {\
     fprintf(stderr, "didn't aborted???\n");\
     assert(0);\
   }\
@@ -124,7 +124,7 @@ extern "C"
   CHECK_AND_REQUEST(_tid);                                                     \
   TM_inc_local_counter(_tid);                                                  \
   LOG_after_TX();                                                             \
-  assert(__sync_bool_compare_and_swap(&persistent_checkpointing[id], 1, 0)); \
+  assert(__sync_bool_compare_and_swap(&persistent_checkpointing[id].flag, 1, 0)); \
     /*printf("after_transaction unset:%d\n", _tid);*/\
 })
 
@@ -132,8 +132,8 @@ extern "C"
 #define AFTER_ABORT(tid, budget, status)                                       \
   /* NH_tx_time += rdtscp() - TM_ts1; */                                       \
   while (*NH_checkpointer_state) { \
-      if (persistent_checkpointing[TM_tid_var]) {\
-          persistent_checkpointing[TM_tid_var] = 0; \
+      if (persistent_checkpointing[TM_tid_var].flag) {\
+          persistent_checkpointing[TM_tid_var].flag = 0; \
       } \
     PAUSE(); \
   }        \

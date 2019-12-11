@@ -73,7 +73,7 @@ static int max_next_log(int *pos, int starts[], int ends[])
 static void wait_persistent_checkpointing(NVLog_s **log) {
     int i;
     for (i = 0; i < TM_nb_threads; i++) {
-        if (persistent_checkpointing[i] != 0) {
+        if (persistent_checkpointing[i].flag != 0) {
             break;
         }
     }
@@ -83,7 +83,7 @@ static void wait_persistent_checkpointing(NVLog_s **log) {
     while (1) {
         int pc_sum = 0;
         for (i = 0; i < TM_nb_threads; i++) {
-            pc_sum = pc_sum + persistent_checkpointing[i];
+            pc_sum = pc_sum + persistent_checkpointing[i].flag;
         }
         if (pc_sum == 0) {
             break;
@@ -109,9 +109,18 @@ int LOG_checkpoint_backward_apply_one()
     char bit_map;
   } CL_BLOCK;
 
-  assert(!(*NH_checkpointer_state));
+  assert(!(*NH_checkpointer_state == 1));
   sem_wait(NH_chkp_sem);
   // printf("received semaphore\n");
+  if ((*NH_checkpointer_state) == 2) {
+      fprintf(stderr, "clearing Nb. checkpoints: %lld\n", NH_nb_checkpoints);
+      NH_nb_checkpoints = 0;
+      *NH_checkpointer_state = 4;
+      while (*NH_checkpointer_state != 0) {
+          PAUSE();
+      }
+      return 0;
+  }
   __sync_bool_compare_and_swap(NH_checkpointer_state, 0, 1); // doing checkpoint
   __sync_synchronize();
 
@@ -265,7 +274,7 @@ int LOG_checkpoint_backward_apply_one()
   if (!target_ts) {
     // *NH_checkpointer_state = (*NH_checkpointer_state) & ~0x1; // doing checkpoint
     __sync_synchronize();
-    printf("checkpoint: not enough log\n");
+    fprintf(stderr, "checkpoint: not enough log\n");
     return 1; // there isn't enough transactions
   }
 
@@ -368,7 +377,7 @@ int LOG_checkpoint_backward_apply_one()
     //            printf("s:%i t:%i e:%i d1:%i d2:%i \n", starts[i], pos_to_start[i], ends[i],
     //                   distance_ptr(starts[i], ends[i]), distance_ptr(pos_to_start[i], ends[i]));
 
-    MN_write(&(log->start), &(pos_to_start[i]), sizeof(int), 0);
+    MN_write(&(log->start), &(pos_to_start[i]), sizeof(int), 1);
     // log->start = pos_to_start[i];
     // TODO: snapshot the old ptrs before moving them
   }

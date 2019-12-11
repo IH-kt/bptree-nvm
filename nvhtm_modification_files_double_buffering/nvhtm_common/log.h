@@ -140,6 +140,7 @@ extern "C"
 			&& log->end != log->start)) \
                 printf("check log abort:%d\n", tid);*/\
         /*printf("%d: check_log_abort -> size = %d, counter = %d, local start = %d, local end = %d, global start = %d, global end = %d, log_at_start = %p, current_log = %p\n", TM_tid_var, LOG_local_state.size_of_log, LOG_local_state.counter, LOG_local_state.start, LOG_local_state.end, log->start, log->end, log_at_tx_start, NH_global_logs);*/\
+        persistent_checkpointing[TM_tid_var].flag = 0;\
 		while ((LOG_local_state.counter == distance_ptr(log->start, log->end) \
 			&& (LOG_local_state.size_of_log - LOG_local_state.counter) < WAIT_DISTANCE) \
 			|| (distance_ptr(log->end, log->start) < WAIT_DISTANCE \
@@ -149,7 +150,6 @@ extern "C"
                 }\
 				PAUSE(); \
                 log = NH_global_logs[TM_tid_var]; \
-                persistent_checkpointing[TM_tid_var] = 0;\
                 /*printf("check_log_abort\n");*/\
 		} \
 		NH_count_blocks++; \
@@ -217,9 +217,6 @@ extern "C"
 #define LOG_push_addr(_tid, adr, val) ({                                 \
 	int id = TM_tid_var;                                                \
 	NVLog_s *log = _tid == id ? nvm_htm_local_log : NH_global_logs[id]; \
-    if (nvm_htm_local_log != NH_global_logs[_tid]) {\
-        HTM_named_abort(2);\
-    }\
 	WAIT_MORE_LOG(log); /* only waits on the addr */                    \
 	int end = LOG_local_state.end /* log->end */, new_end;              \
 	NVLogEntry_s entry;                                                 \
@@ -328,10 +325,18 @@ extern "C"
 	// This one moves start to start_ptr (may cause some contention)
 	void LOG_move_start_ptrs();
 	void LOG_handle_checkpoint();
+    void NH_start_freq();
+    void NH_reset_nb_cp();
 
 	#define ptr_mod_log(ptr, inc) ({ \
 		LOG_MOD2((long long)ptr + (long long)inc, LOG_local_state.size_of_log); \
 	})
+
+    typedef union pschkp_t {
+        int flag;
+        char pad[CACHE_LINE_SIZE];
+    } pschkp_t;
+extern pschkp_t *persistent_checkpointing;
 
 /*({ \
 		int res; \

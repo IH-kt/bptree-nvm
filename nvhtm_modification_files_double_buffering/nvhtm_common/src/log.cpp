@@ -68,6 +68,7 @@ static CL_ALIGN int log_lock;
 static CL_ALIGN int nb_applied_txs = 0; // DEBUG
 
 static char const *log_file_name = LOG_FILE;
+pschkp_t *persistent_checkpointing = NULL;
 
 // ################ variables (thread-local)
 
@@ -112,25 +113,26 @@ void LOG_init(int nb_threads, int fresh)
   // printf("Number of threads: %i\n", TM_nb_threads);
 
   if (nh_glog_ref == NULL) {
-    char *log_pool = (char *)ALLOC_MEM(log_file_name, sizeof(NVLog_s **) + 2 * (CACHE_LINE_SIZE * nb_threads) + size_of_logs * 2);
+    ALLOC_FN(_NH_global_logs1, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
+    ALLOC_FN(_NH_global_logs2, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
+    char *log_pool = (char *)ALLOC_MEM(log_file_name, (sizeof(NVLog_s***) + (CACHE_LINE_SIZE - sizeof(NVLog_s***) % CACHE_LINE_SIZE)) + size_of_logs * 2);
     nh_glog_ref = (NVLog_s***)log_pool;
-    _NH_global_logs1 = (NVLog_s**)(log_pool + sizeof(NVLog_s **));
-    _NH_global_logs2 = (NVLog_s**)(log_pool + sizeof(NVLog_s **) + CACHE_LINE_SIZE * nb_threads);
     *nh_glog_ref = _NH_global_logs1;
-    fprintf(stderr, "log_size = %lu\n", size_of_logs);
-    fprintf(stderr, "log_size_per_thread = %lu\n", (unsigned long)NVMHTM_LOG_SIZE);
-    fprintf(stderr, "log1 = %p\n", _NH_global_logs1);
-    fprintf(stderr, "log2 = %p\n", _NH_global_logs2);
 
-    LOG_global_ptr = log_pool + sizeof(NVLog_s **) + 2 * (CACHE_LINE_SIZE * nb_threads);
+    LOG_global_ptr = log_pool + (sizeof(NVLog_s***) + (CACHE_LINE_SIZE - sizeof(NVLog_s***) % CACHE_LINE_SIZE));
     memset(LOG_global_ptr, 0, size_of_logs);
     fresh = 1; // this is not init to 0
+    fprintf(stderr, "log_size = %lu\n", size_of_logs);
+    fprintf(stderr, "log_size_per_thread = %lu\n", (unsigned long)NVMHTM_LOG_SIZE);
+    fprintf(stderr, "nh_glog_ref = %p\n", nh_glog_ref);
+    fprintf(stderr, "LOG_global_ptr = %p\n", LOG_global_ptr);
+    fprintf(stderr, "log1 = %p\n", _NH_global_logs1);
+    fprintf(stderr, "log2 = %p\n", _NH_global_logs2);
     // key_t key = KEY_LOGS;
 
     // int shmid = shmget(key, size_of_logs, 0777 | IPC_CREAT);
     // // first detach, reallocation may fail
-    // // shmctl(shmid, IPC_RMID, NULL);
-    // // shmid = shmget(key, NVMHTM_LOG_SIZE, 0777 | IPC_CREAT);
+    // // shmctl(shmid, IPC_RMID, NULL)    // // shmid = shmget(key, NVMHTM_LOG_SIZE, 0777 | IPC_CREAT);
 
     // LOG_global_ptr = shmat(shmid, (void *)0, 0);
     // memset(LOG_global_ptr, 0, size_of_logs);
@@ -409,4 +411,19 @@ static void init_log(NVLog_s **to_log, NVLog_s *new_log, int tid, int fresh)
   // TODO: loads a bit of the log to cache
 
   to_log[tid] = new_log;
+}
+
+void NH_start_freq() {
+    MN_start_freq();
+}
+
+void NH_reset_nb_cp() {
+    *NH_checkpointer_state = 2;
+    sem_post(NH_chkp_sem);
+    while (*NH_checkpointer_state != 4) {
+        __sync_bool_compare_and_swap(NH_checkpointer_state, 0, 2);
+        PAUSE();
+    }
+    *NH_checkpointer_state = 0;
+    return;
 }

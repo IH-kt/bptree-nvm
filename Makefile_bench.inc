@@ -20,23 +20,23 @@ MAX_VAL	:= $(shell expr $(WARM_UP) + $(LOOP_TIMES))
 ifdef logsz
 	LOGSZ	:= $(logsz)
 else
-	LOGSZ	:= 1048576
+	LOGSZ	:= 100000
 endif
 NVHTM_MAKE_ARGS += LOG_SIZE=$(LOGSZ)
 ifdef logmax
 	LOGMAX	:= $(logmax)
 else
-	LOGMAX	:= 12582912
+	LOGMAX	:= 10000000
 endif
 ifdef logstep
 	LOGSTP	:= $(logstep)
 else
-	LOGSTP	:= 4194304
+	LOGSTP	:= 200000
 endif
 ifdef logstart
 	LOGSTT	:= $(logstart)
 else
-	LOGSTT	:= 4194304
+	LOGSTT	:= 10000
 endif
 
 ifdef thrmax
