@@ -12,7 +12,6 @@ def get_logsz_dir(path):
     for f in files:
         if (os.path.isdir(os.path.join(path, f)) and re.match(r'logsz_.\d+', f)):
             logsz_dirs.append(path + f)
-            print(logsz_dirs)
     return sorted(logsz_dirs, key=lambda s: int(s.split('logsz_')[1]))
 
 line_style = ['ro-', 'gv-', 'b^-', 'k*-']
