@@ -4,21 +4,29 @@ from matplotlib import pyplot as plt
 import matplotlib as mpl
 import sys
 import os
+import re
+
+def get_logsz_dir(path):
+    files = os.listdir(path)
+    logsz_dirs = []
+    for f in files:
+        if (os.path.isdir(os.path.join(path, f)) and re.match(r'logsz_.\d+', f)):
+            logsz_dirs.append(path + f)
+            print(logsz_dirs)
+    return sorted(logsz_dirs, key=lambda s: int(s.split('logsz_')[1]))
 
 line_style = ['ro-', 'gv-', 'b^-', 'k*-']
 
-result_file_dirs = sys.argv[1:]
-if (len(result_file_dirs) < 2):
-    print("too few arguments")
-    sys.exit()
+# result_file_dirs = sys.argv[1:]
+# if (len(result_file_dirs) < 2):
+#     print("too few arguments")
+#     sys.exit()
 
-print(result_file_dirs)
-print (len(result_file_dirs)/2)
-res_dir_len = len(result_file_dirs)
-res_dir_len_half = int(len(result_file_dirs)/2)
+# result_file_dirs_1 = get_logsz_dir(result_file_dirs[0])
+# result_file_dirs_2 = get_logsz_dir(result_file_dirs[1])
 
-result_file_dirs_1 = result_file_dirs[:res_dir_len_half]
-result_file_dirs_2 = result_file_dirs[res_dir_len_half:]
+result_file_dirs_1 = get_logsz_dir('../elapsed_time/bptree_nvhtm_0/')
+result_file_dirs_2 = get_logsz_dir('../elapsed_time/bptree_nvhtm_1/')
 
 print(result_file_dirs_1)
 print(result_file_dirs_2)
