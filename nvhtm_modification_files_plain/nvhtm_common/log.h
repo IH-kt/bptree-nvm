@@ -118,7 +118,7 @@ extern "C"
 	})
 
 	// TODO: there are aborts marked as EXPLICIT when the log is empty, WHY?
-	#define CHECK_LOG_ABORT(TM_tid_var, TM_status_var) \
+	#define CHECK_LOG_ABORT(_tid, TM_status_var) \
 	if (HTM_is_named(TM_status_var) == CODE_LOG_ABORT) { \
 		ts_s ts1_wait_log_time, ts2_wait_log_time; \
 		ts1_wait_log_time = rdtscp(); \
@@ -185,7 +185,7 @@ extern "C"
 	// void LOG_push_addr(int tid, GRANULE_TYPE *addr, GRANULE_TYPE value);
 	#define LOG_push_addr(tid, adr, val) ({ \
 		int id = TM_tid_var; \
-		NVLog_s *log = tid == id ? nvm_htm_local_log : NH_global_logs[tid]; \
+		NVLog_s *log = tid == id ? nvm_htm_local_log : NH_global_logs[id]; \
 		WAIT_MORE_LOG(log); /* only waits on the addr */ \
 		int end = LOG_local_state.end/* log->end */, new_end; \
 		NVLogEntry_s entry; \
@@ -197,7 +197,7 @@ extern "C"
 	// void LOG_push_ts(int tid, ts_s ts);
 	#define LOG_push_ts(tid, ts) ({ \
 		int id = TM_tid_var; \
-		NVLog_s *log = tid == id ? nvm_htm_local_log : NH_global_logs[tid]; \
+		NVLog_s *log = tid == id ? nvm_htm_local_log : NH_global_logs[id]; \
 		int end = LOG_local_state.end, new_end; \
 		NVLogEntry_s entry; \
 		entry.addr = (GRANULE_TYPE*) LOG_TS; \
