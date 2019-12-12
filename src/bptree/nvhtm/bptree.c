@@ -5,6 +5,10 @@
 typedef intptr_t NVHTM_WRITE_UNIT_T;
 const Key UNUSED_KEY = -1;
 const Value INITIAL_VALUE = 0;
+#ifdef TRANSACTION_SIZE
+__thread unsigned int transaction_counter;
+__thread unsigned int transaction_counter_max;
+#endif
 
 pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 void show_result_thread(unsigned char tid) {

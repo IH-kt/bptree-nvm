@@ -34,7 +34,11 @@ extern "C" {
 #include "allocator.h"
 extern ppointer PADDR_NULL;
 
-#  define SHOW_RESULT_THREAD(tid)
+#  define SHOW_RESULT_THREAD(tid) {\
+    fprintf(stderr, "*******************Thread %d*******************\n", tid);\
+    SHOW_TRANSACTION_SIZE();\
+    fprintf(stderr, "***********************************************\n");\
+}
 
 //#define BITMAP_SIZE ((MAX_PAIR/8)+1)
 

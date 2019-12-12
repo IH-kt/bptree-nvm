@@ -45,10 +45,15 @@ else
 	TREE_D		:= -DFPTREE
 	TREE_OBJ	:= $(FPTREE_SRC:%.c=%.o)
 endif
+DEBUGF	:= -g
 ifeq ($(debug), 1)
-	DEBUG := -DDEBUG
-else
-	DEBUG :=
+	DEBUG 	:= -DDEBUG
+	DEBUGF	:= -O0 -g
+endif
+ifeq ($(ndebug), 1)
+	DEBUG	:= -DNDEBUG
+	DEBUGF	:= -O0
+	NVHTM_MAKE_ARGS += OPT=-O0
 endif
 ifeq ($(cw), 1)
 	CW	:= -DCOUNT_WRITE
@@ -75,7 +80,7 @@ endif
 
 DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA) $(FW) $(TS)
 
-CFLAGS=-O0 -g -march=native -pthread $(DEFINES) -I$(INCLUDE_DIR) $(NVHTM_CFLAGS)
+CFLAGS=$(DEBUGF) -march=native -pthread $(DEFINES) -I$(INCLUDE_DIR) $(NVHTM_CFLAGS)
 
 ALLOCATOR_OBJ=$(ALLOCATOR_SRC:%.c=%.o)
 THREAD_MANAGER_OBJ=$(THREAD_MANAGER_SRC:%.c=%.o)
