@@ -40,7 +40,7 @@ extern "C"
     if (nb_writes) { \
       htm_tx_val_counters[tid].global_counter = ts_var; \
       __sync_synchronize(); \
-      NVMHTM_commit(tid, ts_var, nb_writes); \
+      NVMHTM_commit(TM_tid_var, ts_var, nb_writes); \
     } \
     CHECK_AND_REQUEST(tid); \
     TM_inc_local_counter(tid); \
