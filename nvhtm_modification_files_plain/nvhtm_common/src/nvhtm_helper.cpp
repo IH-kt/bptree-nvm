@@ -491,7 +491,7 @@ void NVMHTM_shutdown()
 
   fprintf(stderr, "--- Percentage time blocked %f \n", ((double) NH_time_blocked_total
   / (double) CPU_MAX_FREQ / 1000.0D) / (double) TM_nb_threads / time_taken);
-  fprintf(stderr, "--- Nb. checkpoints %lli\n", NH_nb_checkpoints);
+  fprintf(stderr, "--- Nb. checkpoints %lli\n", *NH_nb_checkpoints);
   fprintf(stderr, "--- Time blocked %e ms!\n", (double) time_chkp_total / ((double) CPU_MAX_FREQ));
 
 }
@@ -991,7 +991,7 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
   /* while(loop_checkpoint_manager()); */ // apply all the log
 
   ptr += sprintf(ptr, "[FORKED_MANAGER] Nb. checkpoints %lli\n",
-  NH_nb_checkpoints);
+  *NH_nb_checkpoints);
   ptr += sprintf(ptr, "[FORKED_MANAGER] Time active %f ms!\n",
   (double) time_chkp_total / ((double) CPU_MAX_FREQ));
   ptr += sprintf(ptr, "[FORKED_MANAGER] Applied TXs %lli \n",
@@ -1024,7 +1024,7 @@ static void aux_thread_stats_to_gnuplot_file(char *filename) {
   fprintf(gp_fp, "%lli\t", MN_count_spins);           // [1]NB_FLUSHES
   fprintf(gp_fp, "%lli\t", MN_count_writes);          // [2]NB_WRITES
   fprintf(gp_fp, "%lli\t", remaining);                // [3]REMAIN_LOG
-  fprintf(gp_fp, "%lli\t", NH_nb_checkpoints);        // [4]NB_CHKP
+  fprintf(gp_fp, "%lli\t", *NH_nb_checkpoints);        // [4]NB_CHKP
   fprintf(gp_fp, "%f\n", time_after);                 // [5]TIME_FLUSHES
   fclose(gp_fp);
 }

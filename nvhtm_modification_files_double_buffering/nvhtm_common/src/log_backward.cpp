@@ -112,15 +112,6 @@ int LOG_checkpoint_backward_apply_one()
   assert(!(*NH_checkpointer_state == 1));
   sem_wait(NH_chkp_sem);
   // printf("received semaphore\n");
-  if ((*NH_checkpointer_state) == 2) {
-      fprintf(stderr, "clearing Nb. checkpoints: %lld\n", NH_nb_checkpoints);
-      NH_nb_checkpoints = 0;
-      *NH_checkpointer_state = 4;
-      while (*NH_checkpointer_state != 0) {
-          PAUSE();
-      }
-      return 0;
-  }
   __sync_bool_compare_and_swap(NH_checkpointer_state, 0, 1); // doing checkpoint
   __sync_synchronize();
 
@@ -278,7 +269,7 @@ int LOG_checkpoint_backward_apply_one()
     return 1; // there isn't enough transactions
   }
 
-  NH_nb_checkpoints++;
+  *NH_nb_checkpoints = *NH_nb_checkpoints + 1;
 
   // find the write-set to apply to the checkpoint (Cache_lines!)
   int next_log;

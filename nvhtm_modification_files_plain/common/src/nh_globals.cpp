@@ -31,7 +31,7 @@ CL_ALIGN ts_s NH_time_validate_total;
 CL_ALIGN int NH_count_wraps;
 CL_ALIGN double NH_tx_time_total;
 CL_ALIGN double NH_time_after_commit_total;
-CL_ALIGN long long NH_nb_checkpoints;
+CL_ALIGN long long *NH_nb_checkpoints;
 CL_ALIGN long long NH_count_writes_total;
 CL_ALIGN long long NH_count_blocks_total;
 CL_ALIGN ts_s NH_time_blocked_total;
@@ -61,6 +61,6 @@ __thread CL_ALIGN int LOG_nb_writes;
 size_t al_sz = 0;
 char const *al_fn = NULL;
 void *al_pool = NULL;
-__thread char log_at_tx_start = 0;
+__thread void *log_at_tx_start = 0;
 
 int *persistent_checkpointing = NULL;

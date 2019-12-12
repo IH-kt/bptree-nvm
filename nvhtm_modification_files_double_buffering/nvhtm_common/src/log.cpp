@@ -128,7 +128,14 @@ void LOG_init(int nb_threads, int fresh)
     fprintf(stderr, "LOG_global_ptr = %p\n", LOG_global_ptr);
     fprintf(stderr, "log1 = %p\n", _NH_global_logs1);
     fprintf(stderr, "log2 = %p\n", _NH_global_logs2);
-    // key_t key = KEY_LOGS;
+
+    key_t key = KEY_LOGS;
+    int shmid = shmget(key, sizeof(long long), 0777 | IPC_CREAT);
+    NH_nb_checkpoints = (long long *)shmat(shmid, (void *)0, 0);
+    *NH_nb_checkpoints = 0;
+    if (shmid < 0) {
+        perror("KEY_LOGS");
+    }
 
     // int shmid = shmget(key, size_of_logs, 0777 | IPC_CREAT);
     // // first detach, reallocation may fail
@@ -418,12 +425,7 @@ void NH_start_freq() {
 }
 
 void NH_reset_nb_cp() {
-    *NH_checkpointer_state = 2;
-    sem_post(NH_chkp_sem);
-    while (*NH_checkpointer_state != 4) {
-        __sync_bool_compare_and_swap(NH_checkpointer_state, 0, 2);
-        PAUSE();
-    }
-    *NH_checkpointer_state = 0;
+    fprintf(stderr, "clearing nb_checkpoints = %lld\n", *NH_nb_checkpoints);
+    *NH_nb_checkpoints = 0;
     return;
 }
