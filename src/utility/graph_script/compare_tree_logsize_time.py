@@ -58,6 +58,7 @@ for i in range(3):
     plt.ylabel('Elapsed time (sec.)')
     plt.savefig('result.png')
     plt.savefig('result.eps')
+plt.close('all')
 # for i in range(3):
 #     p_df1 = result_df1.iloc[:, [i]]
 #     p_df2 = result_df2.iloc[:, [i]]

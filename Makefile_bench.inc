@@ -6,13 +6,13 @@ BENCH_ET_DIR        := $(BENCH_DIR)/elapsed_time
 ifdef warmup
 	WARM_UP	:= $(warmup)
 else
-	WARM_UP	:= 50000
+	WARM_UP	:= 500000
 endif
 
 ifdef loop
 	LOOP_TIMES	:= $(loop)
 else
-	LOOP_TIMES	:= 50000
+	LOOP_TIMES	:= 500000
 endif
 
 MAX_VAL	:= $(shell expr $(WARM_UP) + $(LOOP_TIMES))
@@ -20,23 +20,23 @@ MAX_VAL	:= $(shell expr $(WARM_UP) + $(LOOP_TIMES))
 ifdef logsz
 	LOGSZ	:= $(logsz)
 else
-	LOGSZ	:= 100000
+	LOGSZ	:= 65824
 endif
 NVHTM_MAKE_ARGS += LOG_SIZE=$(LOGSZ)
 ifdef logmax
 	LOGMAX	:= $(logmax)
 else
-	LOGMAX	:= 10000000
+	LOGMAX	:= 262432
 endif
 ifdef logstep
 	LOGSTP	:= $(logstep)
 else
-	LOGSTP	:= 200000
+	LOGSTP	:= 32768
 endif
 ifdef logstart
 	LOGSTT	:= $(logstart)
 else
-	LOGSTT	:= 10000
+	LOGSTT	:= 65824
 endif
 
 ifdef thrmax
@@ -76,7 +76,7 @@ elapsed_time_log:
 
 elapsed_time_thr: bench_et_dir
 	make tree=$(tree) type=$(type) dist-clean
-	make tree=$(tree) type=$(type) db=$(db) logsz=$(LOGSZ) all
+	make tree=$(tree) type=$(type) db=$(db) logsz=$(LOGSZ) -j all
 	cp $(BENCH_SCRIPT_DIR)/base_operation.py $(BUILD_DIR)
 	(cd build; python3 base_operation.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
 	for exe in $(BASE_BENCH_EXE); do\
@@ -99,7 +99,7 @@ write_freq_log:
 
 write_freq_thr: bench_wf_dir
 	make tree=$(tree) type=$(type) fw=1 dist-clean
-	make tree=$(tree) type=$(type) db=$(db) fw=1 logsz=$(LOGSZ) all
+	make tree=$(tree) type=$(type) db=$(db) fw=1 logsz=$(LOGSZ) -j all
 	cp $(BENCH_SCRIPT_DIR)/write_freq.py $(BUILD_DIR)
 	(cd build; python3 write_freq.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
 	for thr in $(THRLST); do\

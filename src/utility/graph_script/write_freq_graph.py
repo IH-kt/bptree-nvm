@@ -63,3 +63,4 @@ if (len(checkpoint_timestamps) != 0):
     pl.ylim([0, freq_df.max().max() * 1.1])
     pl.savefig('checkpoint_write_freq.png')
     pl.savefig('checkpoint_write_freq.eps')
+plt.close('all')

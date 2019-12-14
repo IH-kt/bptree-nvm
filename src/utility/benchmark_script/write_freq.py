@@ -33,6 +33,8 @@ def exp_loop():
         print("NameError: {0}".format(err))
     except:
         print("execution error.", sys.exc_info());
+        sys.stdout.write(spres.stderr.decode("utf8"))
+        sys.stdout.write(spres.stdout.decode("utf8"))
 
 for fn in exefiles:
     if not os.path.exists(fn):
