@@ -1,0 +1,10 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 1, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 35812512 byte
+*******************Thread 2*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+finish running threads
+write count: 0
+0.270463
+wrote_size_tmp = 0
