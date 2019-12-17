@@ -4,6 +4,8 @@
 #ifdef COUNT_ABORT
 __thread unsigned int times_of_lock = 0;
 __thread unsigned int times_of_transaction = 0;
+__thread unsigned int times_of_abort[4] = {0,0,0,0};
+unsigned int times_of_tree_abort[4] = {0,0,0,0};
 #endif
 
 #ifdef FREQ_WRITE
@@ -71,6 +73,7 @@ void show_result_thread(unsigned char tid) {
             }                                              \
             break;                                         \
         } else {                                           \
+            ABORT_OCCURRED(status);                       \
             if (tree->lock) {                              \
                 do {                                       \
                     _mm_pause();                           \
@@ -209,6 +212,7 @@ void destroyBPTree(BPTree *tree, unsigned char tid) {
     vol_mem_free(tree);
     fprintf(stderr, "write count: %lu\n", GET_WRITE_COUNT());
     SHOW_FREQ_WRITE();
+    SHOW_COUNT_ABORT();
 }
 
 int lockLeaf(LeafNode *target, unsigned char tid) {
