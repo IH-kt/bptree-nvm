@@ -1,0 +1,48 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 1, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 32911469 byte
+log_size = 394080
+log_size_per_thread = 131360
+LOG_global_ptr = 0x7fed8f000000
+*******************Thread 2*******************
+***********************************************
+clearing nb_checkpoints = 18941
+*******************Thread 2*******************
+***********************************************
+*******************Thread 1*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 12663
+[FORKED_MANAGER] Nb. checkpoints 12663
+[FORKED_MANAGER] Time active 5823.397849 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=76501852 TIME_spins=0.000000ms
+--- Time blocked 0.000000e+00 ms!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 1481806
+ABORTS : 542713
+CONFLS : 48084
+CAPACS : 304194
+EXPLIC : 38308
+FALLBK : 18194
+   P_A : 0.268070
+     X : inf
+ ---   TIME
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          151053219
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          80982
+TOTAL_TIME_B (clocks) 10604594162
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+3.489997

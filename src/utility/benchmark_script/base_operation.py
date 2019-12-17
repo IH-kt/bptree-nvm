@@ -28,16 +28,25 @@ def exp_loop(filename, mode, mempath):
             for j in exp_loop_times:
                 print("trial " + str(j+1))
                 spres = subprocess.run(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+                print(spres.stdout)
+                print(spres.stderr)
                 inner_result_array.append(float(spres.stdout.decode("utf8")));
                 with open(filename + ".thr" + str(i) + ".dmp", mode='w', encoding="utf-8") as f:
                     f.write(spres.stderr.decode("utf8"))
             result_array.append(inner_result_array);
     except NameError as err:
         print("NameError: {0}".format(err))
-    except:
-        print("execution error.", sys.exc_info());
-        sys.stdout.write(spres.stdout.decode("utf8"))
-        sys.stdout.write(spres.stderr.decode("utf8"))
+    except subprocess.CalledProcessError as err:
+        print("CalledProcessError:")
+        print(err.stdout)
+        print(err.stderr)
+    except ValueError as err:
+        print(e)
+        print(spres.stdout)
+        print(spres.stderr)
+    except Exception as e:
+        print("execution error.", sys.exc_info())
+        print(e)
     return result_array
 
 for fn in exefiles:

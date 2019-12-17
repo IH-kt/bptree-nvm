@@ -232,6 +232,7 @@ extern "C"
 			NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 32)].value = 0; \
 			NH_global_logs[TM_tid_var]->ptr[ptr_mod_log(LOG_local_state.end, 64)].value = 0; \
 		} \
+        /*printf("beforeTX(%2d): global::%d->%d, local::%d->%d\n", TM_tid_var, log->start, log->end, LOG_local_state.start, LOG_local_state.end);*/\
 	})
 
 	#if DO_CHECKPOINT == 4
@@ -248,6 +249,7 @@ extern "C"
 		NVLog_s *log = NH_global_logs[TM_tid_var]; \
 		int log_end, log_start; \
 		log_end = log->end; log_start = log->start; \
+        /*if (log_start != LOG_local_state.start) printf("after_TX(%2d): global::%d->%d, local::%d->%d\n", TM_tid_var, log_start, log_end, LOG_local_state.start, LOG_local_state.end);*/\
 		while (!(distance_ptr(log_start, log_end) <= \
 		distance_ptr(log_start, LOG_local_state.end))) {\
 		log_start = log->start; \

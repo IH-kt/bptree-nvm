@@ -25,16 +25,21 @@ def exp_loop():
             cmd = ['./' + exefiles[0], str(warmup_num), str(trial_num), str(warmup_num + trial_num), str(i), pmempath, pmemlogpath]
             print(cmd)
             spres = subprocess.run(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+            print(spres.stderr.decode("utf8"))
+            print(spres.stdout.decode("utf8"))
             shutil.move('./write_freq.txt', './write_freq' + str(i) + '.txt')
             with open(exefiles[0] + ".thr" + str(i) + ".dmp", mode='w', encoding="utf-8") as f:
                 f.write(spres.stderr.decode("utf8"))
                 f.write(spres.stdout.decode("utf8"))
     except NameError as err:
         print("NameError: {0}".format(err))
-    except:
-        print("execution error.", sys.exc_info());
-        sys.stdout.write(spres.stderr.decode("utf8"))
-        sys.stdout.write(spres.stdout.decode("utf8"))
+    except subprocess.CalledProcessError as err:
+        print("CalledProcessError:")
+        print(err.stdout)
+        print(err.stderr)
+    except Exception as e:
+        print("execution error.", sys.exc_info())
+        print(e)
 
 for fn in exefiles:
     if not os.path.exists(fn):

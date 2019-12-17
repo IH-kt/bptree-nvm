@@ -141,11 +141,14 @@ extern "C"
                 printf("check log abort:%d\n", tid);*/\
         /*printf("%d: check_log_abort -> size = %d, counter = %d, local start = %d, local end = %d, global start = %d, global end = %d, log_at_start = %p, current_log = %p\n", TM_tid_var, LOG_local_state.size_of_log, LOG_local_state.counter, LOG_local_state.start, LOG_local_state.end, log->start, log->end, log_at_tx_start, NH_global_logs);*/\
         persistent_checkpointing[TM_tid_var].flag = 0;\
+        int sem_val;\
+        sem_getvalue(NH_chkp_sem, &sem_val);\
 		while ((LOG_local_state.counter == distance_ptr(log->start, log->end) \
 			&& (LOG_local_state.size_of_log - LOG_local_state.counter) < WAIT_DISTANCE) \
 			|| (distance_ptr(log->end, log->start) < WAIT_DISTANCE \
 			&& log->end != log->start)) { \
-				if (*NH_checkpointer_state == 0) {\
+                sem_getvalue(NH_chkp_sem, &sem_val);\
+				if (*NH_checkpointer_state == 0 && sem_val <= 0) {\
                     sem_post(NH_chkp_sem); \
                 }\
 				PAUSE(); \
@@ -253,7 +256,9 @@ extern "C"
 										   (int)LOG_local_state.end);                    \
 	if (LOG_local_state.counter >= APPLY_BACKWARD_VAL)                                   \
 	{                                                                                    \
-		if (*NH_checkpointer_state == 0)                                       \
+        int sem_val;\
+        sem_getvalue(NH_chkp_sem, &sem_val);\
+		if (*NH_checkpointer_state == 0 && sem_val <= 0)                                       \
 		{                                                                                \
             /*printf("%d: LOG_before_TX -> counter = %d, start = %d, end = %d\n", id, LOG_local_state.counter, LOG_local_state.start, LOG_local_state.end);*/\
 			sem_post(NH_chkp_sem);                                                       \

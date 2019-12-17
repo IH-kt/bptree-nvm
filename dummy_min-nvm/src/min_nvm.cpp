@@ -113,7 +113,7 @@ void MN_flush(void *addr, size_t size, int do_flush)
 		// if (do_flush) {
 			// ts_s _ts1_ = rdtscp();
 			// clflush(((char*) addr) + i); // does not need fence
-            _mm_clwb(((char *) addr) + i);
+            _mm_clwb(((char *) addr) + i - ((unsigned long)addr % size_cl));
 			// MN_count_spins++;
 			// MN_time_spins += rdtscp() - _ts1_;
 		// }

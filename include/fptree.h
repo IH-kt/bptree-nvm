@@ -25,11 +25,11 @@ extern "C" {
 #include "allocator.h"
 extern ppointer PADDR_NULL;
 
-#define MIN_KEY 124
+#define MIN_KEY 128
 #define MIN_DEG (MIN_KEY+1)
 #define MAX_KEY (2*MIN_KEY+1)
 #define MAX_DEG (MAX_KEY+1)
-#define MAX_PAIR 42
+#define MAX_PAIR 64
 
 #define BITMAP_SIZE ((MAX_PAIR/8)+1)
 

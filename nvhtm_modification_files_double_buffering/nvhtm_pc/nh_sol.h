@@ -26,11 +26,11 @@ extern "C"
   {                                                                               \
     int id = TM_tid_var;\
     TM_inc_fallback(tid);\
+    persistent_checkpointing[id].flag = 1;                                            \
     while (*NH_checkpointer_state) {                                        \
         if (persistent_checkpointing[id].flag) persistent_checkpointing[id].flag = 0;\
       PAUSE();                                                                    \
     }\
-    persistent_checkpointing[id].flag = 1;                                            \
     /*printf("before_sgl_begin set:%d\n", tid);*/\
     __sync_synchronize();                                                         \
     log_at_tx_start = NH_global_logs;                                               \
@@ -42,7 +42,6 @@ extern "C"
     if ((LOG_local_state.size_of_log - LOG_local_state.counter) < 2048)            \
     {                                                                             \
       /*printf("sgl %d: not enough space -> %d - %d\n", tid, LOG_local_state.size_of_log, LOG_local_state.counter);*/                                  \
-      persistent_checkpointing[id].flag = 0;                                          \
     /*printf("before_sgl_begin unset:%d\n", tid);*/\
       __sync_synchronize();                                                       \
       while (sem_trywait(NH_chkp_sem) != -1);\
@@ -50,11 +49,13 @@ extern "C"
       {                                                                           \
           int sem_val;\
           sem_getvalue(NH_chkp_sem, &sem_val);\
-          if ((*NH_checkpointer_state) == 0 && sem_val == 0) sem_post(NH_chkp_sem);                                                      \
-          while (log_at_tx_start == NH_global_logs && sem_val > 0 && (*NH_checkpointer_state)) {\
+          if ((*NH_checkpointer_state) == 0 && sem_val <= 0) sem_post(NH_chkp_sem);                                                      \
+          persistent_checkpointing[id].flag = 0;\
+          while (log_at_tx_start == NH_global_logs && sem_val > 0) {\
               sem_getvalue(NH_chkp_sem, &sem_val);\
               PAUSE();                                                                  \
           }\
+          persistent_checkpointing[id].flag = 1;\
           nvm_htm_local_log = NH_global_logs[id];                                      \
           LOG_local_state.start = nvm_htm_local_log->start;                                                  \
           LOG_local_state.end = nvm_htm_local_log->end;                                                      \
@@ -64,7 +65,7 @@ extern "C"
           /*printf("after_sgl_begin\n");*/\
       }                                                                           \
       _mm_sfence();                                                               \
-      persistent_checkpointing[id].flag = 1;                                          \
+        persistent_checkpointing[id].flag = 1;\
     /*printf("before_sgl_begin2 set:%d\n", tid);*/\
       __sync_synchronize();                                                       \
       log_at_tx_start = NH_global_logs;                                             \

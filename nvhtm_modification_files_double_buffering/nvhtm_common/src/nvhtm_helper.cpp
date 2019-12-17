@@ -524,9 +524,18 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   
   // SPIN_PER_WRITE(MAX(nb_writes * sizeof(NVLogEntry_s) / CACHE_LINE_SIZE, 1));
   int log_before = ptr_mod_log(NH_global_logs[id]->end, -nb_writes);
-  MN_flush(&(NH_global_logs[id]->ptr[log_before]),
-    nb_writes * sizeof(NVLogEntry_s), 1
-  );
+  if (NH_global_logs[id]->end + nb_writes > NH_global_logs[id]->size_of_log) {
+      MN_flush(&(NH_global_logs[id]->ptr[log_before]),
+              (nb_writes - NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 1
+              );
+      MN_flush(&(NH_global_logs[id]->ptr[log_before]),
+              (nb_writes - nb_writes % NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 1
+              );
+  } else {
+      MN_flush(&(NH_global_logs[id]->ptr[0]),
+              (nb_writes % NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 1
+              );
+  }
 
   #ifndef DISABLE_VALIDATION
   NVMHTM_validate(id, threads_set);
@@ -535,7 +544,13 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   // good place for a memory barrier
   _mm_sfence();
 
+  int log_start = NH_global_logs[id]->start;
+  int log_end   = NH_global_logs[id]->end;
+  assert((LOG_local_state.start < LOG_local_state.end && log_end <= LOG_local_state.end) ||
+         (LOG_local_state.end < LOG_local_state.start && ((0 <= log_end && log_end <= LOG_local_state.end) || (LOG_local_state.start <= log_end && log_end < LOG_local_state.size_of_log))));
   NVMHTM_write_ts(id, ts); // Flush all together
+  assert((LOG_local_state.start < LOG_local_state.end && log_end <= LOG_local_state.end) ||
+         (LOG_local_state.end < LOG_local_state.start && ((0 <= log_end && log_end <= LOG_local_state.end) || (LOG_local_state.start <= log_end && log_end < LOG_local_state.size_of_log))));
   // SPIN_PER_WRITE(1);
   log_before = ptr_mod_log(NH_global_logs[id]->end, -1);
   MN_flush(&(NH_global_logs[id]->ptr[log_before]),

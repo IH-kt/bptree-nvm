@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s, log_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path, log_path);
     }
 #ifdef BPTREE
-    size_t allocation_size = sizeof(LeafNode) * ((warm_up + loop_times) / (MAX_PAIR/2) + 3 + thread_max) + sizeof(AllocatorHeader);
+    size_t allocation_size = sizeof(LeafNode) * ((warm_up + loop_times) / (MAX_PAIR/2) * 1.01 + 3 + thread_max) + sizeof(AllocatorHeader);
 #else
     size_t allocation_size = sizeof(PersistentLeafNode) * ((warm_up + loop_times) / (MAX_PAIR/2) + 3 + thread_max) + sizeof(AllocatorHeader);
 #endif
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
     kv.value = 1;
     unsigned int seed = thread_max;
     arg[thread_max] = (arg_t *)malloc(sizeof(arg_t));
-    arg[thread_max]->seed = thread_max;
+    arg[thread_max]->seed = thread_max + 1;
     arg[thread_max]->tid = thread_max + 1;
     arg[thread_max]->loop = warm_up;
     tid_array[thread_max] = bptreeCreateThread(bpt, insert_random, arg[thread_max]);

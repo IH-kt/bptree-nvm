@@ -1,0 +1,50 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 1, pmem_path = ./data, log_path = ./log
+allocating 32911469 byte
+log_size = 688992
+log_size_per_thread = 229664
+nh_glog_ref = 0x7efd98000000
+LOG_global_ptr = 0x7efd98000040
+log1 = 0x5636b997eb40
+log2 = 0x5636b997d970
+*******************Thread 2*******************
+***********************************************
+clearing nb_checkpoints = 9925
+*******************Thread 2*******************
+***********************************************
+*******************Thread 1*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 6767
+--- Time blocked 0.000000e+00 ms!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 1480380
+ABORTS : 504985
+CONFLS : 17221
+CAPACS : 381193
+EXPLIC : 15514
+FALLBK : 19620
+   P_A : 0.254354
+     X : inf
+ ---   TIME
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          151059581
+TOTAL_SPINS (workers) 0
+[FORKED_MANAGER] Nb. checkpoints 6767
+[FORKED_MANAGER] Time active 4132.478565 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=76560057 TIME_spins=0.000000ms
+TOTAL_BLOCKS          31028
+TOTAL_TIME_B (clocks) 818218626
+ ---   ----
+ ########################################### 
+ ########################################### 
+
