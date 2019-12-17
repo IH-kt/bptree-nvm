@@ -156,7 +156,6 @@ extern "C"
                 /*printf("check_log_abort\n");*/\
 		} \
 		NH_count_blocks++; \
-		nvm_htm_local_log = NH_global_logs[TM_tid_var];\
 		LOG_before_TX(); \
         /*printf("cla %d-%d: start = %d, end = %d, local start = %d, local end = %d\n", tid, TM_tid_var, NH_global_logs[tid]->start, NH_global_logs[tid]->end, LOG_local_state.start, LOG_local_state.end);*/\
 		ts2_wait_log_time = rdtscp(); \
@@ -249,6 +248,7 @@ extern "C"
 #define LOG_before_TX() ({                                                               \
     int id = TM_tid_var;\
 	NVLog_s *log = NH_global_logs[id];                                           \
+    nvm_htm_local_log = log;\
 	LOG_nb_writes = 0;                                                                   \
 	LOG_local_state.start = log->start;                                                  \
 	LOG_local_state.end = log->end;                                                      \

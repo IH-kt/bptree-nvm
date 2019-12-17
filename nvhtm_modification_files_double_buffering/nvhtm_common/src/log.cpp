@@ -120,7 +120,7 @@ void LOG_init(int nb_threads, int fresh)
     *nh_glog_ref = _NH_global_logs1;
 
     LOG_global_ptr = log_pool + (sizeof(NVLog_s***) + (CACHE_LINE_SIZE - sizeof(NVLog_s***) % CACHE_LINE_SIZE));
-    memset(LOG_global_ptr, 0, size_of_logs);
+    memset(LOG_global_ptr, 0, size_of_logs * 2);
     fresh = 1; // this is not init to 0
     fprintf(stderr, "log_size = %lu\n", size_of_logs);
     fprintf(stderr, "log_size_per_thread = %lu\n", (unsigned long)NVMHTM_LOG_SIZE);

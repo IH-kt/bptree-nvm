@@ -102,13 +102,13 @@ extern "C"
 #define BEFORE_COMMIT(tid, budget, status)             \
   persistent_checkpointing[TM_tid_var].flag = 1;                   \
     /*printf("before_commit set:%d\n", tid);*/\
+  if (HTM_test() && (*NH_checkpointer_state) == 2) HTM_named_abort(2);\
   if (NH_global_logs[TM_tid_var] != nvm_htm_local_log || (*NH_checkpointer_state) == 1)                          \
   {                                                    \
     if (HTM_test()) HTM_named_abort(2);                \
     fprintf(stderr, "before_commit:%d-%d\n", TM_tid_var, tid);\
     assert(0); /* flipped during lock execution */     \
   }                                                    \
-  if (HTM_test() && (*NH_checkpointer_state) == 2) HTM_named_abort(2);\
   ts_var = rdtscp(); /* must be the p version */       \
   if (LOG_count_writes(tid) > 0 && TM_nb_threads > 28) \
   {                                                    \
