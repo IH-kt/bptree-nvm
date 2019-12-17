@@ -64,8 +64,6 @@ extern CL_ALIGN unsigned long long LOG_global_counter;
 extern CL_ALIGN tx_counters_s *htm_tx_val_counters;
 extern CL_ALIGN __thread int LOG_nb_writes;
 
-extern __thread void *log_at_tx_start;
-
 // ##########################
 // include from the solution
 #include "extra_globals.h"

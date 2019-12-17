@@ -260,7 +260,7 @@ extern "C"
         sem_getvalue(NH_chkp_sem, &sem_val);\
 		if (*NH_checkpointer_state == 0 && sem_val <= 0)                                       \
 		{                                                                                \
-            /*printf("%d: LOG_before_TX -> counter = %d, start = %d, end = %d\n", id, LOG_local_state.counter, LOG_local_state.start, LOG_local_state.end);*/\
+            /*printf("%d: LOG_before_TX -> counter = %d, start = %d, end = %d, budget = %d\n", id, LOG_local_state.counter, LOG_local_state.start, LOG_local_state.end, HTM_SGL_vars.budget);*/\
 			sem_post(NH_chkp_sem);                                                       \
 			PAUSE();                                                                     \
 		}                                                                                \

@@ -762,7 +762,7 @@ static void dangerous_threads(int id, bitset<MAX_NB_THREADS> & threads_set)
 static void fork_manager()
 {
   #if DO_CHECKPOINT == 5
-  *NH_checkpointer_state = 1; // BUSY
+  *NH_checkpointer_state = 2; // BUSY
   __sync_synchronize();
 
   pid = fork();
@@ -778,13 +778,13 @@ static void fork_manager()
       set_affinity_at(MAX_PHYS_THRS - 1);
     }
 
-    struct sigaction sa_sigsegv;
-    memset(&sa_sigsegv, 0, sizeof(struct sigaction));
-    sigemptyset(&sa_sigsegv.sa_mask);
-    sa_sigsegv.sa_sigaction = segfault_sigaction;
-    sa_sigsegv.sa_flags     = 0;
-
-    sigaction(SIGSEGV, &sa_sigsegv, NULL); // apply log does not SIGSEGV
+    // struct sigaction sa_sigsegv;
+    // memset(&sa_sigsegv, 0, sizeof(struct sigaction));
+    // sigemptyset(&sa_sigsegv.sa_mask);
+    // sa_sigsegv.sa_sigaction = segfault_sigaction;
+    // sa_sigsegv.sa_flags     = 0;
+    // 
+    // sigaction(SIGSEGV, &sa_sigsegv, NULL); // apply log does not SIGSEGV
 
     // handles SIGINT from parent
     struct sigaction sa;
@@ -813,7 +813,7 @@ static void fork_manager()
 
   // printf("PID: %i\n", pid);
 
-  while (*NH_checkpointer_state == 1) PAUSE();
+  while (*NH_checkpointer_state == 2) PAUSE();
   #endif
 }
 

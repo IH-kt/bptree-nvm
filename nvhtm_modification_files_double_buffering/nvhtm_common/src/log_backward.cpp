@@ -80,6 +80,7 @@ static void wait_persistent_checkpointing(NVLog_s **log) {
     if (i >= TM_nb_threads) {
         return;
     }
+    // fprintf(stderr, "entering wait PCP\n");
     while (1) {
         int pc_sum = 0;
         for (i = 0; i < TM_nb_threads; i++) {
@@ -90,6 +91,8 @@ static void wait_persistent_checkpointing(NVLog_s **log) {
         }
         PAUSE();
     }
+    *NH_checkpointer_state = 1;
+    // fprintf(stderr, "exit wait PCP\n");
 }
 
 // Apply log backwards and avoid repeated writes
@@ -112,7 +115,7 @@ int LOG_checkpoint_backward_apply_one()
   assert(!(*NH_checkpointer_state == 1));
   sem_wait(NH_chkp_sem);
   // printf("received semaphore\n");
-  __sync_bool_compare_and_swap(NH_checkpointer_state, 0, 1); // doing checkpoint
+  *NH_checkpointer_state = 2; // doing checkpoint
   __sync_synchronize();
 
   // stores the possible repeated writes
@@ -148,7 +151,7 @@ int LOG_checkpoint_backward_apply_one()
   }
   // Only apply log if someone passed the threshold mark
   if ((!too_full && too_empty) || !someone_passed) {
-    __sync_bool_compare_and_swap(NH_checkpointer_state, 1, 0); // doing checkpoint
+    *NH_checkpointer_state = 0; // doing checkpoint
     __sync_synchronize();
     // printf("checkpoint: retry\n");
     return 1; // try again later
@@ -156,7 +159,7 @@ int LOG_checkpoint_backward_apply_one()
   // ---------------------------------------------------------------
 
   wait_persistent_checkpointing(NH_global_logs);
-  // printf("flipping: current log = %p, log1 = %p, log2 = %p\n", NH_global_logs, _NH_global_logs1, _NH_global_logs2);
+  // fprintf(stderr, "flipping: current log = %p, log1 = %p, log2 = %p\n", NH_global_logs, _NH_global_logs1, _NH_global_logs2);
   // for (int thr = 0; thr < TM_nb_threads; thr++) {
   //     printf("%d:NH_global_logs1 start->%d, end->%d\n", thr, _NH_global_logs1[thr]->start, _NH_global_logs1[thr]->end);
   // }
@@ -173,7 +176,7 @@ int LOG_checkpoint_backward_apply_one()
   log_select = log_select ^ 0x1;
   __sync_synchronize();
   while (sem_trywait(NH_chkp_sem) != -1);
-  __sync_bool_compare_and_swap(NH_checkpointer_state, 1, 0); // doing checkpoint
+  *NH_checkpointer_state = 0; // doing checkpoint
 
   writes_list.reserve(32000);
   writes_map.reserve(32000);

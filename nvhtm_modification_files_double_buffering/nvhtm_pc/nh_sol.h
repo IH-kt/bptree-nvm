@@ -27,13 +27,11 @@ extern "C"
     int id = TM_tid_var;\
     TM_inc_fallback(tid);\
     persistent_checkpointing[id].flag = 1;                                            \
-    while (*NH_checkpointer_state) {                                        \
-        if (persistent_checkpointing[id].flag) persistent_checkpointing[id].flag = 0;\
+    while (*NH_checkpointer_state == 1) {                                        \
       PAUSE();                                                                    \
     }\
     /*printf("before_sgl_begin set:%d\n", tid);*/\
     __sync_synchronize();                                                         \
-    log_at_tx_start = NH_global_logs;                                               \
     nvm_htm_local_log = NH_global_logs[id];                                      \
 	LOG_local_state.start = nvm_htm_local_log->start;                                                  \
 	LOG_local_state.end = nvm_htm_local_log->end;                                                      \
@@ -48,12 +46,24 @@ extern "C"
       while ((LOG_local_state.size_of_log - LOG_local_state.counter) < 2048)       \
       {                                                                           \
           int sem_val;\
-          sem_getvalue(NH_chkp_sem, &sem_val);\
-          if ((*NH_checkpointer_state) == 0 && sem_val <= 0) sem_post(NH_chkp_sem);                                                      \
-          persistent_checkpointing[id].flag = 0;\
-          while (log_at_tx_start == NH_global_logs && sem_val > 0) {\
+          if ((*NH_checkpointer_state) == 0) {\
               sem_getvalue(NH_chkp_sem, &sem_val);\
-              PAUSE();                                                                  \
+              if (sem_val <= 0) {\
+                  sem_post(NH_chkp_sem);                                                      \
+              }\
+              while ((*NH_checkpointer_state) != 2) {\
+                  PAUSE();\
+              }\
+          }\
+          if ((*NH_checkpointer_state) == 2) {\
+              persistent_checkpointing[id].flag = 0;\
+              while ((*NH_checkpointer_state) == 2) {\
+                  PAUSE();\
+              }\
+              persistent_checkpointing[id].flag = 1;\
+          }\
+          while ((*NH_checkpointer_state) == 1) {\
+              PAUSE();\
           }\
           persistent_checkpointing[id].flag = 1;\
           nvm_htm_local_log = NH_global_logs[id];                                      \
@@ -61,14 +71,12 @@ extern "C"
           LOG_local_state.end = nvm_htm_local_log->end;                                                      \
           LOG_local_state.counter = distance_ptr((int)LOG_local_state.start,                   \
                   (int)LOG_local_state.end);                    \
-          log_at_tx_start = NH_global_logs;\
           /*printf("after_sgl_begin\n");*/\
       }                                                                           \
       _mm_sfence();                                                               \
         persistent_checkpointing[id].flag = 1;\
     /*printf("before_sgl_begin2 set:%d\n", tid);*/\
       __sync_synchronize();                                                       \
-      log_at_tx_start = NH_global_logs;                                             \
       nvm_htm_local_log = NH_global_logs[id];                                    \
       LOG_local_state.start = nvm_htm_local_log->start;                                                  \
       LOG_local_state.end = nvm_htm_local_log->end;                                                      \
@@ -81,25 +89,26 @@ extern "C"
 
 #undef BEFORE_TRANSACTION_i
 #define BEFORE_TRANSACTION_i(tid, budget)           \
-  while (*NH_checkpointer_state) { if (persistent_checkpointing[TM_tid_var].flag) persistent_checkpointing[TM_tid_var].flag = 0; }        \
+  while ((*NH_checkpointer_state) == 2) { \
+      if (persistent_checkpointing[TM_tid_var].flag)\
+      persistent_checkpointing[TM_tid_var].flag = 0;\
+  }        \
   LOG_get_ts_before_tx(tid);                        \
   LOG_before_TX();                                  \
-  log_at_tx_start = NH_global_logs;                   \
-  nvm_htm_local_log = NH_global_logs[TM_tid_var];          \
-  /*printf("BfrTrnsctn %d-%d: start = %d, end = %d, local start = %d, local end = %d\n", tid, TM_tid_var, NH_global_logs[TM_tid_var]->start, NH_global_logs[TM_tid_var]->end, LOG_local_state.start, LOG_local_state.end);*/\
+  /*printf("BfrTrnsctn %d-%d: start = %d, end = %d, local start = %d, local end = %d, nvm_htm_local_log = %p\n", tid, TM_tid_var, NH_global_logs[TM_tid_var]->start, NH_global_logs[TM_tid_var]->end, LOG_local_state.start, LOG_local_state.end, nvm_htm_local_log);*/\
   TM_inc_local_counter(tid);
 
 #undef BEFORE_COMMIT
 #define BEFORE_COMMIT(tid, budget, status)             \
   persistent_checkpointing[TM_tid_var].flag = 1;                   \
     /*printf("before_commit set:%d\n", tid);*/\
-  if (NH_global_logs != log_at_tx_start)                          \
+  if (NH_global_logs[TM_tid_var] != nvm_htm_local_log || (*NH_checkpointer_state) == 1)                          \
   {                                                    \
     if (HTM_test()) HTM_named_abort(2);                \
     fprintf(stderr, "before_commit:%d-%d\n", TM_tid_var, tid);\
     assert(0); /* flipped during lock execution */     \
   }                                                    \
-  if (HTM_test() && ((*NH_checkpointer_state) || NH_global_logs[TM_tid_var]->start != LOG_local_state.start)) HTM_named_abort(2);\
+  if (HTM_test() && (*NH_checkpointer_state) == 2) HTM_named_abort(2);\
   ts_var = rdtscp(); /* must be the p version */       \
   if (LOG_count_writes(tid) > 0 && TM_nb_threads > 28) \
   {                                                    \
@@ -109,11 +118,7 @@ extern "C"
 
 #undef AFTER_TRANSACTION_i
 #define AFTER_TRANSACTION_i(_tid, budget) ({                                   \
-  /*printf("AftTrnsctn %d-%d: start = %d, end = %d, local start = %d, local end = %d\n", _tid, TM_tid_var, NH_global_logs[TM_tid_var]->start, NH_global_logs[TM_tid_var]->end, LOG_local_state.start, LOG_local_state.end);*/\
-  if (((*NH_checkpointer_state) && persistent_checkpointing[TM_tid_var].flag != 1) || log_at_tx_start != NH_global_logs) {\
-    fprintf(stderr, "didn't aborted???\n");\
-    assert(0);\
-  }\
+  /*printf("AftTrnsctn %d-%d: start = %d, end = %d, local start = %d, local end = %d, nvm_htm_local_log = %p\n", _tid, TM_tid_var, NH_global_logs[TM_tid_var]->start, NH_global_logs[TM_tid_var]->end, LOG_local_state.start, LOG_local_state.end, nvm_htm_local_log);*/\
   int id = TM_tid_var;\
   int nb_writes = LOG_count_writes(_tid);                                      \
   if (nb_writes)                                                              \
@@ -132,7 +137,7 @@ extern "C"
 #undef AFTER_ABORT
 #define AFTER_ABORT(tid, budget, status)                                       \
   /* NH_tx_time += rdtscp() - TM_ts1; */                                       \
-  while (*NH_checkpointer_state) { \
+  while (*NH_checkpointer_state == 2) { \
       if (persistent_checkpointing[TM_tid_var].flag) {\
           persistent_checkpointing[TM_tid_var].flag = 0; \
       } \
@@ -140,7 +145,6 @@ extern "C"
   }        \
   /*printf("AbortState %d-%d: status = %x\n", tid, TM_tid_var, status);*/\
   CHECK_LOG_ABORT(tid, status);                                                \
-  log_at_tx_start = NH_global_logs;                                             \
   LOG_get_ts_before_tx(tid);                                                   \
   /*printf("AfterAbort %d-%d: start = %d, end = %d, local start = %d, local end = %d\n", tid, TM_tid_var, NH_global_logs[tid]->start, NH_global_logs[tid]->end, LOG_local_state.start, LOG_local_state.end);*/\
   __sync_synchronize();                                                        \
@@ -158,6 +162,7 @@ extern "C"
 
 #undef NH_write
 #define NH_write(addr, val) ({                                                    \
+  /*assert((intptr_t)al_pool <= (intptr_t)addr && (intptr_t)addr <= (intptr_t)al_pool + al_sz);*/\
   GRANULE_TYPE buf = val;                                                         \
   NH_before_write(addr, val);                                                     \
   memcpy(addr, &(buf), sizeof(GRANULE_TYPE)); /* *((GRANULE_TYPE*)addr) = val; */ \
