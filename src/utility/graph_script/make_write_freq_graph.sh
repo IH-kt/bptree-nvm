@@ -2,7 +2,7 @@
 
 nvhtms="bptree_nvhtm_0 bptree_nvhtm_1"
 logszs="65824 98592 131360 164128 196896 229664 262432"
-thrs=`seq 1 4 22`
+thrs="1 2 4 8 16"
 wf_dir="write_freq"
 
 mkdir -p $wf_dir

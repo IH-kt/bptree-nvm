@@ -49,8 +49,8 @@ def plot_graph(log_size_str, result_file1, result_file2, result_file3):
         plt.yscale('log')
         plt.savefig(log_size_str + '/result_log.png')
         plt.savefig(log_size_str + '/result_log.eps')
+    plt.close('all')
 
-plt.close('all')
 # result_files = sys.argv
 # if (len(result_files) < 4) :
 #     print("too few arguments")
@@ -65,4 +65,4 @@ for i in range(len(result_file_dirs_1)):
     result_file_dir2 = '../elapsed_time/bptree_nvhtm_1/' + result_file_dirs_2[i]
     result_file_dir3 = '../elapsed_time/fptree_concurrent_0/' + result_file_dirs_3[0]
     plot_graph(result_file_dirs_1[i], result_file_dir1, result_file_dir2, result_file_dir3)
-plt.close('all')
+    plt.close('all')
