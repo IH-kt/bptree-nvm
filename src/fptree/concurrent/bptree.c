@@ -4,6 +4,8 @@
 #ifdef COUNT_ABORT
 __thread unsigned int times_of_lock = 0;
 __thread unsigned int times_of_transaction = 0;
+__thread unsigned int times_of_abort[4] = {0,0,0,0};
+unsigned int times_of_tree_abort[4] = {0,0,0,0};
 #endif
 
 #ifdef FREQ_WRITE
@@ -48,9 +50,10 @@ void show_result_thread(unsigned char tid) {
 #define TRANSACTION_EXECUTION_EXECUTE(tree, code, tid) {   \
     while (1) {                                            \
         if (method == TRANSACTION) {                       \
-            status = _xbegin();                            \
-            if (tree->lock) {                              \
-                TRANSACTION_EXECUTION_ABORT();             \
+            if (!tree->lock) {                             \
+                status = _xbegin();                        \
+            } else {                                       \
+                status = _XABORT_EXPLICIT;                 \
             }                                              \
         } else {                                           \
             while (!lockBPTree(tree, tid)) {               \
@@ -70,6 +73,7 @@ void show_result_thread(unsigned char tid) {
             }                                              \
             break;                                         \
         } else {                                           \
+            ABORT_OCCURRED(status);                       \
             if (tree->lock) {                              \
                 do {                                       \
                     _mm_pause();                           \
@@ -208,14 +212,21 @@ void destroyBPTree(BPTree *tree, unsigned char tid) {
     vol_mem_free(tree);
     fprintf(stderr, "write count: %lu\n", GET_WRITE_COUNT());
     SHOW_FREQ_WRITE();
+    SHOW_COUNT_ABORT();
 }
 
 int lockLeaf(LeafNode *target, unsigned char tid) {
-    return __sync_bool_compare_and_swap(&target->pleaf->lock, 0, tid);
+    if (target->pleaf->lock) {
+        return 0;
+    } else {
+        target->pleaf->lock = tid;
+        return 1;
+    }
 }
 
 int unlockLeaf(LeafNode *target, unsigned char tid) {
-    return __sync_bool_compare_and_swap(&target->pleaf->lock, tid, 0);
+    target->pleaf->lock = 0;
+    return 1;
 }
 
 int lockBPTree(BPTree *target, unsigned char tid) {
