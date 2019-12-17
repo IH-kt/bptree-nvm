@@ -66,7 +66,6 @@ void initLeafNode(LeafNode *node, unsigned char tid) {
     for (i = 0; i < MAX_PAIR; i++) {
         initKeyValuePair(&node->kv[i]);
     }
-    NVM_write_varsize(&node->lock, &zchar, sizeof(char));
     NVM_write_varsize(&node->key_length, &zint, sizeof(int));
     NVM_write_varsize(&node->tid, &tid, sizeof(unsigned char));
     // NVHTM_end();
@@ -94,7 +93,6 @@ void initBPTree(BPTree *tree, LeafNode *leafHead, InternalNode *rootNode) {
     tree->root = rootNode;
     rootNode->children_type = LEAF;
     rootNode->children[0] = leafHead;
-    tree->lock = 0;
 }
 
 void initSearchResult(SearchResult *sr) {
@@ -199,9 +197,6 @@ LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent,
     }
     int key_index = searchInInternal(current, target_key);
     if (current->children_type == LEAF) {
-        if (NVM_read(&((LeafNode *)current->children[key_index])->lock) == 1) {
-            // _xabort(XABORT_STAT);
-        }
         if (parent != NULL) {
             *parent = current;
         }
@@ -275,8 +270,6 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode 
     }
     pp_tmp = NVM_read(&target->pnext);
     NVM_write_varsize(&new_leafnode->pnext, &pp_tmp, sizeof(ppointer));
-    c_tmp = NVM_read(&target->lock);
-    NVM_write_varsize(&new_leafnode->lock, &c_tmp, sizeof(char));
     leaf_tmp = NVM_read(&target->next);
     NVM_write_varsize(&new_leafnode->next, &leaf_tmp, sizeof(LeafNode *));
     leaf_tmp = NVM_read(&target->prev);
@@ -401,9 +394,6 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
         NVHTM_end();
         return 0;
     }
-    if (!lockLeaf(target_leaf, tid)) {
-        // _xabort(XABORT_STAT);
-    }
     // _xend();
     // }
 
@@ -415,9 +405,7 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
         // _xbegin();
         insertParent(bpt, parent, split_key, new_leaf, target_leaf);
         // _xend();
-        unlockLeaf(new_leaf, tid);
     }
-    unlockLeaf(target_leaf, tid);
     NVHTM_end();
     return 1;
 }
@@ -528,10 +516,8 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
             NVHTM_end();
             return 0;
         }
-        lockLeaf(target, tid);
         target_index = searchInLeaf(target, new_kv.key);
         if (target_index == -1) {
-            unlockLeaf(target, tid);
             NVHTM_end();
             return 0;
         }
@@ -540,7 +526,6 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
         NVM_write_varsize(&target->kv[target_index], &new_kv, sizeof(KeyValuePair));
         //persist(&target->pleaf->kv[target_index], sizeof(KeyValuePair));
         // _xbegin();
-        unlockLeaf(target, tid);
         // _xend();
     }
     NVHTM_end();
@@ -813,48 +798,26 @@ int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
         NVHTM_end();
         return 0;
     }
-    if (lockLeaf(target_leaf, tid)) {
-        int keypos = searchInLeaf(target_leaf, target_key);
-        if (keypos == -1) {
+    int keypos = searchInLeaf(target_leaf, target_key);
+    if (keypos == -1) {
 #ifdef DEBUG
-            printf("delete:the key doesn't exist. abort.\n");
+        printf("delete:the key doesn't exist. abort.\n");
 #endif
-            unlockLeaf(target_leaf, tid);
-            NVHTM_end();
-            return 0;
-        }
-        if (NVM_read(&target_leaf->key_length) == 1) {
-            if (NVM_read(&target_leaf->prev) != NULL) {
-                if (lockLeaf(NVM_read(&target_leaf->prev), tid)) {
-                    // _xend();
-                    deleteLeaf(bpt, target_leaf, tid);
-                    // _xbegin();
-                    removeFromParent(bpt, parent, target_leaf, target_key);
-                    // _xend();
-                    unlockLeaf(NVM_read(&target_leaf->prev), tid);
-                } else {
-                    // _xabort(XABORT_STAT);
-                }
-            } else {
-                // _xend();
-                deleteLeaf(bpt, target_leaf, tid);
-                // _xbegin();
-                removeFromParent(bpt, parent, target_leaf, target_key);
-                // _xend();
-            }
-        } else {
-            // _xend();
-            for (int i = keypos; i < NVM_read(&target_leaf->key_length) - 1; i++) {
-                kv_tmp = NVM_read(&target_leaf->kv[i + 1]);
-                NVM_write_varsize(&target_leaf->kv[i], &kv_tmp, sizeof(KeyValuePair));
-            }
-            kv_tmp = NVM_read(&target_leaf->kv[target_leaf->key_length - 1]);
-            initKeyValuePair(&kv_tmp);
-            target_leaf->key_length--;
-            unlockLeaf(target_leaf, tid);
-        }
+        NVHTM_end();
+        return 0;
+    }
+    if (NVM_read(&target_leaf->key_length) == 1) {
+        deleteLeaf(bpt, target_leaf, tid);
+        removeFromParent(bpt, parent, target_leaf, target_key);
     } else {
-        // _xabort(XABORT_STAT);
+        // _xend();
+        for (int i = keypos; i < NVM_read(&target_leaf->key_length) - 1; i++) {
+            kv_tmp = NVM_read(&target_leaf->kv[i + 1]);
+            NVM_write_varsize(&target_leaf->kv[i], &kv_tmp, sizeof(KeyValuePair));
+        }
+        kv_tmp = NVM_read(&target_leaf->kv[target_leaf->key_length - 1]);
+        initKeyValuePair(&kv_tmp);
+        target_leaf->key_length--;
     }
     NVHTM_end();
     return 1;
