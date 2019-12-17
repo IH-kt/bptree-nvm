@@ -95,7 +95,6 @@ struct LeafNode {
     ppointer pnext;
     int key_length;
     KeyValuePair kv[MAX_PAIR];
-    unsigned char lock;
 };
 
 struct BPTree {
@@ -122,6 +121,8 @@ typedef struct InternalNode InternalNode;
 typedef struct BPTree BPTree;
 typedef struct SearchResult SearchResult;
 typedef struct KeyPositionPair KeyPositionPair;
+
+typedef LeafNode PersistentLeafNode;
 
 /* utils */
 unsigned char hash(Key);

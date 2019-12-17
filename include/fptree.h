@@ -64,51 +64,6 @@ extern ppointer PADDR_NULL;
 })
 #endif
 
-#ifdef COUNT_ABORT
-extern __thread unsigned int times_of_lock;
-extern __thread unsigned int times_of_transaction;
-extern __thread unsigned int times_of_abort[4];
-extern unsigned int times_of_tree_abort[4];
-
-#  define TRANSACTION_SUCCESS() times_of_transaction++
-#  define LOCK_SUCCESS() times_of_lock++
-#  define ABORT_OCCURRED(type) {   \
-    /* printf("abort -> %d\n", type); */ \
-    if (type & (0x1 << 0)) {        \
-        times_of_abort[0]++;        \
-    } else if (type & (0x1 << 2)) { \
-        times_of_abort[1]++;        \
-    } else if (type & (0x1 << 3)) { \
-        times_of_abort[2]++;        \
-    } else {                        \
-        times_of_abort[3]++;        \
-    }                               \
-}
-#  define SUM_COUNT_ABORT() {\
-    __sync_fetch_and_add(&times_of_tree_abort[1], times_of_abort[1]);\
-	__sync_fetch_and_add(&times_of_tree_abort[0], times_of_abort[0]);\
-    __sync_fetch_and_add(&times_of_tree_abort[2], times_of_abort[2]);\
-    __sync_fetch_and_add(&times_of_tree_abort[3], times_of_abort[3]);\
-    fprintf(stderr, "abort[0] user     = %u times\n", times_of_abort[0]);\
-    fprintf(stderr, "abort[1] conflict = %u times\n", times_of_abort[1]);\
-    fprintf(stderr, "abort[2] capacity = %u times\n", times_of_abort[2]);\
-    fprintf(stderr, "abort[3] other    = %u times\n", times_of_abort[3]);\
-}
-#  define SHOW_COUNT_ABORT() {\
-	fprintf(stderr, "executed by lock = %u times\n", times_of_lock);\
-    fprintf(stderr, "executed by transaction = %u times\n", times_of_transaction);\
-    fprintf(stderr, "abort[0] user     = %u times\n", times_of_tree_abort[0]);\
-    fprintf(stderr, "abort[1] conflict = %u times\n", times_of_tree_abort[1]);\
-    fprintf(stderr, "abort[2] capacity = %u times\n", times_of_tree_abort[2]);\
-    fprintf(stderr, "abort[3] other    = %u times\n", times_of_tree_abort[3]);\
-}
-#else
-#  define TRANSACTION_SUCCESS()
-#  define LOCK_SUCCESS()
-#  define SHOW_COUNT_ABORT()
-#  define ABORT_OCCURRED(type)
-#endif
-
 #ifdef TIME_PART
 #include <time.h>
 extern __thread double internal_alloc_time;
