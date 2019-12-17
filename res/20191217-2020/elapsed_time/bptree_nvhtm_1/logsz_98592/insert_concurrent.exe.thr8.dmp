@@ -1,0 +1,62 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 8, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 33226910 byte
+log_size = 985920
+log_size_per_thread = 98592
+nh_glog_ref = 0x7f4c43200000
+LOG_global_ptr = 0x7f4c43200040
+log1 = 0x556e45f88fc0
+log2 = 0x556e45f8a3d0
+*******************Thread 9*******************
+***********************************************
+clearing nb_checkpoints = 11158
+*******************Thread 6*******************
+***********************************************
+*******************Thread 4*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+*******************Thread 8*******************
+***********************************************
+*******************Thread 9*******************
+***********************************************
+*******************Thread 3*******************
+***********************************************
+*******************Thread 5*******************
+***********************************************
+*******************Thread 7*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 2365
+--- Time blocked 0.000000e+00 ms!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 992666
+ABORTS : 182577
+CONFLS : 63445
+CAPACS : 46697
+EXPLIC : 16541
+FALLBK : 7334
+   P_A : 0.155353
+     X : inf
+ ---   TIME
+[FORKED_MANAGER] Nb. checkpoints 2365
+[FORKED_MANAGER] Time active 2112.252778 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=34584501 TIME_spins=0.000000ms
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          66071004
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          33082
+TOTAL_TIME_B (clocks) 4713546968
+ ---   ----
+ ########################################### 
+ ########################################### 
+
