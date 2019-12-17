@@ -48,9 +48,10 @@ void show_result_thread(unsigned char tid) {
 #define TRANSACTION_EXECUTION_EXECUTE(tree, code, tid) {   \
     while (1) {                                            \
         if (method == TRANSACTION) {                       \
-            status = _xbegin();                            \
-            if (tree->lock) {                              \
-                TRANSACTION_EXECUTION_ABORT();             \
+            if (!tree->lock) {                             \
+                status = _xbegin();                        \
+            } else {                                       \
+                status = _XABORT_EXPLICIT;                 \
             }                                              \
         } else {                                           \
             while (!lockBPTree(tree, tid)) {               \
@@ -211,11 +212,17 @@ void destroyBPTree(BPTree *tree, unsigned char tid) {
 }
 
 int lockLeaf(LeafNode *target, unsigned char tid) {
-    return __sync_bool_compare_and_swap(&target->pleaf->lock, 0, tid);
+    if (target->pleaf->lock) {
+        return 0;
+    } else {
+        target->pleaf->lock = tid;
+        return 1;
+    }
 }
 
 int unlockLeaf(LeafNode *target, unsigned char tid) {
-    return __sync_bool_compare_and_swap(&target->pleaf->lock, tid, 0);
+    target->pleaf->lock = 0;
+    return 1;
 }
 
 int lockBPTree(BPTree *target, unsigned char tid) {
