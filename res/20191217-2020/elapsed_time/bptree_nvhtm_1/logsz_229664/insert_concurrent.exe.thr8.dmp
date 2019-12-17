@@ -1,0 +1,62 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 8, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 33226910 byte
+log_size = 2296640
+log_size_per_thread = 229664
+nh_glog_ref = 0x7f9d0ee00000
+LOG_global_ptr = 0x7f9d0ee00040
+log1 = 0x5559d5709fc0
+log2 = 0x5559d570b3d0
+*******************Thread 9*******************
+***********************************************
+clearing nb_checkpoints = 5238
+*******************Thread 3*******************
+***********************************************
+*******************Thread 5*******************
+***********************************************
+*******************Thread 6*******************
+***********************************************
+*******************Thread 7*******************
+***********************************************
+*******************Thread 4*******************
+***********************************************
+*******************Thread 9*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+*******************Thread 8*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 639
+--- Time blocked 0.000000e+00 ms!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 992605
+ABORTS : 178832
+CONFLS : 64746
+CAPACS : 48131
+EXPLIC : 7095
+FALLBK : 7395
+   P_A : 0.152660
+     X : inf
+ ---   TIME
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          66069538
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          14190
+TOTAL_TIME_B (clocks) 4154886536
+ ---   ----
+ ########################################### 
+[FORKED_MANAGER] Nb. checkpoints 639
+[FORKED_MANAGER] Time active 1934.246504 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=34229360 TIME_spins=0.000000ms
+ ########################################### 
+

@@ -6,7 +6,7 @@ line_style = ['ro-', 'gv-', 'b^-', 'k*-']
 
 type_list = ['plain', 'db']
 op_list = ['insert', 'delete', 'search']
-thr_list = [1, 5, 9, 13, 17, 21] # TODO
+thr_list = [1, 2, 4, 8, 16] # TODO
 log_list = [65824, 98592, 131360, 164128, 196896] # TODO
 
 bar_width=0.2
@@ -25,6 +25,7 @@ for nvhtm_type in type_list:
             del tmp_df['logsize']
             tmp_df.plot(kind='bar', stacked=True, ylim=[0, max_val*1.05])
             plt.savefig('abort_' + nvhtm_type + '_' + operation + '_' + str(logsz) + '.png')
+            plt.close('all')
 
 #         ind = np.arange(len(thr_list))
 #         for thr in thr_list:

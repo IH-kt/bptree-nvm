@@ -114,7 +114,7 @@ static CL_ALIGN mutex malloc_mtx;
 static CL_ALIGN ts_s count_val_wait[MAX_NB_THREADS];
 
 static int manager_mutex = 0;
-int *NH_checkpointer_state; // extern
+volatile int *NH_checkpointer_state; // extern
 sem_t *NH_chkp_sem; // extern
 static int exit_success = 0;
 

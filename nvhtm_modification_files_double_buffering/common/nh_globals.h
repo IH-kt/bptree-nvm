@@ -19,7 +19,7 @@ extern CL_ALIGN long global_flushed_ts;
 // ####################################################
 // global
 extern CL_ALIGN int TM_nb_threads;
-extern int *NH_checkpointer_state;
+extern volatile int *NH_checkpointer_state;
 extern sem_t *NH_chkp_sem;
 //extern CL_ALIGN int MAX_PHYS_THRS;
 //extern CL_ALIGN long long CPU_MAX_FREQ;

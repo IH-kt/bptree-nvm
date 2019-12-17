@@ -12,6 +12,7 @@ extern void *al_pool;
 #include <vector>
 #include <unistd.h>
 #include <xmmintrin.h>
+#include <sys/mman.h>
 
 using namespace std;
 NVLog_s **NH_global_checkpointing_logs;
@@ -78,6 +79,8 @@ static void wait_persistent_checkpointing(NVLog_s **log) {
         }
     }
     if (i >= TM_nb_threads) {
+        *NH_checkpointer_state = 1;
+        __sync_synchronize();
         return;
     }
     // fprintf(stderr, "entering wait PCP\n");
@@ -93,6 +96,7 @@ static void wait_persistent_checkpointing(NVLog_s **log) {
     }
     *NH_checkpointer_state = 1;
     // fprintf(stderr, "exit wait PCP\n");
+    __sync_synchronize();
 }
 
 // Apply log backwards and avoid repeated writes
@@ -112,11 +116,17 @@ int LOG_checkpoint_backward_apply_one()
     char bit_map;
   } CL_BLOCK;
 
-  assert(!(*NH_checkpointer_state == 1));
+  *NH_checkpointer_state = 0;
+  assert((*NH_checkpointer_state) == 0);
   sem_wait(NH_chkp_sem);
+  __sync_synchronize();
   // printf("received semaphore\n");
   *NH_checkpointer_state = 2; // doing checkpoint
-  __sync_synchronize();
+  int err = msync((void *)NH_checkpointer_state, sizeof(int), MS_SYNC);
+  if (err < 0) {
+      fprintf(stderr, "msync\n");
+  }
+  // __sync_synchronize();
 
   // stores the possible repeated writes
   unordered_map<GRANULE_TYPE*, CL_BLOCK> writes_map;
