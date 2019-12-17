@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 
     bptreeThreadInit(BPTREE_BLOCK);
 
-    for (i = 0; i < thread_max; i++) {
+    for (i = 1; i < thread_max; i++) {
         arg[i] = (arg_t *)malloc(sizeof(arg_t));
         arg[i]->seed = i;
         arg[i]->tid = i % 256 + 1;
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
     clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
     bptreeStartThread();
 
-    for (i = 0; i <= thread_max; i++) {
+    for (i = 1; i <= thread_max; i++) {
         bptreeWaitThread(tid_array[i], NULL);
         free(arg[i]);
     }
