@@ -6,6 +6,9 @@ import sys
 import os
 import re
 
+operations = ["insert", "search", "delete"]
+threads = [1, 2, 4, 8, 16]
+
 def get_logsz_dir(path):
     files = os.listdir(path)
     logsz_dirs = []
@@ -43,22 +46,23 @@ print(log_sizes)
 print(csvs1)
 print(csvs2)
 
-for i in range(3):
-    results = []
-    for j in range(len(log_sizes)):
-        results.append([])
-        results[j].append(csvs1[j].iat[4,i])
-    for j in range (len(log_sizes)):
-        results[j].append(csvs2[j].iat[4,i])
-    print(results)
-    df = pd.DataFrame(results, index=log_sizes, columns=['bptree-nvhtm', 'bptree-nvhtm-2buff']);
-    print(df)
-    df.plot()
-    plt.xlabel('Log size (MB)')
-    plt.ylabel('Elapsed time (sec.)')
-    plt.savefig('result.png')
-    plt.savefig('result.eps')
-plt.close('all')
+for thr in range(len(threads)):
+    for i in range(3):
+        results = []
+        for j in range(len(log_sizes)):
+            results.append([])
+            results[j].append(csvs1[j].iat[thr,i])
+        for j in range (len(log_sizes)):
+            results[j].append(csvs2[j].iat[thr,i])
+        print(results)
+        df = pd.DataFrame(results, index=log_sizes, columns=['bptree-nvhtm', 'bptree-nvhtm-2buff']);
+        print(df)
+        df.plot()
+        plt.xlabel('Log size (MB)')
+        plt.ylabel('Elapsed time (sec.)')
+        plt.savefig(operations[i] + '_result_logsize.' + str(threads[thr]) + '.png')
+        plt.savefig(operations[i] + '_result_logsize.' + str(threads[thr]) + '.eps')
+    plt.close('all')
 # for i in range(3):
 #     p_df1 = result_df1.iloc[:, [i]]
 #     p_df2 = result_df2.iloc[:, [i]]
