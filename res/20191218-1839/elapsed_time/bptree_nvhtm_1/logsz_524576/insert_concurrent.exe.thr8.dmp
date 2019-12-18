@@ -1,0 +1,62 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 8, pmem_path = /home/iiboshi/dramdir//data, log_path = /home/iiboshi/dramdir//log
+allocating 33100572 byte
+log_size = 5245760
+log_size_per_thread = 524576
+nh_glog_ref = 0x7f6a84c00000
+LOG_global_ptr = 0x7f6a84c00040
+log1 = 0x55e124d64fc0
+log2 = 0x55e124d663d0
+*******************Thread 9*******************
+***********************************************
+clearing nb_checkpoints = 1251
+*******************Thread 4*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+*******************Thread 3*******************
+***********************************************
+*******************Thread 6*******************
+***********************************************
+*******************Thread 5*******************
+***********************************************
+*******************Thread 9*******************
+***********************************************
+*******************Thread 7*******************
+***********************************************
+*******************Thread 8*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 128
+--- Time blocked 0.000000e+00 ms!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 992618
+ABORTS : 178407
+CONFLS : 67980
+CAPACS : 46497
+EXPLIC : 1605
+FALLBK : 7382
+   P_A : 0.152351
+     X : inf
+ ---   TIME
+Time 0.000000 s
+TIME_TX 0.000000 ms
+[FORKED_MANAGER] Nb. checkpoints 128
+[FORKED_MANAGER] Time active 1894.889773 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=31462827 TIME_spins=0.000000ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          66057937
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          3210
+TOTAL_TIME_B (clocks) 4184437684
+ ---   ----
+ ########################################### 
+ ########################################### 
+

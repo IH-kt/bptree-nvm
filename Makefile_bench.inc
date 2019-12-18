@@ -26,7 +26,7 @@ NVHTM_MAKE_ARGS += LOG_SIZE=$(LOGSZ)
 ifdef logmax
 	LOGMAX	:= $(logmax)
 else
-	LOGMAX	:= 262432
+	LOGMAX	:= 7
 endif
 ifdef logstep
 	LOGSTP	:= $(logstep)
@@ -52,7 +52,7 @@ else
 endif
 
 THRLST	?= $(shell seq 0 $(THRMAX) | sed -e 's/\(.*\)/2^\1/' | bc -q | tr '\n' ' ')
-LOGLST	?= $(shell echo "for(i=$(LOGSTT);i<=$(LOGMAX);i+=$(LOGSTP))i" | bc -q | tr '\n' ' ')
+LOGLST	?= $(shell seq 0 $(LOGMAX) | sed -e 's/\(.*\)/32768 * 2^\1 + 288/'| bc -q | tr '\n' ' ')
 THRLSTP	?= [$(shell echo $(THRLST) | tr ' ' ',')]
 
 bench_all:

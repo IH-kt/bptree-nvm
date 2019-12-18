@@ -1,0 +1,52 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 4, pmem_path = /home/iiboshi/dramdir//data, log_path = /home/iiboshi/dramdir//log
+allocating 33092188 byte
+log_size = 3147456
+log_size_per_thread = 524576
+LOG_global_ptr = 0x7f9873600000
+*******************Thread 5*******************
+***********************************************
+clearing nb_checkpoints = 2475
+*******************Thread 5*******************
+***********************************************
+*******************Thread 4*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+*******************Thread 3*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 529
+--- Time blocked 0.000000e+00 ms!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 993054
+[FORKED_MANAGER] Nb. checkpoints 529
+[FORKED_MANAGER] Time active 2629.844019 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=33540561 TIME_spins=0.000000ms
+ABORTS : 163320
+CONFLS : 36332
+CAPACS : 51886
+EXPLIC : 4652
+FALLBK : 6946
+   P_A : 0.141235
+     X : inf
+ ---   TIME
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          66097489
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          9792
+TOTAL_TIME_B (clocks) 7611643668
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+0.933998

@@ -127,6 +127,7 @@ extern "C"
     __sync_synchronize();                                                     \
     NVMHTM_commit(id, ts_var, nb_writes);                                    \
   }                                                                           \
+  __sync_synchronize();                                                     \
   CHECK_AND_REQUEST(_tid);                                                     \
   TM_inc_local_counter(_tid);                                                  \
   LOG_after_TX();                                                             \

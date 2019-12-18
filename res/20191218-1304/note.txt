@@ -1,0 +1,2 @@
+make tree=bptree type=nvhtm ppath=/mnt/nvmm/iiboshi db=1 logsz=33056 BENCH_DATE=20191218-1304 elapsed_time_thr
+取り直し分
