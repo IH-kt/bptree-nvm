@@ -1,0 +1,63 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 8, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 33100572 byte
+log_size = 658240
+log_size_per_thread = 65824
+nh_glog_ref = 0x7fd4dcc00000
+LOG_global_ptr = 0x7fd4dcc00040
+log1 = 0x55a084f3afc0
+log2 = 0x55a084f3c3d0
+*******************Thread 9*******************
+***********************************************
+clearing nb_checkpoints = 11155
+*******************Thread 3*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+*******************Thread 6*******************
+***********************************************
+*******************Thread 9*******************
+***********************************************
+*******************Thread 4*******************
+***********************************************
+*******************Thread 8*******************
+***********************************************
+*******************Thread 5*******************
+***********************************************
+*******************Thread 7*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 2293
+[FORKED_MANAGER] Nb. checkpoints 2293
+[FORKED_MANAGER] Time active 2113.776458 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=34577472 TIME_spins=0.000000ms
+--- Time blocked 0.000000e+00 ms!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 992586
+ABORTS : 245818
+CONFLS : 126480
+CAPACS : 47293
+EXPLIC : 16421
+FALLBK : 7414
+   P_A : 0.198496
+     X : inf
+ ---   TIME
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          66055899
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          32842
+TOTAL_TIME_B (clocks) 4437960980
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+0.947638

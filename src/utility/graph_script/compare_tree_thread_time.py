@@ -16,10 +16,11 @@ def get_logsz_dir(path):
 
 line_style = ['ro-', 'gv-', 'b^-', 'k*-']
 
-def plot_graph(log_size_str, result_file1, result_file2, result_file3):
+def plot_graph(log_size_str, result_file1, result_file2, result_file3, result_file4):
     result_df1 = pd.read_csv(result_file1 + '/result.csv', index_col=0)
     result_df2 = pd.read_csv(result_file2 + '/result.csv', index_col=0)
     result_df3 = pd.read_csv(result_file3 + '/result.csv', index_col=0)
+    result_df4 = pd.read_csv(result_file4 + '/result.csv', index_col=0)
 
     os.makedirs(log_size_str)
 
@@ -27,11 +28,13 @@ def plot_graph(log_size_str, result_file1, result_file2, result_file3):
         p_df1 = result_df1.iloc[:, [i]]
         p_df2 = result_df2.iloc[:, [i]]
         p_df3 = result_df3.iloc[:, [i]]
+        p_df4 = result_df4.iloc[:, [i]]
         colname = p_df1.columns[0]
         p_df1.columns = [result_file1.split('../elapsed_time/')[1]]
         p_df2.columns = [result_file2.split('../elapsed_time/')[1]]
         p_df3.columns = [result_file3.split('../elapsed_time/')[1]]
-        result_df = pd.concat([p_df1, p_df2, p_df3], axis=1)
+        p_df4.columns = [result_file4.split('../elapsed_time/')[1]]
+        result_df = pd.concat([p_df1, p_df2, p_df3, p_df4], axis=1)
         result_df.plot.line(style=line_style)
         plt.xlabel('Number of thread')
         plt.ylabel('Elapsed time (sec.)')
@@ -59,10 +62,12 @@ def plot_graph(log_size_str, result_file1, result_file2, result_file3):
 result_file_dirs_1 = get_logsz_dir('../elapsed_time/bptree_nvhtm_0/')
 result_file_dirs_2 = get_logsz_dir('../elapsed_time/bptree_nvhtm_1/')
 result_file_dirs_3 = get_logsz_dir('../elapsed_time/fptree_concurrent_0/')
+result_file_dirs_4 = get_logsz_dir('../elapsed_time/bptree_concurrent_0/')
 
 for i in range(len(result_file_dirs_1)):
     result_file_dir1 = '../elapsed_time/bptree_nvhtm_0/' + result_file_dirs_1[i]
     result_file_dir2 = '../elapsed_time/bptree_nvhtm_1/' + result_file_dirs_2[i]
     result_file_dir3 = '../elapsed_time/fptree_concurrent_0/' + result_file_dirs_3[0]
-    plot_graph(result_file_dirs_1[i], result_file_dir1, result_file_dir2, result_file_dir3)
+    result_file_dir4 = '../elapsed_time/bptree_concurrent_0/' + result_file_dirs_4[0]
+    plot_graph(result_file_dirs_1[i], result_file_dir1, result_file_dir2, result_file_dir3, result_file_dir4)
     plt.close('all')

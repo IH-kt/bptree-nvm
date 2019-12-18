@@ -131,6 +131,7 @@ extern unsigned int times_of_tree_abort[4];
     fprintf(stderr, "abort[3] other    = %u times\n", times_of_tree_abort[3]);\
 }
 #else
+#  define SUM_COUNT_ABORT()
 #  define TRANSACTION_SUCCESS()
 #  define LOCK_SUCCESS()
 #  define SHOW_COUNT_ABORT()
