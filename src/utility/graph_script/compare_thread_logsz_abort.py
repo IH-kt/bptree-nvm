@@ -1,19 +1,21 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 import matplotlib as mpl
+import japanize_matplotlib
 
 line_style = ['ro-', 'gv-', 'b^-', 'k*-']
 
 type_list = ['plain', 'db']
 op_list = ['insert', 'delete', 'search']
+op_list_j = ['挿入', '削除', '検索']
 thr_list = [1, 2, 4, 8, 16] # TODO
-log_list = [65824, 98592, 131360, 164128, 196896] # TODO
+log_list = [33056, 65824, 131360, 262432, 524576] # TODO
 
 bar_width=0.2
 
 for nvhtm_type in type_list:
-    for operation in op_list:
-        ab_csv = pd.read_csv('abort_' + operation + '_' + nvhtm_type + '.csv', index_col=1, usecols=[1,2,3,4,5,6]);
+    for i in range(0, len(op_list)):
+        ab_csv = pd.read_csv('abort_' + op_list[i] + '_' + nvhtm_type + '.csv', index_col=1, usecols=[1,2,3,4,5,6]);
         max_val = max(ab_csv['abort'])
         print(max_val)
         others = ab_csv['abort'] - ab_csv['conflict'] - ab_csv['capacity'] - ab_csv['explicit']
@@ -23,8 +25,11 @@ for nvhtm_type in type_list:
             tmp_df = abort_df[abort_df['logsize'] == logsz]
             del tmp_df['abort']
             del tmp_df['logsize']
-            tmp_df.plot(kind='bar', stacked=True, ylim=[0, max_val*1.05])
-            plt.savefig('abort_' + nvhtm_type + '_' + operation + '_' + str(logsz) + '.png')
+            ax = tmp_df.plot(kind='bar', stacked=True, ylim=[0, max_val*1.05])
+            plt.xlabel('スレッド数')
+            plt.ylabel('アボート回数')
+            ax.title('スレッド数によるアボート回数の変化（' + op_list_j[i] + '）')
+            plt.savefig('abort_' + nvhtm_type + '_' + op_list[i] + '_' + str(logsz) + '.png')
             plt.close('all')
 
 #         ind = np.arange(len(thr_list))

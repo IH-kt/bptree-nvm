@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib as mpl
+import japanize_matplotlib
 import sys
 import os
 import re
@@ -57,9 +58,12 @@ for thr in range(len(threads)):
         print(results)
         df = pd.DataFrame(results, index=log_sizes, columns=['bptree-nvhtm', 'bptree-nvhtm-2buff']);
         print(df)
-        df.plot()
-        plt.xlabel('Log size (MB)')
-        plt.ylabel('Elapsed time (sec.)')
+        ax = df.plot()
+        plt.xlabel('ログサイズ (MB)')
+        plt.ylabel('実行時間 (秒)')
+        plt.title('ログサイズによる実行時間の変化')
+        ax.legend(['B${^+}$-Tree${_{NH}}$', "B${^+}$-Tree${_{DB}}$"])
+        plt.ylim(ymin=0)
         plt.savefig(operations[i] + '_result_logsize.' + str(threads[thr]) + '.png')
         plt.savefig(operations[i] + '_result_logsize.' + str(threads[thr]) + '.eps')
     plt.close('all')

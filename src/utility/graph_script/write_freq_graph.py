@@ -1,6 +1,7 @@
 import pandas as pd
 from matplotlib import pyplot as pl
 from matplotlib import ticker as tck
+import japanize_matplotlib
 import sys
 
 worker_timestamps = []
@@ -32,9 +33,11 @@ worker_major_fmt.insert(0, "")
 
 freq_df = pd.DataFrame(worker_freq, index=worker_passed_time, columns=['sec'])
 # freq_df = pd.DataFrame(freq, columns=['sec'])
-ax = freq_df.plot()
-ax.set_xlabel('passed time')
-ax.set_ylabel('write amount (byte/sec)')
+ax = freq_df.plot(legend=False)
+ax.set_xlabel('経過時間 (秒)')
+ax.set_ylabel('書き込み頻度 (バイト/秒)')
+plt.title('Workerプロセスの書き込み頻度')
+ax.ticklabel_format(style="sci", axis="y", scilimits=(0,0))
 # ax.ticklabel_format(style='plain', axis='x')
 pl.ylim([0, freq_df.max().max() * 1.1])
 pl.savefig('worker_write_freq.png')
@@ -58,9 +61,11 @@ if (len(checkpoint_timestamps) != 0):
 
     freq_df = pd.DataFrame(checkpoint_freq, index=checkpoint_passed_time, columns=['sec'])
     # freq_df = pd.DataFrame(freq, columns=['sec'])
-    ax = freq_df.plot()
-    ax.set_xlabel('passed time')
-    ax.set_ylabel('write amount (byte/sec)')
+    ax = freq_df.plot(legend=False)
+    ax.set_xlabel('経過時間 (秒)')
+    ax.set_ylabel('書き込み頻度 (バイト/秒)')
+    plt.title('Checkpointプロセスの書き込み頻度')
+    ax.ticklabel_format(axis="", scilimits=(0,0))
     # ax.ticklabel_format(style='plain', axis='x')
     pl.ylim([0, freq_df.max().max() * 1.1])
     pl.savefig('checkpoint_write_freq.png')

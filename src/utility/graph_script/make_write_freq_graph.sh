@@ -1,7 +1,7 @@
 #!/bin/sh
 
 nvhtms="bptree_nvhtm_0 bptree_nvhtm_1"
-logszs="65824 98592 131360 164128 196896 229664 262432"
+logszs="33056 65824 131360 262432 524576"
 thrs="1 2 4 8 16"
 wf_dir="write_freq"
 concs="fptree_concurrent_0 bptree_concurrent_0"
