@@ -1,0 +1,49 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 2, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 33087996 byte
+log_size = 132224
+log_size_per_thread = 33056
+LOG_global_ptr = 0x7fcafcc00000
+*******************Thread 3*******************
+***********************************************
+clearing nb_checkpoints = 41701
+*******************Thread 3*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 21858
+--- Time blocked 0.000000e+00 ms!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+[FORKED_MANAGER] Nb. checkpoints 21858
+[FORKED_MANAGER] Time active 4259.040110 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=33025807 TIME_spins=0.000000ms
+COMMIT : 993010
+ABORTS : 230431
+CONFLS : 33631
+CAPACS : 49162
+EXPLIC : 67573
+FALLBK : 6990
+   P_A : 0.188347
+     X : inf
+ ---   TIME
+insert_concurrent.exe: malloc.c:2401: sysmalloc: Assertion `(old_top == initial_top (av) && old_size == 0) || ((unsigned long) (old_size) >= MINSIZE && prev_inuse (old_top) && ((unsigned long) old_end & (pagesize - 1)) == 0)' failed.
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          65996789
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          141412
+TOTAL_TIME_B (clocks) 12203286432
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+2.050534
