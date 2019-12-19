@@ -103,6 +103,8 @@ extern "C"
 			ts_s ts1_wait_log_time, ts2_wait_log_time; \
 			if (HTM_test()) HTM_named_abort(CODE_LOG_ABORT); \
 			ts1_wait_log_time = rdtscp(); \
+			struct timespec stt, edt; \
+			clock_gettime(CLOCK_MONOTONIC_RAW, &stt); \
 			while (distance_ptr(log->start, log->end) > \
 				(LOG_local_state.size_of_log - 32)) { \
 					if (*NH_checkpointer_state == 0) sem_post(NH_chkp_sem); \
@@ -112,6 +114,12 @@ extern "C"
 			LOG_before_TX(); \
 			ts2_wait_log_time = rdtscp(); \
 			NH_time_blocked += rdtscp() - ts1_wait_log_time; \
+			clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
+			double time_tmp = 0;                      \
+			time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
+			time_tmp /= 1000000000;                   \
+			time_tmp += edt.tv_sec - stt.tv_sec;      \
+			NH_nanotime_blocked += time_tmp;		  \
 			/*double lat = (double)(ts2_wait_log_time - ts1_wait_log_time) / (double)CPU_MAX_FREQ; \
 			 if (lat > 100) printf("Blocked for %f ms\n", lat); */ \
 		} \
@@ -122,6 +130,8 @@ extern "C"
 	if (HTM_is_named(TM_status_var) == CODE_LOG_ABORT) { \
 		ts_s ts1_wait_log_time, ts2_wait_log_time; \
 		ts1_wait_log_time = rdtscp(); \
+		struct timespec stt, edt; \
+		clock_gettime(CLOCK_MONOTONIC_RAW, &stt); \
 		NVLog_s *log = NH_global_logs[TM_tid_var]; \
 		while ((LOG_local_state.counter == distance_ptr(log->start, log->end) \
 			&& (LOG_local_state.size_of_log - LOG_local_state.counter) < WAIT_DISTANCE) \
@@ -134,6 +144,12 @@ extern "C"
 		LOG_before_TX(); \
 		ts2_wait_log_time = rdtscp(); \
 		NH_time_blocked += ts2_wait_log_time - ts1_wait_log_time; \
+		clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
+		double time_tmp = 0;                      \
+		time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
+		time_tmp /= 1000000000;                   \
+		time_tmp += edt.tv_sec - stt.tv_sec;      \
+		NH_nanotime_blocked += time_tmp;		  \
 		/* double lat = (double)(ts2_wait_log_time - ts1_wait_log_time) / (double)CPU_MAX_FREQ; \
 		if (lat > 100) printf("Blocked for %f ms\n", lat); */ \
 	}
