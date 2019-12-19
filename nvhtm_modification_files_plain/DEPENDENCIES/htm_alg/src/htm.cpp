@@ -16,6 +16,9 @@ using namespace std;
 CL_ALIGN int HTM_SGL_var;
 __thread CL_ALIGN HTM_SGL_local_vars_s HTM_SGL_vars;
 
+CL_ALIGN double HTM_nanotime_blocked_total;
+__thread CL_ALIGN double HTM_nanotime_blocked;
+
 static mutex mtx;
 static int init_budget = HTM_SGL_INIT_BUDGET;
 static int threads;
@@ -27,6 +30,7 @@ static __thread int tid;
 
 void HTM_init_(int init_budget, int nb_threads)
 {
+  HTM_nanotime_blocked_total = 0;
   init_budget = HTM_SGL_INIT_BUDGET;
   threads = nb_threads;
   HTM_SGL_var = 0;
@@ -35,11 +39,13 @@ void HTM_init_(int init_budget, int nb_threads)
 
 void HTM_exit()
 {
+  fprintf(stderr, "--- HTM time blocked %lf s!\n", HTM_nanotime_blocked_total);
   HTM_EXIT();
 }
 
 void HTM_thr_init()
 {
+  HTM_nanotime_blocked = 0;
   mtx.lock();
   tid = thr_counter++;
   HTM_SGL_tid = tid;
@@ -49,6 +55,7 @@ void HTM_thr_init()
 
 void HTM_thr_exit()
 {
+  HTM_nanotime_blocked_total += HTM_nanotime_blocked;
   mtx.lock();
   --thr_counter;
   HTM_THR_EXIT();
@@ -60,11 +67,18 @@ void HTM_set_budget(int _budget) { init_budget = _budget; }
 
 void HTM_enter_fallback()
 {
+  struct timespec stt, edt;
+	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
   // mtx.lock();
   while (!__sync_bool_compare_and_swap(&HTM_SGL_var, 0, 1)) {
     PAUSE();
   }
-
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+	double time_tmp = 0;
+	time_tmp += (edt.tv_nsec - stt.tv_nsec);
+	time_tmp /= 1000000000;
+	time_tmp += edt.tv_sec - stt.tv_sec;
+	HTM_nanotime_blocked += time_tmp;
   // HTM_SGL_var = 1;
   // __sync_synchronize();
   errors[HTM_FALLBACK]++;
@@ -80,10 +94,18 @@ void HTM_exit_fallback()
 
 void HTM_block()
 {
+  struct timespec stt, edt;
+	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
   while(HTM_SGL_var == 1) {
     __sync_synchronize();
     PAUSE();
   }
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+	double time_tmp = 0;
+	time_tmp += (edt.tv_nsec - stt.tv_nsec);
+	time_tmp /= 1000000000;
+	time_tmp += edt.tv_sec - stt.tv_sec;
+	HTM_nanotime_blocked += time_tmp;
 
   // mtx.lock();
   // mtx.unlock();
