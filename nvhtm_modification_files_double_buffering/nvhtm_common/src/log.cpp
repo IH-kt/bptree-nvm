@@ -425,8 +425,13 @@ void NH_start_freq() {
 }
 
 void NH_reset() {
+    extern CL_ALIGN double HTM_nanotime_blocked_total;
     fprintf(stderr, "clearing nb_checkpoints = %lld\n", *NH_nb_checkpoints);
     *NH_nb_checkpoints = 0;
     TM_reset_error();
+    fprintf(stderr, "HTM_nanotime_blocked_total = %lf\n", HTM_nanotime_blocked_total);
+    fprintf(stderr, "NH_time_blocked_total = %lf\n", NH_nanotime_blocked_total);
+    HTM_nanotime_blocked_total = 0;
+    NH_nanotime_blocked_total = 0;
     return;
 }

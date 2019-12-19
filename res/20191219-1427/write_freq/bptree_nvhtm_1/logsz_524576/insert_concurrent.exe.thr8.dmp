@@ -1,0 +1,178 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 8, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 33100572 byte
+log_size = 5245760
+log_size_per_thread = 524576
+nh_glog_ref = 0x7fced6a00000
+LOG_global_ptr = 0x7fced6a00040
+log1 = 0x5650474e6fc0
+log2 = 0x5650474e83d0
+*******************Thread 9*******************
+***********************************************
+clearing nb_checkpoints = 1251
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 495823
+	ABORT    = 92194
+	EXPLICIT = 891
+	RETRY    = 80
+	CONFLICT = 84
+	CAPACITY = 39979
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 52135
+	FALLBACK = 4177
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 4:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 5:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 6:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 7:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 8:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 9:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000602
+NH_time_blocked_total = 0.021962
+*******************Thread 4*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+*******************Thread 6*******************
+***********************************************
+*******************Thread 8*******************
+***********************************************
+*******************Thread 5*******************
+***********************************************
+*******************Thread 9*******************
+***********************************************
+*******************Thread 3*******************
+***********************************************
+*******************Thread 7*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 177
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked 2.204779 s!
+[FORKED_MANAGER] Nb. checkpoints 177
+[FORKED_MANAGER] Time active 2066.862306 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=31499373 TIME_spins=0.000000ms
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 496944
+ABORTS : 89904
+CONFLS : 73830
+CAPACS : 4769
+EXPLIC : 1561
+FALLBK : 3056
+   P_A : 0.153198
+     X : inf
+ ---   TIME
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          66054649
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          4904
+TOTAL_TIME_B (clocks) 4536142270
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 2.477863 s!
+0.830566

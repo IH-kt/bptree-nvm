@@ -1,0 +1,84 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 1, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 33085900 byte
+log_size = 3146592
+log_size_per_thread = 1048864
+LOG_global_ptr = 0x7f2ba8e00000
+*******************Thread 2*******************
+***********************************************
+clearing nb_checkpoints = 1235
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 495797
+	ABORT    = 264394
+	EXPLICIT = 1289
+	RETRY    = 96
+	CONFLICT = 97
+	CAPACITY = 37430
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 226867
+	FALLBACK = 4203
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000650
+NH_time_blocked_total = 0.880616
+*******************Thread 2*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 754
+[FORKED_MANAGER] Nb. checkpoints 754
+[FORKED_MANAGER] Time active 3509.133221 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=32861934 TIME_spins=0.000000ms
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked 0.592437 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 497384
+ABORTS : 108492
+CONFLS : 86
+CAPACS : 24636
+EXPLIC : 755
+FALLBK : 2616
+   P_A : 0.179066
+     X : inf
+ ---   TIME
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          66126479
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          4354
+TOTAL_TIME_B (clocks) 3830166360
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000414 s!
+2.096570

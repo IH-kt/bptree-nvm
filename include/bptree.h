@@ -25,7 +25,7 @@ extern "C" {
 #  define LOCK 0
 #endif
 
-#define MIN_KEY 256
+#define MIN_KEY 128
 #define MIN_DEG (MIN_KEY+1)
 #define MAX_KEY (2*MIN_KEY+1)
 #define MAX_DEG (MAX_KEY+1)
@@ -39,6 +39,7 @@ extern ppointer PADDR_NULL;
 #  define SHOW_RESULT_THREAD(tid) {\
     fprintf(stderr, "*******************Thread %d*******************\n", tid);\
     SHOW_TRANSACTION_SIZE();\
+    SUM_COUNT_ABORT();\
     fprintf(stderr, "***********************************************\n");\
 }
 

@@ -27,9 +27,17 @@ extern "C"
     int id = TM_tid_var;\
     TM_inc_fallback(tid);\
     persistent_checkpointing[id].flag = 1;                                            \
+    struct timespec stt, edt;\
+    clock_gettime(CLOCK_MONOTONIC_RAW, &stt);\
     while (*NH_checkpointer_state == 1) {                                        \
       PAUSE();                                                                    \
     }\
+    clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
+    double time_tmp = 0;                      \
+    time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
+    time_tmp /= 1000000000;                   \
+    time_tmp += edt.tv_sec - stt.tv_sec;      \
+    NH_nanotime_blocked += time_tmp;  \
     /*printf("before_sgl_begin set:%d\n", tid);*/\
     __sync_synchronize();                                                         \
     nvm_htm_local_log = NH_global_logs[id];                                      \
@@ -39,6 +47,7 @@ extern "C"
 										   (int)LOG_local_state.end);                    \
     if ((LOG_local_state.size_of_log - LOG_local_state.counter) < 2048)            \
     {                                                                             \
+        clock_gettime(CLOCK_MONOTONIC_RAW, &stt);\
       /*printf("sgl %d: not enough space -> %d - %d\n", tid, LOG_local_state.size_of_log, LOG_local_state.counter);*/                                  \
     /*printf("before_sgl_begin unset:%d\n", tid);*/\
       __sync_synchronize();                                                       \
@@ -83,6 +92,12 @@ extern "C"
       LOG_local_state.counter = distance_ptr((int)LOG_local_state.start,                   \
               (int)LOG_local_state.end);                    \
       /*printf("sgl %d: exiting -> %d - %d\n", tid, LOG_local_state.size_of_log, LOG_local_state.counter)*/;                                  \
+        clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
+        double time_tmp = 0;                      \
+        time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
+        time_tmp /= 1000000000;                   \
+        time_tmp += edt.tv_sec - stt.tv_sec;      \
+        NH_nanotime_blocked += time_tmp;  \
     }                                                                             \
   /*printf("AftrSGLBgn %d-%d: start = %d, end = %d, local start = %d, local end = %d, counter = %d\n", tid, id, NH_global_logs[id]->start, NH_global_logs[id]->end, LOG_local_state.start, LOG_local_state.end, LOG_local_state.counter);*/\
   }
@@ -138,12 +153,22 @@ extern "C"
 #undef AFTER_ABORT
 #define AFTER_ABORT(tid, budget, status)                                       \
   /* NH_tx_time += rdtscp() - TM_ts1; */                                       \
+  {\
+  struct timespec stt, edt;\
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt); \
   while (*NH_checkpointer_state == 2) { \
       if (persistent_checkpointing[TM_tid_var].flag) {\
           persistent_checkpointing[TM_tid_var].flag = 0; \
       } \
     PAUSE(); \
   }        \
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
+  double time_tmp = 0;                      \
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
+  time_tmp /= 1000000000;                   \
+  time_tmp += edt.tv_sec - stt.tv_sec;      \
+  NH_nanotime_blocked += time_tmp;  \
+  }\
   /*printf("AbortState %d-%d: status = %x\n", tid, TM_tid_var, status);*/\
   CHECK_LOG_ABORT(tid, status);                                                \
   LOG_get_ts_before_tx(tid);                                                   \

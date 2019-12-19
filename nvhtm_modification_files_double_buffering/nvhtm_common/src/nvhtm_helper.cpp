@@ -389,6 +389,7 @@ void NVMHTM_thr_exit()
   mtx.lock();
   NH_time_blocked_total += NH_time_blocked;
   NH_count_blocks_total += NH_count_blocks;
+  NH_nanotime_blocked_total += NH_nanotime_blocked;
   mtx.unlock();
 }
 
@@ -498,6 +499,7 @@ void NVMHTM_shutdown()
   / (double) CPU_MAX_FREQ / 1000.0D) / (double) TM_nb_threads / time_taken);
   fprintf(stderr, "--- Nb. checkpoints %lli\n", *NH_nb_checkpoints);
   fprintf(stderr, "--- Time blocked %e ms!\n", (double) time_chkp_total / ((double) CPU_MAX_FREQ));
+  fprintf(stderr, "--- NH time blocked %f s!\n", NH_nanotime_blocked_total);
 
 }
 

@@ -4,6 +4,8 @@
 #ifdef COUNT_ABORT
 __thread unsigned int times_of_lock = 0;
 __thread unsigned int times_of_transaction = 0;
+unsigned int times_of_lock_sum = 0;
+unsigned int times_of_transaction_sum = 0;
 __thread unsigned int times_of_abort[4] = {0,0,0,0};
 unsigned int times_of_tree_abort[4] = {0,0,0,0};
 #endif
@@ -90,21 +92,7 @@ void show_result_thread(unsigned char tid) {
     }                                                      \
 }
 
-#ifndef NPERSIST
-void persist(void *target, size_t size) {
-    int i;
-    for (i = 0; i < (size-1)/64 + 1; i++) {
-#  ifdef CLWB
-        _mm_clwb(target + i * 64);
-#  else
-        _mm_clflush(target + i * 64);
-#  endif
-    }
-    _mm_sfence();
-}
-#else
 void persist(void *target, size_t size) { /* EMPTY */ }
-#endif
 
 /* utils */
 unsigned char hash(Key key) {

@@ -1,0 +1,83 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 1, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 16380256 byte
+log_size = 1573728
+log_size_per_thread = 524576
+LOG_global_ptr = 0x7ff0bee00000
+*******************Thread 1*******************
+***********************************************
+clearing nb_checkpoints = 2474
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 495791
+	ABORT    = 169645
+	EXPLICIT = 2536
+	RETRY    = 476
+	CONFLICT = 476
+	CAPACITY = 39206
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 129963
+	FALLBACK = 4209
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000652
+NH_time_blocked_total = 0.850893
+*******************Thread 1*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 729
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked 0.250783 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 499999
+ABORTS : 103188
+CONFLS : 77
+CAPACS : 223
+EXPLIC : 729
+FALLBK : 1
+   P_A : 0.171071
+     X : inf
+[FORKED_MANAGER] Nb. checkpoints 729
+[FORKED_MANAGER] Time active 2690.678678 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=26820585 TIME_spins=0.000000ms
+ ---   TIME
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          53327130
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          6806
+TOTAL_TIME_B (clocks) 2864816886
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000000 s!

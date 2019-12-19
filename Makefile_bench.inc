@@ -1,5 +1,6 @@
 BENCH_DATE          ?= $(shell date "+%Y%m%d-%H%M")
 BENCH_DIR           := $(RESULT_DIR)/$(BENCH_DATE)
+BENCH_CA_DIR        := $(BENCH_DIR)/count_abort
 BENCH_WF_DIR        := $(BENCH_DIR)/write_freq
 BENCH_ET_DIR        := $(BENCH_DIR)/elapsed_time
 
@@ -26,7 +27,7 @@ NVHTM_MAKE_ARGS += LOG_SIZE=$(LOGSZ)
 ifdef logmax
 	LOGMAX	:= $(logmax)
 else
-	LOGMAX	:= 7
+	LOGMAX	:= 5
 endif
 ifdef logstep
 	LOGSTP	:= $(logstep)
@@ -56,8 +57,24 @@ LOGLST	?= $(shell seq 0 $(LOGMAX) | sed -e 's/\(.*\)/32768 * 2^\1 + 288/'| bc -q
 THRLSTP	?= [$(shell echo $(THRLST) | tr ' ' ',')]
 
 bench_all:
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=fptree type=concurrent count_abort
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=concurrent count_abort
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) write_freq
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
+
+# for concurrent (not nvhtm)
+count_abort: bench_ca_dir
+	make tree=$(tree) type=$(type) dist-clean
+	make tree=$(tree) type=$(type) ca=1 -j all
+	cp $(BENCH_SCRIPT_DIR)/base_operation.py $(BUILD_DIR)
+	(cd build; python3 base_operation.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
+	for exe in $(BASE_BENCH_EXE); do\
+		for thr in $(THRLST); do\
+			mv $(BUILD_DIR)/"$$exe".thr"$$thr".dmp $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+		done;\
+	done
+	mv $(BUILD_DIR)/result_raw.npy $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
+	mv $(BUILD_DIR)/result.csv $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
 
 elapsed_time:
 	make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
@@ -104,6 +121,8 @@ write_freq_thr: bench_wf_dir
 		mv $(BUILD_DIR)/insert_concurrent.exe.thr"$$thr".dmp $(BENCH_WF_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
 	done
 
+bench_ca_dir:
+	mkdir -p $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)
 bench_et_dir:
 	mkdir -p $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)
 bench_wf_dir:

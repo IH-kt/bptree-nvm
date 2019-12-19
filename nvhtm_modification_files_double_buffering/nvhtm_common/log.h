@@ -142,7 +142,9 @@ extern "C"
         /*printf("%d: check_log_abort -> size = %d, counter = %d, local start = %d, local end = %d, global start = %d, global end = %d, log_at_start = %p, current_log = %p\n", TM_tid_var, LOG_local_state.size_of_log, LOG_local_state.counter, LOG_local_state.start, LOG_local_state.end, log->start, log->end, log_at_tx_start, NH_global_logs);*/\
         persistent_checkpointing[TM_tid_var].flag = 0;\
         int sem_val;\
+        struct timespec stt, edt;\
         sem_getvalue(NH_chkp_sem, &sem_val);\
+        clock_gettime(CLOCK_MONOTONIC_RAW, &stt); \
 		while ((LOG_local_state.counter == distance_ptr(log->start, log->end) \
 			&& (LOG_local_state.size_of_log - LOG_local_state.counter) < WAIT_DISTANCE) \
 			|| (distance_ptr(log->end, log->start) < WAIT_DISTANCE \
@@ -155,6 +157,12 @@ extern "C"
                 log = NH_global_logs[TM_tid_var]; \
                 /*printf("check_log_abort\n");*/\
 		} \
+        clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
+        double time_tmp = 0;                      \
+        time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
+        time_tmp /= 1000000000;                   \
+        time_tmp += edt.tv_sec - stt.tv_sec;      \
+        NH_nanotime_blocked += time_tmp;  \
 		NH_count_blocks++; \
 		LOG_before_TX(); \
         /*printf("cla %d-%d: start = %d, end = %d, local start = %d, local end = %d\n", tid, TM_tid_var, NH_global_logs[tid]->start, NH_global_logs[tid]->end, LOG_local_state.start, LOG_local_state.end);*/\

@@ -35,6 +35,7 @@ CL_ALIGN long long *NH_nb_checkpoints;
 CL_ALIGN long long NH_count_writes_total;
 CL_ALIGN long long NH_count_blocks_total;
 CL_ALIGN ts_s NH_time_blocked_total;
+CL_ALIGN double NH_nanotime_blocked_total;
 CL_ALIGN ts_s NH_manager_order_logs;
 CL_ALIGN long long NH_nb_applied_txs;
 // thread local
@@ -50,6 +51,7 @@ __thread CL_ALIGN int NH_count_txs;
 __thread CL_ALIGN ts_s NH_time_validate;
 __thread long long NH_count_writes;
 __thread CL_ALIGN long long NH_count_blocks;
+__thread CL_ALIGN double NH_nanotime_blocked;
 __thread CL_ALIGN ts_s NH_time_blocked;
 // ####################################################
 
