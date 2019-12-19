@@ -424,8 +424,9 @@ void NH_start_freq() {
     MN_start_freq();
 }
 
-void NH_reset_nb_cp() {
+void NH_reset() {
     fprintf(stderr, "clearing nb_checkpoints = %lld\n", *NH_nb_checkpoints);
     *NH_nb_checkpoints = 0;
+    TM_reset_error();
     return;
 }

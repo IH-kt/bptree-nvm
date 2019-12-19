@@ -331,7 +331,7 @@ extern "C"
 	void LOG_move_start_ptrs();
 	void LOG_handle_checkpoint();
     void NH_start_freq();
-    void NH_reset_nb_cp();
+    void NH_reset();
 
 	#define ptr_mod_log(ptr, inc) ({ \
 		LOG_MOD2((long long)ptr + (long long)inc, LOG_local_state.size_of_log); \

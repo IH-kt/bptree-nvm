@@ -131,10 +131,11 @@ int main(int argc, char *argv[]) {
     tid_array[i] = bptreeCreateThread(bpt, insert_random, arg[i]);
 
 #ifdef NVHTM
-    NH_reset_nb_cp();
+    NH_reset();
     NH_start_freq();
 #else
     FREQ_WRITE_START();
+    RESET_COUNT_ABORT();
 #endif
     clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
     bptreeStartThread();

@@ -95,9 +95,23 @@ extern int freq_write_start;
 #ifdef COUNT_ABORT
 extern __thread unsigned int times_of_lock;
 extern __thread unsigned int times_of_transaction;
+extern unsigned int times_of_lock_sum;
+extern unsigned int times_of_transaction_sum;
 extern __thread unsigned int times_of_abort[4];
 extern unsigned int times_of_tree_abort[4];
 
+#  define RESET_COUNT_ABORT() {\
+    int i;\
+    fprintf(stderr, "resetting abort counters:\n");\
+    fprintf(stderr, "lock = %u\n", times_of_lock_sum);\
+    fprintf(stderr, "transaction = %u\n", times_of_transaction_sum);\
+    times_of_lock_sum = 0;\
+    times_of_transaction_sum = 0;\
+    for (i = 0; i < 4; i++) {\
+        fprintf(stderr, "abort[%d] = %u\n", i, times_of_tree_abort[i]);\
+        times_of_tree_abort[i] = 0;\
+    }\
+}
 #  define TRANSACTION_SUCCESS() times_of_transaction++
 #  define LOCK_SUCCESS() times_of_lock++
 #  define ABORT_OCCURRED(type) {   \
@@ -113,6 +127,8 @@ extern unsigned int times_of_tree_abort[4];
     }                               \
 }
 #  define SUM_COUNT_ABORT() {\
+    __sync_fetch_and_add(&times_of_lock_sum, times_of_lock);\
+    __sync_fetch_and_add(&times_of_transaction_sum, times_of_transaction);\
     __sync_fetch_and_add(&times_of_tree_abort[1], times_of_abort[1]);\
 	__sync_fetch_and_add(&times_of_tree_abort[0], times_of_abort[0]);\
     __sync_fetch_and_add(&times_of_tree_abort[2], times_of_abort[2]);\
@@ -123,8 +139,8 @@ extern unsigned int times_of_tree_abort[4];
     fprintf(stderr, "abort[3] other    = %u times\n", times_of_abort[3]);\
 }
 #  define SHOW_COUNT_ABORT() {\
-	fprintf(stderr, "executed by lock = %u times\n", times_of_lock);\
-    fprintf(stderr, "executed by transaction = %u times\n", times_of_transaction);\
+	fprintf(stderr, "executed by lock = %u times\n", times_of_lock_sum);\
+    fprintf(stderr, "executed by transaction = %u times\n", times_of_transaction_sum);\
     fprintf(stderr, "abort[0] user     = %u times\n", times_of_tree_abort[0]);\
     fprintf(stderr, "abort[1] conflict = %u times\n", times_of_tree_abort[1]);\
     fprintf(stderr, "abort[2] capacity = %u times\n", times_of_tree_abort[2]);\
@@ -132,6 +148,7 @@ extern unsigned int times_of_tree_abort[4];
 }
 #else
 #  define SUM_COUNT_ABORT()
+#  define RESET_COUNT_ABORT()
 #  define TRANSACTION_SUCCESS()
 #  define LOCK_SUCCESS()
 #  define SHOW_COUNT_ABORT()
