@@ -53,6 +53,7 @@ endif
 ifeq ($(ndebug), 1)
 	DEBUG	:= -DNDEBUG
 	DEBUGF	:= -O0
+	NVHTM_MAKE_ARGS	+= NDEBUG=1
 endif
 ifeq ($(cw), 1)
 	CW	:= -DCOUNT_WRITE
