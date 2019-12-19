@@ -4,6 +4,8 @@
 #ifdef COUNT_ABORT
 __thread unsigned int times_of_lock = 0;
 __thread unsigned int times_of_transaction = 0;
+unsigned int times_of_lock_sum = 0;
+unsigned int times_of_transaction_sum = 0;
 __thread unsigned int times_of_abort[4] = {0,0,0,0};
 unsigned int times_of_tree_abort[4] = {0,0,0,0};
 #endif
@@ -66,10 +68,10 @@ void show_result_thread(unsigned char tid) {
             {code};                                        \
             if (method == TRANSACTION) {                   \
                 _xend();                                   \
-		TRANSACTION_SUCCESS();                     \
+                TRANSACTION_SUCCESS();                     \
             } else {                                       \
                 unlockBPTree(tree, tid);                   \
-		LOCK_SUCCESS();                            \
+                LOCK_SUCCESS();                            \
             }                                              \
             break;                                         \
         } else {                                           \
