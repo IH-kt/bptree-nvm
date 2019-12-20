@@ -316,7 +316,7 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode 
     }
     new_leafnode->pnext = target->pnext;
     new_leafnode->next = target->next;
-    new_leafnode->prev = target->prev;
+    new_leafnode->prev = target;
     new_leafnode->key_length = MAX_PAIR - split_index - 1;
 
     if (target->next != NULL) {

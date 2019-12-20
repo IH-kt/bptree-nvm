@@ -83,7 +83,7 @@ extern int freq_write_start;
          fprintf(ofile, "%s", freq_write_buf);/*fprintf(stderr, "%s", freq_write_buf);*/\
          fclose(ofile);\
      }\
-    printf("wrote_size_tmp = %u\n", wrote_size_tmp);\
+    /*printf("wrote_size_tmp = %u\n", wrote_size_tmp);*/\
    }
 
 #else
@@ -115,7 +115,7 @@ extern unsigned int times_of_tree_abort[4];
 #  define TRANSACTION_SUCCESS() times_of_transaction++
 #  define LOCK_SUCCESS() times_of_lock++
 #  define ABORT_OCCURRED(type) {   \
-    /* printf("abort -> %d\n", type); */ \
+     /*printf("abort -> %d\n", type);*/  \
     if (type & (0x1 << 0)) {        \
         times_of_abort[0]++;        \
     } else if (type & (0x1 << 2)) { \

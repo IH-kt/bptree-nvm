@@ -272,7 +272,7 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode 
     NVM_write_varsize(&new_leafnode->pnext, &pp_tmp, sizeof(ppointer));
     leaf_tmp = NVM_read(&target->next);
     NVM_write_varsize(&new_leafnode->next, &leaf_tmp, sizeof(LeafNode *));
-    leaf_tmp = NVM_read(&target->prev);
+    leaf_tmp = NVM_read(&target);
     NVM_write_varsize(&new_leafnode->prev, &leaf_tmp, sizeof(LeafNode *));
     len_tmp = MAX_PAIR - split_index - 1;
     NVM_write_varsize(&new_leafnode->key_length, &len_tmp, sizeof(int));
