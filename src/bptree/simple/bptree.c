@@ -40,7 +40,6 @@ void initLeafNode(LeafNode *node, unsigned char tid) {
     for (i = 0; i < MAX_PAIR; i++) {
         initKeyValuePair(&node->kv[i]);
     }
-    node->lock = 0;
     node->next = NULL;
     node->prev = NULL;
     node->pnext = P_NULL;
@@ -113,12 +112,10 @@ void destroyBPTree(BPTree *tree, unsigned char tid) {
 }
 
 int lockLeaf(LeafNode *target) {
-    return __sync_bool_compare_and_swap(&target->lock, 0, 1);
+    return 1;
 }
 
 int unlockLeaf(LeafNode *target) {
-    target->lock = 0;
-    persist(&target->lock, sizeof(target->lock));
     return 1;
 }
 
@@ -178,9 +175,6 @@ LeafNode *findLeaf(InternalNode *current, Key target_key, InternalNode **parent,
     }
     int key_index = searchInInternal(current, target_key);
     if (current->children_type == LEAF) {
-        if (((LeafNode *)current->children[key_index])->lock == 1) {
-            // _xabort(XABORT_STAT);
-        }
         if (parent != NULL) {
             *parent = current;
         }
@@ -239,7 +233,6 @@ Key splitLeaf(LeafNode *target, KeyValuePair newkv, unsigned char tid, LeafNode 
         initKeyValuePair(&target->kv[(split_index + 1) + i]);
     }
 
-    new_leafnode->lock = target->lock;
     new_leafnode->next = target->next;
     new_leafnode->pnext = getPersistentAddr(new_leafnode);
     new_leafnode->prev = target;
@@ -353,9 +346,6 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
         // _xend();
         return 0;
     }
-    if (!lockLeaf(target_leaf)) {
-        // _xabort(XABORT_STAT);
-    }
     // _xend();
     // }
 
@@ -367,9 +357,7 @@ int insert(BPTree *bpt, KeyValuePair kv, unsigned char tid) {
         // _xbegin();
         insertParent(bpt, parent, split_key, new_leaf, target_leaf);
         // _xend();
-        unlockLeaf(new_leaf);
     }
-    unlockLeaf(target_leaf);
     return 1;
 }
 
@@ -476,10 +464,8 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
         if (target == NULL) {
             return 0;
         }
-        lockLeaf(target);
         target_index = searchInLeaf(target, new_kv.key);
         if (target_index == -1) {
-            unlockLeaf(target);
             return 0;
         }
         // _xend();
@@ -487,7 +473,6 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
         target->kv[target_index] = new_kv;
         //persist(&target->pleaf->kv[target_index], sizeof(KeyValuePair));
         // _xbegin();
-        unlockLeaf(target);
         // _xend();
     }
     return 1;
@@ -751,45 +736,34 @@ int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
     if (target_leaf == NULL) {
         return 0;
     }
-    if (lockLeaf(target_leaf)) {
-        int keypos = searchInLeaf(target_leaf, target_key);
-        if (keypos == -1) {
+    int keypos = searchInLeaf(target_leaf, target_key);
+    if (keypos == -1) {
 #ifdef DEBUG
-            printf("delete:the key doesn't exist. abort.\n");
+        printf("delete:the key doesn't exist. abort.\n");
 #endif
-            unlockLeaf(target_leaf);
-            return 0;
-        }
-        if (target_leaf->key_length == 1) {
-            if (target_leaf->prev != NULL) {
-                if (lockLeaf(target_leaf->prev)) {
-                    // _xend();
-                    deleteLeaf(bpt, target_leaf, tid);
-                    // _xbegin();
-                    removeFromParent(bpt, parent, target_leaf, target_key);
-                    // _xend();
-                    unlockLeaf(target_leaf->prev);
-                } else {
-                    // _xabort(XABORT_STAT);
-                }
-            } else {
-                // _xend();
-                deleteLeaf(bpt, target_leaf, tid);
-                // _xbegin();
-                removeFromParent(bpt, parent, target_leaf, target_key);
-                // _xend();
-            }
+        return 0;
+    }
+    if (target_leaf->key_length == 1) {
+        if (target_leaf->prev != NULL) {
+            // _xend();
+            deleteLeaf(bpt, target_leaf, tid);
+            // _xbegin();
+            removeFromParent(bpt, parent, target_leaf, target_key);
+            // _xend();
         } else {
             // _xend();
-            for (int i = keypos; i < target_leaf->key_length - 1; i++) {
-                target_leaf->kv[i] = target_leaf->kv[i + 1];
-            }
-            initKeyValuePair(&target_leaf->kv[target_leaf->key_length - 1]);
-            target_leaf->key_length--;
-            unlockLeaf(target_leaf);
+            deleteLeaf(bpt, target_leaf, tid);
+            // _xbegin();
+            removeFromParent(bpt, parent, target_leaf, target_key);
+            // _xend();
         }
     } else {
-        // _xabort(XABORT_STAT);
+        // _xend();
+        for (int i = keypos; i < target_leaf->key_length - 1; i++) {
+            target_leaf->kv[i] = target_leaf->kv[i + 1];
+        }
+        initKeyValuePair(&target_leaf->kv[target_leaf->key_length - 1]);
+        target_leaf->key_length--;
     }
     return 1;
 }
