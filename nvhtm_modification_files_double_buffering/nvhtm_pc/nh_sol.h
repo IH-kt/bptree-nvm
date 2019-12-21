@@ -21,6 +21,10 @@ extern "C"
       PAUSE(); \
     }
 
+  #undef BEFORE_HTM_BEGIN
+  #define BEFORE_HTM_BEGIN(tid, budget) \
+      clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_start);
+
 #undef AFTER_SGL_BEGIN
 #define AFTER_SGL_BEGIN(tid)                                                     \
   {                                                                               \
@@ -112,7 +116,6 @@ extern "C"
   LOG_before_TX();                                  \
   /*printf("BfrTrnsctn %d-%d: start = %d, end = %d, local start = %d, local end = %d, nvm_htm_local_log = %p\n", tid, TM_tid_var, NH_global_logs[TM_tid_var]->start, NH_global_logs[TM_tid_var]->end, LOG_local_state.start, LOG_local_state.end, nvm_htm_local_log);*/\
   TM_inc_local_counter(tid);\
-    clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_start);
 
 #undef BEFORE_COMMIT
 #define BEFORE_COMMIT(tid, budget, status)             \

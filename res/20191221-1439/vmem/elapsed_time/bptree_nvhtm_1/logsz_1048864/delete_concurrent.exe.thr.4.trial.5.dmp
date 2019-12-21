@@ -1,0 +1,126 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 4, pmem_path = /home/iiboshi/dramdir/data, log_path = /home/iiboshi/dramdir/log
+allocating 16386544 byte
+log_size = 6293184
+log_size_per_thread = 1048864
+nh_glog_ref = 0x7fc560e00000
+LOG_global_ptr = 0x7fc560e00040
+log1 = 0x55ec34d0ef00
+log2 = 0x55ec34d10420
+*******************Thread 4*******************
+***********************************************
+clearing nb_checkpoints = 623
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 495751
+	ABORT    = 211367
+	EXPLICIT = 563
+	RETRY    = 32
+	CONFLICT = 33
+	CAPACITY = 37886
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 173449
+	FALLBACK = 4249
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 4:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 5:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000606
+NH_time_blocked_total = 0.047961
+*******************Thread 2*******************
+***********************************************
+*******************Thread 4*******************
+***********************************************
+*******************Thread 1*******************
+***********************************************
+*******************Thread 3*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 49
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked 0.263230 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 499954
+ABORTS : 5959
+CONFLS : 1707
+CAPACS : 1730
+EXPLIC : 212
+FALLBK : 46
+   P_A : 0.011779
+     X : inf
+ ---   TIME
+[FORKED_MANAGER] Nb. checkpoints 49
+[FORKED_MANAGER] Time active 1799.802501 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=23419206 TIME_spins=0.000000ms
+TRANSACTION_ABORT_TIME: 0.015027 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          53393107
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          1550
+TOTAL_TIME_B (clocks) 708956290
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.014475 s!

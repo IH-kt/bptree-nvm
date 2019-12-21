@@ -20,6 +20,11 @@ def exp_loop(filename, mode, mempath):
     result_array = [];
     print("executing: " + filename)
     try:
+        print("warming up")
+        cmd = ['./' + filename, str(warmup_num), str(trial_num), str(warmup_num + trial_num), str(4), pmempath, pmemlogpath]
+        spres = subprocess.run(cmd, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        print(spres.stdout)
+        print(spres.stderr)
         for i in thread_num:
             print("thread_num: " + str(i))
             inner_result_array = [];

@@ -1,0 +1,87 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 1, pmem_path = /home/iiboshi/dramdir/data, log_path = /home/iiboshi/dramdir/log
+allocating 33085900 byte
+log_size = 3146592
+log_size_per_thread = 1048864
+nh_glog_ref = 0x7f023da00000
+LOG_global_ptr = 0x7f023da00040
+log1 = 0x55a5f76efb40
+log2 = 0x55a5f76ee970
+*******************Thread 2*******************
+***********************************************
+clearing nb_checkpoints = 621
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 495756
+	ABORT    = 120385
+	EXPLICIT = 524
+	RETRY    = 47
+	CONFLICT = 49
+	CAPACITY = 40533
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 79806
+	FALLBACK = 4244
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000585
+NH_time_blocked_total = 0.032958
+*******************Thread 2*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 379
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked 0.022920 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 497351
+ABORTS : 82539
+CONFLS : 17
+CAPACS : 24947
+EXPLIC : 300
+FALLBK : 2649
+   P_A : 0.142336
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.535933 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          66126479
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          1648
+TOTAL_TIME_B (clocks) 53441872
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000377 s!
+[FORKED_MANAGER] Nb. checkpoints 379
+[FORKED_MANAGER] Time active 2596.950880 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=31306002 TIME_spins=0.000000ms

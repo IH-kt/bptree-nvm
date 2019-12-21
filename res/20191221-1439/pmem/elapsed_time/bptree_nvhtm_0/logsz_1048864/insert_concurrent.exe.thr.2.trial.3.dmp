@@ -1,0 +1,97 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 2, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 33087996 byte
+log_size = 4195456
+log_size_per_thread = 1048864
+LOG_global_ptr = 0x7efcad000000
+*******************Thread 3*******************
+***********************************************
+clearing nb_checkpoints = 1231
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 495852
+	ABORT    = 91295
+	EXPLICIT = 1288
+	RETRY    = 63
+	CONFLICT = 63
+	CAPACITY = 40520
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 50712
+	FALLBACK = 4148
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000570
+NH_time_blocked_total = 0.838238
+*******************Thread 2*******************
+***********************************************
+*******************Thread 3*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 444
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked 0.903271 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 497277
+ABORTS : 61252
+CONFLS : 19183
+CAPACS : 17746
+EXPLIC : 915
+FALLBK : 2723
+   P_A : 0.109667
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.422944 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          65998523
+[FORKED_MANAGER] Nb. checkpoints 444
+[FORKED_MANAGER] Time active 2912.846666 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=32612332 TIME_spins=0.000000ms
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          4604
+TOTAL_TIME_B (clocks) 4527786806
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.046593 s!

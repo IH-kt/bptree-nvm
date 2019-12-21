@@ -26,7 +26,10 @@ extern "C"
   LOG_get_ts_before_tx(tid); \
   LOG_before_TX(); \
   TM_inc_local_counter(tid);\
-  clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_start);
+
+  #undef BEFORE_HTM_BEGIN
+  #define BEFORE_HTM_BEGIN(tid, budget) \
+      clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_start);
 
   #undef BEFORE_COMMIT
   #define BEFORE_COMMIT(tid, budget, status) \
