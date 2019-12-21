@@ -9,6 +9,14 @@ const Value INITIAL_VALUE = 0;
 __thread unsigned int transaction_counter;
 __thread unsigned int transaction_counter_max;
 #endif
+#ifdef COUNT_ABORT
+__thread unsigned int times_of_lock;
+__thread unsigned int times_of_transaction;
+unsigned int times_of_lock_sum;
+unsigned int times_of_transaction_sum;
+__thread unsigned int times_of_abort[4];
+unsigned int times_of_tree_abort[4];
+#endif
 
 pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 void show_result_thread(unsigned char tid) {

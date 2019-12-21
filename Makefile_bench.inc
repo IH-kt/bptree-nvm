@@ -52,15 +52,28 @@ else
 	PPATH	:= .
 endif
 
+ifdef vdirpath
+	VDPATH  := $(vdirpath)
+else
+	VDPATH	:= .
+endif
+
 THRLST	?= $(shell seq 0 $(THRMAX) | sed -e 's/\(.*\)/2^\1/' | bc -q | tr '\n' ' ')
 LOGLST	?= $(shell seq 0 $(LOGMAX) | sed -e 's/\(.*\)/32768 * 2^\1 + 288/'| bc -q | tr '\n' ' ')
 THRLSTP	?= [$(shell echo $(THRLST) | tr ' ' ',')]
+TRIALS  ?= `seq 1 5`
 
 bench_all:
-	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=fptree type=concurrent count_abort
+	mkdir -p $(BENCH_DIR)/pmem $(BENCH_DIR)/vmem
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) tree=fptree type=concurrent count_abort
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) write_freq
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
+	mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=concurrent count_abort
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=fptree type=concurrent count_abort
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) write_freq
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
+	mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
 
 # for concurrent (not nvhtm)
 count_abort: bench_ca_dir
@@ -70,7 +83,9 @@ count_abort: bench_ca_dir
 	(cd build; python3 base_operation.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
 	for exe in $(BASE_BENCH_EXE); do\
 		for thr in $(THRLST); do\
-			mv $(BUILD_DIR)/"$$exe".thr"$$thr".dmp $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+            for trial in $(TRIALS); do\
+                mv $(BUILD_DIR)/"$$exe".thr"$$thr".trial."$$trial".dmp $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+            done\
 		done;\
 	done
 	mv $(BUILD_DIR)/result_raw.npy $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/

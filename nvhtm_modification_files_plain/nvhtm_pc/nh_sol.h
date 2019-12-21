@@ -25,7 +25,8 @@ extern "C"
   #define BEFORE_TRANSACTION_i(tid, budget) \
   LOG_get_ts_before_tx(tid); \
   LOG_before_TX(); \
-  TM_inc_local_counter(tid);
+  TM_inc_local_counter(tid);\
+  clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_start);
 
   #undef BEFORE_COMMIT
   #define BEFORE_COMMIT(tid, budget, status) \
@@ -49,6 +50,12 @@ extern "C"
 
   #undef AFTER_ABORT
   #define AFTER_ABORT(tid, budget, status) \
+    clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_abort_end);\
+    double time_tmp = 0;                      \
+    time_tmp += (transaction_abort_end.tv_nsec - transaction_start.tv_nsec);  \
+    time_tmp /= 1000000000;                   \
+    time_tmp += transaction_abort_end.tv_sec - transaction_start.tv_sec;      \
+    abort_time_thread += time_tmp;  \
   /* NH_tx_time += rdtscp() - TM_ts1; */ \
   CHECK_LOG_ABORT(tid, status); \
   LOG_get_ts_before_tx(tid); \

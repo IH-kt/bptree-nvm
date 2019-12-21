@@ -111,7 +111,8 @@ extern "C"
   LOG_get_ts_before_tx(tid);                        \
   LOG_before_TX();                                  \
   /*printf("BfrTrnsctn %d-%d: start = %d, end = %d, local start = %d, local end = %d, nvm_htm_local_log = %p\n", tid, TM_tid_var, NH_global_logs[TM_tid_var]->start, NH_global_logs[TM_tid_var]->end, LOG_local_state.start, LOG_local_state.end, nvm_htm_local_log);*/\
-  TM_inc_local_counter(tid);
+  TM_inc_local_counter(tid);\
+    clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_start);
 
 #undef BEFORE_COMMIT
 #define BEFORE_COMMIT(tid, budget, status)             \
@@ -156,6 +157,7 @@ extern "C"
   {\
   struct timespec stt, edt;\
   clock_gettime(CLOCK_MONOTONIC_RAW, &stt); \
+  transaction_abort_end = stt;\
   while (*NH_checkpointer_state == 2) { \
       if (persistent_checkpointing[TM_tid_var].flag) {\
           persistent_checkpointing[TM_tid_var].flag = 0; \
@@ -164,10 +166,14 @@ extern "C"
   }        \
   clock_gettime(CLOCK_MONOTONIC_RAW, &edt); \
   double time_tmp = 0;                      \
-  time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
+  time_tmp = (edt.tv_nsec - stt.tv_nsec);  \
   time_tmp /= 1000000000;                   \
   time_tmp += edt.tv_sec - stt.tv_sec;      \
   NH_nanotime_blocked += time_tmp;  \
+  time_tmp = (transaction_abort_end.tv_nsec - transaction_start.tv_nsec);\
+  time_tmp /= 1000000000;                   \
+  time_tmp += transaction_abort_end.tv_sec - transaction_start.tv_sec;      \
+  abort_time_thread += time_tmp;\
   }\
   /*printf("AbortState %d-%d: status = %x\n", tid, TM_tid_var, status);*/\
   CHECK_LOG_ABORT(tid, status);                                                \

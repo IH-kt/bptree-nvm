@@ -137,6 +137,7 @@ void NVHTM_thr_exit()
 	NH_count_writes_total += NH_count_writes;
 	NH_count_blocks_total += NH_count_blocks;
 	NH_time_validate_total += NH_time_validate;
+    abort_time_all += abort_time_thread;
 
 	mutex = 0;
 	__sync_synchronize();
@@ -284,6 +285,7 @@ void NVHTM_shutdown()
     fprintf(stderr, "   P_A : %f\n", P_A);
     fprintf(stderr, "     X : %f\n", X);
     fprintf(stderr, " ---   TIME\n");
+    fprintf(stderr, "TRANSACTION_ABORT_TIME: %lf s\n", abort_time_all);
     fprintf(stderr, "Time %f s\n", time_taken);
     fprintf(stderr, "TIME_TX %f ms\n", time_tx);
     fprintf(stderr, "TIME_AFTER %f ms\n", time_after);

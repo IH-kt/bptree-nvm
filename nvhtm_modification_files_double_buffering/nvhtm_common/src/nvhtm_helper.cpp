@@ -528,14 +528,14 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   int log_before = ptr_mod_log(NH_global_logs[id]->end, -nb_writes);
   if (NH_global_logs[id]->end + nb_writes > NH_global_logs[id]->size_of_log) {
       MN_flush(&(NH_global_logs[id]->ptr[log_before]),
-              (nb_writes - NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 1
+              (nb_writes - NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 0
               );
       MN_flush(&(NH_global_logs[id]->ptr[log_before]),
-              (nb_writes - nb_writes % NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 1
+              (nb_writes - nb_writes % NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 0
               );
   } else {
       MN_flush(&(NH_global_logs[id]->ptr[0]),
-              (nb_writes % NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 1
+              (nb_writes % NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 0
               );
   }
 
@@ -556,7 +556,7 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   // SPIN_PER_WRITE(1);
   log_before = ptr_mod_log(NH_global_logs[id]->end, -1);
   MN_flush(&(NH_global_logs[id]->ptr[log_before]),
-    sizeof(NVLogEntry_s), 1
+    sizeof(NVLogEntry_s), 0
   );
   #if VALIDATION == 2 && !defined(DISABLE_VALIDATION)
   global_flushed_ts++;

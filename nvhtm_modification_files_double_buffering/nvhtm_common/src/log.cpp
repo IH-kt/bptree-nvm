@@ -433,5 +433,6 @@ void NH_reset() {
     fprintf(stderr, "NH_time_blocked_total = %lf\n", NH_nanotime_blocked_total);
     HTM_nanotime_blocked_total = 0;
     NH_nanotime_blocked_total = 0;
+    abort_time_all = 0;
     return;
 }

@@ -31,7 +31,7 @@ def exp_loop(filename, mode, mempath):
                 print(spres.stdout)
                 print(spres.stderr)
                 inner_result_array.append(float(spres.stdout.decode("utf8")));
-                with open(filename + ".thr" + str(i) + ".dmp", mode='w', encoding="utf-8") as f:
+                with open(filename + ".thr." + str(i) + ".trial." + str(j) + ".dmp", mode='w', encoding="utf-8") as f:
                     f.write(spres.stderr.decode("utf8"))
             result_array.append(inner_result_array);
     except NameError as err:

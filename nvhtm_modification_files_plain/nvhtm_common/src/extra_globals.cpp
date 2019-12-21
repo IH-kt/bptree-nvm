@@ -5,9 +5,7 @@
 // ####################################################
 // global
 
-CL_ALIGN NVLog_s ***nh_glog_ref;
-CL_ALIGN NVLog_s **_NH_global_logs1;
-CL_ALIGN NVLog_s **_NH_global_logs2;
+CL_ALIGN NVLog_s **NH_global_logs;
 void* LOG_global_ptr;
 int is_sigsegv = 0;
 // thread local
