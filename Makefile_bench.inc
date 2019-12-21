@@ -84,8 +84,8 @@ count_abort: bench_ca_dir
 	for exe in $(BASE_BENCH_EXE); do\
 		for thr in $(THRLST); do\
             for trial in $(TRIALS); do\
-                mv $(BUILD_DIR)/"$$exe".thr"$$thr".trial."$$trial".dmp $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
-            done\
+                mv $(BUILD_DIR)/"$$exe".thr."$$thr".trial."$$trial".dmp $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+                done;\
 		done;\
 	done
 	mv $(BUILD_DIR)/result_raw.npy $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
@@ -109,7 +109,9 @@ elapsed_time_thr: bench_et_dir
 	(cd build; python3 base_operation.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
 	for exe in $(BASE_BENCH_EXE); do\
 		for thr in $(THRLST); do\
-			mv $(BUILD_DIR)/"$$exe".thr"$$thr".dmp $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+            for trial in $(TRIALS); do\
+                mv $(BUILD_DIR)/"$$exe".thr."$$thr".trial."$$trial".dmp $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+            done;\
 		done;\
 	done
 	mv $(BUILD_DIR)/result_raw.npy $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
@@ -132,8 +134,8 @@ write_freq_thr: bench_wf_dir
 	cp $(BENCH_SCRIPT_DIR)/write_freq.py $(BUILD_DIR)
 	(cd build; python3 write_freq.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
 	for thr in $(THRLST); do\
-		mv $(BUILD_DIR)/write_freq"$$thr".txt $(BENCH_WF_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
-		mv $(BUILD_DIR)/insert_concurrent.exe.thr"$$thr".dmp $(BENCH_WF_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+        mv $(BUILD_DIR)/write_freq"$$thr".txt $(BENCH_WF_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+        mv $(BUILD_DIR)/insert_concurrent.exe.thr."$$thr".dmp $(BENCH_WF_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
 	done
 
 bench_ca_dir:
