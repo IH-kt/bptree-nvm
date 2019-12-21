@@ -5,52 +5,50 @@ if [ $# -eq 0 ]; then
 else
     root_dir=$1
 fi
-plain=bptree_nvhtm_0
-db=bptree_nvhtm_1
-logsz_list=`ls ${root_dir}/pmem/elapsed_time/${plain} | sed -e "s/logsz_//" | sort -n`
-types='plain db'
 ops='insert delete search'
-memtypes="pmem vmem"
+types='bptree_concurrent_ fptree_concurrent_'
+memtypes='pmem vmem'
 max_trial=5
-trials=`seq 1 ${max_trial}`
+trials=`seq 1 5`
 
+mkdir -p abort
 for memtype in $memtypes
 do
-    mkdir -p $memtype
+    mkdir -p abort/$memtype
     for type in $types
     do
-        type_dir=`eval echo '$'${type}`
+        if ! [ -e ${root_dir}/${memtype}/count_abort/${type} ] ; then
+            continue
+        fi
+        mkdir -p abort/$memtype/$type
         for op in $ops
         do
-            echo 'type,logsize,thread,abort,conflict,capacity,explicit' > $memtype/abort_${op}_${type}.csv
-            for logsz in $logsz_list
+            echo 'thread,abort,conflict,capacity,explicit' > abort/$memtype/$type/abort_${op}.csv
+            target_dir=`echo "${root_dir}/${memtype}/count_abort/${type}/logsz_65824"`
+            thrs=`ls ${target_dir} | grep $op | cut -f 4 -d '.' | sort -n -u`
+            for thr in $thrs
             do
-                logsz_dir=logsz_$logsz
-                target_dir=`echo "${root_dir}/${memtype}/elapsed_time/${type_dir}/${logsz_dir}"`
-                thrs=`ls ${target_dir} | grep $op | cut -f 4 -d '.' | sort -n -u`
-                for thr in $thrs
-                do
-                    abort_tmp=0
+                    other_tmp=0
                     conflict_tmp=0
                     capacity_tmp=0
                     explicit_tmp=0
                     for tri in $trials
                     do
-                        tmp=`grep "ABORTS :" ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${tri}.dmp | cut -f 3 -d ' '`
-                        abort_tmp=`echo "scale=7; ${abort_tmp} + ${tmp}" | bc`
-                        tmp=`grep "CONFLS :" ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${tri}.dmp | cut -f 3 -d ' '`
+                        tmp=`tail -n 6 ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${tri}.dmp | grep other | sed -E "s/.* ([0-9]+) times/\1/"`
+                        other_tmp=`echo "scale=7; ${other_tmp} + ${tmp}" | bc`
+                        tmp=`tail -n 6 ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${tri}.dmp | grep conflict | sed -E "s/.* ([0-9]+) times/\1/"`
                         conflict_tmp=`echo "scale=7; ${conflict_tmp} + ${tmp}" | bc`
-                        tmp=`grep "CAPACS :" ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${tri}.dmp | cut -f 3 -d ' '`
+                        tmp=`tail -n 6 ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${tri}.dmp | grep capacity | sed -E "s/.* ([0-9]+) times/\1/"`
                         capacity_tmp=`echo "scale=7; ${capacity_tmp} + ${tmp}" | bc`
-                        tmp=`grep "EXPLIC :" ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${tri}.dmp | cut -f 3 -d ' '`
+                        tmp=`tail -n 6 ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${tri}.dmp | grep user | sed -E "s/.* ([0-9]+) times/\1/"`
                         explicit_tmp=`echo "scale=7; ${explicit_tmp} + ${tmp}" | bc`
                     done
-                    abort=`echo "scale=7; ${abort_tmp} / ${max_trial}" | bc`
-                    conflict=`echo "scale=7; ${conflict_tmp} / ${max_trial}" | bc`
-                    capacity=`echo "scale=7; ${capacity_tmp} / ${max_trial}" | bc`
-                    explicit=`echo "scale=7; ${explicit_tmp} / ${max_trial}" | bc`
-                    echo "$type,$logsz,$thr,$abort,$conflict,$capacity,$explicit" >> $memtype/abort_${op}_${type}.csv
-                done
+                other=`echo "scale=7; ${other_tmp} / ${max_trial}" | bc`
+                conflict=`echo "scale=7; ${conflict_tmp} / ${max_trial}" | bc`
+                capacity=`echo "scale=7; ${capacity_tmp} / ${max_trial}" | bc`
+                explicit=`echo "scale=7; ${explicit_tmp} / ${max_trial}" | bc`
+                abort=`echo "scale=7; $explicit + $capacity + $conflict + $other" | bc`
+                echo "$thr,$abort,$conflict,$capacity,$explicit" >> abort/$memtype/$type/abort_${op}.csv
             done
         done
     done

@@ -43,7 +43,7 @@ def plot_graph(log_size_str, result_file1, result_file2, result_file3, result_fi
         plt.ylabel('実行時間 (秒)', fontsize=font_size)
         plt.xlim([1, result_df.index.max()])
         # plt.ylim([0, 7])
-        plt.ylim(ymin = 0)
+        plt.ylim(bottom = 0)
         plt.xticks(result_df.index, result_df.index)
         ax.legend(cols, fontsize=font_size)
         plt.tick_params(labelsize=font_size)

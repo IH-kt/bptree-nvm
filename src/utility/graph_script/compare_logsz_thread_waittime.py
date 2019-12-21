@@ -17,13 +17,12 @@ for nvhtm_type in type_list:
     for i in range(0, len(op_list)):
         for thr in thr_list:
             wait_csv = pd.read_csv('wait_' + op_list[i] + '_' + nvhtm_type + '.thr.' + str(thr) + '.csv', index_col=0);
-            max_val = max(wait_csv['logsize'])
-            print(max_val)
-            ax = wait_csv.plot(kind='bar', ylim=[0, max_val*1.05], stacked=True)
+            ax = wait_csv.plot(kind='bar', stacked=True)
             plt.xlabel('ログ容量')
             plt.ylabel('スレッドあたりの待ち時間（s）')
             plt.title('ログ容量数別の待ち時間の変化（' + op_list_j[i] + '，スレッド数' + str(thr) + '）')
             #plt.savefig('abort_' + nvhtm_type + '_' + op_list[i] + '_' + str(logsz) + '.png')
+            plt.tight_layout()
             plt.savefig('wait_' + nvhtm_type + '_' + op_list[i] + '.thr.' + str(thr) + '.eps')
         plt.close('all')
 

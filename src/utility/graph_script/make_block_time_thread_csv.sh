@@ -25,8 +25,7 @@ do
             echo 'thread,HTM-block,Checkpoint-block,Abort' > ${result_dir}/wait_${op}_${type}.logsize.${logsz}.csv
             logsz_dir=logsz_$logsz
             target_dir=`echo "${root_dir}/${type_dir}/${logsz_dir}"`
-            thrs=`ls ${target_dir} | grep $op | sed -E 's/[^0-9]+//g' | sort -n`
-            dmp=`ls ${target_dir} | grep $op`
+            thrs=`ls ${target_dir} | grep $op | cut -f 4 -d '.' | sort -n -u`
             for thr in $thrs
             do
                 cblock_time_sum=0
@@ -34,9 +33,9 @@ do
                 ablock_time_sum=0
                 for trial in $trials
                 do
-                    cblock_time=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.dmp | grep "NH time" | cut -f 5 -d ' '`
-                    hblock_time=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.dmp | grep "HTM " | cut -f 5 -d ' '`
-                    ablock_time=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.dmp | grep TRANSACTION_ABORT_TIME | cut -f 2 -d ' '`
+                    cblock_time=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp | grep "NH time" | cut -f 5 -d ' '`
+                    hblock_time=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp | grep "HTM " | cut -f 5 -d ' '`
+                    ablock_time=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp | grep TRANSACTION_ABORT_TIME | cut -f 2 -d ' '`
                     cblock_time_sum=`echo "scale=7; ${cblock_time} + ${cblock_time_sum}" | bc`
                     hblock_time_sum=`echo "scale=7; ${hblock_time} + ${hblock_time_sum}" | bc`
                     ablock_time_sum=`echo "scale=7; ${ablock_time} + ${ablock_time_sum}" | bc`
