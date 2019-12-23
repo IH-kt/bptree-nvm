@@ -33,8 +33,8 @@ for memtype in ['pmem', 'vmem']:
     result_file_dirs_1 = get_logsz_dir('../' + memtype + '/elapsed_time/bptree_nvhtm_0/')
     result_file_dirs_2 = get_logsz_dir('../' + memtype + '/elapsed_time/bptree_nvhtm_1/')
 
-    print(result_file_dirs_1)
-    print(result_file_dirs_2)
+    # print(result_file_dirs_1)
+    # print(result_file_dirs_2)
 
     log_sizes = []
     csvs1 = []
@@ -44,10 +44,10 @@ for memtype in ['pmem', 'vmem']:
     csvs2 = []
     for res_dirname in result_file_dirs_2:
         csvs2.append(pd.read_csv(res_dirname + "/result.csv", index_col=0))
-    print(log_sizes)
+    # print(log_sizes)
 
-    print(csvs1)
-    print(csvs2)
+    # print(csvs1)
+    # print(csvs2)
 
     for thr in range(len(threads)):
         for i in range(3):
@@ -55,17 +55,18 @@ for memtype in ['pmem', 'vmem']:
             for j in range(len(log_sizes)):
                 results.append([])
                 results[j].append(csvs1[j].iat[thr,i])
-            for j in range (len(log_sizes)):
-                results[j].append(csvs2[j].iat[thr,i])
-            print(results)
-            df = pd.DataFrame(results, index=log_sizes, columns=['bptree-nvhtm', 'bptree-nvhtm-2buff']);
-            print(df)
+            # for j in range (len(log_sizes)):
+            #    results[j].append(csvs2[j].iat[thr,i])
+            # print(results)
+            # df = pd.DataFrame(results, index=log_sizes, columns=['bptree-nvhtm', 'bptree-nvhtm-2buff']);
+            df = pd.DataFrame(results, index=log_sizes, columns=['bptree-nvhtm']);
+            # print(df)
             ax = df.plot()
             plt.xlabel('ログサイズ (MB)', fontsize=font_size)
             plt.ylabel('実行時間 (秒)', fontsize=font_size)
             plt.title('ログサイズによる実行時間の変化', fontsize=font_size)
             ax.legend(['B${^+}$-Tree${_{NH}}$', "B${^+}$-Tree${_{DB}}$"], fontsize=font_size)
-            plt.ylim(ymin=0)
+            plt.ylim(bottom=0, top=2.5)
             plt.tick_params(labelsize=font_size)
             plt.tight_layout()
             plt.savefig('logsize/' + memtype + '/' + operations[i] + '_result_logsize.' + str(threads[thr]) + '.png')

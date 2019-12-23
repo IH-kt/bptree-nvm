@@ -24,7 +24,7 @@ do
         mkdir -p abort/$memtype/$type_dir
         for op in $ops
         do
-            echo 'type,logsize,thread,abort,conflict,capacity,explicit' > abort/$memtype/$type_dir/abort_${op}_${type}.csv
+            echo 'type,logsize,thread,abort,conflict,capacity,explicit' > abort/$memtype/$type_dir/abort_${op}.csv
             for logsz in $logsz_list
             do
                 logsz_dir=logsz_$logsz
@@ -51,7 +51,7 @@ do
                     conflict=`echo "scale=7; ${conflict_tmp} / ${max_trial}" | bc`
                     capacity=`echo "scale=7; ${capacity_tmp} / ${max_trial}" | bc`
                     explicit=`echo "scale=7; ${explicit_tmp} / ${max_trial}" | bc`
-                    echo "$type,$logsz,$thr,$abort,$conflict,$capacity,$explicit" >> abort/$memtype/$type_dir/abort_${op}_${type}.csv
+                    echo "$type,$logsz,$thr,$abort,$conflict,$capacity,$explicit" >> abort/$memtype/$type_dir/abort_${op}.csv
                 done
             done
         done

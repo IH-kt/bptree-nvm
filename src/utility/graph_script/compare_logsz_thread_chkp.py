@@ -2,43 +2,38 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 import japanize_matplotlib
+import sys
+import os
 
 line_style = ['ro-', 'gv-', 'b^-', 'k*-']
 
-type_list = ['plain', 'db']
+type_list = ['bptree_nvhtm_0', 'bptree_nvhtm_1']
 op_list = ['insert', 'delete', 'search']
 op_list_j = ['挿入', '削除', '検索']
 thr_list = [1, 2, 4, 8, 16] # TODO
 log_list = [33056, 65824, 131360, 262432, 524576, 1048864] # TODO
 
-bar_width=0.2
+root_dir = sys.argv[1]
+graph_root = sys.argv[2]
 
 for nvhtm_type in type_list:
-    for i in range(0, len(op_list)):
-        ab_csv = pd.read_csv('abort_' + op_list[i] + '_' + nvhtm_type + '.csv', index_col=1, usecols=[1,2,3,4,5,6]);
-        max_val = max(ab_csv['abort'])
-        print(max_val)
-        others = ab_csv['abort'] - ab_csv['conflict'] - ab_csv['capacity'] - ab_csv['explicit']
-        others.name = 'other'
-        abort_df = pd.concat([ab_csv, others], axis=1)
-        for logsz in log_list:
-            tmp_df = abort_df[abort_df['logsize'] == logsz]
-            del tmp_df['abort']
-            del tmp_df['logsize']
-            ax = tmp_df.plot(kind='bar', stacked=True, ylim=[0, max_val*1.05])
-            plt.xlabel('スレッド数')
-            plt.ylabel('アボート回数')
-            plt.title('スレッド数によるアボート回数の変化（' + op_list_j[i] + '）')
-            plt.savefig('abort_' + nvhtm_type + '_' + op_list[i] + '_' + str(logsz) + '.png')
-            plt.close('all')
-
-#         ind = np.arange(len(thr_list))
-#         for thr in thr_list:
-#             thr_filter = abort_df['thread'] == thr
-#             i = 0
-#             for logsz in log_list:
-#                 plt.bar(ind+i*bar_width, abort_df['conflict'], width=bar_width, color='r', label='conflict')
-#                 btm = abort_df['conflict'].values
-#                 plt.bar(ind+i*bar_width, abort_df['capacity'], width=bar_width, bottom=btm, color='r', label='capacity')
-        # ab_csv.plot(kind='bar', stacked=True)
-        # plt.show()
+    for thr in thr_list:
+        for op_index in range(len(op_list)):
+            chkp_times_lst = []
+            for logsz in log_list:
+                os.makedirs(graph_root + '/' + nvhtm_type, exist_ok=True)
+                for trial in range(1, 6):
+                    chkp_time = 0
+                    with open(root_dir + '/elapsed_time/' + nvhtm_type + '/logsz_' + str(logsz) + '/' + op_list[op_index] + '_concurrent.exe.thr.' + str(thr) + '.trial.' + str(trial) + '.dmp') as f:
+                        chkp_time += [int(line.strip('[FORKED_MANAGER] Nb. checkpoints ')) for line in f.readlines() if line.startswith('[FORKED_MANAGER] Nb.')][0]
+                    chkp_time /= 5.0
+                chkp_times_lst.append(chkp_time)
+            df = pd.DataFrame(chkp_times_lst, index=log_list)
+            df.index = list(map(lambda x: str(int(x/1024)), df.index))
+            df.plot(kind='bar', legend=False)
+            plt.xlabel('ログ容量（KiB）')
+            plt.ylabel('Checkpoint回数')
+            plt.xticks(rotation=0)
+            plt.title('ログ容量の大きさによるCheckpoint回数の変化（' + op_list_j[op_index] + '）')
+            plt.savefig(graph_root + '/' + nvhtm_type + '/' + op_list[op_index] + '.thr.' + str(thr) + '.eps')
+        plt.close('all')

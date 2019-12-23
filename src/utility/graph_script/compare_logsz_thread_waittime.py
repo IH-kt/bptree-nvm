@@ -11,17 +11,22 @@ op_list_j = ['挿入', '削除', '検索']
 thr_list = [1, 2, 4, 8, 16] # TODO
 log_list = [33056, 65824, 131360, 262432, 524576, 1048864] # TODO
 
-bar_width=0.2
-
+fontsize=16
 for nvhtm_type in type_list:
     for i in range(0, len(op_list)):
         for thr in thr_list:
             wait_csv = pd.read_csv('wait_' + op_list[i] + '_' + nvhtm_type + '.thr.' + str(thr) + '.csv', index_col=0);
+            wait_csv.index /= 1024
+            wait_csv.index = list(map(lambda x: str(int(x)), list(wait_csv.index)))
             ax = wait_csv.plot(kind='bar', stacked=True)
-            plt.xlabel('ログ容量')
-            plt.ylabel('スレッドあたりの待ち時間（s）')
-            plt.title('ログ容量数別の待ち時間の変化（' + op_list_j[i] + '，スレッド数' + str(thr) + '）')
+            plt.xticks(rotation=0)
+            plt.xlabel('ログ容量（KiB）', fontsize=fontsize)
+            plt.ylabel('スレッドあたりの待ち時間（s）', fontsize=fontsize)
+            plt.ylim(top=2.5)
+            plt.title('ログ容量数別の待ち時間の変化（' + op_list_j[i] + '，スレッド数' + str(thr) + '）', fontsize=fontsize)
             #plt.savefig('abort_' + nvhtm_type + '_' + op_list[i] + '_' + str(logsz) + '.png')
+            ax.legend(fontsize=fontsize)
+            plt.tick_params(labelsize=fontsize)
             plt.tight_layout()
             plt.savefig('wait_' + nvhtm_type + '_' + op_list[i] + '.thr.' + str(thr) + '.eps')
         plt.close('all')

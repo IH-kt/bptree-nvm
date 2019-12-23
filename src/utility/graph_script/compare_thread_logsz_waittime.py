@@ -18,6 +18,7 @@ for nvhtm_type in type_list:
         for logsz in log_list:
             wait_csv = pd.read_csv('wait_' + op_list[i] + '_' + nvhtm_type + '.logsize.' + str(logsz) + '.csv', index_col=0);
             ax = wait_csv.plot(kind='bar', stacked=True)
+            plt.xticks(rotation=0)
             plt.xlabel('スレッド数')
             plt.ylabel('スレッドあたりの待ち時間（s）')
             plt.title('スレッド数別の待ち時間の変化（' + op_list_j[i] + ', ログ容量' + str((logsz - 288)/1024) + 'KiB' + '）')

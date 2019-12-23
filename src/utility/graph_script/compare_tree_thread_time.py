@@ -21,23 +21,24 @@ ops = ['挿入', '検索', '削除']
 
 def plot_graph(log_size_str, result_file1, result_file2, result_file3, result_file4, cols, memtype):
     result_df1 = pd.read_csv(result_file1 + '/result.csv', index_col=0)
-    result_df2 = pd.read_csv(result_file2 + '/result.csv', index_col=0)
+    # result_df2 = pd.read_csv(result_file2 + '/result.csv', index_col=0)
     result_df3 = pd.read_csv(result_file3 + '/result.csv', index_col=0)
     result_df4 = pd.read_csv(result_file4 + '/result.csv', index_col=0)
 
-    os.makedirs(log_size_str)
+    os.makedirs(log_size_str, exist_ok=True)
 
     for i in range(3):
         p_df1 = result_df1.iloc[:, [i]]
-        p_df2 = result_df2.iloc[:, [i]]
+        # p_df2 = result_df2.iloc[:, [i]]
         p_df3 = result_df3.iloc[:, [i]]
         p_df4 = result_df4.iloc[:, [i]]
         colname = p_df1.columns[0]
         p_df1.columns = [result_file1.split('../' + memtype + '/elapsed_time/')[1]]
-        p_df2.columns = [result_file2.split('../' + memtype + '/elapsed_time/')[1]]
+        # p_df2.columns = [result_file2.split('../' + memtype + '/elapsed_time/')[1]]
         p_df3.columns = [result_file3.split('../' + memtype + '/elapsed_time/')[1]]
         p_df4.columns = [result_file4.split('../' + memtype + '/elapsed_time/')[1]]
-        result_df = pd.concat([p_df1, p_df2, p_df3, p_df4], axis=1)
+        # result_df = pd.concat([p_df1, p_df2, p_df3, p_df4], axis=1)
+        result_df = pd.concat([p_df1, p_df3, p_df4], axis=1)
         ax = result_df.plot.line(style=line_style)
         plt.xlabel('スレッド数', fontsize=font_size)
         plt.ylabel('実行時間 (秒)', fontsize=font_size)
@@ -79,5 +80,6 @@ for memtype in ['pmem', 'vmem']:
         result_file_dir2 = '../' + memtype + '/elapsed_time/bptree_nvhtm_1/' + result_file_dirs_2[i]
         result_file_dir3 = '../' + memtype + '/elapsed_time/fptree_concurrent_0/' + result_file_dirs_3[0]
         result_file_dir4 = '../' + memtype + '/elapsed_time/bptree_concurrent_0/' + result_file_dirs_4[0]
-        plot_graph('scaling/' + memtype + '/' + result_file_dirs_1[i], result_file_dir1, result_file_dir2, result_file_dir3, result_file_dir4, ["B${^+}$-Tree${_{NH}}$", "B${^+}$-Tree${_{DB}}$", "FPTree", "B${^+}$-Tree${_{C}}$"], memtype)
+        # plot_graph('scaling/' + memtype + '/' + result_file_dirs_1[i], result_file_dir1, result_file_dir2, result_file_dir3, result_file_dir4, ["B${^+}$-Tree${_{NH}}$", "B${^+}$-Tree${_{DB}}$", "FPTree", "B${^+}$-Tree${_{C}}$"], memtype)
+        plot_graph('scaling/' + memtype + '/' + result_file_dirs_1[i], result_file_dir1, result_file_dir2, result_file_dir3, result_file_dir4, ["B${^+}$-Tree${_{NH}}$", "FPTree", "B${^+}$-Tree${_{C}}$"], memtype)
 plt.close('all')
