@@ -1,0 +1,71 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 8, pmem_path = /home/iiboshi/dramdir/data, log_path = /home/iiboshi/dramdir/log
+allocating 17636296 byte
+*******************Thread 8*******************
+abort[0] user     = 0 times
+abort[1] conflict = 90 times
+abort[2] capacity = 0 times
+abort[3] other    = 4456 times
+***********************************************
+resetting abort counters:
+lock = 60
+transaction = 508765
+abort[0] = 0
+abort[1] = 90
+abort[2] = 0
+abort[3] = 4456
+*******************Thread 1*******************
+abort[0] user     = 32 times
+abort[1] conflict = 22 times
+abort[2] capacity = 1 times
+abort[3] other    = 4 times
+***********************************************
+*******************Thread 6*******************
+abort[0] user     = 21 times
+abort[1] conflict = 38 times
+abort[2] capacity = 0 times
+abort[3] other    = 11 times
+***********************************************
+*******************Thread 7*******************
+abort[0] user     = 27 times
+abort[1] conflict = 30 times
+abort[2] capacity = 0 times
+abort[3] other    = 9 times
+***********************************************
+*******************Thread 4*******************
+abort[0] user     = 35 times
+abort[1] conflict = 34 times
+abort[2] capacity = 2 times
+abort[3] other    = 138 times
+***********************************************
+*******************Thread 5*******************
+abort[0] user     = 28 times
+abort[1] conflict = 33 times
+abort[2] capacity = 0 times
+abort[3] other    = 10 times
+***********************************************
+*******************Thread 2*******************
+abort[0] user     = 33 times
+abort[1] conflict = 38 times
+abort[2] capacity = 2 times
+abort[3] other    = 16 times
+***********************************************
+*******************Thread 3*******************
+abort[0] user     = 37 times
+abort[1] conflict = 36 times
+abort[2] capacity = 2 times
+abort[3] other    = 16 times
+***********************************************
+*******************Thread 8*******************
+abort[0] user     = 23 times
+abort[1] conflict = 34 times
+abort[2] capacity = 0 times
+abort[3] other    = 28 times
+***********************************************
+write count: 0
+executed by lock = 0 times
+executed by transaction = 500000 times
+abort[0] user     = 236 times
+abort[1] conflict = 265 times
+abort[2] capacity = 7 times
+abort[3] other    = 232 times
+finish running threads

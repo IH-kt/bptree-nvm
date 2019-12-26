@@ -7,13 +7,13 @@ BENCH_ET_DIR        := $(BENCH_DIR)/elapsed_time
 ifdef warmup
 	WARM_UP	:= $(warmup)
 else
-	WARM_UP	:= 800000
+	WARM_UP	:= 500000
 endif
 
 ifdef loop
 	LOOP_TIMES	:= $(loop)
 else
-	LOOP_TIMES	:= 800000
+	LOOP_TIMES	:= 500000
 endif
 
 MAX_VAL	:= $(shell expr $(WARM_UP) + $(LOOP_TIMES))
@@ -37,13 +37,13 @@ endif
 ifdef logstart
 	LOGSTT	:= $(logstart)
 else
-	LOGSTT	:= 320000
+	LOGSTT	:= 2621440
 endif
 
 ifdef thrmax
 	THRMAX	:= $(thrmax)
 else
-	THRMAX	:= 5
+	THRMAX	:= 4
 endif
 
 ifdef ppath
@@ -59,7 +59,7 @@ else
 endif
 
 THRLST	?= $(shell seq 0 $(THRMAX) | sed -e 's/\(.*\)/2^\1/' | bc -q | tr '\n' ' ')
-LOGLST	?= $(shell seq 0 $(LOGMAX) | sed -e 's/\(.*\)/32768 * 2^\1 + 288/'| bc -q | tr '\n' ' ')
+LOGLST	?= $(shell seq 0 $(LOGMAX) | sed -e 's/\(.*\)/$(LOGSTT) * 2^\1 + 288/'| bc -q | tr '\n' ' ')
 THRLSTP	?= [$(shell echo $(THRLST) | tr ' ' ',')]
 TRIALS  ?= `seq 1 5`
 
