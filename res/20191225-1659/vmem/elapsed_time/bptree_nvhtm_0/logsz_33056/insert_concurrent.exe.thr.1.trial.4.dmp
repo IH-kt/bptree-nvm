@@ -1,0 +1,76 @@
+warm_up = 800000, loop_times = 800000, max_val = 1600000, thread_max = 1, pmem_path = /home/iiboshi/dramdir/data, log_path = /home/iiboshi/dramdir/log
+allocating 52932400 byte
+log_size = 66112
+log_size_per_thread = 33056
+LOG_global_ptr = 0x7effd3800000
+number of entry = 2048
+*******************Thread 2*******************
+***********************************************
+clearing nb_checkpoints = 67005
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 793286
+	ABORT    = 237047
+	EXPLICIT = 68413
+	RETRY    = 4956
+	CONFLICT = 4967
+	CAPACITY = 59269
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 172811
+	FALLBACK = 6714
+HTM_nanotime_blocked_total = 0.000924
+NH_time_blocked_total (WL) = 0.000859
+NH_time_blocked_total (CA) = 3.274085
+*******************Thread 2*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 40949
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000560 s!
+--- NH time blocked by CHECK_LOG_ABORT 1.762802 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 795974
+ABORTS : 152652
+CONFLS : 2569
+CAPACS : 35606
+EXPLIC : 41531
+FALLBK : 4026
+[FORKED_MANAGER] Nb. checkpoints 40949
+[FORKED_MANAGER] Time active 7532.845224 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=55460004 TIME_spins=0.000000ms
+   P_A : 0.160919
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.868423 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          105868309
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          229318
+TOTAL_TIME_B (clocks) 13098745702
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000584 s!

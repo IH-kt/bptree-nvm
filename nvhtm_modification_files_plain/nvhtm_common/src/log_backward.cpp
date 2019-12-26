@@ -146,6 +146,7 @@ int LOG_checkpoint_backward_apply_one()
     } else {
       j = ptr_mod_log(starts[i], APPLY_BACKWARD_VAL);
     }
+    // j = ends[i];
 
     // TODO: repeated code
     for (; j != starts[i]; j = ptr_mod_log(j, -1)) {

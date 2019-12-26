@@ -119,7 +119,7 @@ extern "C"
 			time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
 			time_tmp /= 1000000000;                   \
 			time_tmp += edt.tv_sec - stt.tv_sec;      \
-			NH_nanotime_blocked += time_tmp;		  \
+			NH_nanotime_blocked[0] += time_tmp;		  \
 			/*double lat = (double)(ts2_wait_log_time - ts1_wait_log_time) / (double)CPU_MAX_FREQ; \
 			 if (lat > 100) printf("Blocked for %f ms\n", lat); */ \
 		} \
@@ -149,7 +149,7 @@ extern "C"
 		time_tmp += (edt.tv_nsec - stt.tv_nsec);  \
 		time_tmp /= 1000000000;                   \
 		time_tmp += edt.tv_sec - stt.tv_sec;      \
-		NH_nanotime_blocked += time_tmp;		  \
+		NH_nanotime_blocked[1] += time_tmp;		  \
 		/* double lat = (double)(ts2_wait_log_time - ts1_wait_log_time) / (double)CPU_MAX_FREQ; \
 		if (lat > 100) printf("Blocked for %f ms\n", lat); */ \
 	}

@@ -1,0 +1,89 @@
+warm_up = 800000, loop_times = 800000, max_val = 1600000, thread_max = 2, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 52934496 byte
+log_size = 99168
+log_size_per_thread = 33056
+LOG_global_ptr = 0x7fad08600000
+number of entry = 2048
+*******************Thread 3*******************
+***********************************************
+clearing nb_checkpoints = 67178
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 793246
+	ABORT    = 209048
+	EXPLICIT = 68330
+	RETRY    = 5873
+	CONFLICT = 5881
+	CAPACITY = 59850
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 143317
+	FALLBACK = 6754
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000937
+NH_time_blocked_total (WL) = 0.000744
+NH_time_blocked_total (CA) = 3.353521
+*******************Thread 3*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 32687
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000499 s!
+--- NH time blocked by CHECK_LOG_ABORT 2.642958 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 795861
+ABORTS : 153822
+CONFLS : 63686
+CAPACS : 16895
+EXPLIC : 38618
+FALLBK : 4139
+   P_A : 0.161972
+     X : inf
+ ---   TIME
+[FORKED_MANAGER] Nb. checkpoints 32687
+[FORKED_MANAGER] Time active 6477.149938 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=53950442 TIME_spins=0.000000ms
+TRANSACTION_ABORT_TIME: 0.682533 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          105860822
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          223072
+TOTAL_TIME_B (clocks) 15593146374
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.047203 s!

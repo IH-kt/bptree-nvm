@@ -1,0 +1,215 @@
+warm_up = 800000, loop_times = 800000, max_val = 1600000, thread_max = 32, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 28238368 byte
+*******************Thread 32*******************
+abort[0] user     = 0 times
+abort[1] conflict = 91 times
+abort[2] capacity = 0 times
+abort[3] other    = 5834 times
+***********************************************
+resetting abort counters:
+lock = 63
+transaction = 814063
+abort[0] = 0
+abort[1] = 91
+abort[2] = 0
+abort[3] = 5834
+*******************Thread 20*******************
+abort[0] user     = 430 times
+abort[1] conflict = 281 times
+abort[2] capacity = 1 times
+abort[3] other    = 5 times
+***********************************************
+*******************Thread 5*******************
+abort[0] user     = 367 times
+abort[1] conflict = 246 times
+abort[2] capacity = 1 times
+abort[3] other    = 71 times
+***********************************************
+*******************Thread 2*******************
+abort[0] user     = 292 times
+abort[1] conflict = 221 times
+abort[2] capacity = 0 times
+abort[3] other    = 28 times
+***********************************************
+*******************Thread 7*******************
+abort[0] user     = 348 times
+abort[1] conflict = 236 times
+abort[2] capacity = 0 times
+abort[3] other    = 13 times
+***********************************************
+*******************Thread 1*******************
+abort[0] user     = 308 times
+abort[1] conflict = 171 times
+abort[2] capacity = 0 times
+abort[3] other    = 6 times
+***********************************************
+*******************Thread 8*******************
+abort[0] user     = 216 times
+abort[1] conflict = 139 times
+abort[2] capacity = 0 times
+abort[3] other    = 8 times
+***********************************************
+*******************Thread 4*******************
+abort[0] user     = 261 times
+abort[1] conflict = 147 times
+abort[2] capacity = 0 times
+abort[3] other    = 6 times
+***********************************************
+*******************Thread 6*******************
+abort[0] user     = 321 times
+abort[1] conflict = 177 times
+abort[2] capacity = 1 times
+abort[3] other    = 8 times
+***********************************************
+*******************Thread 14*******************
+abort[0] user     = 288 times
+abort[1] conflict = 213 times
+abort[2] capacity = 0 times
+abort[3] other    = 7 times
+***********************************************
+*******************Thread 3*******************
+abort[0] user     = 183 times
+abort[1] conflict = 120 times
+abort[2] capacity = 1 times
+abort[3] other    = 14 times
+***********************************************
+*******************Thread 17*******************
+abort[0] user     = 131 times
+abort[1] conflict = 97 times
+abort[2] capacity = 1 times
+abort[3] other    = 15 times
+***********************************************
+*******************Thread 19*******************
+abort[0] user     = 183 times
+abort[1] conflict = 183 times
+abort[2] capacity = 0 times
+abort[3] other    = 17 times
+***********************************************
+*******************Thread 16*******************
+abort[0] user     = 233 times
+abort[1] conflict = 156 times
+abort[2] capacity = 1 times
+abort[3] other    = 19 times
+***********************************************
+*******************Thread 18*******************
+abort[0] user     = 231 times
+abort[1] conflict = 94 times
+abort[2] capacity = 0 times
+abort[3] other    = 17 times
+***********************************************
+*******************Thread 10*******************
+abort[0] user     = 84 times
+abort[1] conflict = 70 times
+abort[2] capacity = 1 times
+abort[3] other    = 18 times
+***********************************************
+*******************Thread 9*******************
+abort[0] user     = 197 times
+abort[1] conflict = 147 times
+abort[2] capacity = 0 times
+abort[3] other    = 23 times
+***********************************************
+*******************Thread 23*******************
+abort[0] user     = 242 times
+abort[1] conflict = 87 times
+abort[2] capacity = 0 times
+abort[3] other    = 22 times
+***********************************************
+*******************Thread 24*******************
+abort[0] user     = 127 times
+abort[1] conflict = 57 times
+abort[2] capacity = 0 times
+abort[3] other    = 22 times
+***********************************************
+*******************Thread 12*******************
+abort[0] user     = 138 times
+abort[1] conflict = 90 times
+abort[2] capacity = 0 times
+abort[3] other    = 20 times
+***********************************************
+*******************Thread 30*******************
+abort[0] user     = 173 times
+abort[1] conflict = 94 times
+abort[2] capacity = 1 times
+abort[3] other    = 22 times
+***********************************************
+*******************Thread 27*******************
+abort[0] user     = 141 times
+abort[1] conflict = 74 times
+abort[2] capacity = 0 times
+abort[3] other    = 25 times
+***********************************************
+*******************Thread 11*******************
+abort[0] user     = 231 times
+abort[1] conflict = 113 times
+abort[2] capacity = 2 times
+abort[3] other    = 26 times
+***********************************************
+*******************Thread 25*******************
+abort[0] user     = 203 times
+abort[1] conflict = 92 times
+abort[2] capacity = 0 times
+abort[3] other    = 11 times
+***********************************************
+*******************Thread 22*******************
+abort[0] user     = 345 times
+abort[1] conflict = 169 times
+abort[2] capacity = 1 times
+abort[3] other    = 25 times
+***********************************************
+*******************Thread 13*******************
+abort[0] user     = 247 times
+abort[1] conflict = 152 times
+abort[2] capacity = 1 times
+abort[3] other    = 22 times
+***********************************************
+*******************Thread 32*******************
+abort[0] user     = 234 times
+abort[1] conflict = 129 times
+abort[2] capacity = 1 times
+abort[3] other    = 27 times
+***********************************************
+*******************Thread 15*******************
+abort[0] user     = 368 times
+abort[1] conflict = 178 times
+abort[2] capacity = 1 times
+abort[3] other    = 18 times
+***********************************************
+*******************Thread 21*******************
+abort[0] user     = 407 times
+abort[1] conflict = 182 times
+abort[2] capacity = 0 times
+abort[3] other    = 33 times
+***********************************************
+*******************Thread 29*******************
+abort[0] user     = 282 times
+abort[1] conflict = 127 times
+abort[2] capacity = 0 times
+abort[3] other    = 33 times
+***********************************************
+*******************Thread 31*******************
+abort[0] user     = 265 times
+abort[1] conflict = 136 times
+abort[2] capacity = 0 times
+abort[3] other    = 28 times
+***********************************************
+*******************Thread 26*******************
+abort[0] user     = 173 times
+abort[1] conflict = 133 times
+abort[2] capacity = 1 times
+abort[3] other    = 35 times
+***********************************************
+*******************Thread 28*******************
+abort[0] user     = 275 times
+abort[1] conflict = 123 times
+abort[2] capacity = 0 times
+abort[3] other    = 24 times
+***********************************************
+write count: 0
+executed by lock = 471 times
+executed by transaction = 799529 times
+abort[0] user     = 7924 times
+abort[1] conflict = 4634 times
+abort[2] capacity = 15 times
+abort[3] other    = 668 times
+finish running threads

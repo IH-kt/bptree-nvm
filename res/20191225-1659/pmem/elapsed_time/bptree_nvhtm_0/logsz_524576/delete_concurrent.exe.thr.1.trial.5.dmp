@@ -1,0 +1,87 @@
+warm_up = 800000, loop_times = 800000, max_val = 1600000, thread_max = 1, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 26206304 byte
+log_size = 1573728
+log_size_per_thread = 524576
+LOG_global_ptr = 0x7efc6a800000
+number of entry = 32768
+*******************Thread 1*******************
+***********************************************
+clearing nb_checkpoints = 3971
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 793392
+	ABORT    = 336912
+	EXPLICIT = 4143
+	RETRY    = 745
+	CONFLICT = 747
+	CAPACITY = 58795
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 277370
+	FALLBACK = 6608
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000965
+NH_time_blocked_total (WL) = 0.000399
+NH_time_blocked_total (CA) = 1.360940
+*******************Thread 1*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 1163
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.395021 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 799999
+ABORTS : 134956
+CONFLS : 112
+CAPACS : 270
+EXPLIC : 1163
+FALLBK : 1
+   P_A : 0.144345
+     X : inf
+[FORKED_MANAGER] Nb. checkpoints 1163
+[FORKED_MANAGER] Time active 4583.209252 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=43656464 TIME_spins=0.000000ms
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.159822 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          85460783
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          11062
+TOTAL_TIME_B (clocks) 4566412912
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000000 s!

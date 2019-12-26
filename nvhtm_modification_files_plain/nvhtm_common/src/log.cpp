@@ -117,9 +117,14 @@ void LOG_init(int nb_threads, int fresh)
     LOG_global_ptr = ALLOC_MEM(log_file_name, size_of_logs);
     memset(LOG_global_ptr, 0, size_of_logs);
     fresh = 1; // this is not init to 0
+    size_t size_of_struct = sizeof(NVLog_s);
+    size_t size_of_log = NVMHTM_LOG_SIZE - size_of_struct;
+    double max_nb_entries = (double)size_of_log / (double)sizeof(NVLogEntry_s);
+    size_t new_size_log = LOG_base2_before(max_nb_entries);
     fprintf(stderr, "log_size = %lu\n", size_of_logs);
     fprintf(stderr, "log_size_per_thread = %lu\n", (unsigned long)NVMHTM_LOG_SIZE);
     fprintf(stderr, "LOG_global_ptr = %p\n", LOG_global_ptr);
+    fprintf(stderr, "number of entry = %lu\n", new_size_log);
 
     key_t key = KEY_LOGS;
     int shmid = shmget(key, sizeof(long long), 0777 | IPC_CREAT);
@@ -414,9 +419,11 @@ void NH_reset() {
     *NH_nb_checkpoints = 0;
     TM_reset_error();
     fprintf(stderr, "HTM_nanotime_blocked_total = %lf\n", HTM_nanotime_blocked_total);
-    fprintf(stderr, "NH_time_blocked_total = %lf\n", NH_nanotime_blocked_total);
+    fprintf(stderr, "NH_time_blocked_total (WL) = %lf\n", NH_nanotime_blocked_total[0]);
+    fprintf(stderr, "NH_time_blocked_total (CA) = %lf\n", NH_nanotime_blocked_total[1]);
     HTM_nanotime_blocked_total = 0;
-    NH_nanotime_blocked_total = 0;
+    NH_nanotime_blocked_total[0] = 0;
+    NH_nanotime_blocked_total[1] = 0;
     abort_time_all = 0;
     return;
 }

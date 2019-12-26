@@ -1,0 +1,47 @@
+warm_up = 800000, loop_times = 800000, max_val = 1600000, thread_max = 4, pmem_path = /home/iiboshi/dramdir/data, log_path = /home/iiboshi/dramdir/log
+allocating 56407912 byte
+*******************Thread 5*******************
+abort[0] user     = 0 times
+abort[1] conflict = 132 times
+abort[2] capacity = 0 times
+abort[3] other    = 2002 times
+***********************************************
+resetting abort counters:
+lock = 63
+transaction = 814114
+abort[0] = 0
+abort[1] = 132
+abort[2] = 0
+abort[3] = 2002
+*******************Thread 3*******************
+abort[0] user     = 75 times
+abort[1] conflict = 693 times
+abort[2] capacity = 2 times
+abort[3] other    = 488 times
+***********************************************
+*******************Thread 2*******************
+abort[0] user     = 55 times
+abort[1] conflict = 679 times
+abort[2] capacity = 2 times
+abort[3] other    = 789 times
+***********************************************
+*******************Thread 5*******************
+abort[0] user     = 108 times
+abort[1] conflict = 730 times
+abort[2] capacity = 4 times
+abort[3] other    = 545 times
+***********************************************
+*******************Thread 4*******************
+abort[0] user     = 50 times
+abort[1] conflict = 666 times
+abort[2] capacity = 3 times
+abort[3] other    = 641 times
+***********************************************
+finish running threads
+write count: 0
+executed by lock = 65 times
+executed by transaction = 808486 times
+abort[0] user     = 288 times
+abort[1] conflict = 2768 times
+abort[2] capacity = 11 times
+abort[3] other    = 2463 times

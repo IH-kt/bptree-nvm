@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "allocating %lu byte\n", allocation_size);
 #ifdef NVHTM
     set_log_file_name(log_path);
-    NVHTM_init(thread_max + 2);
+    NVHTM_init(thread_max + 1);
     void *pool = NH_alloc(pmem_path, allocation_size);
     // void *pool = NH_alloc(allocation_size);
     NVHTM_clear();

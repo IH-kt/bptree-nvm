@@ -7,13 +7,13 @@ BENCH_ET_DIR        := $(BENCH_DIR)/elapsed_time
 ifdef warmup
 	WARM_UP	:= $(warmup)
 else
-	WARM_UP	:= 500000
+	WARM_UP	:= 800000
 endif
 
 ifdef loop
 	LOOP_TIMES	:= $(loop)
 else
-	LOOP_TIMES	:= 500000
+	LOOP_TIMES	:= 800000
 endif
 
 MAX_VAL	:= $(shell expr $(WARM_UP) + $(LOOP_TIMES))
@@ -37,13 +37,13 @@ endif
 ifdef logstart
 	LOGSTT	:= $(logstart)
 else
-	LOGSTT	:= 65824
+	LOGSTT	:= 320000
 endif
 
 ifdef thrmax
 	THRMAX	:= $(thrmax)
 else
-	THRMAX	:= 4
+	THRMAX	:= 5
 endif
 
 ifdef ppath
@@ -94,7 +94,7 @@ count_abort: bench_ca_dir
 elapsed_time:
 	make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
 	make tree=bptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
-	make tree=bptree type=nvhtm ppath=$(PPATH) db=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log
+    # make tree=bptree type=nvhtm ppath=$(PPATH) db=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log
 	make tree=bptree type=nvhtm ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
 
 elapsed_time_log:
@@ -120,7 +120,7 @@ elapsed_time_thr: bench_et_dir
 write_freq:
 	make tree=fptree type=concurrent db=0 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) write_freq_thr
 	make tree=bptree type=concurrent db=0 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) write_freq_thr
-	make tree=bptree type=nvhtm db=1 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
+    # make tree=bptree type=nvhtm db=1 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
 	make tree=bptree type=nvhtm db=0 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
 
 write_freq_log:
