@@ -97,11 +97,6 @@ all: $(ALL_EXE)
 
 include ./Makefile_bench.inc
 
-make-test:
-	echo $(NVHTM_MAKE_ARGS)
-	echo $(logsz)
-	echo $(LOGSZ)
-
 %.exe:%.o $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(NVHTM_LIB)
 	$(CXX) -o $(BUILD_DIR)/$@ $+ $(NVHTM_LIB) $(CFLAGS)
 

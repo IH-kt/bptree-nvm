@@ -65,15 +65,17 @@ TRIALS  ?= `seq 1 5`
 
 bench_all:
 	mkdir -p $(BENCH_DIR)/pmem $(BENCH_DIR)/vmem
-	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) tree=fptree type=concurrent count_abort
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) tree=fptree type=concurrent count_abort
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) write_freq
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
-	mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
-	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=concurrent count_abort
-	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=fptree type=concurrent count_abort
+	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
+	mv $(BENCH_ET_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=concurrent count_abort
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=fptree type=concurrent count_abort
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) write_freq
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
-	mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
+	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
+	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
 
 # for concurrent (not nvhtm)
 count_abort: bench_ca_dir
@@ -83,19 +85,20 @@ count_abort: bench_ca_dir
 	(cd build; python3 base_operation.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
 	for exe in $(BASE_BENCH_EXE); do\
 		for thr in $(THRLST); do\
-            for trial in $(TRIALS); do\
-                mv $(BUILD_DIR)/"$$exe".thr."$$thr".trial."$$trial".dmp $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
-                done;\
+			for trial in $(TRIALS); do\
+				mv $(BUILD_DIR)/"$$exe".thr."$$thr".trial."$$trial".dmp $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+			done;\
 		done;\
 	done
 	mv $(BUILD_DIR)/result_raw.npy $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
 	mv $(BUILD_DIR)/result.csv $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
 
 elapsed_time:
-	make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
-	make tree=bptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
-    # make tree=bptree type=nvhtm ppath=$(PPATH) db=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log
-	make tree=bptree type=nvhtm ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
+	# make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
+	# make tree=bptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
+	# make tree=bptree type=nvhtm ppath=$(PPATH) db=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log
+	# make tree=bptree type=nvhtm ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
+	make tree=bptree type=nvhtm ppath=$(PPATH) chkpa=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
 
 elapsed_time_log:
 	for logsz in $(LOGLST); do\
@@ -109,19 +112,20 @@ elapsed_time_thr: bench_et_dir
 	(cd build; python3 base_operation.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
 	for exe in $(BASE_BENCH_EXE); do\
 		for thr in $(THRLST); do\
-            for trial in $(TRIALS); do\
-                mv $(BUILD_DIR)/"$$exe".thr."$$thr".trial."$$trial".dmp $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
-            done;\
+			for trial in $(TRIALS); do\
+				mv $(BUILD_DIR)/"$$exe".thr."$$thr".trial."$$trial".dmp $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+			done;\
 		done;\
 	done
 	mv $(BUILD_DIR)/result_raw.npy $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
 	mv $(BUILD_DIR)/result.csv $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
 
 write_freq:
-	make tree=fptree type=concurrent db=0 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) write_freq_thr
-	make tree=bptree type=concurrent db=0 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) write_freq_thr
-    # make tree=bptree type=nvhtm db=1 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
-	make tree=bptree type=nvhtm db=0 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
+	# make tree=fptree type=concurrent db=0 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) write_freq_thr
+	# make tree=bptree type=concurrent db=0 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) write_freq_thr
+	# make tree=bptree type=nvhtm db=1 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
+	# make tree=bptree type=nvhtm db=0 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
+	make tree=bptree type=nvhtm chkpa=1 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
 
 write_freq_log:
 	for logsz in $(LOGLST); do\
@@ -134,8 +138,8 @@ write_freq_thr: bench_wf_dir
 	cp $(BENCH_SCRIPT_DIR)/write_freq.py $(BUILD_DIR)
 	(cd build; python3 write_freq.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
 	for thr in $(THRLST); do\
-        mv $(BUILD_DIR)/write_freq"$$thr".txt $(BENCH_WF_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
-        mv $(BUILD_DIR)/insert_concurrent.exe.thr."$$thr".dmp $(BENCH_WF_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+		mv $(BUILD_DIR)/write_freq"$$thr".txt $(BENCH_WF_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+		mv $(BUILD_DIR)/insert_concurrent.exe.thr."$$thr".dmp $(BENCH_WF_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
 	done
 
 bench_ca_dir:

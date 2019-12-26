@@ -16,6 +16,10 @@ NVHTM_MAKE_ARGS := SOLUTION=4 DO_CHECKPOINT=5 SORT_ALG=5 USE_MIN_NVM=0
 ifeq ($(db), 1)
     NVHTM_MOD_DIR   := $(ROOT_DIR)/nvhtm_modification_files_double_buffering
 else
-    NVHTM_MOD_DIR   := $(ROOT_DIR)/nvhtm_modification_files_plain
+    ifeq ($(chkpa),1)
+        NVHTM_MOD_DIR   := $(ROOT_DIR)/nvhtm_modification_files_checkpoint_all
+    else
+        NVHTM_MOD_DIR   := $(ROOT_DIR)/nvhtm_modification_files_plain
+    endif
 endif
 endif

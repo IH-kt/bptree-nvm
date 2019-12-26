@@ -1,0 +1,100 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 2, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 16382352 byte
+log_size = 167773312
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f4ef6e00000
+number of entry = 2097152
+*******************Thread 2*******************
+***********************************************
+clearing nb_checkpoints = 19
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 495711
+	ABORT    = 326961
+	EXPLICIT = 19
+	RETRY    = 42
+	CONFLICT = 42
+	CAPACITY = 38020
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 288899
+	FALLBACK = 4289
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000627
+NH_time_blocked_total (WL) = 0.000001
+NH_time_blocked_total (CA) = 0.908030
+*******************Thread 1*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 4
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.554071 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 499983
+ABORTS : 15672
+CONFLS : 761
+CAPACS : 275
+EXPLIC : 8
+FALLBK : 17
+   P_A : 0.030392
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.019949 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          53367380
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          58
+TOTAL_TIME_B (clocks) 3801452234
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000033 s!
+[FORKED_MANAGER] Nb. checkpoints 4
+[FORKED_MANAGER] Time active 2789.490813 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[logger] NB_spins=0 NB_writes=5930846 TIME_spins=0.000000ms
