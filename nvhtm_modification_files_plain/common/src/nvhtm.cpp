@@ -478,6 +478,6 @@ void NVHTM_snapshot_chkp()
 
 	fprintf(gp_fp, "%f\t", time);                // [1]TIME
 	fprintf(gp_fp, "%lli\t", MN_count_spins);    // [2]NB_FLUSHES
-	fprintf(gp_fp, "%lli\n", *NH_nb_checkpoints); // [3]NB_CHECKPOINTS
+	fprintf(gp_fp, "%lli\n", NH_nb_checkpoints); // [3]NB_CHECKPOINTS
 	fclose(gp_fp);
 }

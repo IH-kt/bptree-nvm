@@ -16,4 +16,6 @@ __thread double abort_time_thread = 0;
 double abort_time_all = 0;
 __thread struct timespec transaction_start;
 __thread struct timespec transaction_abort_end;
+unsigned int *checkpoint_by_flags;
+unsigned int checkpoint_by[3];
 // ####################################################

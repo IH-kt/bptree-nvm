@@ -78,6 +78,7 @@ int LOG_checkpoint_backward_apply_one()
   bool too_full = false;
   bool too_empty = false;
   bool someone_passed = false;
+  static int nb_chkp = 0;
   int dist;
   NVLog_s *log;
 
@@ -86,7 +87,7 @@ int LOG_checkpoint_backward_apply_one()
   } CL_BLOCK;
 
   sem_wait(NH_chkp_sem);
-  _mm_sfence();
+  __sync_synchronize();
   *NH_checkpointer_state = 1; // doing checkpoint
   __sync_synchronize();
 
@@ -220,7 +221,15 @@ int LOG_checkpoint_backward_apply_one()
     return 1; // there isn't enough transactions
   }
 
-  *NH_nb_checkpoints = *NH_nb_checkpoints + 1;
+  NH_nb_checkpoints = NH_nb_checkpoints + 1;
+  if (checkpoint_by_flags[2]) {
+      checkpoint_by[2]++;
+  } else if (checkpoint_by_flags[1]) {
+      checkpoint_by[1]++;
+  } else {
+      checkpoint_by[0]++;
+  }
+  memset(checkpoint_by_flags, 0, sizeof(unsigned int) * 3);
 
   // find the write-set to apply to the checkpoint (Cache_lines!)
   int next_log;

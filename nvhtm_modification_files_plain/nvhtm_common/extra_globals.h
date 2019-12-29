@@ -18,5 +18,7 @@ extern __thread double abort_time_thread;
 extern double abort_time_all;
 extern __thread struct timespec transaction_start;
 extern __thread struct timespec transaction_abort_end;
+extern unsigned int *checkpoint_by_flags;
+extern unsigned int checkpoint_by[3];
 
 #endif /* EXTRA_GLOBALS_H */

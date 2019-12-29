@@ -31,7 +31,7 @@ CL_ALIGN ts_s NH_time_validate_total;
 CL_ALIGN int NH_count_wraps;
 CL_ALIGN double NH_tx_time_total;
 CL_ALIGN double NH_time_after_commit_total;
-CL_ALIGN long long *NH_nb_checkpoints;
+CL_ALIGN long long NH_nb_checkpoints;
 CL_ALIGN long long NH_count_writes_total;
 CL_ALIGN long long NH_count_blocks_total;
 CL_ALIGN ts_s NH_time_blocked_total;

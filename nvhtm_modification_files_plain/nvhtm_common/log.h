@@ -107,7 +107,10 @@ extern "C"
 			clock_gettime(CLOCK_MONOTONIC_RAW, &stt); \
 			while (distance_ptr(log->start, log->end) > \
 				(LOG_local_state.size_of_log - 32)) { \
-					if (*NH_checkpointer_state == 0) sem_post(NH_chkp_sem); \
+					if (*NH_checkpointer_state == 0) {\
+                    checkpoint_by_flags[1]++;\
+                    sem_post(NH_chkp_sem); \
+                    }\
 					PAUSE(); \
 			} \
 			NH_count_blocks++; \
@@ -137,7 +140,10 @@ extern "C"
 			&& (LOG_local_state.size_of_log - LOG_local_state.counter) < WAIT_DISTANCE) \
 			|| (distance_ptr(log->end, log->start) < WAIT_DISTANCE \
 			&& log->end != log->start)) { \
-				if (*NH_checkpointer_state == 0) sem_post(NH_chkp_sem); \
+				if (*NH_checkpointer_state == 0) {\
+                    checkpoint_by_flags[2]++;\
+                    sem_post(NH_chkp_sem); \
+                }\
 				PAUSE(); \
 		} \
 		NH_count_blocks++; \
@@ -234,7 +240,10 @@ extern "C"
 		LOG_local_state.counter = distance_ptr((int)LOG_local_state.start, \
 		(int)LOG_local_state.end); \
 		if (LOG_local_state.counter >= APPLY_BACKWARD_VAL) { \
-			if (*NH_checkpointer_state == 0) sem_post(NH_chkp_sem); \
+			if (*NH_checkpointer_state == 0) {\
+                checkpoint_by_flags[0]++;\
+                sem_post(NH_chkp_sem); \
+            }\
 		} \
 		/* prefetch */ \
 		if (LOG_local_state.counter < LOG_local_state.size_of_log - 16) { \
@@ -296,6 +305,7 @@ extern "C"
 	void LOG_handle_checkpoint();
     void NH_start_freq();
     void NH_reset();
+    void wait_for_checkpoint ();
 
 	#define ptr_mod_log(ptr, inc) ({ \
 		LOG_MOD2((long long)ptr + (long long)inc, LOG_local_state.size_of_log); \

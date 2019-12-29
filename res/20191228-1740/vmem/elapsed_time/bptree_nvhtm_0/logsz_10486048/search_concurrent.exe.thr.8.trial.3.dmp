@@ -1,0 +1,181 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 8, pmem_path = /home/iiboshi/dramdir/data, log_path = /home/iiboshi/dramdir/log
+allocating 16394928 byte
+log_size = 104860480
+log_size_per_thread = 10486048
+LOG_global_ptr = 0x7f8a48600000
+number of entry = 524288
+*******************Thread 8*******************
+***********************************************
+reset error counter
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+reset: nb_checkpoints = 153, checkpoint_by = 152, 0, 1
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 495725
+	ABORT    = 249282
+	EXPLICIT = 153
+	RETRY    = 9
+	CONFLICT = 9
+	CAPACITY = 38283
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 210990
+	FALLBACK = 4275
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 4:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 5:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 6:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 7:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 8:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 9:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000610
+NH_time_blocked_total (WL) = 0.000004
+NH_time_blocked_total (CA) = 0.771085
+*******************Thread 4*******************
+***********************************************
+*******************Thread 3*******************
+***********************************************
+*******************Thread 8*******************
+***********************************************
+*******************Thread 1*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+*******************Thread 5*******************
+***********************************************
+*******************Thread 7*******************
+***********************************************
+*******************Thread 6*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000000 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 500000
+ABORTS : 715
+CONFLS : 286
+CAPACS : 0
+EXPLIC : 0
+FALLBK : 0
+   P_A : 0.001428
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.001214 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          41488272
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          320
+TOTAL_TIME_B (clocks) 2004806668
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+[FORKED_MANAGER] Nb. checkpoints 0
+[FORKED_MANAGER] Time active 2373.897178 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[logger] NB_spins=0 NB_writes=13679214 TIME_spins=0.000000ms
+--- HTM time blocked 0.000000 s!

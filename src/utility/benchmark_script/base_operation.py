@@ -8,7 +8,7 @@ import subprocess
 import csv
 import pandas as pd
 exefiles = ["insert_concurrent.exe", "search_concurrent.exe", "delete_concurrent.exe"]
-exp_loop_times = range(5)
+exp_loop_times = range(3)
 warmup_num = int(sys.argv[1]) # 元からある要素の数
 trial_num = int(sys.argv[2]) # 検索・追加する回数
 thread_num = eval(sys.argv[3]) # スレッド数

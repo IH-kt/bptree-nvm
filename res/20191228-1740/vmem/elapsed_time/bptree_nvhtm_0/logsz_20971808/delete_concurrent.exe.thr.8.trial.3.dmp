@@ -1,0 +1,181 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 8, pmem_path = /home/iiboshi/dramdir/data, log_path = /home/iiboshi/dramdir/log
+allocating 16394928 byte
+log_size = 209718080
+log_size_per_thread = 20971808
+LOG_global_ptr = 0x7f1f91600000
+number of entry = 1048576
+*******************Thread 8*******************
+***********************************************
+reset error counter
+reset: nb_checkpoints = 76, checkpoint_by = 76, 0, 0
+thread 0:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 495656
+	ABORT    = 272855
+	EXPLICIT = 76
+	RETRY    = 9
+	CONFLICT = 9
+	CAPACITY = 39282
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 233564
+	FALLBACK = 4344
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 4:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 5:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 6:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 7:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 8:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 9:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000615
+NH_time_blocked_total (WL) = 0.000004
+NH_time_blocked_total (CA) = 0.740745
+*******************Thread 1*******************
+***********************************************
+*******************Thread 8*******************
+***********************************************
+*******************Thread 3*******************
+***********************************************
+*******************Thread 5*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+*******************Thread 7*******************
+***********************************************
+*******************Thread 6*******************
+***********************************************
+*******************Thread 4*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 1.265623 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 499887
+ABORTS : 8822
+CONFLS : 3480
+CAPACS : 1046
+EXPLIC : 165
+FALLBK : 113
+   P_A : 0.017342
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.017579 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          53217586
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          502
+TOTAL_TIME_B (clocks) 5216522378
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.002767 s!
+[FORKED_MANAGER] Nb. checkpoints 3
+[FORKED_MANAGER] Time active 3828.422529 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 3
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[logger] NB_spins=0 NB_writes=11345304 TIME_spins=0.000000ms

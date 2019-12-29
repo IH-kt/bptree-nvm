@@ -21,6 +21,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/mman.h>
+#include <signal.h>
 
 #include <map>
 #include <set>
@@ -126,13 +127,7 @@ void LOG_init(int nb_threads, int fresh)
     fprintf(stderr, "LOG_global_ptr = %p\n", LOG_global_ptr);
     fprintf(stderr, "number of entry = %lu\n", new_size_log);
 
-    key_t key = KEY_LOGS;
-    int shmid = shmget(key, sizeof(long long), 0777 | IPC_CREAT);
-    NH_nb_checkpoints = (long long *)shmat(shmid, (void *)0, 0);
-    *NH_nb_checkpoints = 0;
-    if (shmid < 0) {
-        perror("KEY_LOGS");
-    }
+    NH_nb_checkpoints = 0;
     // key_t key = KEY_LOGS;
 
     // int shmid = shmget(key, size_of_logs, 0777 | IPC_CREAT);
@@ -415,8 +410,8 @@ void NH_start_freq() {
 
 void NH_reset() {
     extern CL_ALIGN double HTM_nanotime_blocked_total;
-    fprintf(stderr, "clearing nb_checkpoints = %lld\n", *NH_nb_checkpoints);
-    *NH_nb_checkpoints = 0;
+    extern pid_t NH_checkpoint_pid;
+    kill(NH_checkpoint_pid, SIGUSR1);
     TM_reset_error();
     fprintf(stderr, "HTM_nanotime_blocked_total = %lf\n", HTM_nanotime_blocked_total);
     fprintf(stderr, "NH_time_blocked_total (WL) = %lf\n", NH_nanotime_blocked_total[0]);

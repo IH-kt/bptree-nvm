@@ -1,0 +1,79 @@
+warm_up = 500000, loop_times = 500000, max_val = 1000000, thread_max = 1, pmem_path = /home/iiboshi/dramdir/data, log_path = /home/iiboshi/dramdir/log
+allocating 33085900 byte
+log_size = 5243456
+log_size_per_thread = 2621728
+LOG_global_ptr = 0x7f9c36400000
+number of entry = 131072
+*******************Thread 2*******************
+***********************************************
+reset error counter
+thread 0:
+	SUCCESS  = 0
+reset: nb_checkpoints = 616, checkpoint_by = 522, 0, 94
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 1:
+	SUCCESS  = 495780
+	ABORT    = 145147
+	EXPLICIT = 654
+	RETRY    = 15
+	CONFLICT = 15
+	CAPACITY = 40691
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 104441
+	FALLBACK = 4220
+HTM_nanotime_blocked_total = 0.000595
+NH_time_blocked_total (WL) = 0.001489
+NH_time_blocked_total (CA) = 0.809261
+*******************Thread 2*******************
+***********************************************
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000010 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.544672 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 497376
+ABORTS : 102822
+CONFLS : 5
+CAPACS : 24881
+EXPLIC : 378
+FALLBK : 2624
+   P_A : 0.171313
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.521151 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          66126479
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          2196
+TOTAL_TIME_B (clocks) 3524011060
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000386 s!
+[FORKED_MANAGER] Nb. checkpoints 377
+[FORKED_MANAGER] Time active 5512.713917 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 328
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 49
+[logger] NB_spins=0 NB_writes=31243844 TIME_spins=0.000000ms

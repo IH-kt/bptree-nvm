@@ -166,6 +166,7 @@ int main(int argc, char *argv[]) {
         bptreeWaitThread(tid_array[i], NULL);
         free(NULL);
     }
+    wait_for_checkpoint();
     clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
 
     destroyBPTree(bpt, 1);
