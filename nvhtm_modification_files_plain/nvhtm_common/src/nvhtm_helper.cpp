@@ -1047,8 +1047,8 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
   ptr += sprintf(ptr, "[FORKED_MANAGER] Time extra sort logs %f ms \n",
   (double) NH_manager_order_logs / (double) CPU_MAX_FREQ);
   ptr += sprintf(ptr, "[FORKED_MANAGER] by before_TX = %d\n", checkpoint_by[0]);
-  ptr += sprintf(ptr, "[FORKED_MANAGER] by WAIT_MORE_LOG = %d\n", checkpoint_by[1]);
-  ptr += sprintf(ptr, "[FORKED_MANAGER] by CHECK_LOG_ABORT = %d\n", checkpoint_by[2]);
+  ptr += sprintf(ptr, "[FORKED_MANAGER] by CHECK_LOG_ABORT = %d\n", checkpoint_by[1]);
+  ptr += sprintf(ptr, "[FORKED_MANAGER] by WAIT_MORE_LOG = %d\n", checkpoint_by[2]);
   ptr += sprintf(ptr, "[logger] NB_spins=%lli NB_writes=%lli TIME_spins=%fms\n",
   MN_count_spins, MN_count_writes, (double)MN_time_spins / (double)CPU_MAX_FREQ);
   fprintf(stderr, "%s", buffer);
@@ -1082,8 +1082,16 @@ static void aux_thread_stats_to_gnuplot_file(char *filename) {
 
 void wait_for_checkpoint () {
     int value;
+    struct timespec stt, edt;
     sem_getvalue(NH_chkp_sem, &value);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
     while (value > 0) {
         sem_getvalue(NH_chkp_sem, &value);
     }
+    clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+    double time_tmp = 0;
+    time_tmp += edt.tv_nsec - stt.tv_nsec;
+    time_tmp /= 1000000000;
+    time_tmp += edt.tv_sec - stt.tv_sec;
+    fprintf(stderr, "wait_for_checkpoint = %lf\n", time_tmp);
 }

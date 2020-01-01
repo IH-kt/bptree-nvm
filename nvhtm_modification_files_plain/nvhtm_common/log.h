@@ -108,7 +108,7 @@ extern "C"
 			while (distance_ptr(log->start, log->end) > \
 				(LOG_local_state.size_of_log - 32)) { \
 					if (*NH_checkpointer_state == 0) {\
-                    checkpoint_by_flags[1]++;\
+                    checkpoint_by_flags[2]++;\
                     sem_post(NH_chkp_sem); \
                     }\
 					PAUSE(); \
@@ -141,7 +141,7 @@ extern "C"
 			|| (distance_ptr(log->end, log->start) < WAIT_DISTANCE \
 			&& log->end != log->start)) { \
 				if (*NH_checkpointer_state == 0) {\
-                    checkpoint_by_flags[2]++;\
+                    checkpoint_by_flags[1]++;\
                     sem_post(NH_chkp_sem); \
                 }\
 				PAUSE(); \
