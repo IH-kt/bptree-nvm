@@ -87,6 +87,7 @@ CFLAGS=$(DEBUGF) -march=native -pthread $(DEFINES) -I$(INCLUDE_DIR) $(NVHTM_CFLA
 
 ALLOCATOR_OBJ=$(ALLOCATOR_SRC:%.c=%.o)
 THREAD_MANAGER_OBJ=$(THREAD_MANAGER_SRC:%.c=%.o)
+RAND_OBJ=$(RAND_SRC:%.c=%.o)
 
 TEST_EXE		:= $(TEST_SRC_NAME:%.c=%.exe)
 BASE_BENCH_EXE	:= $(BASE_BENCH_SRC_NAME:%.c=%.exe)
@@ -97,7 +98,7 @@ all: $(ALL_EXE)
 
 include ./Makefile_bench.inc
 
-%.exe:%.o $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(NVHTM_LIB)
+%.exe:%.o $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(RAND_OBJ) $(NVHTM_LIB)
 	$(CXX) -o $(BUILD_DIR)/$@ $+ $(NVHTM_LIB) $(CFLAGS)
 
 %.o:%.c $(BUILD_DIR)
@@ -130,4 +131,4 @@ dist-clean: clean $(NVHTM_CLEAN)
 	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE))
 
 $(BUILD_DIR):
-	mkdir -p build
+	mkdir -p $(BUILD_DIR)
