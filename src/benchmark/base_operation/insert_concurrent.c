@@ -144,6 +144,7 @@ int main(int argc, char *argv[]) {
     tid_array[i] = bptreeCreateThread(bpt, insert_random, arg[i]);
 
 #ifdef NVHTM
+    wait_for_checkpoint();
     NH_reset();
     NH_start_freq();
 #else
@@ -157,7 +158,9 @@ int main(int argc, char *argv[]) {
         bptreeWaitThread(tid_array[i], NULL);
         free(arg[i]);
     }
+#ifdef NVHTM
     wait_for_checkpoint();
+#endif
     clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
 
 

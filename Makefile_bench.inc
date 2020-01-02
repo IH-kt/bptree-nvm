@@ -7,13 +7,13 @@ BENCH_ET_DIR        := $(BENCH_DIR)/elapsed_time
 ifdef warmup
 	WARM_UP	:= $(warmup)
 else
-	WARM_UP	:= 800000
+	WARM_UP	:= 2500000
 endif
 
 ifdef loop
 	LOOP_TIMES	:= $(loop)
 else
-	LOOP_TIMES	:= 800000
+	LOOP_TIMES	:= 2500000
 endif
 
 MAX_VAL	:= $(shell expr $(WARM_UP) + $(LOOP_TIMES))
@@ -67,15 +67,15 @@ bench_all:
 	mkdir -p $(BENCH_DIR)/pmem $(BENCH_DIR)/vmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) tree=fptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) write_freq
-	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
 	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
-	mv $(BENCH_ET_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
+	# mv $(BENCH_ET_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=fptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) write_freq
-	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
 	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
-	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
+	mv $(BENCH_ET_DIR) $(BENCH_DIR)/pmem
 
 # for concurrent (not nvhtm)
 count_abort: bench_ca_dir
@@ -94,10 +94,10 @@ count_abort: bench_ca_dir
 	mv $(BUILD_DIR)/result.csv $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
 
 elapsed_time:
-	# make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
-	# make tree=bptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
+	make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
+	make tree=bptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
 	# make tree=bptree type=nvhtm ppath=$(PPATH) db=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log
-	make tree=bptree type=nvhtm ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
+    # make tree=bptree type=nvhtm ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
     # make tree=bptree type=nvhtm ppath=$(PPATH) chkpa=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
 
 elapsed_time_log:

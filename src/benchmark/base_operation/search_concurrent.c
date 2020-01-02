@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
     tid_array = (pthread_t *)malloc(sizeof(pthread_t) * (thread_max + 1));
     arg = (arg_t **)malloc(sizeof(arg_t *) * (thread_max + 1));
 
-    bptreeThreadInit(BPTREE_NONBLOCK);
+    // bptreeThreadInit(BPTREE_NONBLOCK);
 
     kv.key = 1;
     kv.value = 1;
@@ -165,6 +165,7 @@ int main(int argc, char *argv[]) {
     tid_array[i] = bptreeCreateThread(bpt, search_random, arg[i]);
 
 #ifdef NVHTM
+    wait_for_checkpoint();
     NH_reset();
     NH_start_freq();
 #else
@@ -178,7 +179,9 @@ int main(int argc, char *argv[]) {
         bptreeWaitThread(tid_array[i], NULL);
         free(NULL);
     }
+#ifdef NVHTM
     wait_for_checkpoint();
+#endif
     clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
 
     fprintf(stderr, "finish running threads\n");
