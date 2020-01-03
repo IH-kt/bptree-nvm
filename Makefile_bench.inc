@@ -37,7 +37,7 @@ endif
 ifdef logstart
 	LOGSTT	:= $(logstart)
 else
-	LOGSTT	:= 10486048
+	LOGSTT	:= 1048576
 endif
 
 ifdef thrmax
@@ -67,11 +67,11 @@ bench_all:
 	mkdir -p $(BENCH_DIR)/pmem $(BENCH_DIR)/vmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) tree=fptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) write_freq
-	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
 	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
-	# mv $(BENCH_ET_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
-	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=concurrent count_abort
-	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=fptree type=concurrent count_abort
+	mv $(BENCH_ET_DIR) $(BENCH_DIR)/vmem
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=concurrent count_abort
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=fptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) write_freq
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
 	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
@@ -97,8 +97,8 @@ elapsed_time:
 	make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
 	make tree=bptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
 	# make tree=bptree type=nvhtm ppath=$(PPATH) db=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log
-    # make tree=bptree type=nvhtm ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
-    # make tree=bptree type=nvhtm ppath=$(PPATH) chkpa=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
+	make tree=bptree type=nvhtm ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
+	# make tree=bptree type=nvhtm ppath=$(PPATH) chkpa=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
 
 elapsed_time_log:
 	for logsz in $(LOGLST); do\
@@ -121,11 +121,11 @@ elapsed_time_thr: bench_et_dir
 	mv $(BUILD_DIR)/result.csv $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
 
 write_freq:
-	# make tree=fptree type=concurrent db=0 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) write_freq_thr
-	# make tree=bptree type=concurrent db=0 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) write_freq_thr
+	make tree=fptree type=concurrent db=0 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) write_freq_thr
+	make tree=bptree type=concurrent db=0 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) write_freq_thr
 	# make tree=bptree type=nvhtm db=1 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
-	# make tree=bptree type=nvhtm db=0 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
-	make tree=bptree type=nvhtm chkpa=1 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
+	make tree=bptree type=nvhtm db=0 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
+	# make tree=bptree type=nvhtm chkpa=1 ppath=$(PPATH) BENCH_DATE=$(BENCH_DATE) write_freq_log
 
 write_freq_log:
 	for logsz in $(LOGLST); do\

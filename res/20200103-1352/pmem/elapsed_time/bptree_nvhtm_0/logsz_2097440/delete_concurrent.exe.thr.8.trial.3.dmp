@@ -1,0 +1,183 @@
+warm_up = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 8, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 81894928 byte
+log_size = 20974400
+log_size_per_thread = 2097440
+LOG_global_ptr = 0x7feb25800000
+number of entry = 131072
+*******************Thread 8*******************
+***********************************************
+wait_for_checkpoint = 0.609747
+reset error counter
+thread 0:
+	SUCCESS  = 2473596
+	ABORT    = 1545501
+	EXPLICIT = 4097
+	RETRY    = 89
+	CONFLICT = 89
+	CAPACITY = 237990
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 1307422
+	FALLBACK = 26404
+thread 1:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 4:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+reset: nb_checkpoints = 3923, checkpoint_by = 3908, 15, 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 5:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 6:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 7:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 8:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 9:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+HTM_nanotime_blocked_total = 0.000000
+NH_time_blocked_total (WL) = 0.000000
+NH_time_blocked_total (CA) = 0.000000
+*******************Thread 5*******************
+***********************************************
+*******************Thread 4*******************
+***********************************************
+*******************Thread 8*******************
+***********************************************
+*******************Thread 7*******************
+***********************************************
+*******************Thread 1*******************
+***********************************************
+*******************Thread 2*******************
+***********************************************
+*******************Thread 3*******************
+***********************************************
+*******************Thread 6*******************
+***********************************************
+wait_for_checkpoint = 9.554292
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.001702 s!
+--- NH time blocked by CHECK_LOG_ABORT 41.888729 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 2499423
+ABORTS : 57724
+CONFLS : 20202
+CAPACS : 4950
+EXPLIC : 2569
+FALLBK : 577
+   P_A : 0.022574
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 6.141176 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          383291454
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          13906
+TOTAL_TIME_B (clocks) 108913599408
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.010427 s!
+[FORKED_MANAGER] Nb. checkpoints 275
+[FORKED_MANAGER] Time active 25579.948128 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 237
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 38
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[logger] NB_spins=0 NB_writes=192417412 TIME_spins=0.000000ms
