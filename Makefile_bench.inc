@@ -37,7 +37,7 @@ endif
 ifdef logstart
 	LOGSTT	:= $(logstart)
 else
-	LOGSTT	:= 1048576
+	LOGSTT	:= 10485760
 endif
 
 ifdef thrmax
@@ -75,7 +75,7 @@ bench_all:
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) write_freq
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
 	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
-	mv $(BENCH_ET_DIR) $(BENCH_DIR)/pmem
+	mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_DIR)/pmem
 
 # for concurrent (not nvhtm)
 count_abort: bench_ca_dir
