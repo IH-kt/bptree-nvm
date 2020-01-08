@@ -43,7 +43,7 @@ extern __thread unsigned int transaction_counter_max;
 
 #ifdef FREQ_WRITE
 #  define FREQ_WRITE_BUFSZ 2 * 60 * 60 * 17
-#  define FREQ_INTERVAL 256 * 1024
+#  define FREQ_INTERVAL 1024 * 1024
 extern unsigned int wrote_size_tmp;
 extern char freq_write_buf[FREQ_WRITE_BUFSZ];
 extern int freq_write_buf_index;

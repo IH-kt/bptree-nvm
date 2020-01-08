@@ -41,7 +41,7 @@ static std::mutex mtx;
 #  define FREQ_WRITE_BUFSZ 2 * 60 * 60 * 17
 #endif
 #ifndef FREQ_INTERVAL
-#  define FREQ_INTERVAL 256 * 1024
+#  define FREQ_INTERVAL 1024 * 1024
 #endif
 unsigned int nvhtm_wrote_size_tmp = 0;
 char *nvhtm_freq_write_buf = NULL;
