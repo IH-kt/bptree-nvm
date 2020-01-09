@@ -2,23 +2,23 @@ warm_up = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 16, pme
 allocating 165427340 byte
 log_size = 713036576
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7faa7b800000
+LOG_global_ptr = 0x7f5d22400000
 number of entry = 2097152
 *******************Thread 16*******************
 ***********************************************
-wait_for_checkpoint = 4.060570
+wait_for_checkpoint = 4.292395
 reset error counter
 thread 0:
-	SUCCESS  = 2473099
-	ABORT    = 2211880
-	EXPLICIT = 244
-	RETRY    = 38
-	CONFLICT = 38
-	CAPACITY = 228565
+	SUCCESS  = 2472848
+	ABORT    = 2190859
+	EXPLICIT = 257
+	RETRY    = 42
+	CONFLICT = 42
+	CAPACITY = 232030
 	DEBUG    = 0
 	NESTED   = 0
-	OTHER    = 1983277
-	FALLBACK = 26901
+	OTHER    = 1958787
+	FALLBACK = 27152
 thread 1:
 	SUCCESS  = 0
 	ABORT    = 0
@@ -30,6 +30,7 @@ thread 1:
 	NESTED   = 0
 	OTHER    = 0
 	FALLBACK = 0
+reset: nb_checkpoints = 244, checkpoint_by = 244, 0, 0
 thread 2:
 	SUCCESS  = 0
 	ABORT    = 0
@@ -62,7 +63,6 @@ thread 4:
 	DEBUG    = 0
 	NESTED   = 0
 	OTHER    = 0
-reset: nb_checkpoints = 244, checkpoint_by = 243, 1, 0
 	FALLBACK = 0
 thread 5:
 	SUCCESS  = 0
@@ -199,79 +199,79 @@ thread 16:
 HTM_nanotime_blocked_total = 0.000000
 NH_time_blocked_total (WL) = 0.000000
 NH_time_blocked_total (CA) = 0.000000
-*******************Thread 9*******************
+*******************Thread 2*******************
+***********************************************
+*******************Thread 1*******************
 ***********************************************
 *******************Thread 8*******************
 ***********************************************
 *******************Thread 14*******************
 ***********************************************
-*******************Thread 6*******************
-***********************************************
-*******************Thread 16*******************
-***********************************************
-*******************Thread 1*******************
-***********************************************
-*******************Thread 10*******************
-***********************************************
-*******************Thread 7*******************
-***********************************************
 *******************Thread 5*******************
 ***********************************************
 *******************Thread 12*******************
 ***********************************************
-*******************Thread 11*******************
+*******************Thread 6*******************
+***********************************************
+*******************Thread 9*******************
 ***********************************************
 *******************Thread 13*******************
 ***********************************************
 *******************Thread 3*******************
 ***********************************************
+*******************Thread 7*******************
+***********************************************
 *******************Thread 4*******************
 ***********************************************
-*******************Thread 2*******************
+*******************Thread 10*******************
+***********************************************
+*******************Thread 16*******************
+***********************************************
+*******************Thread 11*******************
 ***********************************************
 *******************Thread 15*******************
 ***********************************************
-wait_for_checkpoint = 9.400052
+wait_for_checkpoint = 9.426053
 finish running threads
 --- Percentage time blocked inf 
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
---- NH time blocked by WAIT_MORE_LOG 0.000021 s!
---- NH time blocked by CHECK_LOG_ABORT 129.392316 s!
+--- NH time blocked by WAIT_MORE_LOG 0.000017 s!
+--- NH time blocked by CHECK_LOG_ABORT 136.513434 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 2430546
-ABORTS : 5122882
+COMMIT : 2451669
+ABORTS : 4320417
+CONFLS : 4085935
 [FORKED_MANAGER] Nb. checkpoints 17
-[FORKED_MANAGER] Time active 31232.929782 ms!
+[FORKED_MANAGER] Time active 31761.083005 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
-[FORKED_MANAGER] by before_TX = 17
-[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by before_TX = 15
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 2
 [FORKED_MANAGER] by WAIT_MORE_LOG = 0
-[logger] NB_spins=0 NB_writes=151892264 TIME_spins=0.000000ms
-CONFLS : 4801247
-CAPACS : 16277
-EXPLIC : 212009
-FALLBK : 69454
-   P_A : 0.678219
+[logger] NB_spins=0 NB_writes=152193277 TIME_spins=0.000000ms
+CAPACS : 17122
+EXPLIC : 125043
+FALLBK : 48331
+   P_A : 0.637974
      X : inf
  ---   TIME
-TRANSACTION_ABORT_TIME: 22.103555 s
+TRANSACTION_ABORT_TIME: 19.735058 s
 Time 0.000000 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          518678030
+TOTAL_WRITES          518689324
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          424582
-TOTAL_TIME_B (clocks) 336418027482
+TOTAL_BLOCKS          250664
+TOTAL_TIME_B (clocks) 354933564172
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 14.498196 s!
-20.105827
+--- HTM time blocked 12.673531 s!
+20.359848
