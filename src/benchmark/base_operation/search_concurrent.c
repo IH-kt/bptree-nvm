@@ -167,7 +167,6 @@ int main(int argc, char *argv[]) {
 #ifdef NVHTM
     wait_for_checkpoint();
     NH_reset();
-    NH_start_freq();
 #else
     FREQ_WRITE_START();
     RESET_COUNT_ABORT();

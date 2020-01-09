@@ -167,4 +167,4 @@ void MN_learn_nb_nops() {
 
 void MN_enter() {}
 void MN_exit() {}
-void MN_start_freq() {}
+void MN_start_freq(int by_chikp) {}

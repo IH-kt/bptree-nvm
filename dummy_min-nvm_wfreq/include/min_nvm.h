@@ -95,7 +95,7 @@ extern "C"
   void MN_flush(void *addr, size_t size, int);
   void MN_drain(void);
   void MN_learn_nb_nops(void);
-  void MN_start_freq();
+  void MN_start_freq(int);
 
   #ifdef __cplusplus
 }

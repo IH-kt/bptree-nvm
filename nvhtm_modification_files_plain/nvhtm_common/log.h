@@ -303,7 +303,6 @@ extern "C"
 	// This one moves start to start_ptr (may cause some contention)
 	void LOG_move_start_ptrs();
 	void LOG_handle_checkpoint();
-    void NH_start_freq();
     void NH_reset();
     void wait_for_checkpoint ();
 

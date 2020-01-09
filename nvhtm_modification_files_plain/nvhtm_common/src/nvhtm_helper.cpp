@@ -1029,6 +1029,7 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
     checkpoint_by[0] = 0;
     checkpoint_by[1] = 0;
     checkpoint_by[2] = 0;
+    MN_start_freq(1);
 }
 
 static void segint_sigaction(int signal, siginfo_t *si, void *context)

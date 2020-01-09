@@ -57,8 +57,20 @@ int SPIN_PER_WRITE(int nb_writes)
 	return nb_writes;
 }
 
-void MN_start_freq() {
-    *nvhtm_freq_write_buf_index = 1;
+void MN_start_freq(int by_chkp) {
+    start_freq_log = 1;
+    unsigned int indx_tmp = __sync_fetch_and_add(nvhtm_freq_write_buf_index, 17);
+    struct timespec tm;
+    double time_tmp = 0;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &tm);
+    time_tmp += tm.tv_nsec;  
+    time_tmp /= 1000000000;                   
+    time_tmp += tm.tv_sec;      
+    if (by_chkp) {
+        sprintf(nvhtm_freq_write_buf + indx_tmp, "c%15lf\n", time_tmp);
+    } else {
+        sprintf(nvhtm_freq_write_buf + indx_tmp, "w%15lf\n", time_tmp);
+    }
 }
 
 pthread_mutex_t write_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -198,10 +210,6 @@ void MN_flush(void *addr, size_t size, int by_chkp)
 	}
 
     size = new_size * size_cl;
-    if (!start_freq_log && *nvhtm_freq_write_buf_index != 0) {
-        start_freq_log = 1;
-        *nvhtm_freq_write_buf_index = 0;
-    }
     if (start_freq_log) {
         unsigned int tmp = __sync_fetch_and_add(&nvhtm_wrote_size_tmp, size);
         if (tmp + size > FREQ_INTERVAL) {

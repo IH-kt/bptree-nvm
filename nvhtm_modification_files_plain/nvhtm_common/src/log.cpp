@@ -404,14 +404,11 @@ static void init_log(NVLog_s *new_log, int tid, int fresh)
   NH_global_logs[tid] = new_log;
 }
 
-void NH_start_freq() {
-    MN_start_freq();
-}
-
 void NH_reset() {
     extern CL_ALIGN double HTM_nanotime_blocked_total;
     extern pid_t NH_checkpoint_pid;
     kill(NH_checkpoint_pid, SIGUSR1);
+    MN_start_freq(0);
     TM_reset_error();
     fprintf(stderr, "HTM_nanotime_blocked_total = %lf\n", HTM_nanotime_blocked_total);
     fprintf(stderr, "NH_time_blocked_total (WL) = %lf\n", NH_nanotime_blocked_total[0]);
