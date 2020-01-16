@@ -78,9 +78,12 @@ int LOG_checkpoint_backward_apply_one()
   bool too_full = false;
   bool too_empty = false;
   bool someone_passed = false;
-  static int nb_chkp = 0;
   int dist;
   NVLog_s *log;
+#ifdef STAT
+  struct timespec stt, edt;
+  double time_tmp;
+#endif
 
   typedef struct _CL_BLOCK {
     char bit_map;
@@ -95,8 +98,23 @@ int LOG_checkpoint_backward_apply_one()
   unordered_map<GRANULE_TYPE*, CL_BLOCK> writes_map;
   vector<GRANULE_TYPE*> writes_list;
 
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
+
   writes_list.reserve(32000);
   writes_map.reserve(32000);
+
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  checkpoint_section_time[0] += time_tmp;
+
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
 
   // find target ts, and the idx in the log
   ts_s target_ts = 0;
@@ -235,9 +253,32 @@ int LOG_checkpoint_backward_apply_one()
   int next_log;
   unsigned long long proc_writes = 0;
 
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  checkpoint_section_time[1] += time_tmp;
+
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
+
   // ts_s time_ts1, time_ts2, time_ts3, time_ts4 = 0;
   // time_ts1 = rdtscp();
   writes_map.reserve(size_hashmap);
+
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  checkpoint_section_time[0] += time_tmp;
+
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
+
   do {
     // time_ts3 = rdtscp();
     next_log = max_next_log(pos, starts, ends);
@@ -305,6 +346,16 @@ int LOG_checkpoint_backward_apply_one()
     // NH_nb_applied_txs++;
   } while (next_log != -1);
 
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  checkpoint_section_time[2] += time_tmp;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
+
   // flushes the changes
   auto cl_iterator = writes_list.begin();
   // auto cl_it_end = writes_list.end();
@@ -314,6 +365,15 @@ int LOG_checkpoint_backward_apply_one()
     MN_flush(addr, CACHE_LINE_SIZE, 1);
   }
   _mm_sfence();
+
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  checkpoint_section_time[3] += time_tmp;
+#endif
 
   // advance the pointers
   //    int freed_space = 0;

@@ -44,7 +44,9 @@ int SPIN_PER_WRITE(int nb_writes)
 
 int MN_write(void *addr, void *buf, size_t size, int to_aux)
 {
+#ifdef STAT
 	MN_count_writes++;
+#endif
 	// if (to_aux) {
 	// 	// it means it does not support CoW (dynamic mallocs?)
 	// 	if (aux_pool == NULL) aux_pool = (int*)malloc(SIZE_AUX_POOL);
@@ -89,11 +91,13 @@ void MN_thr_enter()
 
 void MN_thr_exit()
 {
+#ifdef STAT
 	mtx.lock();
 	MN_count_spins_total        += MN_count_spins;
 	MN_time_spins_total         += MN_time_spins;
 	MN_count_writes_to_PM_total += MN_count_writes;
 	mtx.unlock();
+#endif
 }
 
 void MN_flush(void *addr, size_t size, int do_flush)
@@ -128,6 +132,7 @@ void MN_drain()
 }
 
 void MN_learn_nb_nops() {
+#ifdef STAT
  	const char *save_file = "ns_per_10_nops";
  	FILE *fp = fopen(save_file, "r");
  
@@ -163,6 +168,7 @@ void MN_learn_nb_nops() {
  		fscanf(fp, "%i\n", &SPINS_PER_100NS);
  		fclose(fp);
  	}
+#endif
 }
 
 void MN_enter() {}

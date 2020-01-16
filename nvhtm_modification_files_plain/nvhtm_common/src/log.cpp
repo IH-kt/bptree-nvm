@@ -405,11 +405,9 @@ static void init_log(NVLog_s *new_log, int tid, int fresh)
 }
 
 void NH_reset() {
+#ifdef STAT
     extern CL_ALIGN double HTM_nanotime_blocked_total;
     extern pid_t NH_checkpoint_pid;
-    kill(NH_checkpoint_pid, SIGUSR1);
-    MN_start_freq(0);
-    TM_reset_error();
     fprintf(stderr, "HTM_nanotime_blocked_total = %lf\n", HTM_nanotime_blocked_total);
     fprintf(stderr, "NH_time_blocked_total (WL) = %lf\n", NH_nanotime_blocked_total[0]);
     fprintf(stderr, "NH_time_blocked_total (CA) = %lf\n", NH_nanotime_blocked_total[1]);
@@ -417,5 +415,9 @@ void NH_reset() {
     NH_nanotime_blocked_total[0] = 0;
     NH_nanotime_blocked_total[1] = 0;
     abort_time_all = 0;
+    TM_reset_error();
+    kill(NH_checkpoint_pid, SIGUSR1);
+    MN_start_freq(0);
+#endif
     return;
 }

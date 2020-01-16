@@ -18,4 +18,5 @@ __thread struct timespec transaction_start;
 __thread struct timespec transaction_abort_end;
 unsigned int *checkpoint_by_flags;
 unsigned int checkpoint_by[3];
+double checkpoint_section_time[4];
 // ####################################################

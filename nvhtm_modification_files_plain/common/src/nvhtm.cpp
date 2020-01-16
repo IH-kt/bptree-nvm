@@ -128,6 +128,7 @@ void NVHTM_thr_exit()
 
 	nb_thrs--;
 
+#ifdef STAT
 	NH_tx_time_total += (double) NH_tx_time;
 	NH_time_after_commit_total += (double) NH_time_after_commit;
 
@@ -138,6 +139,7 @@ void NVHTM_thr_exit()
 	NH_count_blocks_total += NH_count_blocks;
 	NH_time_validate_total += NH_time_validate;
     abort_time_all += abort_time_thread;
+#endif
 
 	mutex = 0;
 	__sync_synchronize();
@@ -250,6 +252,7 @@ static int s_explicit_a;
 
 void NVHTM_shutdown()
 {
+#ifdef STAT
     // TODO: statistics optional
     double time_taken;
 
@@ -270,9 +273,11 @@ void NVHTM_shutdown()
 
     double time_tx = NVHTM_stats_get_avg_time_tx();
     double time_after = NVHTM_stats_get_avg_time_after();
+#endif
 
     NVMHTM_shutdown();
 
+#ifdef STAT
     fprintf(stderr, "\n\n ########################################### \n");
     fprintf(stderr, " ########################################### \n");
     fprintf(stderr, " --- ABORTS\n");
@@ -297,13 +302,16 @@ void NVHTM_shutdown()
     fprintf(stderr, " ---   ----\n");
     fprintf(stderr, " ########################################### \n");
     fprintf(stderr, " ########################################### \n\n");
+#endif
 
     // ---
     HTM_exit();
     // ---
 
+#ifdef STAT
 	// TODO: if gnuplot file
 	stats_to_gnuplot_file((char*) STATS_FILE);
+#endif
     MN_exit();
 }
 

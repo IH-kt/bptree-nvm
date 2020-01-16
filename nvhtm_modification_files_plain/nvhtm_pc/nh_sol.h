@@ -27,9 +27,11 @@ extern "C"
   LOG_before_TX(); \
   TM_inc_local_counter(tid);\
 
+#ifdef STAT
   #undef BEFORE_HTM_BEGIN
   #define BEFORE_HTM_BEGIN(tid, budget) \
       clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_start);
+#endif
 
   #undef BEFORE_COMMIT
   #define BEFORE_COMMIT(tid, budget, status) \
@@ -38,6 +40,7 @@ extern "C"
     while ((rdtscp() - ts_var) < MAXIMUM_OFFSET); /* wait offset */ \
   }
 
+#ifdef STAT
   #undef AFTER_TRANSACTION_i
   #define AFTER_TRANSACTION_i(tid, budget) ({ \
     int nb_writes = LOG_count_writes(tid); \
@@ -50,7 +53,21 @@ extern "C"
     TM_inc_local_counter(tid); \
     LOG_after_TX(); \
   })
+#else
+  #undef AFTER_TRANSACTION_i
+  #define AFTER_TRANSACTION_i(tid, budget) ({ \
+    int nb_writes = LOG_count_writes(tid); \
+    if (nb_writes) { \
+      htm_tx_val_counters[tid].global_counter = ts_var; \
+      __sync_synchronize(); \
+      NVMHTM_commit(TM_tid_var, ts_var, nb_writes); \
+    } \
+    CHECK_AND_REQUEST(tid); \
+    LOG_after_TX(); \
+  })
+#endif
 
+#ifdef STAT
   #undef AFTER_ABORT
   #define AFTER_ABORT(tid, budget, status) \
     clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_abort_end);\
@@ -68,6 +85,15 @@ extern "C"
   /*CHECK_LOG_ABORT(tid, status);*/ \
   /*if (status == _XABORT_CONFLICT) printf("CONFLICT: [start=%i, end=%i]\n", \
   NH_global_logs[TM_tid_var]->start, NH_global_logs[TM_tid_var]->end); */
+#else
+  #undef AFTER_ABORT
+  #define AFTER_ABORT(tid, budget, status) \
+  CHECK_LOG_ABORT(tid, status); \
+  LOG_get_ts_before_tx(tid); \
+  __sync_synchronize(); \
+  ts_var = rdtscp(); \
+  htm_tx_val_counters[tid].global_counter = ts_var;
+#endif
 
   #undef NH_before_write
   #define NH_before_write(addr, val) ({ \

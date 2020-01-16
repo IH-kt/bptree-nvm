@@ -39,13 +39,17 @@ void HTM_init_(int init_budget, int nb_threads)
 
 void HTM_exit()
 {
+#ifdef STAT
   fprintf(stderr, "--- HTM time blocked %lf s!\n", HTM_nanotime_blocked_total);
+#endif
   HTM_EXIT();
 }
 
 void HTM_thr_init()
 {
+#ifdef STAT
   HTM_nanotime_blocked = 0;
+#endif
   mtx.lock();
   tid = thr_counter++;
   HTM_SGL_tid = tid;
@@ -55,7 +59,9 @@ void HTM_thr_init()
 
 void HTM_thr_exit()
 {
+#ifdef STAT
   HTM_nanotime_blocked_total += HTM_nanotime_blocked;
+#endif
   mtx.lock();
   --thr_counter;
   HTM_THR_EXIT();
@@ -67,12 +73,15 @@ void HTM_set_budget(int _budget) { init_budget = _budget; }
 
 void HTM_enter_fallback()
 {
+#ifdef STAT
   struct timespec stt, edt;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
   // mtx.lock();
   while (!__sync_bool_compare_and_swap(&HTM_SGL_var, 0, 1)) {
     PAUSE();
   }
+#ifdef STAT
   clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
 	double time_tmp = 0;
 	time_tmp += (edt.tv_nsec - stt.tv_nsec);
@@ -82,6 +91,7 @@ void HTM_enter_fallback()
   // HTM_SGL_var = 1;
   // __sync_synchronize();
   errors[HTM_FALLBACK]++;
+#endif
 }
 
 void HTM_exit_fallback()
@@ -94,18 +104,22 @@ void HTM_exit_fallback()
 
 void HTM_block()
 {
+#ifdef STAT
   struct timespec stt, edt;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
   while(HTM_SGL_var == 1) {
     __sync_synchronize();
     PAUSE();
   }
+#ifdef STAT
   clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
 	double time_tmp = 0;
 	time_tmp += (edt.tv_nsec - stt.tv_nsec);
 	time_tmp /= 1000000000;
 	time_tmp += edt.tv_sec - stt.tv_sec;
 	HTM_nanotime_blocked += time_tmp;
+#endif
 
   // mtx.lock();
   // mtx.unlock();
@@ -113,9 +127,11 @@ void HTM_block()
 
 void HTM_inc_status_count(int status_code)
 {
+#ifdef STAT
   if (is_record) {
     HTM_ERROR_INC(status_code, errors);
   }
+#endif
 }
 
 // int HTM_update_budget(int budget, HTM_STATUS_TYPE status)
@@ -138,10 +154,12 @@ int HTM_get_status_count(int status_code, int **accum)
 
 void HTM_reset_status_count()
 {
+#ifdef STAT
   int i, j;
   for (i = 0; i < HTM_NB_ERRORS; ++i) {
     errors[i] = 0;
   }
+#endif
 }
 
 int HTM_get_nb_threads() { return threads; }

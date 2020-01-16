@@ -388,12 +388,14 @@ void NVMHTM_thr_init(void *pool)
 
 void NVMHTM_thr_exit()
 {
+#ifdef STAT
   mtx.lock();
   NH_time_blocked_total += NH_time_blocked;
   NH_count_blocks_total += NH_count_blocks;
   NH_nanotime_blocked_total[0] += NH_nanotime_blocked[0];
   NH_nanotime_blocked_total[1] += NH_nanotime_blocked[1];
   mtx.unlock();
+#endif
 }
 
 void NVMHTM_init_thrs(int nb_threads)
@@ -503,6 +505,7 @@ void NVMHTM_shutdown()
 
   while (!exit_success) PAUSE(); // wait manager to exit
 
+#ifdef STAT
   double time_taken = (double) NVHTM_get_total_time();
 
   fprintf(stderr, "--- Percentage time blocked %f \n", ((double) NH_time_blocked_total
@@ -514,6 +517,7 @@ void NVMHTM_shutdown()
   // fprintf(stderr, "checkpoint process started by before_TX %lu times\n", checkpoint_by_before);
   // fprintf(stderr, "checkpoint process started by check %lu times\n", checkpoint_by_check);
   // fprintf(stderr, "checkpoint process started by wait %lu times\n", checkpoint_by_wait);
+#endif
 }
 
 void NVMHTM_write_ts(int id, ts_s ts)
@@ -931,7 +935,9 @@ static int loop_checkpoint_manager()
   printf("More than 100ms (%f)\n", lat);
 }*/
 
+#ifdef STAT
 time_chkp_1 = rdtscp();
+#endif
 
 __sync_synchronize();
 
@@ -993,11 +999,13 @@ if (LOG_is_logged_tx()) {
     // printf("NO TRANSACTIONS TO APPLY!\n");
   }
 
+#ifdef STAT
   time_chkp_2 = rdtscp();
 
   // time_o_chkp_1 = rdtscp();
 
   time_chkp_total += time_chkp_2 - time_chkp_1;
+#endif
 
   return res;
 }
@@ -1024,16 +1032,21 @@ static void segfault_sigaction(int signal, siginfo_t *si, void *uap)
 
 static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
 {
+    int i;
     fprintf(stderr, "reset: nb_checkpoints = %lld, checkpoint_by = %u, %u, %u\n", NH_nb_checkpoints, checkpoint_by[0], checkpoint_by[1], checkpoint_by[2]);
     NH_nb_checkpoints = 0;
-    checkpoint_by[0] = 0;
-    checkpoint_by[1] = 0;
-    checkpoint_by[2] = 0;
+    for (i = 0; i < 3; i++) {
+        checkpoint_by[i];
+    }
+    for (i = 0; i < 4; i++) {
+        checkpoint_section_time[i];
+    }
     MN_start_freq(1);
 }
 
 static void segint_sigaction(int signal, siginfo_t *si, void *context)
 {
+#ifdef STAT
   char buffer[8192];
   char *ptr = buffer;
 
@@ -1050,12 +1063,17 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
   ptr += sprintf(ptr, "[FORKED_MANAGER] by before_TX = %d\n", checkpoint_by[0]);
   ptr += sprintf(ptr, "[FORKED_MANAGER] by CHECK_LOG_ABORT = %d\n", checkpoint_by[1]);
   ptr += sprintf(ptr, "[FORKED_MANAGER] by WAIT_MORE_LOG = %d\n", checkpoint_by[2]);
+  ptr += sprintf(ptr, "[FORKED_MANAGER] sec. 1 (reserve) = %lf\n", checkpoint_section_time[0]);
+  ptr += sprintf(ptr, "[FORKED_MANAGER] sec. 2 (find commit) = %lf\n", checkpoint_section_time[1]);
+  ptr += sprintf(ptr, "[FORKED_MANAGER] sec. 3 (apply) = %lf\n", checkpoint_section_time[2]);
+  ptr += sprintf(ptr, "[FORKED_MANAGER] sec. 4 (flush) = %lf\n", checkpoint_section_time[3]);
   ptr += sprintf(ptr, "[logger] NB_spins=%lli NB_writes=%lli TIME_spins=%fms\n",
   MN_count_spins, MN_count_writes, (double)MN_time_spins / (double)CPU_MAX_FREQ);
   fprintf(stderr, "%s", buffer);
 
   aux_thread_stats_to_gnuplot_file((char*) STATS_FILE ".aux_thr");
 
+#endif
   exit(EXIT_SUCCESS);
 }
 
@@ -1085,14 +1103,18 @@ void wait_for_checkpoint () {
     int value;
     struct timespec stt, edt;
     sem_getvalue(NH_chkp_sem, &value);
+#ifdef STAT
     clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
     while (value > 0) {
         sem_getvalue(NH_chkp_sem, &value);
     }
+#ifdef STAT
     clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
     double time_tmp = 0;
     time_tmp += edt.tv_nsec - stt.tv_nsec;
     time_tmp /= 1000000000;
     time_tmp += edt.tv_sec - stt.tv_sec;
     fprintf(stderr, "wait_for_checkpoint = %lf\n", time_tmp);
+#endif
 }
