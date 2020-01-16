@@ -13,6 +13,7 @@ long long persist_time = 0;
 #endif
 
 #define DEFAULT_NODE_NUM 0 // デフォルトでフリーリストに入っている数
+#define NB_NODE_AT_ONCE 4
 
 typedef struct FreeNode {
     struct FreeNode *next;
@@ -277,7 +278,7 @@ ppointer pst_mem_allocate(size_t size, unsigned char tid) {
         new_node = free_node->node;
         vol_mem_free(free_node);
 #ifdef DEBUG
-        printf("reusing free node\n");
+        printf("reusing free node: %p\n", new_node);
 #endif
     } else {
         int i;
@@ -299,11 +300,22 @@ ppointer pst_mem_allocate(size_t size, unsigned char tid) {
         if (i == _number_of_thread) {
             while (!__sync_bool_compare_and_swap(&_pmem_memory_root->global_lock, 0, 1))
                 _mm_pause();
-            if (_pmem_memory_root->global_free_area_head + _tree_node_size > _pmem_mmap_head + _pmem_mmap_size) {
+            if (_pmem_memory_root->global_free_area_head + NB_NODE_AT_ONCE * _tree_node_size > _pmem_mmap_head + _pmem_mmap_size) {
                 fprintf(stderr, "out of memory\n");
                 exit(1);
             }
-            new_node = getFromArea(&_pmem_memory_root->global_free_area_head, _tree_node_size);
+#ifdef DEBUG
+            printf("allocating: %p -> %p\n", _pmem_memory_root->global_free_area_head, _pmem_memory_root->global_free_area_head + NB_NODE_AT_ONCE * _tree_node_size);
+#endif
+            new_node = getFromArea(&_pmem_memory_root->global_free_area_head, NB_NODE_AT_ONCE * _tree_node_size);
+            for (int i = 1; i < NB_NODE_AT_ONCE; i++) {
+                FreeNode *new_free = (FreeNode *)vol_mem_allocate(sizeof(FreeNode));
+                new_free->node = ((char *)new_node) + _tree_node_size * i;
+#ifdef DEBUG
+                printf("additional node allocate: %p\n", new_free->node);
+#endif
+                addToList(new_free, &_pmem_memory_root->local_free_list_head_ary[tid][tid], &_pmem_memory_root->local_free_list_tail_ary[tid][tid]);
+            }
             _pmem_memory_root->global_lock = 0;
 #ifdef DEBUG
             printf("take free node from global\n");
