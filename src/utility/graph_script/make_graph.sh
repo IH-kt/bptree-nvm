@@ -5,7 +5,7 @@ mkdir -p graph
 cd graph
 # mkdir -p scaling/pmem
 # mkdir -p scaling/vmem
-python3 ${graphscr_dir}/compare_tree_thread_time.py
+# python3 ${graphscr_dir}/compare_tree_thread_time.py
 # mkdir -p logsize/pmem
 # mkdir -p logsize/vmem
 # python3 ${graphscr_dir}/compare_tree_logsize_time.py
@@ -31,3 +31,7 @@ python3 ${graphscr_dir}/compare_tree_thread_time.py
 # mv thread_csv wait_time/pmem
 # ${graphscr_dir}/make_block_time_thread_csv.sh ../vmem/elapsed_time
 # mv thread_csv wait_time/vmem
+
+mkdir -p checkpoint_time/pmem
+${graphscr_dir}/make_checkpoint_time_thread_csv.sh ../pmem/elapsed_time
+mv thread_csv checkpoint_time/pmem
