@@ -45,7 +45,7 @@ void show_result_thread(unsigned char tid) {
 
 #define HTM_RETRY_BY_LOCK(tree, tid) { \
     unlockBPTree(tree, tid);           \
-    sched_yield();                     \
+    _mm_pause();                       \
     continue;                          \
 }
 

@@ -13,7 +13,7 @@ long long persist_time = 0;
 #endif
 
 #define DEFAULT_NODE_NUM 0 // デフォルトでフリーリストに入っている数
-#define NB_NODE_AT_ONCE 4
+#define NB_NODE_AT_ONCE 1
 
 typedef struct FreeNode {
     struct FreeNode *next;
