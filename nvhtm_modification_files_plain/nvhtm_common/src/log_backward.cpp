@@ -92,7 +92,6 @@ int LOG_checkpoint_backward_apply_one()
   sem_wait(NH_chkp_sem);
   __sync_synchronize();
   *NH_checkpointer_state = 1; // doing checkpoint
-  __sync_synchronize();
 
   // stores the possible repeated writes
   unordered_map<GRANULE_TYPE*, CL_BLOCK> writes_map;
@@ -318,25 +317,21 @@ int LOG_checkpoint_backward_apply_one()
       auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
       int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
       char bit_map = 1 << val_idx;
-      if (!(entry.addr < al_pool)) {
-        if (it == writes_map.end()) {
-          // not found the write --> insert it
-          CL_BLOCK block;
-          block.bit_map = bit_map;
-          /*block.block[val_idx] = entry.value;*/
-          auto to_insert = make_pair((GRANULE_TYPE*)cl_addr, block);
-          writes_map.insert(to_insert);
-          writes_list.push_back((GRANULE_TYPE*)cl_addr);
-          MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
-        } else {
-          if ( !(it->second.bit_map & bit_map) ) {
-            // Need to write this word
-            MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
-            it->second.bit_map |= bit_map;
-          }
-        }
+      if (it == writes_map.end()) {
+        // not found the write --> insert it
+        CL_BLOCK block;
+        block.bit_map = bit_map;
+        /*block.block[val_idx] = entry.value;*/
+        auto to_insert = make_pair((GRANULE_TYPE*)cl_addr, block);
+        writes_map.insert(to_insert);
+        writes_list.push_back((GRANULE_TYPE*)cl_addr);
+        MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
       } else {
-          // 原因不明．入れたはずのないアドレスが出てくる
+        if ( !(it->second.bit_map & bit_map) ) {
+          // Need to write this word
+          MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+          it->second.bit_map |= bit_map;
+        }
       }
 
       pos[next_log] = ptr_mod_log(pos[next_log], -1);

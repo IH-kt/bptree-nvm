@@ -561,6 +561,7 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   #endif
 
   // good place for a memory barrier
+  _mm_sfence();
 
   NVMHTM_write_ts(id, ts); // Flush all together
   // SPIN_PER_WRITE(1);

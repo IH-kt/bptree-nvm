@@ -10,7 +10,12 @@ NVHTM_INCLUDES  := -I$(NVHTM_DIR)/common/ -I$(MIN_NVM_DIR)/include/\
                    -I$(NVHTM_DIR)/nvhtm_common/ -I$(NVHTM_DIR)/nvhtm_pc/
 NVHTM_DEFINES   := -DDO_CHECKPOINT=5 -DSOLUTION=4 -DSORT_ALG=5
 NVHTM_LIBS      := -L$(MIN_NVM_DIR)/bin -L$(HTM_ALG_DIR)/bin -lhtm_sgl -lminimal_nvm
-NVHTM_MAKE_ARGS := SOLUTION=4 DO_CHECKPOINT=5 SORT_ALG=5 USE_MIN_NVM=0
+NVHTM_MAKE_ARGS := SOLUTION=4 DO_CHECKPOINT=5 USE_MIN_NVM=0
+ifeq ($(forward), 1)
+    NVHTM_MAKE_ARGS += SORT_ALG=4
+else
+    NVHTM_MAKE_ARGS += SORT_ALG=5
+endif
 
 ifeq ($(stats),1)
     MIN_NVM_FLAG    := "-DSTAT"
