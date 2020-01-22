@@ -36,6 +36,7 @@ unsigned char hash(Key key) {
 void NVM_write_varsize(void *addr_v, const void *value_v, size_t len) {
     char *addr = (char *)addr_v;
     char *value = (char *)value_v;
+    extern void *al_pool;
     NVHTM_WRITE_UNIT_T tmp;
     size_t us = sizeof(NVHTM_WRITE_UNIT_T);
     int i;
@@ -600,8 +601,8 @@ void shiftToRight(InternalNode *target_node, Key *anchor_key, InternalNode *left
 
     target_node->keys[move_length - 1] = *anchor_key;
 
-    for (i = 0; i < move_length - 1; i++) {
-        target_node->keys[i] = left_node->keys[left_node->key_length - move_length + i];
+    for (i = move_length - 1; 0 < i; i--) {
+        target_node->keys[i - 1] = left_node->keys[left_node->key_length - move_length + i];
         target_node->children[i] = left_node->children[left_node->key_length - move_length + i + 1];
         left_node->keys[left_node->key_length - move_length + i] = UNUSED_KEY;
         left_node->children[left_node->key_length - move_length + i + 1] = NULL;
@@ -823,8 +824,7 @@ int bptreeRemove(BPTree *bpt, Key target_key, unsigned char tid) {
             kv_tmp = NVM_read(&target_leaf->kv[i + 1]);
             NVM_write_varsize(&target_leaf->kv[i], &kv_tmp, sizeof(KeyValuePair));
         }
-        kv_tmp = NVM_read(&target_leaf->kv[target_leaf->key_length - 1]);
-        initKeyValuePair(&kv_tmp);
+        initKeyValuePair(&target_leaf->kv[target_leaf->key_length - 1]);
         target_leaf->key_length--;
     }
     NVHTM_end();

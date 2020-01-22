@@ -267,7 +267,7 @@ void search(BPTree *bpt, Key target_key, SearchResult *sr, unsigned char tid) {
     initSearchResult(sr);
 
 #ifdef DEBUG
-    printf("search: key = %d\n", targetkey);
+    printf("search: key = %d\n", target_key);
 #endif
 
     if (bpt == NULL) {
@@ -621,8 +621,8 @@ void shiftToRight(InternalNode *target_node, Key *anchor_key, InternalNode *left
 
     target_node->keys[move_length - 1] = *anchor_key;
 
-    for (i = 0; i < move_length - 1; i++) {
-        target_node->keys[i] = left_node->keys[left_node->key_length - move_length + i];
+    for (i = move_length - 1; 0 < i; i--) {
+        target_node->keys[i - 1] = left_node->keys[left_node->key_length - move_length + i];
         target_node->children[i] = left_node->children[left_node->key_length - move_length + i + 1];
         left_node->keys[left_node->key_length - move_length + i] = UNUSED_KEY;
         left_node->children[left_node->key_length - move_length + i + 1] = NULL;
