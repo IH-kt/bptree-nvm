@@ -33,6 +33,7 @@ extern ppointer PADDR_NULL;
 
 typedef struct AllocatorHeader {
     PAddr node_head;
+    char pad[64 - sizeof(PAddr)];
 } AllocatorHeader;
 #else
 typedef void * ppointer;

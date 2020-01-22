@@ -31,7 +31,7 @@ extern ppointer PADDR_NULL;
 #define MAX_DEG (MAX_KEY+1)
 #define MAX_PAIR 64
 
-#define BITMAP_SIZE ((MAX_PAIR/8)+1)
+#define BITMAP_SIZE ((MAX_PAIR/8)+(MAX_PAIR%8 > 0))
 
 /* definition of structs */
 
@@ -145,6 +145,7 @@ struct PersistentLeafNode {
     struct LeafHeader header;
     KeyValuePair kv[MAX_PAIR];
     unsigned char lock;
+    char pad[64 - (sizeof(struct LeafHeader) + sizeof(KeyValuePair) * MAX_PAIR + sizeof(unsigned char)) % 64];
 };
 
 struct LeafNode {
@@ -152,7 +153,7 @@ struct LeafNode {
     struct PersistentLeafNode *pleaf;
     struct LeafNode *next;
     struct LeafNode *prev;
-    int key_length;
+//    int key_length;
 };
 
 struct BPTree {
