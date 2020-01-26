@@ -45,7 +45,8 @@ void show_result_thread(unsigned char tid) {
 
 #define HTM_RETRY_BY_LOCK(tree, tid) { \
     unlockBPTree(tree, tid);           \
-    _mm_pause();                       \
+    wait_times = 20000;                \
+    while (wait_times--);              \
     continue;                          \
 }
 
@@ -82,7 +83,7 @@ void show_result_thread(unsigned char tid) {
                 } while (tree->lock);                      \
             }                                              \
             if (n_tries < RETRY_NUM) {                     \
-                wait_times = 1 << n_tries;                 \
+                wait_times = 1000 * n_tries;               \
                 while (wait_times--);                      \
             } else {                                       \
                 method = LOCK;                             \
@@ -154,7 +155,7 @@ LeafNode *newLeafNode(unsigned char tid) {
     return new;
 }
 void destroyLeafNode(LeafNode *node, unsigned char tid) {
-    vol_mem_allocate(sizeof(node));
+    vol_mem_free(node);
 }
 
 InternalNode *newInternalNode() {
