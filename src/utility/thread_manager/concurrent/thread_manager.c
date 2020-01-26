@@ -3,15 +3,32 @@
 #endif
 #include "thread_manager.h"
 
-__thread sem_t *sem = NULL;
-__thread unsigned int number_of_thread = 0;
+unsigned int number_of_thread = 0;
+unsigned int cpu_counter = 0;
+unsigned int waiting_thread = 0;
+unsigned int start_threads = 0;
+
+void set_affinity() {
+    cpu_set_t mask;
+    unsigned int assigned_cpu = __sync_fetch_and_add(&cpu_counter, 1);
+    CPU_ZERO(&mask);
+    CPU_SET(assigned_cpu, &mask);
+    int err = sched_setaffinity(0, sizeof(cpu_set_t), &mask);
+    if (err == -1) {
+        perror("sched_setaffinity:");
+    }
+}
+
+unsigned int ready_threads() {
+    return waiting_thread;
+}
 
 void *bptreeThreadFunctionWrapper(void *container_v) {
     BPTreeFunctionContainer *container = (BPTreeFunctionContainer *)container_v;
-    if (container->sem != NULL) {
-        if (sem_wait(container->sem) == -1) {
-            perror("sem_wait");
-        }
+    set_affinity();
+    __sync_fetch_and_add(&waiting_thread, 1);
+    while (start_threads == 0) {
+        _mm_pause();
     }
     container->retval = container->function(container->bpt, container->arg);
     pthread_exit(container);
@@ -19,28 +36,13 @@ void *bptreeThreadFunctionWrapper(void *container_v) {
 
 void bptreeThreadInit(unsigned int flag) {
     if (flag & BPTREE_BLOCK) {
-        // init semaphore
-        if (sem == NULL) {
-            sem = (sem_t *)vol_mem_allocate(sizeof(sem_t));
-            if (sem_init(sem, 0, 0) == -1) {
-                perror("sem_init");
-                exit(1);
-            }
-        } else {
-            printf("initializer called multiple times\n");
-            exit(2);
-        }
+        start_threads = 0;
+    } else {
+        start_threads = 1;
     }
 }
 
 void bptreeThreadDestroy() {
-    if (sem != NULL) {
-        vol_mem_free(sem);
-        if (sem_destroy(sem) == -1) {
-	    perror("sem_destroy");
-	}
-        sem = NULL;
-    }
 }
 
 pthread_t bptreeCreateThread(BPTree *bpt, void *(* thread_function)(BPTree *, void *), void *arg) {
@@ -48,7 +50,6 @@ pthread_t bptreeCreateThread(BPTree *bpt, void *(* thread_function)(BPTree *, vo
     BPTreeFunctionContainer *container = (BPTreeFunctionContainer *)vol_mem_allocate(sizeof(BPTreeFunctionContainer));
     container->function = thread_function;
     container->bpt = bpt;
-    container->sem = sem;
     container->retval = NULL;
     container->arg = arg;
     number_of_thread++;
@@ -59,12 +60,7 @@ pthread_t bptreeCreateThread(BPTree *bpt, void *(* thread_function)(BPTree *, vo
 }
 
 void bptreeStartThread(void) {
-    if (sem != NULL) {
-        int i;
-        for (i = 0; i < number_of_thread; i++) {
-            sem_post(sem);
-        }
-    }
+    start_threads = 1;
 }
 
 void bptreeWaitThread(pthread_t tid, void **retval) {
