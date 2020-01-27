@@ -164,6 +164,10 @@ int main(int argc, char *argv[]) {
     arg[i]->loop = loop_times / thread_max + loop_times % thread_max;
     tid_array[i] = bptreeCreateThread(bpt, search_random, arg[i]);
 
+    while (ready_threads() < thread_max) {
+        _mm_pause();
+    }
+
 #ifdef NVHTM
     wait_for_checkpoint();
     NH_reset();
