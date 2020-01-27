@@ -534,14 +534,14 @@ void shiftToRight(InternalNode *target_node, Key *anchor_key, InternalNode *left
     target_node->keys[move_length - 1] = *anchor_key;
 
     for (i = 0; i < move_length - 1; i++) {
-        target_node->keys[i] = left_node->keys[left_node->key_length - move_length + i];
+        target_node->keys[i] = left_node->keys[left_node->key_length - move_length + i + 1];
         target_node->children[i] = left_node->children[left_node->key_length - move_length + i + 1];
-        left_node->keys[left_node->key_length - move_length + i] = UNUSED_KEY;
+        left_node->keys[left_node->key_length - move_length + i + 1] = UNUSED_KEY;
         left_node->children[left_node->key_length - move_length + i + 1] = NULL;
     }
-    *anchor_key = left_node->keys[left_node->key_length - move_length + i];
+    *anchor_key = left_node->keys[left_node->key_length - move_length];
     target_node->children[i] = left_node->children[left_node->key_length - move_length + i + 1];
-    left_node->keys[left_node->key_length - move_length + i] = UNUSED_KEY;
+    left_node->keys[left_node->key_length - move_length] = UNUSED_KEY;
     left_node->children[left_node->key_length - move_length + i + 1] = NULL;
 
     left_node->key_length -= move_length;
