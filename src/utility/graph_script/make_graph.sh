@@ -12,15 +12,16 @@ cd graph
 # 
 # ${graphscr_dir}/make_abort_nvhtm_csv.sh ..
 # python3 ${graphscr_dir}/compare_thread_logsz_nvhtm_abort.py
+python3 ${graphscr_dir}/compare_thread_logsz_nvhtm_total_abort.py
 # 
 # ${graphscr_dir}/make_abort_csv.sh ..
 # python3 ${graphscr_dir}/compare_thread_logsz_abort.py
-
+# 
 # mkdir -p write_freq/pmem
 # mkdir -p write_freq/vmem
 # python3 ${graphscr_dir}/write_freq_graph.py ../pmem write_freq/pmem
 # python3 ${graphscr_dir}/write_freq_graph.py ../vmem write_freq/vmem
-
+# 
 # mkdir -p wait_time/pmem
 # mkdir -p wait_time/vmem
 # ${graphscr_dir}/make_block_time_logsize_csv.sh ../pmem/elapsed_time
@@ -32,6 +33,12 @@ cd graph
 # ${graphscr_dir}/make_block_time_thread_csv.sh ../vmem/elapsed_time
 # mv thread_csv wait_time/vmem
 
-mkdir -p checkpoint_time/pmem
-${graphscr_dir}/make_checkpoint_time_thread_csv.sh ../pmem/elapsed_time
-mv thread_csv checkpoint_time/pmem
+# mkdir -p checkpoint_time/pmem
+# ${graphscr_dir}/make_checkpoint_time_thread_csv.sh ../pmem/elapsed_time
+# mv thread_csv checkpoint_time/pmem
+# mkdir -p checkpoint/pmem
+# mkdir -p checkpoint/vmem
+# ${graphscr_dir}/make_checkpoint_csv.sh ../pmem/elapsed_time
+# mv thread_csv checkpoint/pmem
+# ${graphscr_dir}/make_checkpoint_csv.sh ../vmem/elapsed_time
+# mv thread_csv checkpoint/vmem

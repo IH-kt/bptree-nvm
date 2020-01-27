@@ -29,9 +29,10 @@ line_style = ['ro-', 'gv-', 'b^-', 'k*-']
 # result_file_dirs_1 = get_logsz_dir(result_file_dirs[0])
 # result_file_dirs_2 = get_logsz_dir(result_file_dirs[1])
 
-for memtype in ['pmem', 'vmem']:
+# for memtype in ['pmem', 'vmem']:
+for memtype in ['pmem']:
     result_file_dirs_1 = get_logsz_dir('../' + memtype + '/elapsed_time/bptree_nvhtm_0/')
-    result_file_dirs_2 = get_logsz_dir('../' + memtype + '/elapsed_time/bptree_nvhtm_1/')
+    # result_file_dirs_2 = get_logsz_dir('../' + memtype + '/elapsed_time/bptree_nvhtm_1/')
 
     # print(result_file_dirs_1)
     # print(result_file_dirs_2)
@@ -41,9 +42,9 @@ for memtype in ['pmem', 'vmem']:
     for res_dirname in result_file_dirs_1:
         log_sizes.append(float(os.path.basename(res_dirname).strip("logsz_"))/(1024*1024))
         csvs1.append(pd.read_csv(res_dirname + "/result.csv", index_col=0))
-    csvs2 = []
-    for res_dirname in result_file_dirs_2:
-        csvs2.append(pd.read_csv(res_dirname + "/result.csv", index_col=0))
+    # csvs2 = []
+    # for res_dirname in result_file_dirs_2:
+    #     csvs2.append(pd.read_csv(res_dirname + "/result.csv", index_col=0))
     # print(log_sizes)
 
     # print(csvs1)
@@ -65,8 +66,10 @@ for memtype in ['pmem', 'vmem']:
             plt.xlabel('ログサイズ (MB)', fontsize=font_size)
             plt.ylabel('実行時間 (秒)', fontsize=font_size)
             plt.title('ログサイズによる実行時間の変化', fontsize=font_size)
-            ax.legend(['B${^+}$-Tree${_{NH}}$', "B${^+}$-Tree${_{DB}}$"], fontsize=font_size)
-            plt.ylim(bottom=0, top=2.5)
+            # ax.legend(['B${^+}$-Tree${_{NH}}$', "B${^+}$-Tree${_{DB}}$"], fontsize=font_size)
+            ax.legend(['B${^+}$-Tree${_{NH}}$', "B${^+}$-Tree${_{CA}}$"], fontsize=font_size)
+            # plt.ylim(bottom=0, top=2.5)
+            plt.ylim(bottom=0)
             plt.tick_params(labelsize=font_size)
             plt.tight_layout()
             plt.savefig('logsize/' + memtype + '/' + operations[i] + '_result_logsize.' + str(threads[thr]) + '.png')

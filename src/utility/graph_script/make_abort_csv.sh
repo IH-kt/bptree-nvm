@@ -7,9 +7,10 @@ else
 fi
 ops='insert delete search'
 types='bptree_concurrent_ fptree_concurrent_'
-memtypes='pmem vmem'
-max_trial=5
-trials=`seq 1 5`
+# memtypes='pmem vmem'
+memtypes='pmem'
+max_trial=3
+trials=`seq 1 3`
 
 mkdir -p abort
 for memtype in $memtypes

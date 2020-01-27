@@ -31,26 +31,23 @@ for memtype in mem_list:
                 tmp_df = abort_df[abort_df['logsize'] == logsz]
                 del tmp_df['abort']
                 del tmp_df['logsize']
-                tmp_df['conflict'] /= tmp_df.index
-                tmp_df['capacity'] /= tmp_df.index
-                tmp_df['explicit'] /= tmp_df.index
-                tmp_df['other'] /= tmp_df.index
-                ax = tmp_df.plot(kind='bar', stacked=True, ylim=[0, max_val*1.05], color=colorlst, edgecolor = 'k')
-                if i == 0:
-                    plt.ylim(top=2200000)
-                else:
-                    plt.ylim(top=1500000)
+                ax = tmp_df.plot(kind='bar', stacked=True, color=colorlst, edgecolor='k')
+                # if i == 0:
+                #     plt.ylim(top=2200000)
+                # else:
+                #     plt.ylim(top=1500000)
                 ax.yaxis.offsetText.set_fontsize(font_size)
                 ax.ticklabel_format(style="sci", axis="y", scilimits=(0,0))
                 plt.xlabel('スレッド数', fontsize=font_size)
-                plt.ylabel('1スレッド当たりのアボート回数', fontsize=font_size)
+                plt.ylabel('総アボート回数', fontsize=font_size)
                 plt.tick_params(labelsize=font_size)
+                plt.xticks(rotation=0)
                 plt.legend(fontsize=font_size)
                 plt.tight_layout()
                 # plt.title('スレッド数によるアボート回数の変化（' + op_list_j[i] + '）')
                 #plt.savefig('abort_' + nvhtm_type + '_' + op_list[i] + '_' + str(logsz) + '.png')
-                plt.savefig('abort/' + memtype + '/' + nvhtm_type + '/abort_' + op_list[i] + '.logsz.' + str(logsz) + '.eps')
-            plt.close('all')
+                plt.savefig('abort/' + memtype + '/' + nvhtm_type + '/total_abort_' + op_list[i] + '_logsz_' + str(logsz) + '.pdf')
+                plt.close()
 
     #         ind = np.arange(len(thr_list))
     #         for thr in thr_list:

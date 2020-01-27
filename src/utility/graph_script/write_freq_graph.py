@@ -8,15 +8,17 @@ from statistics import mean, median,variance,stdev
 
 root_dir = sys.argv[1]
 graph_dir = sys.argv[2]
-# conc_list = ['bptree_concurrent_0', 'fptree_concurrent_0']
-conc_list = []
+conc_list = ['bptree_concurrent_0', 'fptree_concurrent_0']
+# conc_list = []
 # nvhtm_list = ['bptree_nvhtm_0', 'bptree_nvhtm_1']
 nvhtm_list = ['bptree_nvhtm_0']
+# nvhtm_list = ['bptree_nvhtm_1']
 # log_list = [33056, 65824, 131360, 262432, 524576, 1048864]
 # log_list = [33056, 65824, 524576, 1048864]
-log_list = [1048864]
-# thr_list = [1, 2, 4, 8, 16]
-thr_list = [4]
+# log_list = [2621728, 5243168, 10486048, 20971808, 41943328, 83886368] # TODO
+log_list = [41943328] # TODO
+thr_list = [1, 2, 4, 8, 16]
+# thr_list = [4]
 
 def make_graph(root, graph_root, logsz_list, thr_list):
     for logsize in logsz_list:
@@ -43,7 +45,7 @@ def make_graph(root, graph_root, logsz_list, thr_list):
                     print('0 division!')
                     tsdiff =  0.000000001
                 worker_diff.append(tsdiff)
-                worker_freq.append(256 * 1024 / tsdiff)
+                worker_freq.append(1024 * 1024 / tsdiff)
                 prev = ts
                 worker_passed_time.append(ts - start)
 
@@ -52,7 +54,7 @@ def make_graph(root, graph_root, logsz_list, thr_list):
             # print("freq =", diff)
             # print(passed_time)
 
-            if (False and len(worker_timestamps) > 1):
+            if (len(worker_timestamps) > 1):
                 worker_freq_index = list(range(1, len(worker_timestamps)))
                 worker_major_fmt = list(map(str, worker_passed_time))
                 worker_major_fmt.insert(0, "")
@@ -60,14 +62,15 @@ def make_graph(root, graph_root, logsz_list, thr_list):
                 freq_df = pd.DataFrame(worker_freq, index=worker_passed_time, columns=['sec'])
                 # freq_df = pd.DataFrame(freq, columns=['sec'])
                 ax = freq_df.plot(legend=False)
-                ax.set_xlabel('経過時間 (秒)')
-                ax.set_ylabel('書き込み頻度 (バイト/秒)')
-                pl.title('Workerプロセスの書き込み頻度')
+                ax.set_xlabel('経過時間(s)')
+                ax.set_ylabel('書き込み頻度(byte/s)')
+                # pl.title('Workerプロセスの書き込み頻度')
                 ax.ticklabel_format(style="sci", axis="y", scilimits=(0,0))
                 # ax.ticklabel_format(style='plain', axis='x')
                 pl.ylim([0, freq_df.max().max() * 1.1])
-                pl.savefig(graph_root + '/logsz_' + str(logsize) + '/worker_write_freq.thr.' + str(thr) + '.png')
-                pl.savefig(graph_root + '/logsz_' + str(logsize) + '/worker_write_freq.thr.' + str(thr) + '.eps')
+                # pl.savefig(graph_root + '/logsz_' + str(logsize) + '/worker_write_freq.thr.' + str(thr) + '.png')
+                # pl.savefig(graph_root + '/logsz_' + str(logsize) + '/worker_write_freq.thr.' + str(thr) + '.eps')
+                pl.close()
 
             if (len(checkpoint_timestamps) > 1):
                 start = checkpoint_timestamps[0]
@@ -81,31 +84,34 @@ def make_graph(root, graph_root, logsz_list, thr_list):
                         print('0 division!')
                         tsdiff =  0.000000001
                     checkpoint_diff.append(tsdiff)
-                    checkpoint_freq.append(256 * 1024 / (tsdiff))
+                    checkpoint_freq.append(1024 * 1024 / (tsdiff))
                     prev = ts
                     checkpoint_passed_time.append(ts - start)
+                print("checkpoint: logsize = " + str(logsize) + ", thread = " + str(thr))
                 print("mean of freq = " + str(mean(checkpoint_freq)/(1024 * 1024)))
+                print("interval = " + str(checkpoint_timestamps[-1] - checkpoint_timestamps[0]))
 
-                # checkpoint_freq_index = list(range(2, len(checkpoint_timestamps)))
-                # checkpoint_major_fmt = list(map(str, worker_passed_time))
-                # checkpoint_major_fmt.insert(0, "")
+                checkpoint_freq_index = list(range(2, len(checkpoint_timestamps)))
+                checkpoint_major_fmt = list(map(str, worker_passed_time))
+                checkpoint_major_fmt.insert(0, "")
 
-                # freq_df = pd.DataFrame(checkpoint_freq, index=checkpoint_passed_time, columns=['sec'])
-                # # freq_df = pd.DataFrame(freq, columns=['sec'])
-                # ax = freq_df.plot(legend=False)
-                # ax.set_xlabel('経過時間 (秒)', fontsize=18)
-                # ax.set_ylabel('書き込み頻度 (バイト/秒)', fontsize=18)
+                freq_df = pd.DataFrame(checkpoint_freq, index=checkpoint_passed_time, columns=['sec'])
+                # freq_df = pd.DataFrame(freq, columns=['sec'])
+                ax = freq_df.plot(legend=False)
+                ax.set_xlabel('経過時間(s)', fontsize=18)
+                ax.set_ylabel('書き込み頻度(byte/s)', fontsize=18)
                 # pl.title('Checkpointプロセスの書き込み頻度', fontsize=18)
-                # ax.yaxis.offsetText.set_fontsize(18)
-                # ax.ticklabel_format(axis="", scilimits=(0,0))
-                # ax.tick_params(labelsize=16)
-                # # ax.ticklabel_format(style='plain', axis='x')
-                # pl.ylim([0, 850000000])
-                # # pl.ylim([0, 100000000])
-                # pl.tight_layout()
+                ax.yaxis.offsetText.set_fontsize(18)
+                ax.ticklabel_format(axis="", scilimits=(0,0))
+                ax.tick_params(labelsize=16)
+                # ax.ticklabel_format(style='plain', axis='x')
+                pl.ylim(bottom=0)
+                # pl.ylim([0, 100000000])
+                pl.tight_layout()
                 # pl.savefig(graph_root + '/logsz_' + str(logsize) + '/checkpoint_write_freq.thr.' + str(thr) + '.png')
+                # pl.show()
                 # pl.savefig(graph_root + '/logsz_' + str(logsize) + '/checkpoint_write_freq.thr.' + str(thr) + '.eps')
-        pl.close('all')
+                pl.close()
 
 for nhlst in nvhtm_list:
     graph_nh_dir = graph_dir + '/' + nhlst
