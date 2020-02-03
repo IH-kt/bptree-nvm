@@ -7,8 +7,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
+#define WARMUP_NUM 50
 
-int warm_up = 40;
+int initial_elements = 40;
 int loop_times = 40;
 int max_val = 1000;
 int thread_max = 10;
@@ -19,11 +20,26 @@ typedef struct arg_t {
 	unsigned char tid;
 } arg_t;
 
+void *warmup(BPTree *bpt, void *args) {
+    LeafNode *next = bpt->head;
+    KeyValuePair dummy;
+    while (next != NULL) {
+#ifdef FPTREE
+        dummy = next->pleaf->kv[MAX_PAIR/2];
+#else
+        dummy = next->kv[next->key_length/2];
+#endif
+        next = next->next;
+    }
+    // _mm_prefetch(bpt->root, _MM_HINT_T0);
+    return NULL;
+}
+
 void *insert_random(BPTree *bpt, void *arg) {
-    arg_t *arg_cast = (arg_t *)arg;
 #ifdef NVHTM
     NVHTM_thr_init();
 #endif
+    arg_t *arg_cast = (arg_t *)arg;
     unsigned char tid = arg_cast->tid;
     KeyValuePair kv;
     unsigned int seed = arg_cast->seed;
@@ -55,8 +71,8 @@ int main(int argc, char *argv[]) {
     BPTree *bpt;
     KeyValuePair kv;
     if (argc > 6) {
-        warm_up = atoi(argv[1]);
-        if (warm_up <= 0) {
+        initial_elements = atoi(argv[1]);
+        if (initial_elements <= 0) {
             fprintf(stderr, "invalid argument\n");
             return 1;
         }
@@ -77,14 +93,14 @@ int main(int argc, char *argv[]) {
         }
         pmem_path = argv[5];
         log_path = argv[6];
-        fprintf(stderr, "warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s, log_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path, log_path);
+        fprintf(stderr, "initial_elements = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s, log_path = %s\n", initial_elements, loop_times, max_val, thread_max, pmem_path, log_path);
     } else {
-        fprintf(stderr, "default: warm_up = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s, log_path = %s\n", warm_up, loop_times, max_val, thread_max, pmem_path, log_path);
+        fprintf(stderr, "default: initial_elements = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s, log_path = %s\n", initial_elements, loop_times, max_val, thread_max, pmem_path, log_path);
     }
 #ifdef BPTREE
-    size_t allocation_size = sizeof(LeafNode) * ((warm_up + loop_times) / (MAX_PAIR/2) * 1.01 + 3 + thread_max) + sizeof(AllocatorHeader);
+    size_t allocation_size = sizeof(LeafNode) * ((initial_elements + loop_times) / (MAX_PAIR/2) * 1.01 + 3 + thread_max) + sizeof(AllocatorHeader);
 #else
-    size_t allocation_size = sizeof(PersistentLeafNode) * ((warm_up + loop_times) / (MAX_PAIR/2) + 3 + thread_max) + sizeof(AllocatorHeader);
+    size_t allocation_size = sizeof(PersistentLeafNode) * ((initial_elements + loop_times) / (MAX_PAIR/2) + 3 + thread_max) + sizeof(AllocatorHeader);
 #endif
     fprintf(stderr, "allocating %lu byte\n", allocation_size);
 #ifdef NVHTM
@@ -99,7 +115,7 @@ int main(int argc, char *argv[]) {
 #else
     initAllocator(NULL, pmem_path, allocation_size, thread_max + 1);
 #endif
-    random_init(warm_up, loop_times, thread_max);
+    random_init(initial_elements, loop_times, thread_max);
 
     bpt = newBPTree();
 
@@ -111,7 +127,7 @@ int main(int argc, char *argv[]) {
     kv.value = 1;
     unsigned int seed = thread_max;
 
-    for (int i = 0; i < warm_up; i++) {
+    for (int i = 0; i < initial_elements; i++) {
         kv.key = get_rand_initials(i) % INT_MAX + 1;
         // printf("inserting %ld\n", kv.key);
         if (!insert(bpt, kv, thread_max)) {
@@ -123,7 +139,7 @@ int main(int argc, char *argv[]) {
     // arg[thread_max] = (arg_t *)malloc(sizeof(arg_t));
     // arg[thread_max]->seed = thread_max + 1;
     // arg[thread_max]->tid = thread_max + 1;
-    // arg[thread_max]->loop = warm_up;
+    // arg[thread_max]->loop = initial_elements;
     // tid_array[thread_max] = bptreeCreateThread(bpt, insert_random, arg[thread_max]);
     // bptreeWaitThread(tid_array[thread_max], NULL);
     // free(arg[thread_max]);
@@ -135,13 +151,13 @@ int main(int argc, char *argv[]) {
         arg[i]->seed = i;
         arg[i]->tid = i % 256 + 1;
         arg[i]->loop = loop_times / thread_max;
-        tid_array[i] = bptreeCreateThread(bpt, insert_random, arg[i]);
+        tid_array[i] = bptreeCreateThread(bpt, insert_random, warmup, arg[i]);
     }
     arg[i] = (arg_t *)malloc(sizeof(int));
     arg[i]->seed = i;
     arg[i]->tid = i % 256 + 1;
     arg[i]->loop = loop_times / thread_max + loop_times % thread_max;
-    tid_array[i] = bptreeCreateThread(bpt, insert_random, arg[i]);
+    tid_array[i] = bptreeCreateThread(bpt, insert_random, warmup, arg[i]);
 
     while (ready_threads() < thread_max) {
         _mm_pause();

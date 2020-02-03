@@ -27,6 +27,7 @@ void *bptreeThreadFunctionWrapper(void *container_v) {
     BPTreeFunctionContainer *container = (BPTreeFunctionContainer *)container_v;
     set_affinity();
     __sync_fetch_and_add(&waiting_thread, 1);
+    container->warmup(container->bpt, container->arg);
     while (start_threads == 0) {
         _mm_pause();
     }
@@ -45,13 +46,14 @@ void bptreeThreadInit(unsigned int flag) {
 void bptreeThreadDestroy() {
 }
 
-pthread_t bptreeCreateThread(BPTree *bpt, void *(* thread_function)(BPTree *, void *), void *arg) {
+pthread_t bptreeCreateThread(BPTree *bpt, void *(* thread_function)(BPTree *, void *), void *(* warmup_function)(BPTree *, void *), void *arg) {
     pthread_t tid;
     BPTreeFunctionContainer *container = (BPTreeFunctionContainer *)vol_mem_allocate(sizeof(BPTreeFunctionContainer));
     container->function = thread_function;
     container->bpt = bpt;
     container->retval = NULL;
     container->arg = arg;
+    container->warmup = warmup_function;
     number_of_thread++;
     if (pthread_create(&tid, NULL, bptreeThreadFunctionWrapper, container) == EAGAIN) {
         printf("pthread_create: reached resource limit\n");

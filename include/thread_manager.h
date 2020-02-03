@@ -14,6 +14,7 @@ extern "C" {
 #    include <stdio.h>
 struct BPTreeFunctionContainer {
     void *(* function)(BPTree *, void *);
+    void *(* warmup)(BPTree *, void *);
     BPTree *bpt;
     void *retval;
     void *arg;
@@ -27,7 +28,7 @@ typedef struct BPTreeFunctionContainer BPTreeFunctionContainer;
 unsigned int ready_threads();
 void bptreeThreadInit(unsigned int flag);
 void bptreeThreadDestroy();
-pthread_t bptreeCreateThread(BPTree *, void *(*)(BPTree *, void *), void *);
+pthread_t bptreeCreateThread(BPTree *, void *(*)(BPTree *, void *), void *(*)(BPTree *, void *), void *);
 void bptreeStartThread(void);
 void bptreeWaitThread(pthread_t, void **);
 
