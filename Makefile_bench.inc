@@ -72,16 +72,16 @@ bench_all:
 	mkdir -p $(BENCH_DIR)/pmem $(BENCH_DIR)/vmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) tree=fptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) write_freq
-	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
-	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) reduce=1 elapsed_time
 	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
-	# mv $(BENCH_ET_DIR) $(BENCH_DIR)/vmem
+	mv $(BENCH_ET_DIR) $(BENCH_DIR)/vmem
 	# mv $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=fptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) write_freq
-	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
-	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) reduce=1 elapsed_time
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) reduce=1 elapsed_time
 	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
 	mv $(BENCH_ET_DIR) $(BENCH_DIR)/pmem
 	# mv $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
