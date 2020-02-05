@@ -18,6 +18,24 @@ extern "C"
 {
 	#endif
 
+#ifdef REDUCE_CP
+#define RUN_CHECKPOINT(code) {\
+    int val = 0;\
+    sem_getvalue(NH_chkp_sem, &val);\
+    if (val == 0) {\
+        code;\
+        sem_post(NH_chkp_sem);\
+    }\
+}
+#else
+#define RUN_CHECKPOINT(code) {\
+    if (*NH_checkpointer_state == 0) {\
+        code;\
+        sem_post(NH_chkp_sem);\
+    }\
+}
+#endif
+
 	// TODO: the checkpointing is only done after commit, we must be sure
 	// that the number of writes within transactions are never greater than:
 	// NVMHTM_CHECKPOINT_CRITICAL * NVMHTM_LOG_SIZE
@@ -108,10 +126,7 @@ extern "C"
 			clock_gettime(CLOCK_MONOTONIC_RAW, &stt); \
 			while (distance_ptr(log->start, log->end) > \
 				(LOG_local_state.size_of_log - 32)) { \
-					if (*NH_checkpointer_state == 0) {\
-                    checkpoint_by_flags[2]++;\
-                    sem_post(NH_chkp_sem); \
-                    }\
+                    RUN_CHECKPOINT({checkpoint_by_flags[2]++;});\
 					PAUSE(); \
 			} \
 			NH_count_blocks++; \
@@ -134,9 +149,7 @@ extern "C"
 			if (HTM_test()) HTM_named_abort(CODE_LOG_ABORT); \
 			while (distance_ptr(log->start, log->end) > \
 				(LOG_local_state.size_of_log - 32)) { \
-					if (*NH_checkpointer_state == 0) {\
-                    sem_post(NH_chkp_sem); \
-                    }\
+                    RUN_CHECKPOINT();\
 					PAUSE(); \
 			} \
 			LOG_before_TX(); \
@@ -157,10 +170,7 @@ extern "C"
 			&& (LOG_local_state.size_of_log - LOG_local_state.counter) < WAIT_DISTANCE) \
 			|| (distance_ptr(log->end, log->start) < WAIT_DISTANCE \
 			&& log->end != log->start)) { \
-				if (*NH_checkpointer_state == 0) {\
-                    checkpoint_by_flags[1]++;\
-                    sem_post(NH_chkp_sem); \
-                }\
+                RUN_CHECKPOINT({checkpoint_by_flags[1]++;});\
 				PAUSE(); \
 		} \
 		NH_count_blocks++; \
@@ -184,9 +194,7 @@ extern "C"
 			&& (LOG_local_state.size_of_log - LOG_local_state.counter) < WAIT_DISTANCE) \
 			|| (distance_ptr(log->end, log->start) < WAIT_DISTANCE \
 			&& log->end != log->start)) { \
-				if (*NH_checkpointer_state == 0) {\
-                    sem_post(NH_chkp_sem); \
-                }\
+                RUN_CHECKPOINT();\
 				PAUSE(); \
 		} \
 		LOG_before_TX(); \
@@ -287,10 +295,7 @@ extern "C"
 		LOG_local_state.counter = distance_ptr((int)LOG_local_state.start, \
 		(int)LOG_local_state.end); \
 		if (LOG_local_state.counter >= APPLY_BACKWARD_VAL) { \
-			if (*NH_checkpointer_state == 0) {\
-                checkpoint_by_flags[0]++;\
-                sem_post(NH_chkp_sem); \
-            }\
+            RUN_CHECKPOINT({checkpoint_by_flags[0]++;});\
 		} \
 		/* prefetch */ \
 		if (LOG_local_state.counter < LOG_local_state.size_of_log - 16) { \
@@ -316,9 +321,7 @@ extern "C"
 		LOG_local_state.counter = distance_ptr((int)LOG_local_state.start, \
 		(int)LOG_local_state.end); \
 		if (LOG_local_state.counter >= APPLY_BACKWARD_VAL) { \
-			if (*NH_checkpointer_state == 0) {\
-                sem_post(NH_chkp_sem); \
-            }\
+            RUN_CHECKPOINT();\
 		} \
 		/* prefetch */ \
 		if (LOG_local_state.counter < LOG_local_state.size_of_log - 16) { \
@@ -353,7 +356,7 @@ extern "C"
 		while (!(distance_ptr(log_start, log_end) <= \
 		distance_ptr(log_start, LOG_local_state.end))) {\
 		log_start = log->start; \
-        if (*NH_checkpointer_state == 0) sem_post(NH_chkp_sem); \
+        RUN_CHECKPOINT();\
         }\
 		MN_write(&(log->end), &(LOG_local_state.end), \
 			sizeof(LOG_local_state.end), 0); \

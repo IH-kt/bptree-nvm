@@ -16,6 +16,10 @@ ifeq ($(forward), 1)
 else
     NVHTM_MAKE_ARGS += SORT_ALG=5
 endif
+ifeq ($(reduce), 1)
+    NVHTM_MAKE_ARGS += REDUCE_CP=1
+    NVHTM_DEFINES   += -DREDUCE_CP
+endif
 
 ifeq ($(stats),1)
     MIN_NVM_FLAG    := "-DSTAT"

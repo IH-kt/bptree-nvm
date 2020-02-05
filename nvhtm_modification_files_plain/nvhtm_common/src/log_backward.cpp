@@ -142,9 +142,15 @@ int LOG_checkpoint_backward_apply_one()
   // Only apply log if someone passed the threshold mark
   if ((!too_full && too_empty) || !someone_passed) {
     *NH_checkpointer_state = 0; // doing checkpoint
+    if (*checkpoint_empty == 1) {
+        *checkpoint_empty = 2;
+    } else {
+        *checkpoint_empty = 1;
+    }
     __sync_synchronize();
     return 1; // try again later
   }
+  *checkpoint_empty = 0;
   // ---------------------------------------------------------------
 
   // first find target_ts, then the remaining TSs

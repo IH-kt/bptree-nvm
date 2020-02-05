@@ -448,6 +448,18 @@ void NVMHTM_init_thrs(int nb_threads)
 
   checkpoint_by_flags = (unsigned int*) shmat(shmid, (void *) 0, 0);
   memset(checkpoint_by_flags, 0, sizeof(unsigned int) * 3);
+  
+  key++;
+  shmid = shmget(key, sizeof (int), 0777 | IPC_CREAT);
+  shmctl(shmid, IPC_RMID, NULL);
+  shmid = shmget(key, sizeof (int), 0777 | IPC_CREAT);
+
+  if (shmid < 0) {
+    perror("shmget CHKP_EMPTY");
+  }
+
+  checkpoint_empty = (int*) shmat(shmid, (void *) 0, 0);
+  *checkpoint_empty = 0;
 
   if (!is_started) {
     is_started = true;
@@ -1107,9 +1119,11 @@ void wait_for_checkpoint () {
 #ifdef STAT
     clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #endif
-    while (value > 0) {
+    while (value > 0 && *checkpoint_empty != 2) {
         sem_getvalue(NH_chkp_sem, &value);
+        _mm_pause();
     }
+    fprintf(stderr, "remaining value = %d\n", value);
 #ifdef STAT
     clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
     double time_tmp = 0;

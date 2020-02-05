@@ -113,3 +113,7 @@ endif
 ifeq ($(STAT), 1)
 DEFINES += -DSTAT
 endif
+
+ifeq ($(REDUCE_CP), 1)
+DEFINES += -DREDUCE_CP
+endif

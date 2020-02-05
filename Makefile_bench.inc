@@ -13,7 +13,8 @@ endif
 ifdef loop
 	LOOP_TIMES	:= $(loop)
 else
-	LOOP_TIMES	:= 2500000
+#	LOOP_TIMES	:= 2500000
+	LOOP_TIMES	:= 5000000
 endif
 
 MAX_VAL	:= $(shell expr $(WARM_UP) + $(LOOP_TIMES))
@@ -58,6 +59,10 @@ else
 	VDPATH	:= .
 endif
 
+ifndef reduce
+	reduce := 0
+endif
+
 THRLST	?= $(shell seq 0 $(THRMAX) | sed -e 's/\(.*\)/2^\1/' | bc -q | tr '\n' ' ')
 LOGLST	?= $(shell seq 0 $(LOGMAX) | sed -e 's/\(.*\)/$(LOGSTT) * 2^\1 + 288/'| bc -q | tr '\n' ' ')
 THRLSTP	?= [$(shell echo $(THRLST) | tr ' ' ',')]
@@ -67,14 +72,16 @@ bench_all:
 	mkdir -p $(BENCH_DIR)/pmem $(BENCH_DIR)/vmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) tree=fptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) write_freq
-	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) elapsed_time
 	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
-	mv $(BENCH_ET_DIR) $(BENCH_DIR)/vmem
+	# mv $(BENCH_ET_DIR) $(BENCH_DIR)/vmem
 	# mv $(BENCH_WF_DIR) $(BENCH_DIR)/vmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=fptree type=concurrent count_abort
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) write_freq
-	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) elapsed_time
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) reduce=1 elapsed_time
 	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
 	mv $(BENCH_ET_DIR) $(BENCH_DIR)/pmem
 	# mv $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
@@ -98,7 +105,7 @@ count_abort: bench_ca_dir
 elapsed_time:
 	make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
 	make tree=bptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
-	make tree=bptree type=nvhtm db=0 logsz=41943328 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
+	make tree=bptree type=nvhtm db=0 logsz=41943328 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) reduce=$(reduce) elapsed_time_thr
 	# make tree=bptree type=nvhtm ppath=$(PPATH) db=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log
 	# make tree=bptree type=nvhtm ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
 	# make tree=bptree type=nvhtm ppath=$(PPATH) chkpa=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
@@ -110,7 +117,7 @@ elapsed_time_log:
 
 elapsed_time_thr: bench_et_dir
 	make tree=$(tree) type=$(type) dist-clean
-	make tree=$(tree) type=$(type) db=$(db) logsz=$(LOGSZ) stats=1 -j all
+	make tree=$(tree) type=$(type) db=$(db) logsz=$(LOGSZ) stats=1 reduce=$(reduce) -j all
 	cp $(BENCH_SCRIPT_DIR)/base_operation.py $(BUILD_DIR)
 	(cd build; python3 base_operation.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
 	for exe in $(BASE_BENCH_EXE); do\

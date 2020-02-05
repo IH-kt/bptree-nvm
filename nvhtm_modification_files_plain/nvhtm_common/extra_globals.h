@@ -21,5 +21,6 @@ extern __thread struct timespec transaction_abort_end;
 extern unsigned int *checkpoint_by_flags;
 extern unsigned int checkpoint_by[3];
 extern double checkpoint_section_time[4];
+extern int *checkpoint_empty;
 
 #endif /* EXTRA_GLOBALS_H */
