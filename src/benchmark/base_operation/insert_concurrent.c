@@ -136,6 +136,9 @@ int main(int argc, char *argv[]) {
         // showTree(bpt);
     }
     show_result_thread(thread_max);
+// #ifdef NVHTM
+//     NVHTM_thr_exit();
+// #endif
     // arg[thread_max] = (arg_t *)malloc(sizeof(arg_t));
     // arg[thread_max]->seed = thread_max + 1;
     // arg[thread_max]->tid = thread_max + 1;
@@ -198,6 +201,7 @@ int main(int argc, char *argv[]) {
     random_destroy();
 
 #ifdef NVHTM
+    NH_thr_reset();
     NVHTM_thr_exit();
     NVHTM_shutdown();
 #endif

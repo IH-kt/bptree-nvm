@@ -382,6 +382,7 @@ extern "C"
 	void LOG_move_start_ptrs();
 	void LOG_handle_checkpoint();
     void NH_reset();
+    void NH_thr_reset();
     void wait_for_checkpoint ();
 
 	#define ptr_mod_log(ptr, inc) ({ \

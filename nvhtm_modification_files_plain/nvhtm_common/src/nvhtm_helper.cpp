@@ -390,6 +390,11 @@ void NVMHTM_thr_exit()
 {
 #ifdef STAT
   mtx.lock();
+  fprintf(stderr, "adding\n");
+  fprintf(stderr, "NH_time_blocked = %llu\n", NH_time_blocked);
+  fprintf(stderr, "NH_count_blocks = %lld\n", NH_count_blocks);
+  fprintf(stderr, "NH_nanotime_blocked[0] = %lf\n", NH_nanotime_blocked[0]);
+  fprintf(stderr, "NH_nanotime_blocked[1] = %lf\n", NH_nanotime_blocked[1]);
   NH_time_blocked_total += NH_time_blocked;
   NH_count_blocks_total += NH_count_blocks;
   NH_nanotime_blocked_total[0] += NH_nanotime_blocked[0];

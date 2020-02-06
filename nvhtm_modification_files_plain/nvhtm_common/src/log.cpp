@@ -421,3 +421,10 @@ void NH_reset() {
 #endif
     return;
 }
+
+void NH_thr_reset() {
+  NH_time_blocked = 0;
+  NH_count_blocks = 0;
+  NH_nanotime_blocked[0] = 0;
+  NH_nanotime_blocked[1] = 0;
+}
