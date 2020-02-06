@@ -13,8 +13,8 @@ endif
 ifdef loop
 	LOOP_TIMES	:= $(loop)
 else
-#	LOOP_TIMES	:= 2500000
-	LOOP_TIMES	:= 5000000
+	LOOP_TIMES	:= 2500000
+#	LOOP_TIMES	:= 5000000
 endif
 
 MAX_VAL	:= $(shell expr $(WARM_UP) + $(LOOP_TIMES))

@@ -1120,6 +1120,7 @@ void wait_for_checkpoint () {
     clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #endif
     while (value > 0 && *checkpoint_empty != 2) {
+    // while (value > 0) {
         sem_getvalue(NH_chkp_sem, &value);
         _mm_pause();
     }
