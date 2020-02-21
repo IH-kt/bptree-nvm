@@ -247,6 +247,7 @@ int LOG_checkpoint_backward_apply_one()
     return 1; // there isn't enough transactions
   }
 
+#ifdef STAT
   NH_nb_checkpoints = NH_nb_checkpoints + 1;
   if (checkpoint_by_flags[2]) {
       checkpoint_by[2]++;
@@ -256,6 +257,7 @@ int LOG_checkpoint_backward_apply_one()
       checkpoint_by[0]++;
   }
   memset(checkpoint_by_flags, 0, sizeof(unsigned int) * 3);
+#endif
 
   // find the write-set to apply to the checkpoint (Cache_lines!)
   int next_log;

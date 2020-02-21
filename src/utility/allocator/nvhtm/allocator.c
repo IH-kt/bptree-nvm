@@ -168,6 +168,7 @@ int initAllocator(void *existing_p, const char *path, size_t pmem_size, unsigned
         _pmem_mmap_size = pmem_size;
         _pmem_user_head = _pmem_mmap_head + sizeof(AllocatorHeader);
         _pmem_user_size = pmem_size - sizeof(AllocatorHeader);
+        memset(_pmem_mmap_head, 0, _pmem_mmap_size);
         *(PAddr *)_pmem_mmap_head = PADDR_NULL;
         return 0;
     }
@@ -221,6 +222,8 @@ int initAllocator(void *existing_p, const char *path, size_t pmem_size, unsigned
         perror("close");
         return -1;
     }
+
+    memset(_pmem_mmap_head, 0, _pmem_mmap_size);
 
     return 0;
 }
