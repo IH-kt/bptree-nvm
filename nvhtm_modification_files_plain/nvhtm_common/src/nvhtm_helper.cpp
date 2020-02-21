@@ -1054,10 +1054,10 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
     fprintf(stderr, "reset: nb_checkpoints = %lld, checkpoint_by = %u, %u, %u\n", NH_nb_checkpoints, checkpoint_by[0], checkpoint_by[1], checkpoint_by[2]);
     NH_nb_checkpoints = 0;
     for (i = 0; i < 3; i++) {
-        checkpoint_by[i];
+        checkpoint_by[i] = 0;
     }
     for (i = 0; i < 4; i++) {
-        checkpoint_section_time[i];
+        checkpoint_section_time[i] = 0;
     }
     MN_start_freq(1);
 }
