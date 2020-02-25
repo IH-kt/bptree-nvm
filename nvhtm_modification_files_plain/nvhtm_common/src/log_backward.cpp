@@ -147,6 +147,9 @@ int LOG_checkpoint_backward_apply_one()
     } else {
         *checkpoint_empty = 1;
     }
+#ifdef STAT
+    checkpoint_section_time[0] -= time_tmp;
+#endif
     __sync_synchronize();
     return 1; // try again later
   }
@@ -241,9 +244,6 @@ int LOG_checkpoint_backward_apply_one()
   if (!target_ts) {
     *NH_checkpointer_state = 0; // doing checkpoint
     __sync_synchronize();
-#ifdef STAT
-    checkpoint_section_time[0] -= time_tmp;
-#endif
     return 1; // there isn't enough transactions
   }
 

@@ -1123,12 +1123,23 @@ void wait_for_checkpoint () {
     sem_getvalue(NH_chkp_sem, &value);
 #ifdef STAT
     clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+    int value_start = value;
 #endif
-    while (value > 0 && *checkpoint_empty != 2) {
-    // while (value > 0) {
+    // while (value > 0 && *checkpoint_empty != 2) {
+    *checkpoint_empty = 0;
+    while (value > 0) {
         sem_getvalue(NH_chkp_sem, &value);
+        if (value < value_start-1 && *checkpoint_empty == 2)
+            break;
         _mm_pause();
     }
+    // int i = 0;
+    // while (i < 17) {
+    //     fprintf(stderr, "log[%d]->start = %d\n", i, NH_global_logs[i]->start);
+    //     fprintf(stderr, "log[%d]->end = %d\n", i, NH_global_logs[i]->end);
+    //     fprintf(stderr, "log[%d]->dist = %d\n", i, distance_ptr(NH_global_logs[i]->start, NH_global_logs[i]->end));
+    //     i++;
+    // }
     fprintf(stderr, "remaining value = %d\n", value);
 #ifdef STAT
     clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
