@@ -1,3 +1,0 @@
-make tree=bptree type=nvhtm db=1 logsz=65824 -j all
-は取り直してる
-連続ではとってない
