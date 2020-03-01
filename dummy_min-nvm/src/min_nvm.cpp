@@ -31,6 +31,11 @@ long long MN_count_writes_to_PM_total;
 
 __thread CL_ALIGN NH_spin_info_s MN_info;
 
+#ifdef WRITE_AMOUNT
+__thread unsigned long written_bytes_thr = 0;
+unsigned long written_bytes = 0;
+#endif
+
 static std::mutex mtx;
 
 int SPIN_PER_WRITE(int nb_writes)
@@ -97,6 +102,9 @@ void MN_thr_exit()
 	MN_time_spins_total         += MN_time_spins;
 	MN_count_writes_to_PM_total += MN_count_writes;
 	mtx.unlock();
+#ifdef WRITE_AMOUNT
+    __sync_fetch_and_add(&written_bytes, written_bytes_thr);
+#endif
 #endif
 }
 
@@ -172,5 +180,24 @@ void MN_learn_nb_nops() {
 }
 
 void MN_enter() {}
-void MN_exit() {}
+void MN_exit(char is_chkp) {
+#ifdef WRITE_AMOUNT
+    if (is_chkp) {
+        fprintf(stderr, "write amount (checkpoint): %lu", written_bytes);
+    } else {
+        fprintf(stderr, "write amount (worker): %lu", written_bytes);
+    }
+#endif
+}
+void MN_thr_enter() {}
+void MN_thr_exit() {
+#ifdef WRITE_AMOUNT
+    __sync_fetch_and_add(&written_bytes, written_bytes_thr);
+#endif
+}
+void MN_thr_reset() {
+#ifdef WRITE_AMOUNT
+    written_bytes_thr = 0;
+#endif
+}
 void MN_start_freq(int by_chikp) {}

@@ -312,7 +312,7 @@ void NVHTM_shutdown()
 	// TODO: if gnuplot file
 	stats_to_gnuplot_file((char*) STATS_FILE);
 #endif
-    MN_exit();
+    MN_exit(0);
 }
 
 void NVHTM_reduce_logs()

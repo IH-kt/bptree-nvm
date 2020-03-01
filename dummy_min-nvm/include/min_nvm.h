@@ -82,9 +82,10 @@ extern "C"
 
   void MN_thr_enter(void);
   void MN_thr_exit(void);
+  void MN_thr_reset(void);
 
   void MN_enter();
-  void MN_exit();
+  void MN_exit(char);
 
   #define MN_read(addr) ({ \
     *addr; \

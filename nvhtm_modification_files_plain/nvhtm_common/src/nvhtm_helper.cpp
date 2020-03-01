@@ -1059,6 +1059,7 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
     for (i = 0; i < 4; i++) {
         checkpoint_section_time[i] = 0;
     }
+    MN_thr_reset();
     MN_start_freq(1);
 }
 
@@ -1090,6 +1091,8 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
   fprintf(stderr, "%s", buffer);
 
   aux_thread_stats_to_gnuplot_file((char*) STATS_FILE ".aux_thr");
+  MN_thr_exit();
+  MN_exit(1);
 
 #endif
   exit(EXIT_SUCCESS);

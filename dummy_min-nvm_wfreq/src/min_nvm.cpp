@@ -170,18 +170,20 @@ void MN_thr_exit()
 	mtx.unlock();
 }
 
-void MN_exit()
+void MN_exit(char is_chkp)
 {
-    munmap(nvhtm_freq_write_buf, FREQ_WRITE_BUFSZ);
-    int fd = open("write_freq.txt", O_RDWR);
-    if (fd == -1) {
-        perror("MN_exit");
+    if (!is_chkp) {
+        munmap(nvhtm_freq_write_buf, FREQ_WRITE_BUFSZ);
+        int fd = open("write_freq.txt", O_RDWR);
+        if (fd == -1) {
+            perror("MN_exit");
+        }
+        if (ftruncate(fd, *nvhtm_freq_write_buf_index) == -1) {
+            perror("MN_exit");
+        }
+        close(fd);
+        munmap(nvhtm_freq_write_buf_index, sizeof(unsigned int));
     }
-    if (ftruncate(fd, *nvhtm_freq_write_buf_index) == -1) {
-        perror("MN_exit");
-    }
-    close(fd);
-    munmap(nvhtm_freq_write_buf_index, sizeof(unsigned int));
 }
 
 void MN_flush(void *addr, size_t size, int by_chkp)
