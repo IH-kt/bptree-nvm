@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
         }
         // showTree(bpt);
     }
-    show_result_thread(thread_max);
+    // show_result_thread(thread_max);
 // #ifdef NVHTM
 //     NVHTM_thr_exit();
 // #endif
