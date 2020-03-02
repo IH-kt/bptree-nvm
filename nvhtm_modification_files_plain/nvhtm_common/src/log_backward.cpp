@@ -342,6 +342,11 @@ int LOG_checkpoint_backward_apply_one()
           // Need to write this word
           MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
           it->second.bit_map |= bit_map;
+#ifdef FAW_CHECKPOINT
+          if (it->second.bit_map == -1) {
+              MN_flush(it->first, CACHE_LINE_SIZE, 1);
+          }
+#endif
         }
       }
 

@@ -117,3 +117,7 @@ endif
 ifeq ($(REDUCE_CP), 1)
 DEFINES += -DREDUCE_CP
 endif
+
+ifeq ($(WAF_CHECKPOINT), 1)
+DEFINES += -DWAF_CHECKPOINT
+endif

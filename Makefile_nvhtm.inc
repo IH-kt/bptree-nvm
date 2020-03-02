@@ -20,6 +20,10 @@ ifeq ($(reduce), 1)
 	NVHTM_MAKE_ARGS += REDUCE_CP=1
 	NVHTM_DEFINES   += -DREDUCE_CP
 endif
+ifeq ($(faw_cp), 1)
+    NVHTM_MAKE_ARGS += FAW_CHECKPOINT=1
+    NVHTM_DEFINES   += -DFAW_CHECKPOINT
+endif
 
 ifeq ($(stats),1)
 	MIN_NVM_FLAG	:= "-DSTAT"
