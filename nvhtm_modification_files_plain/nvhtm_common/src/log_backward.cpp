@@ -148,7 +148,7 @@ int LOG_checkpoint_backward_apply_one()
         *checkpoint_empty = 1;
     }
 #ifdef STAT
-    checkpoint_section_time[0] -= time_tmp;
+    // checkpoint_section_time[0] -= time_tmp;
 #endif
     __sync_synchronize();
     return 1; // try again later

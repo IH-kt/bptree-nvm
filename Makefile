@@ -80,8 +80,13 @@ endif
 ifdef leafsz
 	LEAFSZ	:= -DMAX_PAIR=$(leafsz)
 endif
+ifeq ($(write_amount),1)
+	WA	:= -DWRITE_AMOUNT
+else
+	WA	:=
+endif
 
-DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA) $(FW) $(TS) $(LEAFSZ)
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA) $(FW) $(TS) $(WA) $(LEAFSZ)
 
 CFLAGS=$(DEBUGF) -march=native -pthread $(DEFINES) -I$(INCLUDE_DIR) $(NVHTM_CFLAGS)
 

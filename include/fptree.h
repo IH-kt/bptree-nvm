@@ -116,6 +116,7 @@ extern __thread double insert_part3;
     SHOW_TIME_PART();\
     SHOW_TRANSACTION_SIZE();\
     SUM_COUNT_ABORT();\
+    WRITE_AMOUNT_ADD();\
     fprintf(stderr, "***********************************************\n");\
 }
 void show_result_thread(unsigned char);

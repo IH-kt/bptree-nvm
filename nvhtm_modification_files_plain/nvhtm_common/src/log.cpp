@@ -428,4 +428,5 @@ void NH_thr_reset() {
   NH_nanotime_blocked[0] = 0;
   NH_nanotime_blocked[1] = 0;
   abort_time_thread = 0;
+  MN_thr_reset();
 }

@@ -237,9 +237,9 @@ extern "C"
 		LOG_local_state.counter++; \
 		new_end = ptr_mod_log(end, 1); \
 		/*log->ptr[end].addr = entry.addr; log->ptr[end].value = entry.value;*/ \
-		MN_count_writes++; memcpy(&(log->ptr[end]), &entry, sizeof(NVLogEntry_s)); \
+		MN_count_writes++; /*memcpy(&(log->ptr[end]), &entry, sizeof(NVLogEntry_s));*/ \
 		/*TODO: this aborts the transactions: */ \
-		/*MN_write(&(log->ptr[end]), &(entry), sizeof(NVLogEntry_s), 0);*/ \
+		MN_write(&(log->ptr[end]), &(entry), sizeof(NVLogEntry_s), 0); \
 		/* log->end */ LOG_local_state.end = new_end; \
 		assert(new_end < LOG_local_state.size_of_log); \
 		new_end; \
@@ -249,7 +249,8 @@ extern "C"
 		int end = LOG_local_state.end/* log->end */, new_end; \
 		LOG_local_state.counter++; \
 		new_end = ptr_mod_log(end, 1); \
-		memcpy(&(log->ptr[end]), &entry, sizeof(NVLogEntry_s)); \
+		/*memcpy(&(log->ptr[end]), &entry, sizeof(NVLogEntry_s));*/ \
+		MN_write(&(log->ptr[end]), &(entry), sizeof(NVLogEntry_s), 0); \
 		/*TODO: this aborts the transactions: */ \
 		/* log->end */ LOG_local_state.end = new_end; \
 		assert(new_end < LOG_local_state.size_of_log); \

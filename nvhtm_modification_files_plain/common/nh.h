@@ -65,7 +65,7 @@ extern "C"
   #define NH_write(addr, val) ({ \
     GRANULE_TYPE buf = val; \
     NH_before_write(addr, val); \
-    MN_write(addr, &(buf), sizeof(GRANULE_TYPE), 0); /* *((GRANULE_TYPE*)addr) = val; */ \
+    /*MN_write*/memcpy(addr, &(buf), sizeof(GRANULE_TYPE), 0); /* *((GRANULE_TYPE*)addr) = val; */ \
     NH_after_write(addr, val); \
     val; \
   })

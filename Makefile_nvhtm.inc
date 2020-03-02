@@ -26,13 +26,13 @@ ifeq ($(stats),1)
 	NVHTM_MAKE_ARGS += STAT=1
 	NVHTM_DEFINES	+= -DSTAT
 	HTM_SGL_FLAG	:= "-DCMAKE_CXX_FLAGS=-DSTAT -DCMAKE_C_FLAGS=-DSTAT"
+
+ifeq ($(write_amount_nvhtm),1)
+	MIN_NVM_FLAG	:= "-DSTAT -DWRITE_AMOUNT_NVHTM"
+endif
 else
 	MIN_NVM_FLAG	:=
 endif
-endif
-
-ifeq ($(write_amount),1)
-	MIN_NVM_FLAG	+= "-DWRITE_AMOUNT"
 endif
 
 NVHTM_CFLAGS	:= $(NVHTM_DEFINES) $(NVHTM_INCLUDES) $(PMDK_INCLUDES) -lpthread -mrtm $(NVHTM_LIBS) $(PMDK_LIBS)

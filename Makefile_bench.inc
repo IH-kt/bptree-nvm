@@ -3,6 +3,7 @@ BENCH_DIR           := $(RESULT_DIR)/$(BENCH_DATE)
 BENCH_CA_DIR        := $(BENCH_DIR)/count_abort
 BENCH_WF_DIR        := $(BENCH_DIR)/write_freq
 BENCH_ET_DIR        := $(BENCH_DIR)/elapsed_time
+BENCH_WA_DIR        := $(BENCH_DIR)/write_amount
 
 ifdef warmup
 	WARM_UP	:= $(warmup)
@@ -102,13 +103,32 @@ count_abort: bench_ca_dir
 	mv $(BUILD_DIR)/result_raw.npy $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
 	mv $(BUILD_DIR)/result.csv $(BENCH_CA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
 
+write_amount:
+	make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE-$(BENCH_DATE) write_amount=1 write_amount_thr
+	make tree=bptree type=nvhtm logsz=41943328 ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE-$(BENCH_DATE) write_amount_nvhtm=1 write_amount_thr
+
+write_amount_thr: bench_wa_dir
+	make tree=$(tree) type=$(type) dist-clean
+	make tree=$(tree) type=$(type) db=$(db) logsz=$(LOGSZ) stats=1 reduce=$(reduce) write_amount=$(write_amount) write_amount_nvhtm=$(write_amount_nvhtm) -j all
+	cp $(BENCH_SCRIPT_DIR)/base_operation.py $(BUILD_DIR)
+	(cd build; python3 base_operation.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log)
+	for exe in $(BASE_BENCH_EXE); do\
+		for thr in $(THRLST); do\
+			for trial in $(TRIALS); do\
+				mv $(BUILD_DIR)/"$$exe".thr."$$thr".trial."$$trial".dmp $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/;\
+			done;\
+		done;\
+	done
+	mv $(BUILD_DIR)/result_raw.npy $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
+	mv $(BUILD_DIR)/result.csv $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/
+
+
 elapsed_time:
-	# make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
+# make tree=fptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
 	# make tree=bptree type=concurrent ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) elapsed_time_thr
 	make tree=bptree type=nvhtm db=0 logsz=41943328 ppath=$(PPATH) thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) reduce=$(reduce) elapsed_time_thr
 	# make tree=bptree type=nvhtm ppath=$(PPATH) db=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log
 	# make tree=bptree type=nvhtm ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
-	# make tree=bptree type=nvhtm ppath=$(PPATH) chkpa=1 BENCH_DATE=$(BENCH_DATE) elapsed_time_log 
 
 elapsed_time_log:
 	for logsz in $(LOGLST); do\
@@ -159,3 +179,5 @@ bench_et_dir:
 	mkdir -p $(BENCH_ET_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)
 bench_wf_dir:
 	mkdir -p $(BENCH_WF_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)
+bench_wa_dir:
+	mkdir -p $(BENCH_WA_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)

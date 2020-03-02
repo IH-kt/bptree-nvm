@@ -25,6 +25,11 @@ __thread double insert_part2 = 0;
 __thread double insert_part3 = 0;
 #endif
 
+#ifdef WRITE_AMOUNT
+__thread unsigned long write_amount_thr = 0;
+unsigned long write_amount = 0;
+#endif
+
 pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
 void show_result_thread(unsigned char tid) {
     pthread_mutex_lock(&mut);
@@ -213,9 +218,10 @@ void destroyBPTree(BPTree *tree, unsigned char tid) {
     *tree->pmem_head = P_NULL;
     root_free(tree->pmem_head);
     vol_mem_free(tree);
-    fprintf(stderr, "write count: %lu\n", GET_WRITE_COUNT());
+    SHOW_WRITE_COUNT();
     SHOW_FREQ_WRITE();
     SHOW_COUNT_ABORT();
+    SHOW_WRITE_AMOUNT();
 }
 
 int lockLeaf(LeafNode *target, unsigned char tid) {
@@ -224,10 +230,10 @@ int lockLeaf(LeafNode *target, unsigned char tid) {
     } else {
         if (_xtest()) {
             target->pleaf->lock = tid;
+            return 1;
         } else {
-            __sync_bool_compare_and_swap(&target->pleaf->lock, 0, tid);
+            return __sync_bool_compare_and_swap(&target->pleaf->lock, 0, tid);
         }
-        return 1;
     }
 }
 

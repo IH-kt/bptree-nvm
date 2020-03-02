@@ -162,14 +162,38 @@ static unsigned long nvm_write_count = 0;
       __sync_fetch_and_add(&nvm_write_count, 1);\
    })
 #  define GET_WRITE_COUNT() (nvm_write_count)
+#  define SHOW_WRITE_COUNT() {\
+    fprintf(stderr, "write count: %lu\n", GET_WRITE_COUNT());\
+}
 #else
 #  define WRITE_COUNT_UP()
 #  define GET_WRITE_COUNT() (0l)
+#  define SHOW_WRITE_COUNT()
+#endif
+
+#ifdef WRITE_AMOUNT
+extern __thread unsigned long write_amount_thr;
+extern unsigned long write_amount;
+#define WRITE_AMOUNT_REC(size) {\
+    write_amount_thr += size;\
+}
+#define WRITE_AMOUNT_ADD() {\
+    fprintf(stderr, "adding WA = %lu <- %lu\n", write_amount, write_amount_thr);\
+    __sync_fetch_and_add(&write_amount, write_amount_thr);\
+}
+#define SHOW_WRITE_AMOUNT() {\
+    fprintf(stderr, "write amount = %lu\n", write_amount);\
+}
+#else
+#define WRITE_AMOUNT_REC(size)
+#define WRITE_AMOUNT_ADD()
+#define SHOW_WRITE_AMOUNT()
 #endif
 
 #define NVM_WRITE(p, v) ({\
       WRITE_COUNT_UP();\
       FREQ_WRITE_ADD(sizeof(v));\
+      WRITE_AMOUNT_REC(sizeof(v));\
       (*p = v);\
   })
 

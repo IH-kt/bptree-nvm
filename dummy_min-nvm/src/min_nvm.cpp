@@ -31,7 +31,7 @@ long long MN_count_writes_to_PM_total;
 
 __thread CL_ALIGN NH_spin_info_s MN_info;
 
-#ifdef WRITE_AMOUNT
+#ifdef WRITE_AMOUNT_NVHTM
 __thread unsigned long written_bytes_thr = 0;
 unsigned long written_bytes = 0;
 #endif
@@ -66,6 +66,9 @@ int MN_write(void *addr, void *buf, size_t size, int to_aux)
 	// }
 
 	memcpy(addr, buf, size);
+#ifdef WRITE_AMOUNT_NVHTM
+    written_bytes_thr += size;
+#endif
 
 	return 0;
 }
@@ -102,7 +105,8 @@ void MN_thr_exit()
 	MN_time_spins_total         += MN_time_spins;
 	MN_count_writes_to_PM_total += MN_count_writes;
 	mtx.unlock();
-#ifdef WRITE_AMOUNT
+#ifdef WRITE_AMOUNT_NVHTM
+    fprintf(stderr, "add written_bytes_thr:%lu\n", written_bytes_thr);
     __sync_fetch_and_add(&written_bytes, written_bytes_thr);
 #endif
 #endif
@@ -181,23 +185,18 @@ void MN_learn_nb_nops() {
 
 void MN_enter() {}
 void MN_exit(char is_chkp) {
-#ifdef WRITE_AMOUNT
+#ifdef WRITE_AMOUNT_NVHTM
     if (is_chkp) {
-        fprintf(stderr, "write amount (checkpoint): %lu", written_bytes);
+        fprintf(stderr, "write amount (checkpoint): %lu\n", written_bytes);
     } else {
-        fprintf(stderr, "write amount (worker): %lu", written_bytes);
+        fprintf(stderr, "write amount (worker): %lu\n", written_bytes);
     }
 #endif
 }
-void MN_thr_enter() {}
-void MN_thr_exit() {
-#ifdef WRITE_AMOUNT
-    __sync_fetch_and_add(&written_bytes, written_bytes_thr);
-#endif
-}
 void MN_thr_reset() {
-#ifdef WRITE_AMOUNT
+#ifdef WRITE_AMOUNT_NVHTM
+    fprintf(stderr, "MN_thr_reset: written_bytes_thr = %lu\n", written_bytes_thr);
     written_bytes_thr = 0;
 #endif
 }
-void MN_start_freq(int by_chikp) {}
+void MN_start_freq(int by_chkp) {}
