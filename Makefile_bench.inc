@@ -89,10 +89,10 @@ bench_all:
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) faw_cp=1 elapsed_time
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) reduce=1 elapsed_time
 	# mv $(BENCH_ET_DIR) $(BENCH_CA_DIR) $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
-	# mv $(BENCH_ET_DIR) $(BENCH_DIR)/pmem
+	mv $(BENCH_ET_DIR) $(BENCH_DIR)/pmem
 	# mv $(BENCH_WF_DIR) $(BENCH_DIR)/pmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) write_amount
-	mv $(BENCH_WA_DIR) $(BENCH_DIR)/pmem
+	# mv $(BENCH_WA_DIR) $(BENCH_DIR)/pmem
 
 # for concurrent (not nvhtm)
 count_abort: bench_ca_dir
