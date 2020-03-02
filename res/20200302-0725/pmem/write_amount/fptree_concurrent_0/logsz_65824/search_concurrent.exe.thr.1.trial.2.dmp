@@ -1,0 +1,11 @@
+initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 1, pmem_path = /mnt/nvmm/iiboshi/data, log_path = /mnt/nvmm/iiboshi/log
+allocating 90003520 byte
+*******************Thread 1*******************
+adding WA = 0 <- 554995584
+***********************************************
+*******************Thread 1*******************
+adding WA = 554995584 <- 0
+***********************************************
+finish running threads
+write amount = 554995584
+3.278852

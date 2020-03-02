@@ -108,6 +108,7 @@ void persist(void *target, size_t size) {
         _mm_clflush(target + i * 64);
 #  endif
     }
+    WRITE_AMOUNT_REC(((size-1)/64 + 1) * 64);
     _mm_sfence();
 }
 #else

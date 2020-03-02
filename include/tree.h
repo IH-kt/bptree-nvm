@@ -193,7 +193,6 @@ extern unsigned long write_amount;
 #define NVM_WRITE(p, v) ({\
       WRITE_COUNT_UP();\
       FREQ_WRITE_ADD(sizeof(v));\
-      WRITE_AMOUNT_REC(sizeof(v));\
       (*p = v);\
   })
 

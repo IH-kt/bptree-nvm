@@ -66,9 +66,6 @@ int MN_write(void *addr, void *buf, size_t size, int to_aux)
 	// }
 
 	memcpy(addr, buf, size);
-#ifdef WRITE_AMOUNT_NVHTM
-    written_bytes_thr += size;
-#endif
 
 	return 0;
 }
@@ -136,6 +133,9 @@ void MN_flush(void *addr, size_t size, int do_flush)
         //  else
 			// SPIN_PER_WRITE(1);
 	}
+#ifdef WRITE_AMOUNT_NVHTM
+    written_bytes_thr += new_size * size_cl;
+#endif
 }
 
 void MN_drain()
