@@ -559,17 +559,17 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   // flush entries before write TS (does not need memory barrier)
   
   // SPIN_PER_WRITE(MAX(nb_writes * sizeof(NVLogEntry_s) / CACHE_LINE_SIZE, 1));
-  int log_before = ptr_mod_log(NH_global_logs[id]->end, -nb_writes);
-  if (NH_global_logs[id]->end + nb_writes > NH_global_logs[id]->size_of_log) {
+  int log_before = ptr_mod_log(LOG_local_state.end, -nb_writes);
+  if (log_before + nb_writes > NH_global_logs[id]->size_of_log) {
       MN_flush(&(NH_global_logs[id]->ptr[log_before]),
-              (nb_writes - NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 0
+              (NH_global_logs[id]->size_of_log - log_before) * sizeof(NVLogEntry_s), 0
               );
       MN_flush(&(NH_global_logs[id]->ptr[log_before]),
-              (nb_writes - nb_writes % NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 0
+              (nb_writes + log_before - NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 0
               );
   } else {
-      MN_flush(&(NH_global_logs[id]->ptr[0]),
-              (nb_writes % NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 0
+      MN_flush(&(NH_global_logs[id]->ptr[log_before]),
+              nb_writes * sizeof(NVLogEntry_s), 0
               );
   }
 
@@ -582,7 +582,7 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
 
   NVMHTM_write_ts(id, ts); // Flush all together
   // SPIN_PER_WRITE(1);
-  log_before = ptr_mod_log(NH_global_logs[id]->end, -1);
+  log_before = ptr_mod_log(LOG_local_state.end, -1);
   MN_flush(&(NH_global_logs[id]->ptr[log_before]),
     sizeof(NVLogEntry_s), 0
   );
