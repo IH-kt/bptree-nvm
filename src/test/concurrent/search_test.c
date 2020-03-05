@@ -85,6 +85,17 @@ int main(int argc, char *argv[]) {
             assert(0);
         }
     }
+    for (int i = 1; i <= loop_times/10; i++) {
+        kv.key = rand() % max_val;
+        printf("search %ld\n", kv.key);
+        search(bpt, kv.key, &sr, 1);
+        if (sr.index != -1) {
+            printf("found. Is it OK?\n");
+            // assert(0);
+        } else {
+            printf("not found\n");
+        }
+    }
 
     showTree(bpt, 1);
     destroyBPTree(bpt, 1);

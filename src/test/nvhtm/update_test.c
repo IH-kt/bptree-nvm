@@ -26,6 +26,9 @@ void *update_threadfunc(BPTree *bpt, void *arg) {
     NVHTM_thr_exit();
 }
 
+void *warmup(BPTree * bpt, void *args) {
+}
+
 int main(int argc, char *argv[]) {
     BPTree *bpt;
     KeyValuePair kv;
@@ -46,9 +49,15 @@ int main(int argc, char *argv[]) {
         printf("default: loop_times = 40, max_val = 1000\n");
     }
     size_t allocation_size = sizeof(LeafNode) * loop_times * thread_num / (MAX_KEY / 2);
+#ifdef USE_PMEM
     set_log_file_name("log");
+#endif
     NVHTM_init(thread_num + 1);
+#ifdef USE_PMEM
     void *pool = NH_alloc("data", allocation_size);
+#else
+    void *pool = NH_alloc(allocation_size);
+#endif
     printf("pool = %p\n", pool);
     NVHTM_thr_init();
     initAllocator(pool, "data", allocation_size, thread_num);
@@ -74,7 +83,7 @@ int main(int argc, char *argv[]) {
     unsigned char *t_arg = (unsigned char*)malloc(sizeof(unsigned char) * thread_num);
     for (int i = 0; i < thread_num; i++) {
         t_arg[i] = i + 1;
-        tid_array[i] = bptreeCreateThread(bpt, update_threadfunc, t_arg + i);
+        tid_array[i] = bptreeCreateThread(bpt, update_threadfunc, warmup, t_arg + i);
     }
 
     for (int i = 0; i < thread_num; i++) {

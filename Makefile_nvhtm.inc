@@ -39,7 +39,7 @@ ifeq ($(stats),1)
 	HTM_SGL_FLAG	+= -DCMAKE_CXX_FLAGS=-DSTAT -DCMAKE_C_FLAGS=-DSTAT
 endif
 
-ifeq ($(no_empty_loop))
+ifeq ($(no_empty_loop),1)
     NVHTM_MAKE_ARGS += NO_EMPTY_LOOP_TIME=1
     NVHTM_DEFINES   += -DNO_EMPTY_LOOP_TIME
 endif
@@ -53,9 +53,6 @@ NVHTM_CFLAGS	:= $(NVHTM_DEFINES) $(NVHTM_INCLUDES) $(PMDK_INCLUDES) -lpthread -m
 ifeq ($(db), 1)
 	NVHTM_MOD_DIR   := $(ROOT_DIR)/nvhtm_modification_files_double_buffering
 else
-	ifeq ($(chkpa),1)
-		NVHTM_MOD_DIR   := $(ROOT_DIR)/nvhtm_modification_files_checkpoint_all
-	else
-		NVHTM_MOD_DIR   := $(ROOT_DIR)/nvhtm_modification_files_plain
-	endif
+    NVHTM_MOD_DIR   := $(ROOT_DIR)/nvhtm_modification_files_plain
+endif
 endif

@@ -4,6 +4,7 @@
 #include "tree.h"
 #include <stdlib.h>
 #include <time.h>
+#define NUM 142
 
 int main(int argc, char *argv[]) {
     BPTree *bpt;
@@ -62,6 +63,9 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i <= loop_times; i++) {
         kv.key = rand() % max_val;
         printf("delete %ld\n", kv.key);
+        if (kv.key == 142) {
+            showTree(bpt, 1);
+        }
         if (bptreeRemove(bpt, kv.key, 1)) {
             printf("success\n");
         } else {
@@ -73,6 +77,9 @@ int main(int argc, char *argv[]) {
             if (sr.index != -1) {
                 assert(0);
             }
+        }
+        if (kv.key == 142) {
+            showTree(bpt, 1);
         }
     }
 

@@ -528,9 +528,8 @@ void NVMHTM_shutdown()
 
   while (!exit_success) PAUSE(); // wait manager to exit
 
-#ifdef STAT
   double time_taken = (double) NVHTM_get_total_time();
-
+#ifdef STAT
   fprintf(stderr, "--- Percentage time blocked %f \n", ((double) NH_time_blocked_total
   / (double) CPU_MAX_FREQ / 1000.0D) / (double) TM_nb_threads / time_taken);
   fprintf(stderr, "--- Nb. checkpoints %lli\n", NH_nb_checkpoints);
@@ -570,18 +569,17 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   // flush entries before write TS (does not need memory barrier)
   
 #ifdef USE_PMEM
-  SPIN_PER_WRITE(MAX(nb_writes * sizeof(NVLogEntry_s) / CACHE_LINE_SIZE, 1));
-  // int log_before = ptr_mod_log(NH_global_logs[id]->end, -nb_writes);
-  // MN_flush(&(NH_global_logs[id]->ptr[log_before]),
-  //   nb_writes * sizeof(NVLogEntry_s), 0
-  // );
-#else
   int log_before = ptr_mod_log(LOG_local_state.end, -nb_writes);
   if (log_before + nb_writes > NH_global_logs[id]->size_of_log) {
+      // fprintf(stderr, "LOG_local_state.end = %d\n", LOG_local_state.end);
+      // fprintf(stderr, "log->end = %d\n", NH_global_logs[id]->end);
+      // fprintf(stderr, "nb_writes = %d\n", nb_writes);
+      // fprintf(stderr, "log_before = %d\n", log_before);
+      // fprintf(stderr, "flush:[%d]...[%d], [%d]...[%d]\n", log_before, NH_global_logs[id]->size_of_log, 0, nb_writes + log_before - NH_global_logs[id]->size_of_log);
       MN_flush(&(NH_global_logs[id]->ptr[log_before]),
               (NH_global_logs[id]->size_of_log - log_before) * sizeof(NVLogEntry_s), 0
               );
-      MN_flush(&(NH_global_logs[id]->ptr[log_before]),
+      MN_flush(&(NH_global_logs[id]->ptr[0]),
               (nb_writes + log_before - NH_global_logs[id]->size_of_log) * sizeof(NVLogEntry_s), 0
               );
   } else {
@@ -589,6 +587,12 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
               nb_writes * sizeof(NVLogEntry_s), 0
               );
   }
+#else
+  SPIN_PER_WRITE(MAX(nb_writes * sizeof(NVLogEntry_s) / CACHE_LINE_SIZE, 1));
+  // int log_before = ptr_mod_log(NH_global_logs[id]->end, -nb_writes);
+  // MN_flush(&(NH_global_logs[id]->ptr[log_before]),
+  //   nb_writes * sizeof(NVLogEntry_s), 0
+  // );
 #endif
 
   #ifndef DISABLE_VALIDATION
@@ -599,11 +603,14 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   _mm_sfence();
 
   NVMHTM_write_ts(id, ts); // Flush all together
-  // SPIN_PER_WRITE(1);
+#ifdef USE_PMEM
   log_before = ptr_mod_log(LOG_local_state.end, -1);
   MN_flush(&(NH_global_logs[id]->ptr[log_before]),
     sizeof(NVLogEntry_s), 0
   );
+#else
+  SPIN_PER_WRITE(1);
+#endif
   #if VALIDATION == 2 && !defined(DISABLE_VALIDATION)
   global_flushed_ts++;
   // __sync_synchronize(); // Is not working! need the fence in the while loop!
@@ -1072,9 +1079,9 @@ static void segfault_sigaction(int signal, siginfo_t *si, void *uap)
   // TODO:
 }
 
-#ifdef STAT
 static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
 {
+#ifdef STAT
     int i;
     fprintf(stderr, "reset: nb_checkpoints = %lld, checkpoint_by = %u, %u, %u\n", NH_nb_checkpoints, checkpoint_by[0], checkpoint_by[1], checkpoint_by[2]);
     NH_nb_checkpoints = 0;
@@ -1086,8 +1093,8 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
     }
     MN_thr_reset();
     MN_start_freq(1);
-}
 #endif
+}
 
 static void segint_sigaction(int signal, siginfo_t *si, void *context)
 {

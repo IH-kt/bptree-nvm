@@ -74,6 +74,9 @@ void *delete_test(BPTree *bpt, void *arg) {
     return NULL;
 }
 
+void *warmup(BPTree * bpt, void *args) {
+}
+
 int main(int argc, char *argv[]) {
     BPTree *bpt;
     KeyValuePair kv;
@@ -105,9 +108,9 @@ int main(int argc, char *argv[]) {
     unsigned char tid1 = 1;
     unsigned char tid2 = 2;
     unsigned char tid3 = 3;
-    tid[0] = bptreeCreateThread(bpt, insert_test, &tid1);
-    tid[1] = bptreeCreateThread(bpt, search_test, &tid2);
-    tid[2] = bptreeCreateThread(bpt, delete_test, &tid3);
+    tid[0] = bptreeCreateThread(bpt, insert_test, warmup, &tid1);
+    tid[1] = bptreeCreateThread(bpt, search_test, warmup, &tid2);
+    tid[2] = bptreeCreateThread(bpt, delete_test, warmup, &tid3);
     printf("create\n");
 
     bptreeStartThread();

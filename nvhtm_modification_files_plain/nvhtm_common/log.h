@@ -398,7 +398,7 @@ extern "C"
 		int log_end, log_start; \
 		log_end = log->end; log_start = log->start; \
 		while (!(distance_ptr(log_start, log_end) <= \
-		distance_ptr(log_start, LOG_local_state.end))) {\
+		distance_ptr(log_start, LOG_local_state.end))) \
 		log_start = log->start; \
 		MN_write(&(log->end), &(LOG_local_state.end), \
 			sizeof(LOG_local_state.end), 0); \
@@ -412,7 +412,7 @@ extern "C"
 		int log_end, log_start; \
 		log_end = log->end; log_start = log->start; \
 		while (!(distance_ptr(log_start, log_end) <= \
-		distance_ptr(log_start, LOG_local_state.end))) {\
+		distance_ptr(log_start, LOG_local_state.end))) \
 		log_start = log->start; \
 		MN_write(&(log->end), &(LOG_local_state.end), \
 			sizeof(LOG_local_state.end), 0); \
@@ -438,11 +438,11 @@ extern "C"
 	// This one moves start to start_ptr (may cause some contention)
 	void LOG_move_start_ptrs();
 	void LOG_handle_checkpoint();
-#ifdef STAT
+// #ifdef STAT
     void NH_reset();
     void NH_thr_reset();
     void wait_for_checkpoint ();
-#endif STAT
+// #endif
 
 	#define ptr_mod_log(ptr, inc) ({ \
 		LOG_MOD2((long long)ptr + (long long)inc, LOG_local_state.size_of_log); \

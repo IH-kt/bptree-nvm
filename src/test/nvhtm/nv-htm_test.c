@@ -81,7 +81,10 @@ void *delete_test(BPTree *bpt, void *arg) {
     return NULL;
 }
 
-    BPTree *bpt;
+void * warmup(BPTree *bpt, void *arg) {
+}
+
+BPTree *bpt;
 int main(int argc, char *argv[]) {
     KeyValuePair kv;
     if (argc > 1) {
@@ -108,7 +111,11 @@ int main(int argc, char *argv[]) {
     size_t pool_sz = sizeof(PersistentLeafNode) * loop_times + 100000;
 #endif
     printf("pool_sz=%lu\n", pool_sz);
+#ifdef USE_PMEM
     void *pool = NH_alloc("data", pool_sz);
+#else
+    void *pool = NH_alloc(pool_sz);
+#endif
     // void *pool = NH_alloc(pool_sz);
     printf("pool:%p -> %p (%lu)\n", pool, (char *)pool + pool_sz, pool_sz);
     printf("write pool: %d -> ", *(int *)pool);
@@ -134,9 +141,9 @@ int main(int argc, char *argv[]) {
     unsigned char tid1 = 1;
     unsigned char tid2 = 2;
     unsigned char tid3 = 3;
-    tid[0] = bptreeCreateThread(bpt, search_test, &tid2);
-    tid[1] = bptreeCreateThread(bpt, insert_test, &tid1);
-    tid[2] = bptreeCreateThread(bpt, delete_test, &tid3);
+    tid[0] = bptreeCreateThread(bpt, search_test, warmup, &tid2);
+    tid[1] = bptreeCreateThread(bpt, insert_test, warmup, &tid1);
+    tid[2] = bptreeCreateThread(bpt, delete_test, warmup, &tid3);
     printf("create\n");
 
     bptreeStartThread();

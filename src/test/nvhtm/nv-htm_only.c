@@ -29,7 +29,11 @@ int main(int argc, char *argv[]) {
     pthread_t tid[thread_num];
     NVHTM_init(thread_num + 1);
     size_t pool_sz = sizeof(long);
+#ifdef USE_PMEM
     void *pool = NH_alloc("data", pool_sz);
+#else
+    void *pool = NH_alloc(pool_sz);
+#endif
     printf("pool:%p -> %p (%lu)\n", pool, (char *)pool + pool_sz, pool_sz);
     NVHTM_clear();
     NVHTM_cpy_to_checkpoint(pool);

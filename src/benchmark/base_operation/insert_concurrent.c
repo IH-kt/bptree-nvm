@@ -104,9 +104,15 @@ int main(int argc, char *argv[]) {
 #endif
     fprintf(stderr, "allocating %lu byte\n", allocation_size);
 #ifdef NVHTM
+#ifdef USE_PMEM
     set_log_file_name(log_path);
+#endif
     NVHTM_init(thread_max + 1);
+#ifdef USE_PMEM
     void *pool = NH_alloc(pmem_path, allocation_size);
+#else
+    void *pool = NH_alloc(allocation_size);
+#endif
     // void *pool = NH_alloc(allocation_size);
     NVHTM_clear();
     NVHTM_cpy_to_checkpoint(pool);

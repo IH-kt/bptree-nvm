@@ -112,6 +112,7 @@ extern "C"
   val; \
 })
 
+#ifdef USE_PMEM
 #undef NH_alloc
 #define NH_alloc(fn, size) ({ \
         pmem_filename = fn; \
@@ -124,15 +125,16 @@ extern char const *pmem_filename;
 extern void *pmem_pool;
 
 #undef NH_free
-#define NH_free(pool) FREE_MEM(pool, al_sz)
+#define NH_free(pool) FREE_MEM(pool, pmem_size)
 
 #define REMAP_PRIVATE() {\
-    int fd = open(al_fn, O_RDWR);\
+    int fd = open(pmem_filename, O_RDWR);\
     if (fd == -1) perror("open");\
-    void *tmp = mmap(al_pool, al_sz, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_FIXED, fd, 0);\
+    void *tmp = mmap(pmem_pool, pmem_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_FIXED, fd, 0);\
     if (tmp == MAP_FAILED) perror("mmap");\
     close(fd);\
 }
+#endif
 
 
   // TODO: comment for testing with STAMP
