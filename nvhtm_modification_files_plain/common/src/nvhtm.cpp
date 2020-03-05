@@ -75,7 +75,7 @@ void NVHTM_init_(int _nb_threads)
     // printf("Size of cache line: %i\n", CACHE_LINE_SIZE);
 
     MN_learn_nb_nops();
-#ifdef USE_PMEM
+#ifdef STAT 
     MN_enter();
 #endif
 }

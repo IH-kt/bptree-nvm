@@ -70,7 +70,7 @@ static CL_ALIGN int log_lock;
 
 static CL_ALIGN int nb_applied_txs = 0; // DEBUG
 
-#ifdef STAT
+#ifdef USE_PMEM
 static char const *log_file_name = LOG_FILE;
 #endif
 
@@ -94,11 +94,12 @@ static void init_log(NVLog_s *new_log, int tid, int fresh);
 static int sort_logs();
 
 // ################ implementation header
-#ifdef STAT
 void set_log_file_name (char const *fn) {
+#ifdef USE_PMEM
+    printf("setting to %s\n", fn);
     log_file_name = fn;
-}
 #endif
+}
 
 void LOG_init(int nb_threads, int fresh)
 {
@@ -122,10 +123,12 @@ void LOG_init(int nb_threads, int fresh)
   if (NH_global_logs == NULL) {
     ALLOC_FN(NH_global_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
 
-#ifdef STAT
+#ifdef USE_PMEM
+    printf("creating %s\n", log_file_name);
     LOG_global_ptr = ALLOC_MEM(log_file_name, size_of_logs);
     memset(LOG_global_ptr, 0, size_of_logs);
     fresh = 1; // this is not init to 0
+#ifdef STAT
     size_t size_of_struct = sizeof(NVLog_s);
     size_t size_of_log = NVMHTM_LOG_SIZE - size_of_struct;
     double max_nb_entries = (double)size_of_log / (double)sizeof(NVLogEntry_s);
@@ -136,6 +139,7 @@ void LOG_init(int nb_threads, int fresh)
     fprintf(stderr, "number of entry = %lu\n", new_size_log);
 
     NH_nb_checkpoints = 0;
+#endif
 #else
 #if DO_CHECKPOINT == 1 || DO_CHECKPOINT == 5
     key_t key = KEY_LOGS;
