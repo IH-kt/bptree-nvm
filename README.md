@@ -51,12 +51,11 @@ tree一覧
         - random：乱数発生＆スレッドへの振り分け関数たち
         - thread_manager：スレッドの開始同期とか諸々やる関数たち
 - include：includeファイルたち
-- dummy_min-nvm：NV-HTMのNVMエミュレータに変更を加えたファイルたち
-- dummy_min-nvm_wfreq：基本↑と同じだが書き込み頻度を測るための処理を加えたもの
-- nvhtm_modification_files_plain：NV-HTMにNVMを使う＋各種統計情報を取るために変更を加えたファイルたち
-- nvhtm_modification_files_double_buffering：ダブルバッファリングをやった残骸（消すかもしれない）
-- nvhtm：NV-HTM本体
-- nvhtm-selfcontained：ちょっと古いNV-HTM＋NVMエミュレータ（最新っぽい？）
+- nvhtm：[NV-HTM](https://bitbucket.org/daniel_castro1993/nvhtm.git)本体にNVMの実機を使う＋各種統計情報を取るために変更を加えたもの
+- nvhtm_modification_files_plain：nvhtmのうちオリジナルと差分のあるファイルたち
+- nvm-emulation：[nvhtm-selfcontained](https://bitbucket.org/daniel_castro1993/nvhtm-selfcontained.git)からエミュレータを抜き出したものにさらに変更を加えたもの
+- dummy_min-nvm：nvm-emulationのうちオリジナルと差分のあるファイルたち
+- dummy_min-nvm_wfreq：基本↑と同じだが書き込み頻度を測るための処理を加えたもの（古い）
 - res：実験結果たち
 
 ## 未mergeブランチ一覧
