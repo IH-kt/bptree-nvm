@@ -1,6 +1,3 @@
-[submodule "nvhtm-selfcontained"]
-	path = nvhtm-selfcontained
-	url = https://bitbucket.org/daniel_castro1993/nvhtm-selfcontained.git
 [submodule "nvhtm"]
 	path = nvhtm
 	url = https://bitbucket.org/daniel_castro1993/nvhtm.git
