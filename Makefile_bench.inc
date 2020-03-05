@@ -20,12 +20,6 @@ endif
 
 MAX_VAL	:= $(shell expr $(WARM_UP) + $(LOOP_TIMES))
 
-ifdef logsz
-	LOGSZ	:= $(logsz)
-else
-	LOGSZ	:= 65824
-endif
-NVHTM_MAKE_ARGS += LOG_SIZE=$(LOGSZ)
 ifdef logmax
 	LOGMAX	:= $(logmax)
 else

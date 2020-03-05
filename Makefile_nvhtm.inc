@@ -48,6 +48,13 @@ ifeq ($(write_amount_nvhtm),1)
     MIN_NVM_FLAG	+= -DWRITE_AMOUNT_NVHTM
 endif
 
+ifdef logsize
+	LOGSZ	:= $(logsize)
+else
+	LOGSZ	:= 65824
+endif
+NVHTM_MAKE_ARGS += LOG_SIZE=$(LOGSZ)
+
 NVHTM_CFLAGS	:= $(NVHTM_DEFINES) $(NVHTM_INCLUDES) $(PMDK_INCLUDES) -lpthread -mrtm $(NVHTM_LIBS) $(PMDK_LIBS)
 
 ifeq ($(db), 1)
