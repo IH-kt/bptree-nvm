@@ -110,18 +110,15 @@ include ./Makefile_bench.inc
 	$(CC) -o $@ $(CFLAGS) -c $<
 
 $(NVHTM_LIB): libhtm_sgl.a libminimal_nvm.a
-	cp -R $(NVHTM_MOD_DIR)/* $(NVHTM_DIR)
 	make -C nvhtm clean
 	make -C nvhtm $(NVHTM_MAKE_ARGS)
 	mkdir -p $(BUILD_DIR)
 	mv nvhtm/libnh.a $(NVHTM_LIB)
 
 libhtm_sgl.a:
-	cp -R $(NVHTM_MOD_DIR)/* $(NVHTM_DIR)
 	(cd $(NVHTM_DIR)/DEPENDENCIES/htm_alg; ./compile.sh "$(HTM_SGL_FLAG)")
 
 libminimal_nvm.a:
-	cp -R $(DMN_DIR)/* $(MIN_NVM_DIR)
 	(cd $(MIN_NVM_DIR); ./compile.sh "$(MIN_NVM_FLAG)")
 
 clean:
@@ -129,8 +126,6 @@ clean:
 
 nvhtm-clean:
 	rm -f $(NVHTM_LIB) $(MIN_NVM_DIR)/bin/libminimal_nvm.a $(NVHTM_DIR)/DEPENDENCIES/htm_alg/bin/libhtm_sgl.a
-	(cd $(NVHTM_DIR) && git checkout . && make clean)
-	(cd $(NVHTM_SC_DIR) && git checkout .)
 
 dist-clean: clean $(NVHTM_CLEAN)
 	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE))
