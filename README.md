@@ -4,20 +4,61 @@ NVMを使うB<sup>+</sup>-Treeの実験用コード諸々
 
 ## 実行方法
 
-cloneしたリポジトリで`make`とするとbuildディレクトリができてその中に実行ファイルができる
+### 実行ファイルの作り方
+
+cloneしたリポジトリで`make`するとbuildディレクトリができてその中に実行ファイルができる
+（シングルスレッド版に修正が必要なので`make`だけだと現状動かない）
 
 `make type=xxx`とすることで作る種類が変わる
 
-- simple = シングルスレッドの一番シンプルなもの
-- concurrent = マルチスレッドで動作するもの．葉ノードではロックを使う
-- nvhtm = マルチスレッドで動作するもの．葉ノードでは[NV-HTM](https://bitbucket.org/daniel_castro1993/nvhtm/src/master/)を使う
+type一覧
+- simple ： シングルスレッドで動作するもの（版が古いので動かない）
+- concurrent ： マルチスレッドで動作するもの（HTM使用）
+- nvhtm ： マルチスレッドで動作するもの（[NV-HTM](https://bitbucket.org/daniel_castro1993/nvhtm/src/master/)使用）
 
-main関数はsrc/test内のテスト用コード，src/benchmark内のベンチマーク用コードにある
+同様に`tree=yyy`とすることで木が変わる
 
-res/以下に実験の結果が置いてある
+tree一覧
+- bptree ： 一般的なB<sup>+</sup>-Tree
+- fptree ： FPTree
+
+例えばHTMを使う一般的なB<sup>+</sup>-Treeなら`make type=concurrent tree=bptree`となる
+
+オプションいろいろ
+- `make ... write_amount=1`とすると書き込み総量を測れる（FPTree限定）
+- `make ... ca=1`とするとアボート回数を測れる（NV-HTMを使う場合は指定する必要なし）
+- `make ... fw=1`とすると書き込み頻度を測れる
+- `make ... write_amount_nvhtm=1`とすると書き込み総量を測れる（NV-HTM限定）
+- `make ... stats=1`とすると追加で情報を取る＆実験前にアボート回数とかをリセットしたりする（NV-HTM限定）
+- `make ... emulator=1`とするとエミュレータを使った元々のNV-HTMが動く
+
+### ベンチマーク
+
+`make bench_all ppath=NVMをマウントしてるディレクトリ vdirpath=tmpfsでマウントしてるディレクトリ`とするのが一番簡単．
+一部だけとりたい場合は`make write_amount`などとする
+
+## ディレクトリ構成
+
+- src
+    - benchmark：ベンチマーク用のmain関数
+    - bptree：一般的なB<sup>+</sup>-Tree
+    - fptree：FPTree
+    - test：テスト用のmain関数（動かないかもしれない）
+    - utility：アロケータ等々
+        - allocator：NVM用メモリアロケータ
+        - benchmark_script：ベンチマーク実行スクリプト
+        - graph_script：グラフ作成スクリプト
+        - random：乱数発生＆スレッドへの振り分け関数たち
+        - thread_manager：スレッドの開始同期とか諸々やる関数たち
+- include：includeファイルたち
+- dummy_min-nvm：NV-HTMのNVMエミュレータに変更を加えたファイルたち
+- dummy_min-nvm_wfreq：基本↑と同じだが書き込み頻度を測るための処理を加えたもの
+- nvhtm_modification_files_plain：NV-HTMにNVMを使う＋各種統計情報を取るために変更を加えたファイルたち
+- nvhtm_modification_files_double_buffering：ダブルバッファリングをやった残骸（消すかもしれない）
+- nvhtm：NV-HTM本体
+- nvhtm-selfcontained：ちょっと古いNV-HTM＋NVMエミュレータ（最新っぽい？）
+- res：実験結果たち
 
 ## 未mergeブランチ一覧
 
-- merged-bitmap：bitmapを廃止してfingerprintの0を特別扱いすることで葉ノードを圧縮する実装
-- double-buffering：ログ領域を二つ用意して切り替えるようにすることで停止時間を減らす実装
-- plain-nvhtm-tree：通常のB<sup>+</sup>-TreeをNVHTMを使ってpersistent化した場合の実装
+なし
