@@ -34,8 +34,11 @@ static void move_ptrs()
     log->start = snapshot_start_ptrs[i];
     // -----------
     // comment to old
-    // SPIN_PER_WRITE(1); // TODO: NM_flush
+#ifdef USE_PMEM
     MN_flush(&log->start, 64, 1);
+#else
+    SPIN_PER_WRITE(1); // TODO: NM_flush
+#endif
     // -----------
   }
   __sync_synchronize();
@@ -46,8 +49,11 @@ static void flush_buffered()
   unordered_set<uintptr_t>::iterator it;
 
   for (it = buffered_cls.begin(); it != buffered_cls.end(); ++it) {
-    // SPIN_PER_WRITE(1); // TODO: NM_flush
+#ifdef USE_PMEM
     MN_flush((void *)*it, 64, 1);
+#else
+    SPIN_PER_WRITE(1); // TODO: NM_flush
+#endif
   }
   buffered_cls.clear();
 }
@@ -68,10 +74,6 @@ int LOG_checkpoint_forward_apply_one(int, int do_flush,  void *to_fl)
   int sum_dist = 0;
   static ts_s last_ts = 0;
   static int old_nb_entries = 0, count_rep = 0;
-
-  sem_wait(NH_chkp_sem);
-  __sync_synchronize();
-  *NH_checkpointer_state = 1; // doing checkpoint
 
   // return 1;
 
@@ -142,13 +144,11 @@ int LOG_checkpoint_forward_apply_one(int, int do_flush,  void *to_fl)
   old_nb_entries = nb_entries;
 
   if (!too_full && too_empty) {
-    *NH_checkpointer_state = 0;
     return 1;
   }
 
   // consume from buffer
   if (!cp_consume(NULL, &loc)) {
-    *NH_checkpointer_state = 0;
     return 1;
   }
 

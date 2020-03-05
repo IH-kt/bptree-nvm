@@ -118,11 +118,11 @@ $(NVHTM_LIB): libhtm_sgl.a libminimal_nvm.a
 
 libhtm_sgl.a:
 	cp -R $(NVHTM_MOD_DIR)/* $(NVHTM_DIR)
-	(cd $(NVHTM_DIR)/DEPENDENCIES/htm_alg; ./compile.sh $(HTM_SGL_FLAG))
+	(cd $(NVHTM_DIR)/DEPENDENCIES/htm_alg; ./compile.sh "$(HTM_SGL_FLAG)")
 
 libminimal_nvm.a:
 	cp -R $(DMN_DIR)/* $(MIN_NVM_DIR)
-	(cd $(MIN_NVM_DIR); ./compile.sh $(MIN_NVM_FLAG))
+	(cd $(MIN_NVM_DIR); ./compile.sh "$(MIN_NVM_FLAG)")
 
 clean:
 	rm -f $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(ALL_OBJ)

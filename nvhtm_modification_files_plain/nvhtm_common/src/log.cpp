@@ -21,7 +21,9 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/mman.h>
+#ifdef STAT
 #include <signal.h>
+#endif
 
 #include <map>
 #include <set>
@@ -68,7 +70,9 @@ static CL_ALIGN int log_lock;
 
 static CL_ALIGN int nb_applied_txs = 0; // DEBUG
 
+#ifdef STAT
 static char const *log_file_name = LOG_FILE;
+#endif
 
 // ################ variables (thread-local)
 
@@ -90,10 +94,11 @@ static void init_log(NVLog_s *new_log, int tid, int fresh);
 static int sort_logs();
 
 // ################ implementation header
-//
+#ifdef STAT
 void set_log_file_name (char const *fn) {
     log_file_name = fn;
 }
+#endif
 
 void LOG_init(int nb_threads, int fresh)
 {
@@ -110,11 +115,14 @@ void LOG_init(int nb_threads, int fresh)
   TM_nb_threads = nb_threads;
   // nvm_htm_log_size = NVMHTM_LOG_SIZE / nb_threads; // TODO
 
-  // printf("Number of threads: %i\n", TM_nb_threads);
+#ifndef STAT
+  printf("Number of threads: %i\n", TM_nb_threads);
+#endif
 
   if (NH_global_logs == NULL) {
     ALLOC_FN(NH_global_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
 
+#ifdef STAT
     LOG_global_ptr = ALLOC_MEM(log_file_name, size_of_logs);
     memset(LOG_global_ptr, 0, size_of_logs);
     fresh = 1; // this is not init to 0
@@ -128,26 +136,32 @@ void LOG_init(int nb_threads, int fresh)
     fprintf(stderr, "number of entry = %lu\n", new_size_log);
 
     NH_nb_checkpoints = 0;
-    // key_t key = KEY_LOGS;
+#else
+#if DO_CHECKPOINT == 1 || DO_CHECKPOINT == 5
+    key_t key = KEY_LOGS;
 
-    // int shmid = shmget(key, size_of_logs, 0777 | IPC_CREAT);
-    // // first detach, reallocation may fail
-    // // shmctl(shmid, IPC_RMID, NULL);
-    // // shmid = shmget(key, NVMHTM_LOG_SIZE, 0777 | IPC_CREAT);
+    int shmid = shmget(key, size_of_logs, 0777 | IPC_CREAT);
+    // first detach, reallocation may fail
+    // shmctl(shmid, IPC_RMID, NULL);
+    // shmid = shmget(key, NVMHTM_LOG_SIZE, 0777 | IPC_CREAT);
 
-    // LOG_global_ptr = shmat(shmid, (void *)0, 0);
-    // memset(LOG_global_ptr, 0, size_of_logs);
+    LOG_global_ptr = shmat(shmid, (void *)0, 0);
+    memset(LOG_global_ptr, 0, size_of_logs);
 
-    // if (shmid < 0) {
-    //   perror("shmget");
-    // }
+    if (shmid < 0) {
+      perror("shmget");
+    }
 
-    // LOG_global_ptr = shmat(shmid, (void *)0, 0);
-    // fresh = 1; // this is not init to 0
+    LOG_global_ptr = shmat(shmid, (void *)0, 0);
+    fresh = 1; // this is not init to 0
 
-    // if (LOG_global_ptr < 0) {
-    //   perror("shmat");
-    // }
+    if (LOG_global_ptr < 0) {
+      perror("shmat");
+    }
+#else
+    LOG_global_ptr = ALLOC_MEM(LOG_FILE, size_of_logs);
+#endif
+#endif
   }
 
   LOG_attach_shared_mem();
@@ -293,7 +307,9 @@ void LOG_checkpoint_apply_N(int n)
   }
 
   // flushes the checkpoint
-  // SPIN_PER_WRITE(to_flush.size()); // simulation
+#ifndef USE_PMEM
+  SPIN_PER_WRITE(to_flush.size()); // simulation
+#endif
 
   // TODO: we do not need to spin all this time (pay the cost of a memfence only!)
 }
@@ -423,10 +439,12 @@ void NH_reset() {
 }
 
 void NH_thr_reset() {
+#ifdef STAT
   NH_time_blocked = 0;
   NH_count_blocks = 0;
   NH_nanotime_blocked[0] = 0;
   NH_nanotime_blocked[1] = 0;
   abort_time_thread = 0;
   MN_thr_reset();
+#endif
 }

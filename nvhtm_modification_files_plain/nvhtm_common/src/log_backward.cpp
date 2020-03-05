@@ -1,5 +1,7 @@
 #include "log.h"
-extern void *al_pool;
+#ifdef USE_PMEM
+extern void *pmem_pool;
+#endif
 
 #include <map>
 #include <unordered_map>
@@ -11,7 +13,9 @@ extern void *al_pool;
 #include <mutex>
 #include <vector>
 #include <unistd.h>
+#ifdef USE_PMEM
 #include <xmmintrin.h>
+#endif
 
 using namespace std;
 
@@ -90,8 +94,8 @@ int LOG_checkpoint_backward_apply_one()
   } CL_BLOCK;
 
   sem_wait(NH_chkp_sem);
-  __sync_synchronize();
   *NH_checkpointer_state = 1; // doing checkpoint
+  __sync_synchronize();
 
   // stores the possible repeated writes
   unordered_map<GRANULE_TYPE*, CL_BLOCK> writes_map;
@@ -142,18 +146,22 @@ int LOG_checkpoint_backward_apply_one()
   // Only apply log if someone passed the threshold mark
   if ((!too_full && too_empty) || !someone_passed) {
     *NH_checkpointer_state = 0; // doing checkpoint
+#ifdef STAT
     if (*checkpoint_empty == 1) {
         *checkpoint_empty = 2;
     } else {
         *checkpoint_empty = 1;
     }
-#ifdef STAT
-    // checkpoint_section_time[0] -= time_tmp;
+#ifdef NO_EMPTY_LOOP_TIME
+    checkpoint_section_time[0] -= time_tmp;
+#endif
 #endif
     __sync_synchronize();
     return 1; // try again later
   }
+#ifdef STAT
   *checkpoint_empty = 0;
+#endif
   // ---------------------------------------------------------------
 
   // first find target_ts, then the remaining TSs
@@ -173,7 +181,6 @@ int LOG_checkpoint_backward_apply_one()
     } else {
       j = ptr_mod_log(starts[i], APPLY_BACKWARD_VAL);
     }
-    // j = ends[i];
 
     // TODO: repeated code
     for (; j != starts[i]; j = ptr_mod_log(j, -1)) {
@@ -247,8 +254,8 @@ int LOG_checkpoint_backward_apply_one()
     return 1; // there isn't enough transactions
   }
 
-#ifdef STAT
   NH_nb_checkpoints = NH_nb_checkpoints + 1;
+#ifdef STAT
   if (checkpoint_by_flags[2]) {
       checkpoint_by[2]++;
   } else if (checkpoint_by_flags[1]) {
@@ -373,9 +380,15 @@ int LOG_checkpoint_backward_apply_one()
   for (; cl_iterator != writes_list.end(); ++cl_iterator) {
     // TODO: must write the cache line, now is just spinning
     GRANULE_TYPE *addr = *cl_iterator;
+#ifdef USE_PMEM
     MN_flush(addr, CACHE_LINE_SIZE, 1);
+#else
+    MN_flush(addr, CACHE_LINE_SIZE, 0);
+#endif
   }
+#ifdef USE_PMEM
   _mm_sfence();
+#endif
 
 #ifdef STAT
   clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
@@ -399,7 +412,11 @@ int LOG_checkpoint_backward_apply_one()
     //            printf("s:%i t:%i e:%i d1:%i d2:%i \n", starts[i], pos_to_start[i], ends[i],
     //                   distance_ptr(starts[i], ends[i]), distance_ptr(pos_to_start[i], ends[i]));
 
+#ifdef USE_PMEM
     MN_write(&(log->start), &(pos_to_start[i]), sizeof(int), 1);
+#else
+    MN_write(&(log->start), &(pos_to_start[i]), sizeof(int), 0);
+#endif
     // log->start = pos_to_start[i];
     // TODO: snapshot the old ptrs before moving them
   }

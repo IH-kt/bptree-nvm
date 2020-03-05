@@ -20,23 +20,32 @@ ifeq ($(reduce), 1)
 	NVHTM_MAKE_ARGS += REDUCE_CP=1
 	NVHTM_DEFINES   += -DREDUCE_CP
 endif
+
 ifeq ($(faw_cp), 1)
     NVHTM_MAKE_ARGS += FAW_CHECKPOINT=1
     NVHTM_DEFINES   += -DFAW_CHECKPOINT
 endif
 
+ifneq ($(emulator), 1)
+    MIN_NVM_FLAG    += -DUSE_PMEM
+    NVHTM_MAKE_ARGS += USE_PMEM=1
+    NVHTM_DEFINES   += -DUSE_PMEM
+endif
+
 ifeq ($(stats),1)
-	MIN_NVM_FLAG	:= "-DSTAT"
+	MIN_NVM_FLAG	+= -DSTAT
 	NVHTM_MAKE_ARGS += STAT=1
 	NVHTM_DEFINES	+= -DSTAT
-	HTM_SGL_FLAG	:= "-DCMAKE_CXX_FLAGS=-DSTAT -DCMAKE_C_FLAGS=-DSTAT"
+	HTM_SGL_FLAG	+= -DCMAKE_CXX_FLAGS=-DSTAT -DCMAKE_C_FLAGS=-DSTAT
+endif
+
+ifeq ($(no_empty_loop))
+    NVHTM_MAKE_ARGS += NO_EMPTY_LOOP_TIME=1
+    NVHTM_DEFINES   += -DNO_EMPTY_LOOP_TIME
+endif
 
 ifeq ($(write_amount_nvhtm),1)
-	MIN_NVM_FLAG	:= "-DSTAT -DWRITE_AMOUNT_NVHTM"
-endif
-else
-	MIN_NVM_FLAG	:=
-endif
+    MIN_NVM_FLAG	+= -DWRITE_AMOUNT_NVHTM
 endif
 
 NVHTM_CFLAGS	:= $(NVHTM_DEFINES) $(NVHTM_INCLUDES) $(PMDK_INCLUDES) -lpthread -mrtm $(NVHTM_LIBS) $(PMDK_LIBS)

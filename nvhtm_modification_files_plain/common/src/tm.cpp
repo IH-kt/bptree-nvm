@@ -72,6 +72,7 @@ void TM_inc_error(int tid, HTM_STATUS_TYPE error)
 
 void TM_reset_error()
 {
+#ifdef STAT
     int i, error;
     fprintf(stderr, "reset error counter\n");
     for (i = 0; i < threads; ++i) {
@@ -91,6 +92,7 @@ void TM_reset_error()
         }
 
     }
+#endif
 }
 
 int TM_get_error_count(int error)

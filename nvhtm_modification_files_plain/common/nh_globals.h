@@ -41,7 +41,9 @@ extern CL_ALIGN long long NH_nb_checkpoints;
 extern CL_ALIGN long long NH_count_writes_total;
 extern CL_ALIGN long long NH_count_blocks_total;
 extern CL_ALIGN ts_s NH_time_blocked_total;
+#ifdef STAT
 extern CL_ALIGN double NH_nanotime_blocked_total[2];
+#endif
 extern CL_ALIGN ts_s NH_manager_order_logs;
 extern CL_ALIGN long long NH_nb_applied_txs;
 // thread local
@@ -57,7 +59,9 @@ extern __thread CL_ALIGN ts_s NH_time_after_commit;
 extern __thread CL_ALIGN int NH_count_txs;
 extern __thread CL_ALIGN long long NH_count_blocks;
 extern __thread CL_ALIGN ts_s NH_time_blocked;
+#ifdef STAT
 extern __thread CL_ALIGN double NH_nanotime_blocked[2];
+#endif
 extern __thread long long NH_count_writes; // TODO: move to a struct
 // ####################################################
 

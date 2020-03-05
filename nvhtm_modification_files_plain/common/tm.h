@@ -25,7 +25,9 @@ int TM_get_nb_threads();
 
 void TM_inc_fallback(int tid);
 void TM_inc_error(int tid, HTM_STATUS_TYPE error);
+#ifdef STAT
 void TM_reset_error();
+#endif
 
 // statistics
 int TM_get_error_count(int);

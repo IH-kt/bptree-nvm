@@ -16,8 +16,10 @@ using namespace std;
 CL_ALIGN int HTM_SGL_var;
 __thread CL_ALIGN HTM_SGL_local_vars_s HTM_SGL_vars;
 
+#ifdef STAT
 CL_ALIGN double HTM_nanotime_blocked_total;
 __thread CL_ALIGN double HTM_nanotime_blocked;
+#endif
 
 static mutex mtx;
 static int init_budget = HTM_SGL_INIT_BUDGET;
@@ -30,7 +32,9 @@ static __thread int tid;
 
 void HTM_init_(int init_budget, int nb_threads)
 {
+#ifdef STAT
   HTM_nanotime_blocked_total = 0;
+#endif
   init_budget = HTM_SGL_INIT_BUDGET;
   threads = nb_threads;
   HTM_SGL_var = 0;
@@ -88,10 +92,10 @@ void HTM_enter_fallback()
 	time_tmp /= 1000000000;
 	time_tmp += edt.tv_sec - stt.tv_sec;
 	HTM_nanotime_blocked += time_tmp;
+#endif
   // HTM_SGL_var = 1;
   // __sync_synchronize();
   errors[HTM_FALLBACK]++;
-#endif
 }
 
 void HTM_exit_fallback()
@@ -127,11 +131,9 @@ void HTM_block()
 
 void HTM_inc_status_count(int status_code)
 {
-#ifdef STAT
   if (is_record) {
     HTM_ERROR_INC(status_code, errors);
   }
-#endif
 }
 
 // int HTM_update_budget(int budget, HTM_STATUS_TYPE status)
@@ -154,12 +156,10 @@ int HTM_get_status_count(int status_code, int **accum)
 
 void HTM_reset_status_count()
 {
-#ifdef STAT
   int i, j;
   for (i = 0; i < HTM_NB_ERRORS; ++i) {
     errors[i] = 0;
   }
-#endif
 }
 
 int HTM_get_nb_threads() { return threads; }

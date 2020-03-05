@@ -36,11 +36,9 @@ extern "C"
   NVHTM_stats_add_time(TM_ts2 - TM_ts1, TM_ts3 - TM_ts2); \
   NVHTM_thr_snapshot();*/
 
-#ifdef STAT
   #undef AFTER_SGL_BEGIN
   #define AFTER_SGL_BEGIN(tid) \
   TM_inc_fallback(TM_tid_var)
-#endif
 
   #define NH_begin() HTM_SGL_begin()
   // #define NH_begin_spec() HTM_SGL_begin_spec()
@@ -51,17 +49,16 @@ extern "C"
   #define HTM_THR_INIT() \
   HTM_SGL_tid = TM_tid_var
 
-#ifdef STAT
   #undef HTM_INC
   #define HTM_INC(status) \
   TM_inc_error(TM_tid_var, status)
-#endif
 
   // TODO: create wrapper to HTM_SGL_*
 
   #define NH_before_write(addr, val) /* empty */
   #define NH_after_write(addr, val)  /* empty */
 
+#ifdef USE_PMEM
   #define NH_write(addr, val) ({ \
     GRANULE_TYPE buf = val; \
     NH_before_write(addr, val); \
@@ -69,6 +66,15 @@ extern "C"
     NH_after_write(addr, val); \
     val; \
   })
+#else
+  #define NH_write(addr, val) ({ \
+    GRANULE_TYPE buf = val; \
+    NH_before_write(addr, val); \
+    MN_write(addr, &(buf), sizeof(GRANULE_TYPE), 0); /* *((GRANULE_TYPE*)addr) = val; */ \
+    NH_after_write(addr, val); \
+    val; \
+  })
+#endif
 
   extern int some_array[64][128];
   extern __thread int some_array_idx;

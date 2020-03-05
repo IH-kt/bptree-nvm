@@ -35,9 +35,11 @@ CL_ALIGN long long NH_nb_checkpoints;
 CL_ALIGN long long NH_count_writes_total;
 CL_ALIGN long long NH_count_blocks_total;
 CL_ALIGN ts_s NH_time_blocked_total;
-CL_ALIGN double NH_nanotime_blocked_total[2];
 CL_ALIGN ts_s NH_manager_order_logs;
 CL_ALIGN long long NH_nb_applied_txs;
+#ifdef STAT
+CL_ALIGN double NH_nanotime_blocked_total[2];
+#endif
 // thread local
 __thread ts_s NH_ts_last_snp;
 __thread ts_s ts_var;
@@ -52,7 +54,9 @@ __thread CL_ALIGN ts_s NH_time_validate;
 __thread long long NH_count_writes;
 __thread CL_ALIGN long long NH_count_blocks;
 __thread CL_ALIGN ts_s NH_time_blocked;
+#ifdef STAT
 __thread CL_ALIGN double NH_nanotime_blocked[2];
+#endif
 // ####################################################
 
 CL_ALIGN int TM_SGL_var;
@@ -60,8 +64,9 @@ CL_ALIGN unsigned long long LOG_global_counter;
 tx_counters_s CL_ALIGN *htm_tx_val_counters;
 __thread CL_ALIGN int LOG_nb_writes;
 
-size_t al_sz = 0;
-char const *al_fn = NULL;
-void *al_pool = NULL;
-
+#ifdef USE_PMEM
+size_t pmem_size = 0;
+char const *pmem_filename = NULL;
+void *pmem_pool = NULL;
 int *persistent_checkpointing = NULL;
+#endif

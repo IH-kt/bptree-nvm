@@ -121,3 +121,11 @@ endif
 ifeq ($(FAW_CHECKPOINT), 1)
 DEFINES += -DFAW_CHECKPOINT
 endif
+
+ifeq ($(USE_PMEM), 1)
+DEFINES += -DUSE_PMEM
+endif
+
+ifeq ($(NO_EMPTY_LOOP_TIME), 1)
+DEFINES += -DNO_EMPTY_LOOP_TIME
+endif

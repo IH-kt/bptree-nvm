@@ -433,8 +433,12 @@ int LOG_next_tx(int *pos, int* tid) {
 
 int LOG_spin_per_write()
 {
-  // int nb_writes = LOG_count_writes(TM_tid_var);
-  return 0; // SPIN_PER_WRITE(nb_writes);
+#ifdef USE_PMEM
+  return 0;
+#else
+  int nb_writes = LOG_count_writes(TM_tid_var);
+  return SPIN_PER_WRITE(nb_writes);
+#endif
 }
 
 int LOG_redo_threads()
@@ -558,7 +562,11 @@ NVLog_s* LOG_init_1thread(void *log_pool, size_t max_size)
   double max_nb_entries = (double)size_of_log / (double)sizeof(NVLogEntry_s);
   size_t new_size_log = LOG_base2_before(max_nb_entries);
 
+#ifdef STAT
   // printf("size of 1 log: %zu\n", new_size_log);
+#else
+  printf("size of 1 log: %zu\n", new_size_log);
+#endif
 
   aux_ptr = (char*) log_pool;
   new_log = (NVLog_s*) aux_ptr;

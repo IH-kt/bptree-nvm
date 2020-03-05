@@ -5,9 +5,11 @@
 extern "C"
 {
   #endif
+#ifdef USE_PMEM
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#endif
 
   #define MAXIMUM_OFFSET 400 // in cycles
 
@@ -112,14 +114,14 @@ extern "C"
 
 #undef NH_alloc
 #define NH_alloc(fn, size) ({ \
-        al_fn = fn; \
-        al_sz = size; \
-        al_pool = ALLOC_MEM(fn, size); \
-        al_pool;\
+        pmem_filename = fn; \
+        pmem_size = size; \
+        pmem_pool = ALLOC_MEM(fn, size); \
+        pmem_pool ;\
 })
-extern size_t al_sz;
-extern char const *al_fn;
-extern void *al_pool;
+extern size_t pmem_size;
+extern char const *pmem_filename;
+extern void *pmem_pool;
 
 #undef NH_free
 #define NH_free(pool) FREE_MEM(pool, al_sz)

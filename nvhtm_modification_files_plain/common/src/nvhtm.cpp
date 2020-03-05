@@ -75,7 +75,9 @@ void NVHTM_init_(int _nb_threads)
     // printf("Size of cache line: %i\n", CACHE_LINE_SIZE);
 
     MN_learn_nb_nops();
+#ifdef USE_PMEM
     MN_enter();
+#endif
 }
 
 void NVHTM_start_stats()
@@ -128,7 +130,6 @@ void NVHTM_thr_exit()
 
 	nb_thrs--;
 
-#ifdef STAT
 	NH_tx_time_total += (double) NH_tx_time;
 	NH_time_after_commit_total += (double) NH_time_after_commit;
 
@@ -138,7 +139,8 @@ void NVHTM_thr_exit()
 	NH_count_writes_total += NH_count_writes;
 	NH_count_blocks_total += NH_count_blocks;
 	NH_time_validate_total += NH_time_validate;
-    abort_time_all += abort_time_thread;
+#ifdef STAT
+	abort_time_all += abort_time_thread;
 #endif
 
 	mutex = 0;
@@ -252,7 +254,6 @@ static int s_explicit_a;
 
 void NVHTM_shutdown()
 {
-#ifdef STAT
     // TODO: statistics optional
     double time_taken;
 
@@ -273,7 +274,6 @@ void NVHTM_shutdown()
 
     double time_tx = NVHTM_stats_get_avg_time_tx();
     double time_after = NVHTM_stats_get_avg_time_after();
-#endif
 
     NVMHTM_shutdown();
 
@@ -302,17 +302,41 @@ void NVHTM_shutdown()
     fprintf(stderr, " ---   ----\n");
     fprintf(stderr, " ########################################### \n");
     fprintf(stderr, " ########################################### \n\n");
+#else
+	printf("\n\n ########################################### \n");
+	printf(" ########################################### \n");
+	printf(" --- ABORTS\n");
+	printf("COMMIT : %i\n", successes);
+	printf("ABORTS : %i\n", s_aborts);
+	printf("CONFLS : %i\n", s_conflicts);
+	printf("CAPACS : %i\n", s_capacities);
+	printf("EXPLIC : %i\n", s_explicit_a);
+	printf("FALLBK : %i\n", fallbacks);
+	printf("   P_A : %f\n", P_A);
+	printf("     X : %f\n", X);
+	printf(" ---   TIME\n");
+	printf("Time %f s\n", time_taken);
+	printf("TIME_TX %f ms\n", time_tx);
+	printf("TIME_AFTER %f ms\n", time_after);
+	printf("AVG_CAP %f\n", used_cap / (double) nb_cap_samples);
+	printf("TOTAL_WRITES          %lli\n", MN_count_writes_to_PM_total);
+	printf("TOTAL_SPINS (workers) %lli\n", MN_count_spins_total);
+	printf("TOTAL_BLOCKS          %lli\n", NH_count_blocks_total);
+	printf("TOTAL_TIME_B (clocks) %llu\n", NH_time_blocked_total);
+	printf(" ---   ----\n");
+	printf(" ########################################### \n");
+	printf(" ########################################### \n\n");
 #endif
 
     // ---
     HTM_exit();
     // ---
 
-#ifdef STAT
 	// TODO: if gnuplot file
 	stats_to_gnuplot_file((char*) STATS_FILE);
-#endif
+#ifdef STAT
     MN_exit(0);
+#endif
 }
 
 void NVHTM_reduce_logs()
