@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ARCH_FD=../arch-dep/include
+ARCH_FD=../nvhtm/DEPENDENCIES/arch_dep/include
 
 rm -r build
 mkdir build

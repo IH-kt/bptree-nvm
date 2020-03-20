@@ -96,6 +96,7 @@ static int sort_logs();
 // ################ implementation header
 void set_log_file_name (char const *fn) {
 #ifdef USE_PMEM
+    printf("setting to %s\n", fn);
     log_file_name = fn;
 #endif
 }
@@ -123,6 +124,7 @@ void LOG_init(int nb_threads, int fresh)
     ALLOC_FN(NH_global_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
 
 #ifdef USE_PMEM
+    printf("creating %s\n", log_file_name);
     LOG_global_ptr = ALLOC_MEM(log_file_name, size_of_logs);
     memset(LOG_global_ptr, 0, size_of_logs);
     fresh = 1; // this is not init to 0
