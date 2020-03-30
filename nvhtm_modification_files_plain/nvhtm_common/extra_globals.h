@@ -23,6 +23,9 @@ extern unsigned int *checkpoint_by_flags;
 extern unsigned int checkpoint_by[3];
 extern double checkpoint_section_time[4];
 extern int *checkpoint_empty;
+#ifdef WRITE_AMOUNT_NVHTM
+unsigned long no_filter_write_counter;
+#endif
 #endif
 
 #endif /* EXTRA_GLOBALS_H */

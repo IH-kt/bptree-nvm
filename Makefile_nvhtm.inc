@@ -44,6 +44,8 @@ ifeq ($(no_empty_loop),1)
 endif
 
 ifeq ($(write_amount_nvhtm),1)
+    NVHTM_MAKE_ARGS += WRITE_AMOUNT_NVHTM=1
+    NVHTM_DEFINES   += -DWRITE_AMOUNT_NVHTM
     MIN_NVM_FLAG	+= -DWRITE_AMOUNT_NVHTM
 endif
 

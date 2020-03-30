@@ -15,7 +15,6 @@ trials=`seq 1 3`
 mkdir -p abort
 for memtype in $memtypes
 do
-    mkdir -p abort/$memtype
     for type in $types
     do
         if ! [ -e ${root_dir}/${memtype}/count_abort/${type} ] ; then

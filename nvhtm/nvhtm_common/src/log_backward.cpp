@@ -330,6 +330,11 @@ int LOG_checkpoint_backward_apply_one()
     ts_s ts = entry_is_ts(entry);
     while (!ts && pos[next_log] != starts[next_log]) {
 
+#ifdef STAT
+#ifdef WRITE_AMOUNT_NVHTM
+        no_filter_write_amount += sizeof(entry.value);
+#endif
+#endif
       // uses only the bits needed to identify the cache line
       intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
       auto it = writes_map.find((GRANULE_TYPE*)cl_addr);

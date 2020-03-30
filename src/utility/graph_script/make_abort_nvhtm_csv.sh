@@ -20,7 +20,6 @@ trials=`seq 1 ${max_trial}`
 mkdir -p abort
 for memtype in $memtypes
 do
-    mkdir -p $memtype
     for type in $types
     do
         type_dir=`eval echo '$'${type}`

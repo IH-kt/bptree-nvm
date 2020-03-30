@@ -60,8 +60,8 @@ def plot_graph(log_size_str, result_file1, result_file2, result_file3, result_fi
         plt.tick_params(labelsize=font_size)
         # plt.title('スレッド数による実行時間の変化 (' + ops[i] + ')', fontsize=font_size)
         plt.tight_layout()
-        plt.savefig(log_size_str + '/' + colname + '.png')
-        plt.savefig(log_size_str + '/' + colname + '.eps')
+        # plt.savefig(log_size_str + '/' + colname + '.png')
+        plt.savefig(log_size_str + '/' + colname.split('_concurrent.exe')[0] + '.pdf')
         plt.close()
 
         # result_df.plot.line(style=line_style)

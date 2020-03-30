@@ -1091,6 +1091,9 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
     for (i = 0; i < 4; i++) {
         checkpoint_section_time[i] = 0;
     }
+#ifdef WRITE_AMOUNT_NVHTM
+    no_filter_write_counter = 0;
+#endif
     MN_thr_reset();
     MN_start_freq(1);
 #endif
@@ -1098,7 +1101,7 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
 
 static void segint_sigaction(int signal, siginfo_t *si, void *context)
 {
-  char buffer[8192];
+  char buffer[2 * 8192];
   char *ptr = buffer;
 
   /* while(loop_checkpoint_manager()); */ // apply all the log
@@ -1119,6 +1122,9 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
   ptr += sprintf(ptr, "[FORKED_MANAGER] sec. 2 (find commit) = %lf\n", checkpoint_section_time[1]);
   ptr += sprintf(ptr, "[FORKED_MANAGER] sec. 3 (apply) = %lf\n", checkpoint_section_time[2]);
   ptr += sprintf(ptr, "[FORKED_MANAGER] sec. 4 (flush) = %lf\n", checkpoint_section_time[3]);
+#ifdef WRITE_AMOUNT_NVHTM
+  ptr += sprintf(ptr, "[FORKED_MANAGER] write amount (no filtering) = %lu\n", no_filter_write_amount);
+#endif
 #endif
   ptr += sprintf(ptr, "[logger] NB_spins=%lli NB_writes=%lli TIME_spins=%fms\n",
   MN_count_spins, MN_count_writes, (double)MN_time_spins / (double)CPU_MAX_FREQ);

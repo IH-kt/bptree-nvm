@@ -58,6 +58,10 @@ do
                 cbl_pt=`echo "scale=7; (${cblock_time_sum} / ${max_trial}) / ${thr}" | bc`
                 abl_pt=`echo "scale=7; (${ablock_time_sum} / ${max_trial}) / ${thr}" | bc`
                 end_pt=`echo "scale=7; (${end_time_sum} / ${max_trial})" | bc`
+                echo "htm = ${hbl_pt}"
+                echo "cbl = ${cbl_pt}"
+                echo "abl = ${abl_pt}"
+                echo "end = ${end_pt}"
                 echo "$thr,$hbl_pt,$cbl_pt,$abl_pt,$end_pt" >> ${result_dir}/wait_${op}_${type}.logsize.${logsz}.csv
             done
         done
