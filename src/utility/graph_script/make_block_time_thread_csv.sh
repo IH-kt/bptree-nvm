@@ -38,11 +38,17 @@ do
                 end_time_sum=0
                 for trial in $trials
                 do
+                    # echo "${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp"
                     hblock_time=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp | grep "HTM " | cut -f 5 -d ' '`
-                    cblock_time1=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp | grep "WAIT_MORE_LOG" | cut -f 7 -d ' '`
-                    cblock_time2=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp | grep "CHECK_LOG_ABORT" | cut -f 7 -d ' '`
+                    # echo "hblock_time = ${hblock_time}"
+                    cblock_time1=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp | grep "d by WAIT_MORE_LOG" | cut -f 7 -d ' '`
+                    # echo "cblock_time1 = ${cblock_time1}"
+                    cblock_time2=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp | grep "d by CHECK_LOG_ABORT" | cut -f 7 -d ' '`
+                    # echo "cblock_time2 = ${cblock_time2}"
                     ablock_time=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp | grep "TRANSACTION_ABORT_TIME" | cut -f 2 -d ' '`
+                    # echo "ablock_time = ${ablock_time}"
                     end_time=`cat ${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp | grep "wait_for" | tail -n 1 | cut -f 3 -d ' '`
+                    # echo "end_time = ${end_time}"
                     hblock_time_sum=`echo "scale=7; ${hblock_time} + ${hblock_time_sum}" | bc`
                     cblock_time_sum=`echo "scale=7; ${cblock_time1} + ${cblock_time2} + ${cblock_time_sum}" | bc`
                     ablock_time_sum=`echo "scale=7; ${ablock_time} + ${ablock_time_sum}" | bc`
