@@ -1092,7 +1092,7 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
         checkpoint_section_time[i] = 0;
     }
 #ifdef WRITE_AMOUNT_NVHTM
-    no_filter_write_counter = 0;
+    no_filter_write_amount = 0;
 #endif
     MN_thr_reset();
     MN_start_freq(1);
