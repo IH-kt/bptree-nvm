@@ -349,11 +349,21 @@ int LOG_checkpoint_backward_apply_one()
         writes_map.insert(to_insert);
         writes_list.push_back((GRANULE_TYPE*)cl_addr);
         MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+#ifdef STAT
+#ifdef WRITE_AMOUNT_NVHTM
+        filtered_write_amount += sizeof(entry.value);
+#endif
+#endif
       } else {
         if ( !(it->second.bit_map & bit_map) ) {
           // Need to write this word
           MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
           it->second.bit_map |= bit_map;
+#ifdef STAT
+#ifdef WRITE_AMOUNT_NVHTM
+          filtered_write_amount += sizeof(entry.value);
+#endif
+#endif
 #ifdef FAW_CHECKPOINT
           if (it->second.bit_map == -1) {
               MN_flush(it->first, CACHE_LINE_SIZE, 1);

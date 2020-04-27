@@ -25,6 +25,7 @@ extern double checkpoint_section_time[4];
 extern int *checkpoint_empty;
 #ifdef WRITE_AMOUNT_NVHTM
 extern unsigned long no_filter_write_amount;
+extern unsigned long filtered_write_amount;
 #endif
 #endif
 

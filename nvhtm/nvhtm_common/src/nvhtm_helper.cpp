@@ -1093,6 +1093,7 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
     }
 #ifdef WRITE_AMOUNT_NVHTM
     no_filter_write_amount = 0;
+    filtered_write_amount = 0;
 #endif
     MN_thr_reset();
     MN_start_freq(1);
@@ -1124,6 +1125,7 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
   ptr += sprintf(ptr, "[FORKED_MANAGER] sec. 4 (flush) = %lf\n", checkpoint_section_time[3]);
 #ifdef WRITE_AMOUNT_NVHTM
   ptr += sprintf(ptr, "[FORKED_MANAGER] write amount (no filtering) = %lu\n", no_filter_write_amount);
+  ptr += sprintf(ptr, "[FORKED_MANAGER] write amount (filtering) = %lu\n", filtered_write_amount);
 #endif
 #endif
   ptr += sprintf(ptr, "[logger] NB_spins=%lli NB_writes=%lli TIME_spins=%fms\n",
