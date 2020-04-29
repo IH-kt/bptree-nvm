@@ -442,7 +442,11 @@ extern "C"
     void NH_reset();
     void NH_thr_reset();
     void wait_for_checkpoint ();
-// #endif
+#ifdef PARALLEL_CHECKPOINT
+	void NVHTM_set_cp_thread_num(int thrnum);
+#endif
+		// #endif
+
 
 	#define ptr_mod_log(ptr, inc) ({ \
 		LOG_MOD2((long long)ptr + (long long)inc, LOG_local_state.size_of_log); \

@@ -26,4 +26,10 @@ unsigned long no_filter_write_amount;
 unsigned long filtered_write_amount;
 #endif
 #endif
+#ifdef PARALLEL_CHECKPOINT
+int number_of_checkpoint_threads = 1;
+sem_t cp_back_sem;
+sem_t cpthread_finish_sem;
+checkpoint_args_s *cp_thread_args;
+#endif
 // ####################################################

@@ -2,6 +2,7 @@
 #define EXTRA_GLOBALS_H
 
 #include "extra_types.h"
+#include <semaphore.h>
 
 // ####################################################
 // ### LOG VARIABLES ##################################
@@ -27,6 +28,21 @@ extern int *checkpoint_empty;
 extern unsigned long no_filter_write_amount;
 extern unsigned long filtered_write_amount;
 #endif
+#endif
+#ifdef PARALLEL_CHECKPOINT
+#ifdef PARALLEL_CHECKPOINT
+  typedef struct checkpoint_args_s {
+    // intptr_t mask;
+    // intptr_t assigned_addr;
+    // int assigned_addr;
+    int thread_id;
+    int number_of_threads;
+  } checkpoint_args_s;
+#endif
+extern sem_t cp_back_sem;
+extern int number_of_checkpoint_threads;
+extern sem_t cpthread_finish_sem;
+extern checkpoint_args_s *cp_thread_args;
 #endif
 
 #endif /* EXTRA_GLOBALS_H */

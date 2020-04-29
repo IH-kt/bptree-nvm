@@ -34,6 +34,10 @@
 
 #include <signal.h>
 
+#ifdef PARALLEL_CHECKPOINT
+#include "log_backward.h"
+#endif
+
 
 // ################ defines
 
@@ -894,12 +898,33 @@ static void fork_manager()
   #endif
 }
 
+void checkpoint_start_threads(int number_of_threads) {
+#ifdef PARALLEL_CHECKPOINT
+    int i;
+    pthread_attr_t attr;
+    pthread_t tid;
+    checkpoint_args_s args;
+    cp_thread_args = (checkpoint_args_s *)malloc(sizeof(checkpoint_args_s) * number_of_threads);
+    pthread_attr_init(&attr);
+    sem_init(&cp_back_sem, 0, 0);
+    sem_init(&cpthread_finish_sem, 0, 0);
+    for (i = 0; i < number_of_threads; i++) {
+        cp_thread_args[i].thread_id = i;
+        cp_thread_args[i].number_of_threads = number_of_threads;
+        pthread_create(&tid, &attr, LOG_checkpoint_backward_thread_func, &cp_thread_args[i]);
+    }
+#endif
+}
+
 static void * server(void * args)
 {
   char req;
 
   MN_thr_enter();
   LOG_local_state.size_of_log = NH_global_logs[0]->size_of_log; // TODO
+#ifdef PARALLEL_CHECKPOINT
+  checkpoint_start_threads(number_of_checkpoint_threads);
+#endif
 
   while (1) {
 
@@ -1196,5 +1221,11 @@ void wait_for_checkpoint () {
     time_tmp /= 1000000000;
     time_tmp += edt.tv_sec - stt.tv_sec;
     fprintf(stderr, "wait_for_checkpoint = %lf\n", time_tmp);
+#endif
+}
+
+void NVHTM_set_cp_thread_num(int thrnum) {
+#ifdef PARALLEL_CHECKPOINT
+  number_of_checkpoint_threads = thrnum;
 #endif
 }

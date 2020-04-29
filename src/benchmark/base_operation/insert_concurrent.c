@@ -13,6 +13,7 @@ int initial_elements = 40;
 int loop_times = 40;
 int max_val = 1000;
 int thread_max = 10;
+int cp_threads = 1;
 
 typedef struct arg_t {
 	unsigned int loop;
@@ -93,6 +94,16 @@ int main(int argc, char *argv[]) {
         }
         pmem_path = argv[5];
         log_path = argv[6];
+#ifdef PARALLEL_CHECKPOINT
+        if (argc > 7) {
+            cp_threads = atoi(argv[7]);
+            if (cp_threads <= 0) {
+                fprintf(stderr, "invalid argument\n");
+                return 1;
+            }
+            fprintf(stderr, "cp_threads = %d\n", cp_threads);
+        }
+#endif
         fprintf(stderr, "initial_elements = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s, log_path = %s\n", initial_elements, loop_times, max_val, thread_max, pmem_path, log_path);
     } else {
         fprintf(stderr, "default: initial_elements = %d, loop_times = %d, max_val = %d, thread_max = %d, pmem_path = %s, log_path = %s\n", initial_elements, loop_times, max_val, thread_max, pmem_path, log_path);
@@ -104,6 +115,9 @@ int main(int argc, char *argv[]) {
 #endif
     fprintf(stderr, "allocating %lu byte\n", allocation_size);
 #ifdef NVHTM
+#ifdef PARALLEL_CHECKPOINT
+    NVHTM_set_cp_thread_num(cp_threads);
+#endif
 #ifdef USE_PMEM
     set_log_file_name(log_path);
 #endif

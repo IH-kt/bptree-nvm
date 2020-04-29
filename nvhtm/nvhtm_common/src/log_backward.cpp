@@ -16,6 +16,9 @@ extern void *pmem_pool;
 #ifdef USE_PMEM
 #include <xmmintrin.h>
 #endif
+#ifdef PARALLEL_CHECKPOINT
+#include <pthread.h>
+#endif
 
 using namespace std;
 
@@ -72,6 +75,195 @@ static int max_next_log(int *pos, int starts[], int ends[])
   return disc_max_pos;
 }
 
+#ifdef PARALLEL_CHECKPOINT
+// static NVLog_s *log_g = NULL;
+// NH_global_logsでいい
+static int *starts_g = NULL;
+static int *ends_g = NULL;
+static int *pos_g = NULL;
+static ts_s target_ts_g = 0;
+static int finished_threads = 0;
+
+void LOG_checkpoint_backward_start_thread(int thread_num) {
+    int i;
+    for (i = 0; i < thread_num; i++) {
+        sem_post(&cp_back_sem);
+    }
+}
+
+void LOG_checkpoint_backward_wait_for_thread(int thread_num) {
+    sem_wait(&cpthread_finish_sem);
+    finished_threads = 0;
+}
+
+int LOG_checkpoint_backward_parallel_apply(int thread_num, int starts[], int ends[], int pos[], ts_s target_ts) {
+  int i;
+  if (starts_g == NULL) {
+      starts_g = (int *)malloc(sizeof(int) * TM_nb_threads);
+  }
+  for (i = 0; i < TM_nb_threads; i++) {
+      starts_g[i] = starts[i];
+  }
+  if (ends_g == NULL) {
+      ends_g = (int *)malloc(sizeof(int) * TM_nb_threads);
+  }
+  for (i = 0; i < TM_nb_threads; i++) {
+      ends_g[i] = ends[i];
+  }
+  if (pos_g == NULL) {
+      pos_g = (int *)malloc(sizeof(int) * TM_nb_threads);
+  }
+  for (i = 0; i < TM_nb_threads; i++) {
+      pos_g[i] = pos[i];
+  }
+  target_ts_g = target_ts;
+  LOG_checkpoint_backward_start_thread(thread_num);
+  LOG_checkpoint_backward_wait_for_thread(thread_num);
+}
+
+// void LOG_checkpoint_backward_parallel_apply(intptr_t assigned_addr, intptr_t mask) {
+void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) {
+  int i, next_log, pos_local[TM_nb_threads];
+  NVLog_s *log;
+  ts_s target_ts_local = target_ts_g;
+  
+  unordered_map<GRANULE_TYPE*, CL_BLOCK> writes_map;
+  vector<GRANULE_TYPE*> writes_list;
+  writes_list.reserve(32000);
+  writes_map.reserve(32000);
+  sem_wait(&cp_back_sem);
+
+  for (i = 0; i < TM_nb_threads; i++) {
+      pos_local[i] = pos_g[i];
+  }
+
+#ifdef STAT
+  // clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
+
+  do {
+    next_log = max_next_log(pos_local, starts_g, ends_g);
+    i = next_log;
+    if (next_log == -1) {
+      break;
+    }
+
+    log = NH_global_logs[next_log];
+
+    target_ts_local = max_tx_after(log, starts_g[next_log], target_ts_local, &(pos_local[next_log])); // updates the ptr
+    // advances to the next write after the TS
+
+    // pos[next_log] must be between start and end
+    if (pos_local[next_log] != starts_g[next_log]) {
+      pos_local[next_log] = ptr_mod_log(pos_local[next_log], -1);
+    } else {
+      // ended
+      break;
+    }
+
+    // within the start/end boundary
+    // assert((starts_g[i] <= ends_g[i] && pos_local[i] >= starts_g[i] &&
+    //   pos[i] <= ends[i]) || (starts[i] > ends[i] &&
+    //     ((pos[i] >= 0 && pos[i] < starts[i]) ||
+    //     (pos[i] < LOG_local_state.size_of_log && pos[i] > ends[i]))
+    //   )
+    // );
+
+    NVLogEntry_s entry = log->ptr[pos_local[next_log]];
+    ts_s ts = entry_is_ts(entry);
+    while (!ts && pos_local[next_log] != starts_g[next_log]) {
+
+#ifdef STAT
+#ifdef WRITE_AMOUNT_NVHTM
+        // no_filter_write_amount += sizeof(entry.value);
+#endif
+#endif
+        // uses only the bits needed to identify the cache line
+        intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
+        auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
+        int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
+        char bit_map = 1 << val_idx;
+        if ((cl_addr >> 6) % number_of_threads == thread_id) {
+            if (it == writes_map.end()) {
+                // not found the write --> insert it
+                CL_BLOCK block;
+                block.bit_map = bit_map;
+                /*block.block[val_idx] = entry.value;*/
+                auto to_insert = make_pair((GRANULE_TYPE*)cl_addr, block);
+                writes_map.insert(to_insert);
+                writes_list.push_back((GRANULE_TYPE*)cl_addr);
+                MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+            } else {
+                if ( !(it->second.bit_map & bit_map) ) {
+                    // Need to write this word
+                    MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+                    it->second.bit_map |= bit_map;
+#ifdef FAW_CHECKPOINT
+                    if (it->second.bit_map == -1) {
+                        MN_flush(it->first, CACHE_LINE_SIZE, 1);
+                    }
+#endif
+                }
+            }
+
+            pos_local[next_log] = ptr_mod_log(pos_local[next_log], -1);
+            entry = log->ptr[pos_local[next_log]];
+            ts = entry_is_ts(entry);
+        }
+    }
+    // NH_nb_applied_txs++;
+  } while (next_log != -1);
+
+#ifdef STAT
+  // clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  // time_tmp = 0;
+  // time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  // time_tmp /= 1000000000;
+  // time_tmp += edt.tv_sec - stt.tv_sec;
+  // checkpoint_section_time[2] += time_tmp;
+  // clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
+
+  // flushes the changes
+  auto cl_iterator = writes_list.begin();
+  // auto cl_it_end = writes_list.end();
+  for (; cl_iterator != writes_list.end(); ++cl_iterator) {
+    // TODO: must write the cache line, now is just spinning
+    GRANULE_TYPE *addr = *cl_iterator;
+#ifdef USE_PMEM
+    MN_flush(addr, CACHE_LINE_SIZE, 1);
+#else
+    MN_flush(addr, CACHE_LINE_SIZE, 0);
+#endif
+  }
+#ifdef USE_PMEM
+  _mm_sfence();
+#endif
+
+#ifdef STAT
+  // clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  // time_tmp = 0;
+  // time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  // time_tmp /= 1000000000;
+  // time_tmp += edt.tv_sec - stt.tv_sec;
+  // checkpoint_section_time[3] += time_tmp;
+#endif
+  int res = __sync_fetch_and_add(&finished_threads, 1);
+  if (res == number_of_threads - 1) {
+      sem_post(&cpthread_finish_sem);
+  }
+}
+
+void *LOG_checkpoint_backward_thread_func(void *args) {
+  checkpoint_args_s *cp_args = (checkpoint_args_s *)args;
+  // printf("cp thread started: id = %d, num of threads = %d\n", cp_args->thread_id, cp_args->number_of_threads);
+  LOG_local_state.size_of_log = NH_global_logs[0]->size_of_log;
+  while (1) {
+    LOG_checkpoint_backward_thread_apply(cp_args->thread_id, cp_args->number_of_threads);
+  }
+}
+#endif
+
 // Apply log backwards and avoid repeated writes
 int LOG_checkpoint_backward_apply_one()
 {
@@ -89,24 +281,30 @@ int LOG_checkpoint_backward_apply_one()
   double time_tmp;
 #endif
 
+#ifndef PARALLEL_CHECKPOINT
   typedef struct _CL_BLOCK {
     char bit_map;
   } CL_BLOCK;
+#endif
 
   sem_wait(NH_chkp_sem);
   *NH_checkpointer_state = 1; // doing checkpoint
   __sync_synchronize();
 
+#ifndef PARALLEL_CHECKPOINT
   // stores the possible repeated writes
   unordered_map<GRANULE_TYPE*, CL_BLOCK> writes_map;
   vector<GRANULE_TYPE*> writes_list;
+#endif
 
 #ifdef STAT
   clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #endif
 
+#ifndef PARALLEL_CHECKPOINT
   writes_list.reserve(32000);
   writes_map.reserve(32000);
+#endif
 
 #ifdef STAT
   clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
@@ -283,6 +481,9 @@ int LOG_checkpoint_backward_apply_one()
 
   // ts_s time_ts1, time_ts2, time_ts3, time_ts4 = 0;
   // time_ts1 = rdtscp();
+#ifdef PARALLEL_CHECKPOINT
+  LOG_checkpoint_backward_parallel_apply(number_of_checkpoint_threads, starts, ends, pos, target_ts);
+#else
   writes_map.reserve(size_hashmap);
 
 #ifdef STAT
@@ -412,6 +613,7 @@ int LOG_checkpoint_backward_apply_one()
   time_tmp /= 1000000000;
   time_tmp += edt.tv_sec - stt.tv_sec;
   checkpoint_section_time[3] += time_tmp;
+#endif
 #endif
 
   // advance the pointers

@@ -49,6 +49,11 @@ ifeq ($(write_amount_nvhtm),1)
     MIN_NVM_FLAG	+= -DWRITE_AMOUNT_NVHTM
 endif
 
+ifeq ($(parallel_cp),1)
+    NVHTM_MAKE_ARGS += PARALLEL_CHECKPOINT=1
+    NVHTM_DEFINES   += -DPARALLEL_CHECKPOINT
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else
