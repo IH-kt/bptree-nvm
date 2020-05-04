@@ -833,11 +833,13 @@ static void fork_manager()
     LOG_init(TM_nb_threads, 1); // reattach
     // printf("Maximum supported CPUs: %i\n", MAX_PHYS_THRS);
 
+#ifndef PARALLEL_CHECKPOINT
     if (MAX_PHYS_THRS == 56) {
       set_affinity_at(27);
     } else {
       set_affinity_at(MAX_PHYS_THRS - 1);
     }
+#endif
 
     /*
     struct sigaction sa_sigsegv;

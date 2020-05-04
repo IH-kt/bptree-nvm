@@ -125,17 +125,25 @@ int LOG_checkpoint_backward_parallel_apply(int thread_num, int starts[], int end
 void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) {
   int i, next_log, pos_local[TM_nb_threads];
   NVLog_s *log;
-  ts_s target_ts_local = target_ts_g;
+  ts_s target_ts;
+#ifdef STAT
+  // struct timespec stt, edt;
+  // double time_tmp = 0;
+#endif
   
   unordered_map<GRANULE_TYPE*, CL_BLOCK> writes_map;
   vector<GRANULE_TYPE*> writes_list;
-  writes_list.reserve(32000);
-  writes_map.reserve(32000);
+  writes_list.reserve(32000/number_of_threads);
+  writes_map.reserve(32000/number_of_threads);
+  // unsigned int applied_entries = 0;
+  // printf("thread %d begins to wait\n", thread_id);
   sem_wait(&cp_back_sem);
+  // printf("thread %d started\n", thread_id);
 
   for (i = 0; i < TM_nb_threads; i++) {
       pos_local[i] = pos_g[i];
   }
+  target_ts = target_ts_g;
 
 #ifdef STAT
   // clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
@@ -150,7 +158,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
     log = NH_global_logs[next_log];
 
-    target_ts_local = max_tx_after(log, starts_g[next_log], target_ts_local, &(pos_local[next_log])); // updates the ptr
+    target_ts = max_tx_after(log, starts_g[next_log], target_ts, &(pos_local[next_log])); // updates the ptr
     // advances to the next write after the TS
 
     // pos[next_log] must be between start and end
@@ -183,7 +191,8 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
         auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
         int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
         char bit_map = 1 << val_idx;
-        if ((cl_addr >> 6) % number_of_threads == thread_id) {
+        if ((cl_addr >> 8) % number_of_threads == thread_id) {
+            // printf("processing: %p by thread%d\n", cl_addr, thread_id);
             if (it == writes_map.end()) {
                 // not found the write --> insert it
                 CL_BLOCK block;
@@ -193,11 +202,13 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                 writes_map.insert(to_insert);
                 writes_list.push_back((GRANULE_TYPE*)cl_addr);
                 MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+                // applied_entries++;
             } else {
                 if ( !(it->second.bit_map & bit_map) ) {
                     // Need to write this word
                     MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
                     it->second.bit_map |= bit_map;
+                    // applied_entries++;
 #ifdef FAW_CHECKPOINT
                     if (it->second.bit_map == -1) {
                         MN_flush(it->first, CACHE_LINE_SIZE, 1);
@@ -205,11 +216,11 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #endif
                 }
             }
-
-            pos_local[next_log] = ptr_mod_log(pos_local[next_log], -1);
-            entry = log->ptr[pos_local[next_log]];
-            ts = entry_is_ts(entry);
         }
+
+        pos_local[next_log] = ptr_mod_log(pos_local[next_log], -1);
+        entry = log->ptr[pos_local[next_log]];
+        ts = entry_is_ts(entry);
     }
     // NH_nb_applied_txs++;
   } while (next_log != -1);
@@ -220,7 +231,8 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   // time_tmp += (edt.tv_nsec - stt.tv_nsec);
   // time_tmp /= 1000000000;
   // time_tmp += edt.tv_sec - stt.tv_sec;
-  // checkpoint_section_time[2] += time_tmp;
+  // printf("write_time[%d] = %lf\n", thread_id, time_tmp);
+  // // checkpoint_section_time[2] += time_tmp;
   // clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #endif
 
@@ -246,8 +258,10 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   // time_tmp += (edt.tv_nsec - stt.tv_nsec);
   // time_tmp /= 1000000000;
   // time_tmp += edt.tv_sec - stt.tv_sec;
+  // printf("flush_time[%d] = %lf\n", thread_id, time_tmp);
   // checkpoint_section_time[3] += time_tmp;
 #endif
+  // printf("applied_entries: thread %d = %u\n", thread_id, applied_entries);
   int res = __sync_fetch_and_add(&finished_threads, 1);
   if (res == number_of_threads - 1) {
       sem_post(&cpthread_finish_sem);
