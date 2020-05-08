@@ -30,7 +30,6 @@ extern unsigned long filtered_write_amount;
 #endif
 #endif
 #ifdef PARALLEL_CHECKPOINT
-#ifdef PARALLEL_CHECKPOINT
   typedef struct checkpoint_args_s {
     // intptr_t mask;
     // intptr_t assigned_addr;
@@ -38,11 +37,13 @@ extern unsigned long filtered_write_amount;
     int thread_id;
     int number_of_threads;
   } checkpoint_args_s;
-#endif
 extern sem_t cp_back_sem;
 extern int number_of_checkpoint_threads;
 extern sem_t cpthread_finish_sem;
 extern checkpoint_args_s *cp_thread_args;
+#ifdef STAT
+extern double *parallel_checkpoint_section_time_thread;
+#endif
 #endif
 
 #endif /* EXTRA_GLOBALS_H */

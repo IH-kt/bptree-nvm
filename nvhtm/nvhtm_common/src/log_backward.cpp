@@ -127,8 +127,8 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   NVLog_s *log;
   ts_s target_ts;
 #ifdef STAT
-  // struct timespec stt, edt;
-  // double time_tmp = 0;
+  struct timespec stt, edt;
+  double time_tmp = 0;
 #endif
   
   unordered_map<GRANULE_TYPE*, CL_BLOCK> writes_map;
@@ -188,7 +188,18 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #endif
         // uses only the bits needed to identify the cache line
         intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
         auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  parallel_checkpoint_section_time_thread[thread_id] += time_tmp;
+#endif
         int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
         char bit_map = 1 << val_idx;
         if ((cl_addr >> 8) % number_of_threads == thread_id) {

@@ -915,6 +915,9 @@ void checkpoint_start_threads(int number_of_threads) {
         cp_thread_args[i].number_of_threads = number_of_threads;
         pthread_create(&tid, &attr, LOG_checkpoint_backward_thread_func, &cp_thread_args[i]);
     }
+#ifdef STAT
+    parallel_checkpoint_section_time_thread = (double *)malloc(sizeof(double) * number_of_threads);
+#endif
 #endif
 }
 
@@ -1122,6 +1125,11 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
     no_filter_write_amount = 0;
     filtered_write_amount = 0;
 #endif
+#ifdef PARALLEL_CHECKPOINT
+    for (i = 0; i < number_of_checkpoint_threads; i++) {
+        parallel_checkpoint_section_time_thread[i] = 0;
+    }
+#endif
     MN_thr_reset();
     MN_start_freq(1);
 #endif
@@ -1153,6 +1161,13 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
 #ifdef WRITE_AMOUNT_NVHTM
   ptr += sprintf(ptr, "[FORKED_MANAGER] write amount (no filtering) = %lu\n", no_filter_write_amount);
   ptr += sprintf(ptr, "[FORKED_MANAGER] write amount (filtering) = %lu\n", filtered_write_amount);
+#endif
+#ifdef PARALLEL_CHECKPOINT
+  double parallel_checkpoint_section_time = 0;
+  for (int i = 0; i < number_of_checkpoint_threads; i++) {
+      parallel_checkpoint_section_time += parallel_checkpoint_section_time_thread[i];
+  }
+  ptr += sprintf(ptr, "[FORKED_MANAGER] find time = %lf\n", parallel_checkpoint_section_time/number_of_checkpoint_threads);
 #endif
 #endif
   ptr += sprintf(ptr, "[logger] NB_spins=%lli NB_writes=%lli TIME_spins=%fms\n",

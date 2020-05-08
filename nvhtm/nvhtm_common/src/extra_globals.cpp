@@ -31,5 +31,8 @@ int number_of_checkpoint_threads = 1;
 sem_t cp_back_sem;
 sem_t cpthread_finish_sem;
 checkpoint_args_s *cp_thread_args;
+#ifdef STAT
+double *parallel_checkpoint_section_time_thread;
+#endif
 #endif
 // ####################################################
