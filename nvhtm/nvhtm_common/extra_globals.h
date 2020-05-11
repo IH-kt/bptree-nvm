@@ -42,7 +42,7 @@ extern int number_of_checkpoint_threads;
 extern sem_t cpthread_finish_sem;
 extern checkpoint_args_s *cp_thread_args;
 #ifdef STAT
-extern double *parallel_checkpoint_section_time_thread;
+extern double *parallel_checkpoint_section_time_thread[];
 #endif
 #endif
 

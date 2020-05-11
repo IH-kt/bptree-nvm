@@ -177,6 +177,9 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
     //   )
     // );
 
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
     NVLogEntry_s entry = log->ptr[pos_local[next_log]];
     ts_s ts = entry_is_ts(entry);
     while (!ts && pos_local[next_log] != starts_g[next_log]) {
@@ -188,18 +191,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #endif
         // uses only the bits needed to identify the cache line
         intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
-#ifdef STAT
-  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
-#endif
         auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
-#ifdef STAT
-  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
-  time_tmp = 0;
-  time_tmp += (edt.tv_nsec - stt.tv_nsec);
-  time_tmp /= 1000000000;
-  time_tmp += edt.tv_sec - stt.tv_sec;
-  parallel_checkpoint_section_time_thread[thread_id] += time_tmp;
-#endif
         int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
         char bit_map = 1 << val_idx;
         if ((cl_addr >> 8) % number_of_threads == thread_id) {
@@ -235,6 +227,15 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
     }
     // NH_nb_applied_txs++;
   } while (next_log != -1);
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  parallel_checkpoint_section_time_thread[0][thread_id] += time_tmp;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#endif
 
 #ifdef STAT
   // clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
@@ -271,6 +272,14 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   // time_tmp += edt.tv_sec - stt.tv_sec;
   // printf("flush_time[%d] = %lf\n", thread_id, time_tmp);
   // checkpoint_section_time[3] += time_tmp;
+#endif
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  parallel_checkpoint_section_time_thread[1][thread_id] += time_tmp;
 #endif
   // printf("applied_entries: thread %d = %u\n", thread_id, applied_entries);
   int res = __sync_fetch_and_add(&finished_threads, 1);
@@ -508,6 +517,14 @@ int LOG_checkpoint_backward_apply_one()
   // time_ts1 = rdtscp();
 #ifdef PARALLEL_CHECKPOINT
   LOG_checkpoint_backward_parallel_apply(number_of_checkpoint_threads, starts, ends, pos, target_ts);
+#ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  checkpoint_section_time[2] += time_tmp;
+#endif
 #else
   writes_map.reserve(size_hashmap);
 
