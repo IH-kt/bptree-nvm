@@ -34,5 +34,9 @@ checkpoint_args_s *cp_thread_args;
 #ifdef STAT
 double *parallel_checkpoint_section_time_thread[2];
 #endif
+#ifdef LOG_COMPRESSION
+CL_ALIGN NVLog_s **NH_global_compressed_logs;
+void* LOG_compressed_global_ptr;
+#endif
 #endif
 // ####################################################

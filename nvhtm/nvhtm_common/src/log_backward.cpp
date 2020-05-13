@@ -132,6 +132,10 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #endif
   
   unordered_map<GRANULE_TYPE*, CL_BLOCK> writes_map;
+#ifdef LOG_COMPRESSION
+  NVLog_s *compressed_log = NH_global_compressed_logs[thread_id];
+  int compressed_log_end = 0;
+#endif
   vector<GRANULE_TYPE*> writes_list;
   writes_list.reserve(32000/number_of_threads);
   writes_map.reserve(32000/number_of_threads);
@@ -204,12 +208,24 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                 auto to_insert = make_pair((GRANULE_TYPE*)cl_addr, block);
                 writes_map.insert(to_insert);
                 writes_list.push_back((GRANULE_TYPE*)cl_addr);
+#ifdef LOG_COMPRESSION
+                MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
+                MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1);
+                compressed_log_end++;
+#else
                 MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+#endif
                 // applied_entries++;
             } else {
                 if ( !(it->second.bit_map & bit_map) ) {
+#ifdef LOG_COMPRESSION
+                    MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
+                    MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1); // flushタイミングは要検討
+                    compressed_log_end++;
+#else
                     // Need to write this word
                     MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+#endif
                     it->second.bit_map |= bit_map;
                     // applied_entries++;
 #ifdef FAW_CHECKPOINT
@@ -237,17 +253,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #endif
 
-#ifdef STAT
-  // clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
-  // time_tmp = 0;
-  // time_tmp += (edt.tv_nsec - stt.tv_nsec);
-  // time_tmp /= 1000000000;
-  // time_tmp += edt.tv_sec - stt.tv_sec;
-  // printf("write_time[%d] = %lf\n", thread_id, time_tmp);
-  // // checkpoint_section_time[2] += time_tmp;
-  // clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
-#endif
-
+#ifndef LOG_COMPRESSION
   // flushes the changes
   auto cl_iterator = writes_list.begin();
   // auto cl_it_end = writes_list.end();
@@ -263,16 +269,14 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #ifdef USE_PMEM
   _mm_sfence();
 #endif
-
-#ifdef STAT
-  // clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
-  // time_tmp = 0;
-  // time_tmp += (edt.tv_nsec - stt.tv_nsec);
-  // time_tmp /= 1000000000;
-  // time_tmp += edt.tv_sec - stt.tv_sec;
-  // printf("flush_time[%d] = %lf\n", thread_id, time_tmp);
-  // checkpoint_section_time[3] += time_tmp;
+#else
+#ifdef USE_PMEM
+  _mm_sfence();
 #endif
+  MN_write(&compressed_log->end, &compressed_log_end, sizeof(compressed_log_end), 1);
+  MN_flush(&compressed_log->end, sizeof(compressed_log_end), 1);
+#endif
+
 #ifdef STAT
   clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
   time_tmp = 0;
@@ -286,6 +290,30 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   if (res == number_of_threads - 1) {
       sem_post(&cpthread_finish_sem);
   }
+
+#ifdef LOG_COMPRESSION
+  int applying_log = 0;
+  while (applying_log < compressed_log_end) {
+      NVLogEntry_s *entry = &compressed_log->ptr[applying_log];
+      MN_write(entry->addr, &(entry->value), sizeof(GRANULE_TYPE), 1);
+      applying_log++;
+  }
+  // flushes the changes
+  auto cl_iterator = writes_list.begin();
+  // auto cl_it_end = writes_list.end();
+  for (; cl_iterator != writes_list.end(); ++cl_iterator) {
+    // TODO: must write the cache line, now is just spinning
+    GRANULE_TYPE *addr = *cl_iterator;
+#ifdef USE_PMEM
+    MN_flush(addr, CACHE_LINE_SIZE, 1);
+#else
+    MN_flush(addr, CACHE_LINE_SIZE, 0);
+#endif
+  }
+#ifdef USE_PMEM
+  _mm_sfence();
+#endif
+#endif
 }
 
 void *LOG_checkpoint_backward_thread_func(void *args) {

@@ -123,10 +123,37 @@ void LOG_init(int nb_threads, int fresh)
     ALLOC_FN(NH_global_logs, NVLog_s*, CACHE_LINE_SIZE * nb_threads);
 
 #ifdef USE_PMEM
+#  ifdef LOG_COMPRESSION
+#    if DO_CHECKPOINT == 1 || DO_CHECKPOINT == 5
+    key_t key = KEY_LOGS;
+
+    int shmid = shmget(key, size_of_logs, 0777 | IPC_CREAT);
+    // first detach, reallocation may fail
+    // shmctl(shmid, IPC_RMID, NULL);
+    // shmid = shmget(key, NVMHTM_LOG_SIZE, 0777 | IPC_CREAT);
+
+    LOG_global_ptr = shmat(shmid, (void *)0, 0);
+    memset(LOG_global_ptr, 0, size_of_logs);
+
+    if (shmid < 0) {
+      perror("shmget");
+    }
+
+    LOG_global_ptr = shmat(shmid, (void *)0, 0);
+    fresh = 1; // this is not init to 0
+
+    if (LOG_global_ptr < 0) {
+      perror("shmat");
+    }
+#    else
+#      error not implemented
+#    endif
+#  else
     LOG_global_ptr = ALLOC_MEM(log_file_name, size_of_logs);
+#  endif
     memset(LOG_global_ptr, 0, size_of_logs);
     fresh = 1; // this is not init to 0
-#ifdef STAT
+#  ifdef STAT
     size_t size_of_struct = sizeof(NVLog_s);
     size_t size_of_log = NVMHTM_LOG_SIZE - size_of_struct;
     double max_nb_entries = (double)size_of_log / (double)sizeof(NVLogEntry_s);
@@ -137,7 +164,7 @@ void LOG_init(int nb_threads, int fresh)
     fprintf(stderr, "number of entry = %lu\n", new_size_log);
 
     NH_nb_checkpoints = 0;
-#endif
+#  endif
 #else
 #if DO_CHECKPOINT == 1 || DO_CHECKPOINT == 5
     key_t key = KEY_LOGS;
@@ -176,6 +203,37 @@ void LOG_init(int nb_threads, int fresh)
   #if defined(SORT_ALG) && SORT_ALG == 4
   LOG_SOR_init(cp_instance, NH_global_logs, nb_threads);
   #endif
+
+#ifdef LOG_COMPRESSION
+  if (NH_global_compressed_logs == NULL) {
+    ALLOC_FN(NH_global_compressed_logs, NVLog_s*, CACHE_LINE_SIZE * number_of_checkpoint_threads);
+
+#ifdef USE_PMEM
+    LOG_compressed_global_ptr = ALLOC_MEM(log_file_name, size_of_logs);
+    memset(LOG_compressed_global_ptr, 0, size_of_logs);
+  }
+  LOG_attach_compressed(LOG_compressed_global_ptr);
+  for (i = 0; i < number_of_checkpoint_threads; ++i) {
+    NVLog_s *new_log = NH_global_compressed_logs[i];
+    init_log(new_log, i, fresh);
+  }
+#else
+#  error LOG_COMPRESSION used without USE_PMEM
+#endif
+#endif
+}
+
+void LOG_attach_compressed() {
+  char *aux_ptr;
+  int i;
+  size_t size_of_struct = sizeof(NVLog_s);
+  size_t size_of_log = NVMHTM_LOG_SIZE /* / TM_nb_threads */;
+  aux_ptr = (char*) LOG_compressed_global_ptr;
+  for (i = 0; i < TM_nb_threads; ++i) {
+    NVLog_s *new_log = LOG_init_1thread(aux_ptr, size_of_log);
+    aux_ptr += size_of_log;
+    NH_global_compressed_logs[i] = new_log;
+  }
 }
 
 void LOG_attach_shared_mem() {

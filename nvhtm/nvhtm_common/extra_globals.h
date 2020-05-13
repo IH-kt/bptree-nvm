@@ -44,6 +44,10 @@ extern checkpoint_args_s *cp_thread_args;
 #ifdef STAT
 extern double *parallel_checkpoint_section_time_thread[];
 #endif
+#ifdef LOG_COMPRESSION
+extern NVLog_s **NH_global_compressed_logs;
+extern void* LOG_compressed_global_ptr;
+#endif
 #endif
 
 #endif /* EXTRA_GLOBALS_H */
