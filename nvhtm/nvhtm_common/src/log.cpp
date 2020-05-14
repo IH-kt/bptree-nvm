@@ -132,7 +132,13 @@ void LOG_init(int nb_threads, int fresh)
     // shmctl(shmid, IPC_RMID, NULL);
     // shmid = shmget(key, NVMHTM_LOG_SIZE, 0777 | IPC_CREAT);
 
+    if (shmid < 0) {
+      perror("shmget");
+    }
     LOG_global_ptr = shmat(shmid, (void *)0, 0);
+    if ((intptr_t)LOG_global_ptr == -1) {
+      perror("shmat");
+    }
     memset(LOG_global_ptr, 0, size_of_logs);
 
     if (shmid < 0) {
@@ -212,7 +218,7 @@ void LOG_init(int nb_threads, int fresh)
     LOG_compressed_global_ptr = ALLOC_MEM(log_file_name, size_of_logs);
     memset(LOG_compressed_global_ptr, 0, size_of_logs);
   }
-  LOG_attach_compressed(LOG_compressed_global_ptr);
+  LOG_attach_compressed();
   for (i = 0; i < number_of_checkpoint_threads; ++i) {
     NVLog_s *new_log = NH_global_compressed_logs[i];
     init_log(new_log, i, fresh);
@@ -224,16 +230,18 @@ void LOG_init(int nb_threads, int fresh)
 }
 
 void LOG_attach_compressed() {
+#ifdef LOG_COMPRESSION
   char *aux_ptr;
   int i;
   size_t size_of_struct = sizeof(NVLog_s);
   size_t size_of_log = NVMHTM_LOG_SIZE /* / TM_nb_threads */;
   aux_ptr = (char*) LOG_compressed_global_ptr;
-  for (i = 0; i < TM_nb_threads; ++i) {
+  for (i = 0; i < number_of_checkpoint_threads; ++i) {
     NVLog_s *new_log = LOG_init_1thread(aux_ptr, size_of_log);
     aux_ptr += size_of_log;
     NH_global_compressed_logs[i] = new_log;
   }
+#endif
 }
 
 void LOG_attach_shared_mem() {
@@ -477,7 +485,9 @@ static void init_log(NVLog_s *new_log, int tid, int fresh)
   // printf("Init log %i\n", new_log->end);
   // TODO: loads a bit of the log to cache
 
+#ifndef LOG_COMPRESSION
   NH_global_logs[tid] = new_log;
+#endif
 }
 
 void NH_reset() {

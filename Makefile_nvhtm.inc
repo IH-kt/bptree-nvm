@@ -54,6 +54,11 @@ ifeq ($(parallel_cp),1)
     NVHTM_DEFINES   += -DPARALLEL_CHECKPOINT
 endif
 
+ifeq ($(log_compression),1)
+    NVHTM_MAKE_ARGS += LOG_COMPRESSION=1
+    NVHTM_DEFINES   += -DLOG_COMPRESSION
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

@@ -245,6 +245,9 @@ extern "C"
 	int LOG_has_new_writes(int tid);
 	NVLog_s *LOG_get(int tid);
 
+#ifdef LOG_COMPRESSION
+    void LOG_attach_compressed();
+#endif
 	void LOG_attach_shared_mem();
 
 #ifdef USE_PMEM
