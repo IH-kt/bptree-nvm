@@ -195,10 +195,10 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #endif
         // uses only the bits needed to identify the cache line
         intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
-        auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
         int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
         char bit_map = 1 << val_idx;
         if ((cl_addr >> 8) % number_of_threads == thread_id) {
+            auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
             // printf("processing: %p by thread%d\n", cl_addr, thread_id);
             if (it == writes_map.end()) {
                 // not found the write --> insert it
@@ -212,6 +212,10 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                 MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
                 MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1);
                 compressed_log_end++;
+                if (compressed_log_end >= compressed_log->size_of_log) {
+                    fprintf(stderr, "log compression:too much entries\n");
+                    exit(1);
+                }
 #else
                 MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
 #endif
@@ -222,6 +226,10 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                     MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
                     MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1); // flushタイミングは要検討
                     compressed_log_end++;
+                    if (compressed_log_end >= compressed_log->size_of_log) {
+                        fprintf(stderr, "log compression:too much entries\n");
+                        exit(1);
+                    }
 #else
                     // Need to write this word
                     MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
