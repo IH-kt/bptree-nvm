@@ -141,3 +141,7 @@ endif
 ifeq ($(LOG_COMPRESSION), 1)
 DEFINES += -DLOG_COMPRESSION
 endif
+
+ifeq ($(MEASURE_PART_CP), 1)
+DEFINES += -DMEASURE_PART_CP
+endif

@@ -150,10 +150,10 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   target_ts = target_ts_g;
 
 #ifdef STAT
-  // clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #endif
 
-#ifndef MEASURE_PART_CP_PARA
+#ifndef MEASURE_PART_CP
   do {
     next_log = max_next_log(pos_local, starts_g, ends_g);
     i = next_log;
@@ -183,7 +183,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
     // );
 
 #  ifdef STAT
-  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+   // clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #  endif
     NVLogEntry_s entry = log->ptr[pos_local[next_log]];
     ts_s ts = entry_is_ts(entry);
@@ -262,15 +262,112 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #  endif
 #else
-#  ifdef STAT
-  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
-#  endif
-  // ----------------------------------read only---------------------------------------------------------
+  // ----------------------------------normal---------------------------------------------------------
   ts_s target_ts_tmp = target_ts;
   int pos_local_tmp[TM_nb_threads];
   for (int pos_i = 0; pos_i < TM_nb_threads; pos_i++) {
       pos_local_tmp[pos_i] = pos_local[pos_i];
   }
+#  ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#  endif
+  do {
+    next_log = max_next_log(pos_local_tmp, starts_g, ends_g);
+    i = next_log;
+    if (next_log == -1) {
+      break;
+    }
+
+    log = NH_global_logs[next_log];
+
+    target_ts_tmp = max_tx_after(log, starts_g[next_log], target_ts_tmp, &(pos_local_tmp[next_log])); // updates the ptr
+    // advances to the next write after the TS
+
+    // pos[next_log] must be between start and end
+    if (pos_local_tmp[next_log] != starts_g[next_log]) {
+      pos_local_tmp[next_log] = ptr_mod_log(pos_local_tmp[next_log], -1);
+    } else {
+      // ended
+      break;
+    }
+
+    NVLogEntry_s entry = log->ptr[pos_local_tmp[next_log]];
+    ts_s ts = entry_is_ts(entry);
+    while (!ts && pos_local_tmp[next_log] != starts_g[next_log]) {
+
+        // uses only the bits needed to identify the cache line
+        intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
+        int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
+        char bit_map = 1 << val_idx;
+        if ((cl_addr >> 8) % number_of_threads == thread_id) {
+            auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
+            if (it == writes_map.end()) {
+                // not found the write --> insert it
+                CL_BLOCK block;
+                block.bit_map = bit_map;
+                /*block.block[val_idx] = entry.value;*/
+                auto to_insert = make_pair((GRANULE_TYPE*)cl_addr, block);
+                writes_map.insert(to_insert);
+                writes_list.push_back((GRANULE_TYPE*)cl_addr);
+#  ifdef LOG_COMPRESSION
+                MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
+                MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1);
+                compressed_log_end++;
+                if (compressed_log_end >= compressed_log->size_of_log) {
+                    fprintf(stderr, "log compression:too much entries\n");
+                    exit(1);
+                }
+#  else
+                MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+#  endif
+                // applied_entries++;
+            } else {
+                if ( !(it->second.bit_map & bit_map) ) {
+#  ifdef LOG_COMPRESSION
+                    MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
+                    MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1); // flushタイミングは要検討
+                    compressed_log_end++;
+                    if (compressed_log_end >= compressed_log->size_of_log) {
+                        fprintf(stderr, "log compression:too much entries\n");
+                        exit(1);
+                    }
+#  else
+                    // Need to write this word
+                    MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+#  endif
+                    it->second.bit_map |= bit_map;
+                    // applied_entries++;
+#  ifdef FAW_CHECKPOINT
+                    if (it->second.bit_map == -1) {
+                        MN_flush(it->first, CACHE_LINE_SIZE, 1);
+                    }
+#  endif
+                }
+            }
+        }
+
+        pos_local_tmp[next_log] = ptr_mod_log(pos_local_tmp[next_log], -1);
+        entry = log->ptr[pos_local_tmp[next_log]];
+        ts = entry_is_ts(entry);
+    }
+    // NH_nb_applied_txs++;
+  } while (next_log != -1);
+#  ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  parallel_checkpoint_section_time_thread[0][thread_id] += time_tmp;
+#  endif
+  // ----------------------------------read only---------------------------------------------------------
+  target_ts_tmp = target_ts;
+  for (int pos_i = 0; pos_i < TM_nb_threads; pos_i++) {
+      pos_local_tmp[pos_i] = pos_local[pos_i];
+  }
+#  ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
+#  endif
   do {
     next_log = max_next_log(pos_local_tmp, starts_g, ends_g);
     i = next_log;
@@ -310,7 +407,6 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #  endif
   // ----------------------------------no write---------------------------------------------------------
   target_ts_tmp = target_ts;
-  pos_local_tmp[TM_nb_threads];
   for (int pos_i = 0; pos_i < TM_nb_threads; pos_i++) {
       pos_local_tmp[pos_i] = pos_local[pos_i];
   }
@@ -375,97 +471,6 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   time_tmp /= 1000000000;
   time_tmp += edt.tv_sec - stt.tv_sec;
   parallel_checkpoint_section_time_thread[3][thread_id] += time_tmp;
-  clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
-#  endif
-  // ----------------------------------normal---------------------------------------------------------
-  do {
-    next_log = max_next_log(pos_local, starts_g, ends_g);
-    i = next_log;
-    if (next_log == -1) {
-      break;
-    }
-
-    log = NH_global_logs[next_log];
-
-    target_ts = max_tx_after(log, starts_g[next_log], target_ts, &(pos_local[next_log])); // updates the ptr
-    // advances to the next write after the TS
-
-    // pos[next_log] must be between start and end
-    if (pos_local[next_log] != starts_g[next_log]) {
-      pos_local[next_log] = ptr_mod_log(pos_local[next_log], -1);
-    } else {
-      // ended
-      break;
-    }
-
-    NVLogEntry_s entry = log->ptr[pos_local[next_log]];
-    ts_s ts = entry_is_ts(entry);
-    while (!ts && pos_local[next_log] != starts_g[next_log]) {
-
-        // uses only the bits needed to identify the cache line
-        intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
-        int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
-        char bit_map = 1 << val_idx;
-        if ((cl_addr >> 8) % number_of_threads == thread_id) {
-            auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
-            if (it == writes_map.end()) {
-                // not found the write --> insert it
-                CL_BLOCK block;
-                block.bit_map = bit_map;
-                /*block.block[val_idx] = entry.value;*/
-                auto to_insert = make_pair((GRANULE_TYPE*)cl_addr, block);
-                writes_map.insert(to_insert);
-                writes_list.push_back((GRANULE_TYPE*)cl_addr);
-#  ifdef LOG_COMPRESSION
-                MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
-                MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1);
-                compressed_log_end++;
-                if (compressed_log_end >= compressed_log->size_of_log) {
-                    fprintf(stderr, "log compression:too much entries\n");
-                    exit(1);
-                }
-#  else
-                MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
-#  endif
-                // applied_entries++;
-            } else {
-                if ( !(it->second.bit_map & bit_map) ) {
-#  ifdef LOG_COMPRESSION
-                    MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
-                    MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1); // flushタイミングは要検討
-                    compressed_log_end++;
-                    if (compressed_log_end >= compressed_log->size_of_log) {
-                        fprintf(stderr, "log compression:too much entries\n");
-                        exit(1);
-                    }
-#  else
-                    // Need to write this word
-                    MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
-#  endif
-                    it->second.bit_map |= bit_map;
-                    // applied_entries++;
-#  ifdef FAW_CHECKPOINT
-                    if (it->second.bit_map == -1) {
-                        MN_flush(it->first, CACHE_LINE_SIZE, 1);
-                    }
-#  endif
-                }
-            }
-        }
-
-        pos_local[next_log] = ptr_mod_log(pos_local[next_log], -1);
-        entry = log->ptr[pos_local[next_log]];
-        ts = entry_is_ts(entry);
-    }
-    // NH_nb_applied_txs++;
-  } while (next_log != -1);
-#  ifdef STAT
-  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
-  time_tmp = 0;
-  time_tmp += (edt.tv_nsec - stt.tv_nsec);
-  time_tmp /= 1000000000;
-  time_tmp += edt.tv_sec - stt.tv_sec;
-  parallel_checkpoint_section_time_thread[0][thread_id] += time_tmp;
   clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #  endif
 #endif

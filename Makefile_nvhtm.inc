@@ -59,6 +59,11 @@ ifeq ($(log_compression),1)
     NVHTM_DEFINES   += -DLOG_COMPRESSION
 endif
 
+ifeq ($(measure_cp),1)
+    NVHTM_MAKE_ARGS += MEASURE_PART_CP=1
+    NVHTM_DEFINES   += -DMEASURE_PART_CP
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

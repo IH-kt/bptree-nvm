@@ -31,16 +31,16 @@ int number_of_checkpoint_threads = 1;
 sem_t cp_back_sem;
 sem_t cpthread_finish_sem;
 checkpoint_args_s *cp_thread_args;
-#ifdef STAT
-#ifdef MEASURE_PART_CP_PARA
+#  ifdef STAT
+#    ifdef MEASURE_PART_CP
 double *parallel_checkpoint_section_time_thread[4];
-#else
+#    else
 double *parallel_checkpoint_section_time_thread[2];
-#endif
-#endif
-#ifdef LOG_COMPRESSION
+#    endif
+#  endif
+#  ifdef LOG_COMPRESSION
 CL_ALIGN NVLog_s **NH_global_compressed_logs;
 void* LOG_compressed_global_ptr;
-#endif
+#  endif
 #endif
 // ####################################################
