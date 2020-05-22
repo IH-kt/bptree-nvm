@@ -917,7 +917,7 @@ void checkpoint_start_threads(int number_of_threads) {
     }
 #ifdef STAT
 #ifdef CHECK_TASK_DISTRIBUTION
-    applied_entries = (int *)malloc(sizeof(int) * number_of_threads);
+    applied_entries = (unsigned int *)malloc(sizeof(int) * number_of_threads);
 #endif
     for (i = 0; i < CPTIME_NUM; i++) {
         parallel_checkpoint_section_time_thread[i] = (double *)malloc(sizeof(double) * number_of_threads);
