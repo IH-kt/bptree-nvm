@@ -64,6 +64,11 @@ ifeq ($(measure_cp),1)
     NVHTM_DEFINES   += -DMEASURE_PART_CP
 endif
 
+ifeq ($(task_dist),1)
+    NVHTM_MAKE_ARGS += CHECK_TASK_DISTRIBUTION=1
+    NVHTM_DEFINES   += -DCHECK_TASK_DISTRIBUTION
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

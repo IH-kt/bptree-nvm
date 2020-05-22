@@ -42,6 +42,14 @@ extern int number_of_checkpoint_threads;
 extern sem_t cpthread_finish_sem;
 extern checkpoint_args_s *cp_thread_args;
 #ifdef STAT
+#  ifdef CHECK_TASK_DISTRIBUTION
+extern unsigned int *applied_entries;
+#  endif
+#    ifdef MEASURE_PART_CP
+#      define CPTIME_NUM 4
+#    else
+#      define CPTIME_NUM 2
+#    endif
 extern double *parallel_checkpoint_section_time_thread[];
 #endif
 #ifdef LOG_COMPRESSION

@@ -32,12 +32,11 @@ sem_t cp_back_sem;
 sem_t cpthread_finish_sem;
 checkpoint_args_s *cp_thread_args;
 #  ifdef STAT
-#    ifdef MEASURE_PART_CP
-double *parallel_checkpoint_section_time_thread[4];
-#    else
-double *parallel_checkpoint_section_time_thread[2];
+#    ifdef CHECK_TASK_DISTRIBUTION
+unsigned int *applied_entries;
 #    endif
 #  endif
+double *parallel_checkpoint_section_time_thread[CPTIME_NUM];
 #  ifdef LOG_COMPRESSION
 CL_ALIGN NVLog_s **NH_global_compressed_logs;
 void* LOG_compressed_global_ptr;

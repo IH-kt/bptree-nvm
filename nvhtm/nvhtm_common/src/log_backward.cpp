@@ -139,7 +139,6 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   vector<GRANULE_TYPE*> writes_list;
   writes_list.reserve(32000/number_of_threads);
   writes_map.reserve(32000/number_of_threads);
-  // unsigned int applied_entries = 0;
   // printf("thread %d begins to wait\n", thread_id);
   sem_wait(&cp_back_sem);
   // printf("thread %d started\n", thread_id);
@@ -199,6 +198,9 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
         int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
         char bit_map = 1 << val_idx;
         if ((cl_addr >> 8) % number_of_threads == thread_id) {
+#ifdef CHECK_TASK_DISTRIBUTION
+            applied_entries[thread_id]++;
+#endif
             auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
             // printf("processing: %p by thread%d\n", cl_addr, thread_id);
             if (it == writes_map.end()) {
@@ -220,7 +222,6 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #  else
                 MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
 #  endif
-                // applied_entries++;
             } else {
                 if ( !(it->second.bit_map & bit_map) ) {
 #  ifdef LOG_COMPRESSION
@@ -236,7 +237,6 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                     MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
 #  endif
                     it->second.bit_map |= bit_map;
-                    // applied_entries++;
 #  ifdef FAW_CHECKPOINT
                     if (it->second.bit_map == -1) {
                         MN_flush(it->first, CACHE_LINE_SIZE, 1);
@@ -320,7 +320,6 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #  else
                 MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
 #  endif
-                // applied_entries++;
             } else {
                 if ( !(it->second.bit_map & bit_map) ) {
 #  ifdef LOG_COMPRESSION
@@ -336,7 +335,6 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                     MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
 #  endif
                     it->second.bit_map |= bit_map;
-                    // applied_entries++;
 #  ifdef FAW_CHECKPOINT
                     if (it->second.bit_map == -1) {
                         MN_flush(it->first, CACHE_LINE_SIZE, 1);
@@ -500,14 +498,15 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #endif
 
 #ifdef STAT
+#  ifndef LOG_COMPRESSION
   clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
   time_tmp = 0;
   time_tmp += (edt.tv_nsec - stt.tv_nsec);
   time_tmp /= 1000000000;
   time_tmp += edt.tv_sec - stt.tv_sec;
   parallel_checkpoint_section_time_thread[1][thread_id] += time_tmp;
+#  endif
 #endif
-  // printf("applied_entries: thread %d = %u\n", thread_id, applied_entries);
   int res = __sync_fetch_and_add(&finished_threads, 1);
   if (res == number_of_threads - 1) {
       sem_post(&cpthread_finish_sem);
@@ -532,6 +531,14 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
     MN_flush(addr, CACHE_LINE_SIZE, 0);
 #endif
   }
+#  ifdef STAT
+  clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
+  time_tmp = 0;
+  time_tmp += (edt.tv_nsec - stt.tv_nsec);
+  time_tmp /= 1000000000;
+  time_tmp += edt.tv_sec - stt.tv_sec;
+  parallel_checkpoint_section_time_thread[1][thread_id] += time_tmp;
+#  endif
 #ifdef USE_PMEM
   _mm_sfence();
 #endif

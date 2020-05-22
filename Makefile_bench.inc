@@ -117,8 +117,31 @@ bench_all:
 	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/vmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree thrmax=3 type=nvhtm log_compression
 	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
-	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree thrmax=3 type=nvhtm measure_cp
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree thrmax=3 type=nvhtm measure_cp
+	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=nvhtm measure_cp_log_comp
 	mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
+
+measure_cp_log_comp:
+	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 thrmax=1 BENCH_DATE=$(BENCH_DATE) parallel_cp=1 cpthrstart=1 cpthrmax=0 measure_cp=1 log_compression=1 measure_cp_thr
+
+measure_cp_log_comp_thr: bench_cp_dir
+	make tree=$(tree) type=$(type) dist-clean
+	make tree=$(tree) type=$(type) db=$(db) logsize=$(LOGSZ) stats=1 reduce=$(reduce) parallel_cp=$(parallel_cp) measure_cp=$(measure_cp) log_compression=$(log_compression) -j all
+	cp $(BENCH_SCRIPT_DIR)/base_operation_cp.py $(BUILD_DIR)
+	for cpthr in $(CPTLST); do\
+		(cd build; python3 base_operation_cp.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log "$$cpthr");\
+		mkdir -p $(BENCH_CP_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/cpthr_"$$cpthr";\
+		for exe in $(BASE_BENCH_EXE); do\
+			for thr in $(THRLST); do\
+				for trial in $(TRIALS); do\
+					mv $(BUILD_DIR)/"$$exe".thr."$$thr".trial."$$trial".dmp $(BENCH_CP_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/cpthr_"$$cpthr";\
+				done;\
+			done;\
+		done;\
+		mv $(BUILD_DIR)/result_raw.npy $(BENCH_CP_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/cpthr_"$$cpthr";\
+		mv $(BUILD_DIR)/result.csv $(BENCH_CP_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/cpthr_"$$cpthr";\
+	done
 
 measure_cp:
 	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) parallel_cp=1 cpthrstart=1 cpthrmax=0 measure_cp=1 measure_cp_thr
