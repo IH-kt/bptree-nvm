@@ -1180,9 +1180,9 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
 #  endif
 #  ifdef PARALLEL_CHECKPOINT
 #    ifdef CHECK_TASK_DISTRIBUTION
-  for (int i = 0; i < number_of_checkpoint_threads; i++) {
-      ptr += sprintf(ptr, "[FORKED_MANAGER] applied entries [%d] = %d\n", i, applied_entries[i]);
-  }
+  // for (int i = 0; i < number_of_checkpoint_threads; i++) {
+  //     ptr += sprintf(ptr, "[FORKED_MANAGER] applied entries [%d] = %d\n", i, applied_entries[i]);
+  // }
 #    endif
   double parallel_checkpoint_section_time[CPTIME_NUM];
   for (int j = 0; j < CPTIME_NUM; j++) {
