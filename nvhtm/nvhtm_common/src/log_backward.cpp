@@ -94,6 +94,21 @@ void LOG_checkpoint_backward_start_thread(int thread_num) {
 void LOG_checkpoint_backward_wait_for_thread(int thread_num) {
     sem_wait(&cpthread_finish_sem);
     finished_threads = 0;
+#ifdef CHECK_TASK_DISTRIBUTION
+    double average = 0;
+    double variance = 0;
+    for (int i = 0; i < len; i++) {
+        average += nums[i];
+    }
+    average /= len;
+    double tmp;
+    for (int i = 0; i < len; i++) {
+        tmp = nums[i] - average;
+        variance +=  tmp * tmp;
+    }
+    variance /= len;
+    printf("TASK DISTRIBUTION: average = %lf, variance = %lf\n", average, variance);
+#endif
 }
 
 int LOG_checkpoint_backward_parallel_apply(int thread_num, int starts[], int ends[], int pos[], ts_s target_ts) {
