@@ -97,17 +97,21 @@ void LOG_checkpoint_backward_wait_for_thread(int thread_num) {
 #ifdef CHECK_TASK_DISTRIBUTION
     double average = 0;
     double variance = 0;
-    for (int i = 0; i < len; i++) {
-        average += nums[i];
+    for (int i = 0; i < thread_num; i++) {
+        average += applied_entries[i];
+        fprintf(stderr, "applied_entries[%d] = %u\n", i, applied_entries[i]);
     }
-    average /= len;
+    average /= thread_num;
     double tmp;
-    for (int i = 0; i < len; i++) {
-        tmp = nums[i] - average;
+    for (int i = 0; i < thread_num; i++) {
+        tmp = applied_entries[i] - average;
         variance +=  tmp * tmp;
     }
-    variance /= len;
-    printf("TASK DISTRIBUTION: average = %lf, variance = %lf\n", average, variance);
+    variance /= thread_num;
+    fprintf(stderr, "TASK DISTRIBUTION: average = %lf, variance = %lf\n", average, variance);
+    for (int i = 0; i < thread_num; i++) {
+        applied_entries[i] = 0;
+    }
 #endif
 }
 
