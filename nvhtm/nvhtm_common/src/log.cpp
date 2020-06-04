@@ -172,12 +172,23 @@ void LOG_init(int nb_threads, int fresh)
 #if DO_CHECKPOINT == 1 || DO_CHECKPOINT == 5
     key_t key = KEY_LOGS;
 
-    int shmid = shmget(key, size_of_logs, 0777 | IPC_CREAT);
+    int shmid = shmget(key, 0, 0777 | IPC_CREAT);
     // first detach, reallocation may fail
     // shmctl(shmid, IPC_RMID, NULL);
     // shmid = shmget(key, NVMHTM_LOG_SIZE, 0777 | IPC_CREAT);
+    if (shmid < 0) {
+      perror("shmget");
+    }
+    shmctl(shmid, IPC_RMID, NULL);
+    shmid = shmget(key, size_of_logs, 0777 | IPC_CREAT);
 
+    if (shmid < 0) {
+      perror("shmget");
+    }
     LOG_global_ptr = shmat(shmid, (void *)0, 0);
+    if (LOG_global_ptr < 0) {
+      perror("shmat");
+    }
     memset(LOG_global_ptr, 0, size_of_logs);
 
     if (shmid < 0) {
