@@ -57,6 +57,7 @@ tree一覧
 - dummy_min-nvm：nvm-emulationのうちオリジナルと差分のあるファイルたち
 - dummy_min-nvm_wfreq：基本↑と同じだが書き込み頻度を測るための処理を加えたもの（古い）
 - res：実験結果たち
+- stamp_nvhtm：nvhtm-selfcontainedからコピーして改造したもの
 
 ## 未mergeブランチ一覧
 
