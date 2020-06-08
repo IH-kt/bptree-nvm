@@ -59,7 +59,23 @@
 
 // do not track private memory allocation
 #ifdef USE_PMEM
-#  define P_MALLOC(size)                NH_alloc(DATA_NAME, size)
+#  define INIT_SIZE 1024 * 1024 * 1024
+#  ifndef MALLOC_GLOBAL_VAR
+#    define MALLOC_GLOBAL_VAR
+void *stamp_mapped_file_pointer = NULL;
+size_t stamp_used_bytes = 0;
+#  else
+extern void *stamp_mapped_file_pointer;
+extern size_t stamp_used_bytes;
+#  endif
+#  define P_MALLOC(size)                ({\
+    if (stamp_mapped_file_pointer == NULL) {\
+        stamp_mapped_file_pointer = NH_alloc(DATA_NAME, INIT_SIZE);\
+        NVHTM_cpy_to_checkpoint(stamp_mapped_file_pointer);\
+    }\
+    stamp_used_bytes += size;\
+    (void *)((char *)stamp_mapped_file_pointer + stamp_used_bytes - size);\
+})
 /* NVHTM_alloc("alloc.dat", size, 0) */
 #else
 #  define P_MALLOC(size)                NH_alloc(size) /* NVHTM_alloc("alloc.dat", size, 0) */
@@ -71,7 +87,14 @@
 
 // NVHTM_alloc("alloc.dat", size, 0)
 #ifdef USE_PMEM
-#  define TM_MALLOC(size)               ({void *p = NH_alloc(DATA_NAME, size); NVHTM_cpy_to_checkpoint(p); p;})
+#  define TM_MALLOC(size)                ({\
+    if (stamp_mapped_file_pointer == NULL) {\
+        stamp_mapped_file_pointer = NH_alloc(DATA_NAME, INIT_SIZE);\
+        NVHTM_cpy_to_checkpoint(stamp_mapped_file_pointer);\
+    }\
+    stamp_used_bytes += size;\
+    (void *)((char *)stamp_mapped_file_pointer + stamp_used_bytes - size);\
+})
 /* NVHTM_alloc("alloc.dat", size, 0) */
 #else
 #  define TM_MALLOC(size)               NH_alloc(size) /* NVHTM_alloc("alloc.dat", size, 0) */
