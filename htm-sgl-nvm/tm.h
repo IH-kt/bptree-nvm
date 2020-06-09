@@ -22,7 +22,11 @@
 #  define MAIN_RETURN(val)              return val
 
 // before start
+#ifdef USE_PMEM
+#  define GOTO_SIM()                    {TM_MALLOC(0);NVHTM_start_stats();}
+#else
 #  define GOTO_SIM()                    NVHTM_start_stats()
+#endif
 // after end
 #  define GOTO_REAL()                   NVHTM_end_stats()
 #  define IS_IN_SIM()                   (0)
@@ -59,24 +63,67 @@
 
 // do not track private memory allocation
 #ifdef USE_PMEM
-#  define P_MALLOC(size)                NH_alloc(DATA_NAME, size)
+#  define INIT_SIZE (1024 * 1024 * 1024)
+#  ifndef MALLOC_GLOBAL_VAR
+#    define MALLOC_GLOBAL_VAR
+extern void *stamp_mapped_file_pointer;
+extern stamp_used_bytes;
+extern pthread_mutex_t tm_malloc_mutex;
+#  else
+// extern void *stamp_mapped_file_pointer;
+// extern size_t stamp_used_bytes;
+#  endif
+#  define P_MALLOC(size)                ({\
+    if (stamp_mapped_file_pointer == NULL) {\
+        pthread_mutex_lock(&tm_malloc_mutex);\
+        if (stamp_mapped_file_pointer == NULL) {\
+            stamp_mapped_file_pointer = NH_alloc(DATA_NAME, INIT_SIZE);\
+            NVHTM_cpy_to_checkpoint(stamp_mapped_file_pointer);\
+        }\
+        pthread_mutex_unlock(&tm_malloc_mutex);\
+    }\
+    void *p = (void *)((char *)stamp_mapped_file_pointer + __sync_fetch_and_add(&stamp_used_bytes, (size_t)(size)));\
+    p;\
+})
 /* NVHTM_alloc("alloc.dat", size, 0) */
+#  define P_FREE(ptr)                   
 #else
 #  define P_MALLOC(size)                NH_alloc(size) /* NVHTM_alloc("alloc.dat", size, 0) */
-#endif
 #  define P_FREE(ptr)                   NH_free(ptr)
+#endif
 
 // TODO: free(ptr)
 // the patched benchmarks are broken -> intruder gives me double free or corruption
 
 // NVHTM_alloc("alloc.dat", size, 0)
 #ifdef USE_PMEM
-#  define TM_MALLOC(size)               ({void *p = NH_alloc(DATA_NAME, size); NVHTM_cpy_to_checkpoint(p); p;})
+// #  define TM_MALLOC(size)                ({\
+    if (stamp_mapped_file_pointer == NULL) {\
+        stamp_mapped_file_pointer = NH_alloc(DATA_NAME, INIT_SIZE);\
+        NVHTM_cpy_to_checkpoint(stamp_mapped_file_pointer);\
+    }\
+    void *p = (void *)((char *)stamp_mapped_file_pointer + stamp_used_bytes);\
+    stamp_used_bytes += (size_t)(size + 0.9);\
+    p;\
+})
+#  define TM_MALLOC(size)                ({\
+    if (stamp_mapped_file_pointer == NULL) {\
+        pthread_mutex_lock(&tm_malloc_mutex);\
+        if (stamp_mapped_file_pointer == NULL) {\
+            stamp_mapped_file_pointer = NH_alloc(DATA_NAME, INIT_SIZE);\
+            NVHTM_cpy_to_checkpoint(stamp_mapped_file_pointer);\
+        }\
+        pthread_mutex_unlock(&tm_malloc_mutex);\
+    }\
+    void *p = (void *)((char *)stamp_mapped_file_pointer + __sync_fetch_and_add(&stamp_used_bytes, (size_t)(size)));\
+    p;\
+})
 /* NVHTM_alloc("alloc.dat", size, 0) */
+#  define TM_FREE(ptr)           		    
 #else
 #  define TM_MALLOC(size)               NH_alloc(size) /* NVHTM_alloc("alloc.dat", size, 0) */
-#endif
 #  define TM_FREE(ptr)           		    NH_free(ptr)
+#endif
 #  define FAST_PATH_FREE(ptr)           TM_FREE(ptr)
 #  define SLOW_PATH_FREE(ptr)           FAST_PATH_FREE(ptr)
 

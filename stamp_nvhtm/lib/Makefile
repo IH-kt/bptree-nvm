@@ -27,6 +27,7 @@ SRCS := \
 	tm.c \
 	tmalloc.c \
 	vector.c \
+	globals.c \
 #
 OBJS := ${SRCS:.c=.o}
 

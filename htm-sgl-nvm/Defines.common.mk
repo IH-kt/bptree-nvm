@@ -11,3 +11,4 @@ LIBS     += -lpthread
 OUTPUT +=
 
 LIB := ../lib
+SRCS := ../lib/globals.c

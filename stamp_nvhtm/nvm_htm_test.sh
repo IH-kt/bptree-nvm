@@ -19,20 +19,27 @@ test[7]="./kmeans/kmeans -m15 -n15 -t0.00001 -r1 -i ./kmeans/inputs/random-n6553
 test[8]="./ssca2/ssca2 -s18 -i1.0 -u1.0 -l3 -p3 -r1 -t" 
 test[9]="./labyrinth/labyrinth -i labyrinth/inputs/random-x256-y256-z3-n256.txt -t" 
 
-testname=("intruder" "genome" "vacation-low" "vacation-high" "yada" "kmeans-low" "kmeans-high" "ssca2" "labyrinth")
+
+testname=("" "intruder" "genome" "vacation-low" "vacation-high" "yada" "kmeans-low" "kmeans-high" "ssca2" "labyrinth")
 
 function run_bench {
 
-	rm -f $1
+	# rm -f $1
+    # resdir="../res/stamp_$(date +%m-%d_%H-%M)/$1"
+    resdir="../res/stamp_06-09_08-04/$1"
+    mkdir -p $resdir
 
-	for i in 6 # 1 2 3 4 5 6 7 8 9
+    # note: ssca can't be used because of out of memory (exceeds max of mmap size)
+	for i in 1 2 3 4 5 6 7 9 # 1 2 3 4 5 6 7 8 9
 	do
-        mkdir -p result_${testname[$i]}_$1
-		for t in 1 4 8 # 10 14 15 28 29 56 # 1 2 4 8
+        resdir_tmp="$resdir/${testname[$i]}"
+        mkdir -p $resdir_tmp
+		for t in 1 2 4 8 # 10 14 15 28 29 56 # 1 2 4 8
 		do
 			for a in `seq 3` # `seq 30`
 			do
-				timeout 1m ${test[$i]} $t > result_${testname[$i]}_$1/time_thr${t}_trial${a} 2> result_${testname[$i]}_$1/result_thr${t}_trial${a}
+				echo timeout 1m ${test[$i]} $t
+				timeout 1m ${test[$i]} $t > $resdir_tmp/time_thr${t}_trial${a} 2> $resdir_tmp/result_thr${t}_trial${a}
 				if [[ $? -ne 0 ]] ; then 
 					timeout 10m ${test[$i]} $t  # second try
 				fi
@@ -63,8 +70,17 @@ function run_bench {
 # MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=2 LOG_SIZE=10000 THREASHOLD=0.5" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-SLOG-R.txt
 # run_bench test_REDO-TS-SLOG-R
 
-MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5 CUSTOMIZED=1 USE_PMEM=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-run_bench test_REDO-TS-FORK
+# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+# run_bench test_emulator
 
-# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5 CUSTOMIZED=1 USE_PMEM=1 PARALLEL_CHECKPOINT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-# run_bench test_REDO-TS-FORK
+(cd ../; make type=nvhtm tree=bptree logsize=41943328 stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 -j)
+MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5 USE_PMEM=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+run_bench test_use_mmap
+
+(cd ../; make type=nvhtm tree=bptree logsize=41943328 stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 -j)
+MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+run_bench test_para_cp
+
+(cd ../; make type=nvhtm tree=bptree logsize=41943328 stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 log_compression=1 -j)
+MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 LOG_COMPRESSION=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+run_bench test_log_comp

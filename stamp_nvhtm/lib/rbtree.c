@@ -1890,7 +1890,9 @@ static void
 releaseNode (node_t * n)
 {
 #ifndef SIMULATOR
+#ifndef USE_PMEM
   free (n);
+#endif
 #endif
 }
 

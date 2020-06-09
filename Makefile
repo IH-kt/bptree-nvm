@@ -113,7 +113,7 @@ $(NVHTM_LIB): libhtm_sgl.a libminimal_nvm.a
 	make -C nvhtm clean
 	make -C nvhtm $(NVHTM_MAKE_ARGS)
 	mkdir -p $(BUILD_DIR)
-	mv nvhtm/libnh.a $(NVHTM_LIB)
+	cp nvhtm/libnh.a $(NVHTM_LIB)
 
 libhtm_sgl.a:
 	(cd $(NVHTM_DIR)/DEPENDENCIES/htm_alg; ./compile.sh "$(HTM_SGL_FLAG)")
@@ -125,7 +125,7 @@ clean:
 	rm -f $(TREE_OBJ) $(ALLOCATOR_OBJ) $(THREAD_MANAGER_OBJ) $(ALL_OBJ)
 
 nvhtm-clean:
-	rm -f $(NVHTM_LIB) $(MIN_NVM_DIR)/bin/libminimal_nvm.a $(NVHTM_DIR)/DEPENDENCIES/htm_alg/bin/libhtm_sgl.a
+	rm -f nvhtm/libnh.a $(NVHTM_LIB) $(MIN_NVM_DIR)/bin/libminimal_nvm.a $(NVHTM_DIR)/DEPENDENCIES/htm_alg/bin/libhtm_sgl.a
 
 dist-clean: clean $(NVHTM_CLEAN)
 	rm -f $(addprefix $(BUILD_DIR)/, $(ALL_EXE))
