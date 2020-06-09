@@ -1,0 +1,12 @@
+log_size = 41943328
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fc3b8400000
+number of entry = 2097152
+Budget=20
+adding
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+src/tcmalloc.cc:332] Attempt to free invalid pointer 0x55d1ef06e530 
+timeout: the monitored command dumped core

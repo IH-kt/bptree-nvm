@@ -1,0 +1,47 @@
+log_size = 335546624
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f8861200000
+number of entry = 2097152
+Budget=20
+adding
+NH_time_blocked = 657312
+NH_count_blocks = 1533
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 654584
+NH_count_blocks = 1481
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 478446
+NH_count_blocks = 1424
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 653318
+NH_count_blocks = 1473
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 638542
+NH_count_blocks = 1462
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 640360
+NH_count_blocks = 1470
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 685682
+NH_count_blocks = 1507
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 507676
+NH_count_blocks = 1471
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+src/tcmalloc.cc:332] Attempt to free invalid pointer 0x55cc9efd6f60 
+timeout: the monitored command dumped core

@@ -1,0 +1,6 @@
+log_size = 335546624
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f1056400000
+number of entry = 2097152
+Budget=20
+timeout: the monitored command dumped core

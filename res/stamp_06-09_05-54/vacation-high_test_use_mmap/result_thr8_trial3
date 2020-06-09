@@ -1,0 +1,47 @@
+log_size = 335546624
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f82eec00000
+number of entry = 2097152
+Budget=20
+adding
+NH_time_blocked = 685798
+NH_count_blocks = 1460
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 664970
+NH_count_blocks = 1471
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 568434
+NH_count_blocks = 1450
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 649950
+NH_count_blocks = 1438
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 520902
+NH_count_blocks = 1461
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 634182
+NH_count_blocks = 1462
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 641686
+NH_count_blocks = 1392
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 628952
+NH_count_blocks = 1437
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+src/tcmalloc.cc:332] Attempt to free invalid pointer 0x555bab97cb70 
+timeout: the monitored command dumped core

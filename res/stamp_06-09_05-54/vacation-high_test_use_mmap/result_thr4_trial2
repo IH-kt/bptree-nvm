@@ -1,0 +1,27 @@
+log_size = 167773312
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fc1e1000000
+number of entry = 2097152
+Budget=20
+adding
+NH_time_blocked = 227818
+NH_count_blocks = 345
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 214774
+NH_count_blocks = 372
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 219176
+NH_count_blocks = 359
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 251140
+NH_count_blocks = 380
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+src/tcmalloc.cc:332] Attempt to free invalid pointer 0x56374f79bd60 
+timeout: the monitored command dumped core
