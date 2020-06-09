@@ -1254,6 +1254,7 @@ static void aux_thread_stats_to_gnuplot_file(char *filename) {
 
 void wait_for_checkpoint () {
 #ifdef STAT
+#if SORT_ALG == 5
     int value;
     struct timespec stt, edt;
     sem_getvalue(NH_chkp_sem, &value);
@@ -1281,6 +1282,7 @@ void wait_for_checkpoint () {
     time_tmp /= 1000000000;
     time_tmp += edt.tv_sec - stt.tv_sec;
     fprintf(stderr, "wait_for_checkpoint = %lf\n", time_tmp);
+#endif
 #endif
 }
 

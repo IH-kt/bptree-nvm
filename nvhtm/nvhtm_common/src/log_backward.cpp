@@ -336,7 +336,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                 writes_list.push_back((GRANULE_TYPE*)cl_addr);
 #  ifdef LOG_COMPRESSION
                 MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
-                MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1);
+                // MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1);
                 compressed_log_end++;
                 if (compressed_log_end >= compressed_log->size_of_log) {
                     fprintf(stderr, "log compression:too much entries\n");
@@ -349,7 +349,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                 if ( !(it->second.bit_map & bit_map) ) {
 #  ifdef LOG_COMPRESSION
                     MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
-                    MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1); // flushタイミングは要検討
+                    // MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1); // flushタイミングは要検討
                     compressed_log_end++;
                     if (compressed_log_end >= compressed_log->size_of_log) {
                         fprintf(stderr, "log compression:too much entries\n");
@@ -375,6 +375,12 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
     }
     // NH_nb_applied_txs++;
   } while (next_log != -1);
+#ifdef LOG_COMPRESSION
+  int flush_unit = CACHE_LINE_SIZE / sizeof(NVLogEntry_s);
+  for (i = 0; i < compressed_log_end; i += flush_unit) {
+      MN_flush(&compressed_log->ptr[i], flush_unit * sizeof(NVLogEntry_s), 1);
+  }
+#endif
 #  ifdef STAT
   clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
   time_tmp = 0;
