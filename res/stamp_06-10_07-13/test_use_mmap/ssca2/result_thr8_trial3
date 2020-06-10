@@ -1,0 +1,90 @@
+log_size = 80000
+log_size_per_thread = 10000
+LOG_global_ptr = 0x7f5cca000000
+number of entry = 512
+Budget=20
+adding
+NH_time_blocked = 5138076322
+NH_count_blocks = 939
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 8705210736
+NH_count_blocks = 2538
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 5801144630
+NH_count_blocks = 1715
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 7270345052
+NH_count_blocks = 130
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 4900553978
+NH_count_blocks = 1383
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 5147070024
+NH_count_blocks = 971
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 7815149992
+NH_count_blocks = 1325
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 6355364242
+NH_count_blocks = 1233
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+--- Percentage time blocked 0.150997 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000000 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 5557100
+ABORTS : 45696
+CONFLS : 33698
+CAPACS : 49
+EXPLIC : 9847
+FALLBK : 401
+   P_A : 0.008156
+     X : 512038.264121
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.000000 s
+Time 10.853683 s
+[FORKED_MANAGER] Nb. checkpoints 128165
+[FORKED_MANAGER] Time active 5961.718142 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 128165
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 2.699766
+[FORKED_MANAGER] sec. 2 (find commit) = 0.281215
+[FORKED_MANAGER] sec. 3 (apply) = 1.774857
+[FORKED_MANAGER] sec. 4 (flush) = 0.420549
+[logger] NB_spins=0 NB_writes=6239682 TIME_spins=0.000000ms
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          38902475
+TOTAL_SPINS (workers) 5557501
+TOTAL_BLOCKS          20468
+TOTAL_TIME_B (clocks) 51132914976
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 36.915245 s!

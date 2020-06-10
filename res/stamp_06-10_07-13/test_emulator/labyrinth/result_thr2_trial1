@@ -1,0 +1,55 @@
+adding
+NH_time_blocked = 167784
+NH_count_blocks = 70
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 634770
+NH_count_blocks = 48
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+--- Percentage time blocked 0.000014 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000000 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 260
+ABORTS : 5122
+CONFLS : 12
+CAPACS : 5101
+EXPLIC : 0
+FALLBK : 256
+   P_A : 0.951691
+[FORKED_MANAGER] Nb. checkpoints 172
+[FORKED_MANAGER] Time active 4691.887351 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 172
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.001961
+[FORKED_MANAGER] sec. 2 (find commit) = 0.000224
+[FORKED_MANAGER] sec. 3 (apply) = 0.001139
+[FORKED_MANAGER] sec. 4 (flush) = 0.011675
+[logger] NB_spins=14683 NB_writes=24285 TIME_spins=7.510404ms
+     X : 70.684720
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.000000 s
+Time 7.300022 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          46430
+TOTAL_SPINS (workers) 9784
+TOTAL_BLOCKS          236
+TOTAL_TIME_B (clocks) 802554
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 7.224707 s!

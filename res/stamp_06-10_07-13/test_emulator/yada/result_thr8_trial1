@@ -1,0 +1,85 @@
+adding
+NH_time_blocked = 1077609144
+NH_count_blocks = 139
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 856178026
+NH_count_blocks = 322
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 939398536
+NH_count_blocks = 290
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 629700362
+NH_count_blocks = 191
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 682659962
+NH_count_blocks = 136
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 882090222
+NH_count_blocks = 174
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 605248480
+NH_count_blocks = 161
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 1205491434
+NH_count_blocks = 369
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+--- Percentage time blocked 0.202625 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000000 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 25353
+ABORTS : 118297
+CONFLS : 109385
+CAPACS : 5043
+EXPLIC : 1611
+FALLBK : 5543
+   P_A : 0.823509
+     X : 28396.403903
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.000000 s
+[FORKED_MANAGER] Nb. checkpoints 9140
+[FORKED_MANAGER] Time active 551.709472 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 9140
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.121564
+[FORKED_MANAGER] sec. 2 (find commit) = 0.009821
+[FORKED_MANAGER] sec. 3 (apply) = 0.028373
+[FORKED_MANAGER] sec. 4 (flush) = 0.220873
+[logger] NB_spins=90207 NB_writes=201879 TIME_spins=134.051368ms
+Time 1.088025 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          532310
+TOTAL_SPINS (workers) 175579
+TOTAL_BLOCKS          3564
+TOTAL_TIME_B (clocks) 6878376166
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 4.720798 s!

@@ -1,0 +1,71 @@
+log_size = 40000
+log_size_per_thread = 10000
+LOG_global_ptr = 0x7fc3cfa4d000
+number of entry = 512
+Budget=20
+adding
+NH_time_blocked = 4558141974
+NH_count_blocks = 297
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 2952100560
+NH_count_blocks = 1156
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 8120723826
+NH_count_blocks = 4874
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 9466858926
+NH_count_blocks = 800
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+--- Percentage time blocked 0.212247 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000000 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 5555573
+ABORTS : 124531
+CONFLS : 92020
+CAPACS : 98
+EXPLIC : 6882
+FALLBK : 1920
+[FORKED_MANAGER] Nb. checkpoints 129696
+[FORKED_MANAGER] Time active 4822.264308 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 129696
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.021633
+[FORKED_MANAGER] sec. 2 (find commit) = 0.139377
+[FORKED_MANAGER] sec. 3 (apply & flush) = 5.915896
+[FORKED_MANAGER] cpthread logwrite = 0.354008
+[FORKED_MANAGER] cpthread write & flush = 0.097858
+[logger] NB_spins=0 NB_writes=518784 TIME_spins=0.000000ms
+   P_A : 0.021924
+     X : 733176.381804
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.000000 s
+Time 7.580022 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          38902435
+TOTAL_SPINS (workers) 5557493
+TOTAL_BLOCKS          14254
+TOTAL_TIME_B (clocks) 25097825286
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 1.616210 s!

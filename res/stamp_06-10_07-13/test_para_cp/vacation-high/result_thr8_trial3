@@ -1,0 +1,40 @@
+log_size = 80000
+log_size_per_thread = 10000
+LOG_global_ptr = 0x7f1cab800000
+number of entry = 512
+Budget=20
+adding
+NH_time_blocked = 1473454058
+NH_count_blocks = 556
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 1490747038
+NH_count_blocks = 116
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 1985657390
+NH_count_blocks = 331
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 2107987416
+NH_count_blocks = 451
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 1924471960
+NH_count_blocks = 104
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 3907470876
+NH_count_blocks = 102
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 8053480576
+NH_count_blocks = 1823
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000

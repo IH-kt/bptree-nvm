@@ -1,0 +1,71 @@
+log_size = 40000
+log_size_per_thread = 10000
+LOG_global_ptr = 0x7f63a6ace000
+number of entry = 512
+Budget=20
+adding
+NH_time_blocked = 2605782034
+NH_count_blocks = 270
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 1777970906
+NH_count_blocks = 233
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 2334085984
+NH_count_blocks = 220
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+adding
+NH_time_blocked = 1865861660
+NH_count_blocks = 199
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+--- Percentage time blocked 0.333075 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000000 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 785967
+ABORTS : 412434
+CONFLS : 366415
+CAPACS : 1768
+EXPLIC : 909
+FALLBK : 14140
+   P_A : 0.344154
+     X : 484328.871985
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.000000 s
+Time 1.651991 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          4817657
+TOTAL_SPINS (workers) 800107
+TOTAL_BLOCKS          1844
+TOTAL_TIME_B (clocks) 8583700584
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.523804 s!
+[FORKED_MANAGER] Nb. checkpoints 16931
+[FORKED_MANAGER] Time active 971.348219 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 16931
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.002558
+[FORKED_MANAGER] sec. 2 (find commit) = 0.014668
+[FORKED_MANAGER] sec. 3 (apply & flush) = 1.097811
+[FORKED_MANAGER] cpthread logwrite = 0.038007
+[FORKED_MANAGER] cpthread write & flush = 0.011763
+[logger] NB_spins=0 NB_writes=67720 TIME_spins=0.000000ms
