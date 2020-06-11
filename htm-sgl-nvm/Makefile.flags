@@ -159,3 +159,11 @@ endif
 ifeq ($(CHECK_TASK_DISTRIBUTION), 1)
 DEFINES += -DCHECK_TASK_DISTRIBUTION
 endif
+
+ifdef PPATH
+DEFINES += -DLOG_NAME="\"${PPATH}/log\""
+DEFINES += -DDATA_NAME="\"${PPATH}/data\""
+else
+DEFINES += -DLOG_NAME="\"./log\""
+DEFINES += -DDATA_NAME="\"./data\""
+endif
