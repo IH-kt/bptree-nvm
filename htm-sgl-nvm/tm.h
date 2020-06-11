@@ -63,11 +63,11 @@
 
 // do not track private memory allocation
 #ifdef USE_PMEM
-#  define INIT_SIZE (1024 * 1024 * 1024)
+#  define INIT_SIZE (4 * 1073741824l)
 extern void *stamp_mapped_file_pointer_g;
 extern __thread void *stamp_mapped_file_pointer;
 extern int stamp_number_of_thread_counter;
-extern unsigned int stamp_length_of_mapped_area_per_thread;
+extern unsigned long stamp_length_of_mapped_area_per_thread;
 extern __thread stamp_used_bytes;
 extern __thread pthread_mutex_t tm_malloc_mutex;
 #  define INIT_ALLOCATOR() {\
@@ -95,8 +95,8 @@ extern __thread pthread_mutex_t tm_malloc_mutex;
     void *p = (void *)((char *)stamp_mapped_file_pointer + stamp_used_bytes);\
     stamp_used_bytes += size;\
     assert(stamp_used_bytes < stamp_length_of_mapped_area_per_thread);\
-    /*assert(stamp_mapped_file_pointer_g <= p && p < (void *)((char *)stamp_mapped_file_pointer_g + INIT_SIZE));\
-    assert(stamp_mapped_file_pointer <= p && p < (void *)((char *)stamp_mapped_file_pointer + stamp_length_of_mapped_area_per_thread));*/\
+    /*assert(stamp_mapped_file_pointer_g <= p && p < (void *)((char *)stamp_mapped_file_pointer_g + INIT_SIZE));*/\
+    assert(stamp_mapped_file_pointer <= p && p < (void *)((char *)stamp_mapped_file_pointer + stamp_length_of_mapped_area_per_thread));\
     p;\
 })
 /* NVHTM_alloc("alloc.dat", size, 0) */
@@ -126,6 +126,7 @@ extern __thread pthread_mutex_t tm_malloc_mutex;
     void *p = (void *)((char *)stamp_mapped_file_pointer + stamp_used_bytes);\
     stamp_used_bytes += size;\
     assert(stamp_used_bytes < stamp_length_of_mapped_area_per_thread);\
+    assert(stamp_mapped_file_pointer <= p && p < (void *)((char *)stamp_mapped_file_pointer + stamp_length_of_mapped_area_per_thread));\
     /*assert(stamp_mapped_file_pointer_g <= p && p < (void *)((char *)stamp_mapped_file_pointer_g + INIT_SIZE));*/\
     p;\
 })
@@ -164,9 +165,9 @@ extern __thread CL_ALIGN int GLOBAL_instrument_write;
 
 #ifdef USE_PMEM
 #  ifdef PARALLEL_CHECKPOINT
-#    define TM_STARTUP(numThread)  NVHTM_set_cp_thread_num(CP_THRNUM); set_log_file_name(LOG_NAME); NVHTM_init(numThread); fprintf(stderr, "Budget=%i\n", HTM_SGL_INIT_BUDGET); HTM_set_budget(HTM_SGL_INIT_BUDGET); INIT_ALLOCATOR()
+#    define TM_STARTUP(numThread)  NVHTM_set_cp_thread_num(CP_THRNUM); set_log_file_name(LOG_NAME); NVHTM_init(numThread); fprintf(stderr, "Budget=%i\n", HTM_SGL_INIT_BUDGET); HTM_set_budget(HTM_SGL_INIT_BUDGET); INIT_ALLOCATOR();  ALLOCATOR_SET_SIZE_THR(numThread+1)
 #  else
-#    define TM_STARTUP(numThread) set_log_file_name(LOG_NAME); NVHTM_init(numThread); fprintf(stderr, "Budget=%i\n", HTM_SGL_INIT_BUDGET); HTM_set_budget(HTM_SGL_INIT_BUDGET); INIT_ALLOCATOR()
+#    define TM_STARTUP(numThread) set_log_file_name(LOG_NAME); NVHTM_init(numThread); fprintf(stderr, "Budget=%i\n", HTM_SGL_INIT_BUDGET); HTM_set_budget(HTM_SGL_INIT_BUDGET); INIT_ALLOCATOR();  ALLOCATOR_SET_SIZE_THR(numThread+1)
 #  endif
 #else
 #  define TM_STARTUP(numThread)   NVHTM_init(numThread); printf("Budget=%i\n", HTM_SGL_INIT_BUDGET); HTM_set_budget(HTM_SGL_INIT_BUDGET)

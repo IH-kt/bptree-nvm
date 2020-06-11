@@ -212,6 +212,12 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
         // no_filter_write_amount += sizeof(entry.value);
 #    endif
 #  endif
+#ifdef USE_PMEM
+        if ((uintptr_t)entry.addr < (uintptr_t)pmem_pool || (uintptr_t)((char *)pmem_pool + pmem_size) < (uintptr_t)entry.addr) {
+            // fprintf(stderr, "out of range\n");
+            continue;
+        }
+#endif
         // uses only the bits needed to identify the cache line
         intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
         int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
@@ -319,6 +325,12 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
     NVLogEntry_s entry = log->ptr[pos_local_tmp[next_log]];
     ts_s ts = entry_is_ts(entry);
     while (!ts && pos_local_tmp[next_log] != starts_g[next_log]) {
+#ifdef USE_PMEM
+        if ((uintptr_t)entry.addr < (uintptr_t)pmem_pool || (uintptr_t)((char *)pmem_pool + pmem_size) < (uintptr_t)entry.addr) {
+            // fprintf(stderr, "out of range\n");
+            continue;
+        }
+#endif
 
         // uses only the bits needed to identify the cache line
         intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
@@ -865,6 +877,12 @@ int LOG_checkpoint_backward_apply_one()
 #ifdef WRITE_AMOUNT_NVHTM
         no_filter_write_amount += sizeof(entry.value);
 #endif
+#endif
+#ifdef USE_PMEM
+        if ((uintptr_t)entry.addr < (uintptr_t)pmem_pool || (uintptr_t)((char *)pmem_pool + pmem_size) < (uintptr_t)entry.addr) {
+            // fprintf(stderr, "out of range\n");
+            continue;
+        }
 #endif
       // uses only the bits needed to identify the cache line
       intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);

@@ -128,6 +128,7 @@ extern void *pmem_pool;
 #define NH_free(pool) FREE_MEM(pool, pmem_size)
 
 #define REMAP_PRIVATE() {\
+    pmem_unmap(pmem_pool, pmem_size);\
     int fd = open(pmem_filename, O_RDWR);\
     if (fd == -1) perror("open");\
     void *tmp = mmap(pmem_pool, pmem_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_FIXED, fd, 0);\
