@@ -95,20 +95,17 @@ void LOG_checkpoint_backward_wait_for_thread(int thread_num) {
     sem_wait(&cpthread_finish_sem);
     finished_threads = 0;
 #ifdef CHECK_TASK_DISTRIBUTION
-    double average = 0;
-    double variance = 0;
+    double entries_max = applied_entries[0];
+    double entries_min = applied_entries[0];
     for (int i = 0; i < thread_num; i++) {
-        average += applied_entries[i];
-        fprintf(stderr, "applied_entries[%d] = %u\n", i, applied_entries[i]);
+        if (applied_entries[i] > entries_max) {
+            entries_max = applied_entries[i];
+        }
+        if (applied_entries[i] < entries_min) {
+            entries_min = applied_entries[i];
+        }
     }
-    average /= thread_num;
-    double tmp;
-    for (int i = 0; i < thread_num; i++) {
-        tmp = applied_entries[i] - average;
-        variance +=  tmp * tmp;
-    }
-    variance /= thread_num;
-    fprintf(stderr, "TASK DISTRIBUTION: average = %lf, variance = %lf\n", average, variance);
+    fprintf(stderr, "TASK DISTRIBUTION: %lf\n", entries_max/entries_min);
     for (int i = 0; i < thread_num; i++) {
         applied_entries[i] = 0;
     }
@@ -171,6 +168,12 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #endif
 
+#ifdef LOG_COMPRESSION
+  int end_tmp = 0;
+  MN_write(&compressed_log->end, &end_tmp, sizeof(compressed_log_end), 1);
+  MN_flush(&compressed_log->end, sizeof(compressed_log_end), 1);
+#endif
+
 #ifndef MEASURE_PART_CP
   do {
     next_log = max_next_log(pos_local, starts_g, ends_g);
@@ -213,10 +216,10 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #    endif
 #  endif
 #ifdef USE_PMEM
-        if ((uintptr_t)entry.addr < (uintptr_t)pmem_pool || (uintptr_t)((char *)pmem_pool + pmem_size) < (uintptr_t)entry.addr) {
-            // fprintf(stderr, "out of range\n");
-            continue;
-        }
+        // if ((uintptr_t)entry.addr < (uintptr_t)pmem_pool || (uintptr_t)((char *)pmem_pool + pmem_size) < (uintptr_t)entry.addr) {
+        //     fprintf(stderr, "out of range\n");
+        //     continue;
+        // }
 #endif
         // uses only the bits needed to identify the cache line
         intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
@@ -879,10 +882,10 @@ int LOG_checkpoint_backward_apply_one()
 #endif
 #endif
 #ifdef USE_PMEM
-        if ((uintptr_t)entry.addr < (uintptr_t)pmem_pool || (uintptr_t)((char *)pmem_pool + pmem_size) < (uintptr_t)entry.addr) {
-            // fprintf(stderr, "out of range\n");
-            continue;
-        }
+        // if ((uintptr_t)entry.addr < (uintptr_t)pmem_pool || (uintptr_t)((char *)pmem_pool + pmem_size) < (uintptr_t)entry.addr) {
+        //     fprintf(stderr, "out of range\n");
+        //     continue;
+        // }
 #endif
       // uses only the bits needed to identify the cache line
       intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);

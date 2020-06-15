@@ -509,6 +509,7 @@ void NH_reset() {
     NH_nanotime_blocked_total[0] = 0;
     NH_nanotime_blocked_total[1] = 0;
     abort_time_all = 0;
+    transaction_time_all = 0;
     TM_reset_error();
     kill(NH_checkpoint_pid, SIGUSR1);
     MN_start_freq(0);
