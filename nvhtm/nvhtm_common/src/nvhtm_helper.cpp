@@ -917,7 +917,18 @@ void checkpoint_start_threads(int number_of_threads) {
     }
 #ifdef STAT
 #ifdef CHECK_TASK_DISTRIBUTION
-    applied_entries = (unsigned int *)malloc(sizeof(int) * number_of_threads);
+    applied_entries = (unsigned int *)malloc(sizeof(unsigned int) * number_of_threads);
+    for (i = 0; i < number_of_threads; i++) {
+        applied_entries[i] = 0;
+    }
+#endif
+#ifdef NUMBER_OF_ENTRIES
+    read_entries = (unsigned int *)malloc(sizeof(unsigned int) * number_of_threads);
+    wrote_entries = (unsigned int *)malloc(sizeof(unsigned int) * number_of_threads);
+    for (i = 0; i < number_of_threads; i++) {
+        read_entries[i] = 0;
+        wrote_entries[i] = 0;
+    }
 #endif
     for (i = 0; i < CPTIME_NUM; i++) {
         parallel_checkpoint_section_time_thread[i] = (double *)malloc(sizeof(double) * number_of_threads);
@@ -1135,6 +1146,12 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
         applied_entries[i] = 0;
     }
 #endif
+#ifdef NUMBER_OF_ENTRIES
+    for (i = 0; i < number_of_checkpoint_threads; i++) {
+        read_entries[i] = 0;
+        wrote_entries[i] = 0;
+    }
+#endif
 #ifdef PARALLEL_CHECKPOINT
     for (int j = 0; j < CPTIME_NUM; j++) {
         for (i = 0; i < number_of_checkpoint_threads; i++) {
@@ -1183,6 +1200,13 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
   // for (int i = 0; i < number_of_checkpoint_threads; i++) {
   //     ptr += sprintf(ptr, "[FORKED_MANAGER] applied entries [%d] = %d\n", i, applied_entries[i]);
   // }
+#    endif
+#    ifdef NUMBER_OF_ENTRIES
+  unsigned long compressed_entries = 0;
+  for (int i = 0; i < number_of_checkpoint_threads; i++) {
+      compressed_entries += read_entries[i] - wrote_entries[i];
+  }
+  ptr += sprintf(ptr, "[FORKED_MANAGER] compressed entries = %lu\n", compressed_entries);
 #    endif
   double parallel_checkpoint_section_time[CPTIME_NUM];
   for (int j = 0; j < CPTIME_NUM; j++) {

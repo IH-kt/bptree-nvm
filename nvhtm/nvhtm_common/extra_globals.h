@@ -48,6 +48,10 @@ extern checkpoint_args_s *cp_thread_args;
 #  ifdef CHECK_TASK_DISTRIBUTION
 extern unsigned int *applied_entries;
 #  endif
+#  ifdef NUMBER_OF_ENTRIES
+extern unsigned int *read_entries;
+extern unsigned int *wrote_entries;
+#  endif
 #    ifdef MEASURE_PART_CP
 #      define CPTIME_NUM 4
 #    else

@@ -105,6 +105,7 @@ void LOG_checkpoint_backward_wait_for_thread(int thread_num) {
             entries_min = applied_entries[i];
         }
     }
+    if (entries_min == 0) entries_min++;
     fprintf(stderr, "TASK DISTRIBUTION: %lf\n", entries_max/entries_min);
     for (int i = 0; i < thread_num; i++) {
         applied_entries[i] = 0;
@@ -209,6 +210,9 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
     NVLogEntry_s entry = log->ptr[pos_local[next_log]];
     ts_s ts = entry_is_ts(entry);
     while (!ts && pos_local[next_log] != starts_g[next_log]) {
+#if defined(CHECK_TASK_DISTRIBUTION) && defined(NUMBER_OF_ENTRIES)
+        read_entries[tid]++;
+#endif
 
 #  ifdef STAT
 #    ifdef WRITE_AMOUNT_NVHTM
@@ -225,13 +229,21 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
         intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
         int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
         char bit_map = 1 << val_idx;
+#ifdef LARGE_DIV
+        if (thread_id * (pmem_size/number_of_threads) <= ((uintptr_t)entry.addr - (uintptr_t)pmem_pool) &&
+                ((uintptr_t)entry.addr - (uintptr_t)pmem_pool) < (thread_id+1) * (pmem_size/number_of_threads)) {
+#else
         if ((cl_addr >> 8) % number_of_threads == thread_id) {
+#endif
 #ifdef CHECK_TASK_DISTRIBUTION
             applied_entries[thread_id]++;
 #endif
             auto it = writes_map.find((GRANULE_TYPE*)cl_addr);
             // printf("processing: %p by thread%d\n", cl_addr, thread_id);
             if (it == writes_map.end()) {
+#ifdef NUMBER_OF_ENTRIES
+                wrote_entries[i]++;
+#endif
                 // not found the write --> insert it
                 CL_BLOCK block;
                 block.bit_map = bit_map;
@@ -252,6 +264,9 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #  endif
             } else {
                 if ( !(it->second.bit_map & bit_map) ) {
+#ifdef NUMBER_OF_ENTRIES
+                    wrote_entries[i]++;
+#endif
 #  ifdef LOG_COMPRESSION
                     MN_write(&compressed_log->ptr[compressed_log_end], &entry, sizeof(NVLogEntry_s), 1);
                     // MN_flush(&compressed_log->ptr[compressed_log_end], sizeof(NVLogEntry_s), 1); // flushタイミングは要検討

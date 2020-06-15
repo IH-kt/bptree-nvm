@@ -42,6 +42,11 @@ ifdef thrmax
 else
 	THRMAX	:= 4
 endif
+ifdef thrstart
+	THRSTT	:= $(thrstart)
+else
+	THRSTT	:= 1
+endif
 
 ifdef ppath
 	PPATH	:= $(ppath)
@@ -83,7 +88,7 @@ else
 	CPTSTT	:= 1
 endif
 
-THRLST	?= $(shell seq 0 $(THRMAX) | sed -e 's/\(.*\)/2^\1/' | bc -q | tr '\n' ' ')
+THRLST	?= $(shell seq 0 $(THRMAX) | sed -e 's/\(.*\)/$(THRSTT) * 2^\1/' | bc -q | tr '\n' ' ')
 LOGLST	?= $(shell seq 0 $(LOGMAX) | sed -e 's/\(.*\)/$(LOGSTT) * 2^\1 + 288/'| bc -q | tr '\n' ' ')
 CPTLST	?= $(shell seq 0 $(CPTMAX) | sed -e 's/\(.*\)/$(CPTSTT) * 2^\1/'| bc -q | tr '\n' ' ')
 THRLSTP	?= [$(shell echo $(THRLST) | tr ' ' ',')]
@@ -121,9 +126,32 @@ bench_all:
 	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
 	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=nvhtm measure_cp_log_comp
 	mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree thrstart=8 thrmax=0 cpthrstart=8 cpthrmax=0 type=nvhtm parallel_cp
+	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
+
+numofentries:
+	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) parallel_cp=1 log_compression=1 cpthrstart=8 cpthrmax=0 numofentries_thr
+
+numofentries_thr: bench_cp_dir
+	make tree=$(tree) type=$(type) dist-clean
+	make tree=$(tree) type=$(type) db=$(db) logsize=$(LOGSZ) stats=1 reduce=$(reduce) parallel_cp=$(parallel_cp) log_compression=$(log_compression) entries=1 -j all
+	cp $(BENCH_SCRIPT_DIR)/base_operation_cp.py $(BUILD_DIR)
+	for cpthr in $(CPTLST); do\
+		(cd build; python3 base_operation_cp.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log "$$cpthr");\
+		mkdir -p $(BENCH_CP_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/cpthr_"$$cpthr";\
+		for exe in $(BASE_BENCH_EXE); do\
+			for thr in $(THRLST); do\
+				for trial in $(TRIALS); do\
+					mv $(BUILD_DIR)/"$$exe".thr."$$thr".trial."$$trial".dmp $(BENCH_CP_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/cpthr_"$$cpthr";\
+				done;\
+			done;\
+		done;\
+		mv $(BUILD_DIR)/result_raw.npy $(BENCH_CP_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/cpthr_"$$cpthr";\
+		mv $(BUILD_DIR)/result.csv $(BENCH_CP_DIR)/$(tree)_$(type)_$(db)/logsz_$(LOGSZ)/cpthr_"$$cpthr";\
+	done
 
 measure_cp_log_comp:
-	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 thrmax=1 BENCH_DATE=$(BENCH_DATE) parallel_cp=1 cpthrstart=1 cpthrmax=0 measure_cp=1 log_compression=1 measure_cp_thr
+	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 thrmax=1 BENCH_DATE=$(BENCH_DATE) parallel_cp=1 measure_cp=1 log_compression=1 cpthrstart=8 cpthrmax=0 measure_cp_thr
 
 measure_cp_log_comp_thr: bench_cp_dir
 	make tree=$(tree) type=$(type) dist-clean
@@ -144,7 +172,7 @@ measure_cp_log_comp_thr: bench_cp_dir
 	done
 
 measure_cp:
-	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) parallel_cp=1 cpthrstart=1 cpthrmax=0 measure_cp=1 measure_cp_thr
+	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) parallel_cp=1 measure_cp=1 cpthrstart=8 cpthrmax=0 measure_cp_thr
 
 measure_cp_thr: bench_cp_dir
 	make tree=$(tree) type=$(type) dist-clean
@@ -186,7 +214,7 @@ log_compression_thr: bench_cp_dir
 	done
 
 parallel_cp:
-	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) parallel_cp=1 parallel_cp_thr 
+	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 thrstart=$(THRSTT) thrmax=$(THRMAX) cpthrstart=$(CPTSTT) cpthrmax=$(CPTMAX) BENCH_DATE=$(BENCH_DATE) parallel_cp=1 parallel_cp_thr 
 
 parallel_cp_thr: bench_cp_dir
 	make tree=$(tree) type=$(type) dist-clean

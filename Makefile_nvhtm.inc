@@ -69,6 +69,16 @@ ifeq ($(task_dist),1)
     NVHTM_DEFINES   += -DCHECK_TASK_DISTRIBUTION
 endif
 
+ifeq ($(ldiv),1)
+    NVHTM_MAKE_ARGS += LARGE_DIV=1
+    NVHTM_DEFINES   += -DLARGE_DIV
+endif
+
+ifeq ($(entries),1)
+    NVHTM_MAKE_ARGS += NUMBER_OF_ENTRIES=1
+    NVHTM_DEFINES   += -DNUMBER_OF_ENTRIES
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

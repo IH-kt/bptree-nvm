@@ -1,8 +1,10 @@
 #!/bin/bash
-# FOLDERS="bayes genome intruder vacation ssca2 kmeans yada labyrinth"
-FOLDERS="vacation kmeans yada"
+FOLDERS="bayes genome intruder vacation ssca2 kmeans yada labyrinth"
+# FOLDERS="bayes genome intruder vacation kmeans yada labyrinth"
+# FOLDERS="vacation kmeans yada"
 #FOLDERS="genome"
-#FOLDERS="intruder"
+# FOLDERS="labyrinth"
+# FOLDERS="intruder"
 
 if [ $# -eq 0 ] ; then
     echo " === ERROR At the very least, we need the backend name in the first parameter. === "

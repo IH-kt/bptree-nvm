@@ -38,6 +38,10 @@ checkpoint_args_s *cp_thread_args;
 #    ifdef CHECK_TASK_DISTRIBUTION
 unsigned int *applied_entries;
 #    endif
+#    ifdef NUMBER_OF_ENTRIES
+unsigned int *read_entries;
+unsigned int *wrote_entries;
+#    endif
 #  endif
 double *parallel_checkpoint_section_time_thread[CPTIME_NUM];
 #  ifdef LOG_COMPRESSION
