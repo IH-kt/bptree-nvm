@@ -30,11 +30,11 @@ function run_bench {
     mkdir -p $resdir
 
     # note: ssca can't be used because of out of memory (exceeds max of mmap size)
-	for i in 1 2 3 4 5 6 7 8 9 # 1 2 3 4 5 6 7 8 9
+	for i in 1 2 3 4 5 6 7 8 9 # 1 2 3 4 5 6 7 # 1 2 3 4 5 6 7 8 9
 	do
         resdir_tmp="$resdir/${testname[$i]}"
         mkdir -p $resdir_tmp
-		for t in 1 2 4 8 # 10 14 15 28 29 56 # 1 2 4 8
+		for t in 8 # 1 2 4 8 # 10 14 15 28 29 56 # 1 2 4 8
 		do
 			for a in `seq 3` # `seq 30`
 			do
@@ -70,18 +70,25 @@ function run_bench {
 # MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=2 LOG_SIZE=10000 THREASHOLD=0.5" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-SLOG-R.txt
 # run_bench test_REDO-TS-SLOG-R
 
-(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=10000 stats=1 emulator=1 -j)
-MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-run_bench test_emulator
+# (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=10000 stats=1 emulator=1 -j)
+# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+# run_bench test_emulator
 
-(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=10000 stats=1 -j)
-MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5 USE_PMEM=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-run_bench test_use_mmap
+# (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=10000 stats=1 -j)
+# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5 USE_PMEM=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
 
-(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=10000 stats=1 parallel_cp=1 -j)
-MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-run_bench test_para_cp
-
-(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=10000 stats=1 parallel_cp=1 log_compression=1 -j)
-MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 LOG_COMPRESSION=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-run_bench test_log_comp
+# (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 -j)
+# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+# run_bench test_use_mmap
+# 
+# (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 -j)
+# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+# run_bench test_para_cp
+# 
+# (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 log_compression=1 -j)
+# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 LOG_COMPRESSION=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+# run_bench test_log_comp
+# 
+(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 task_dist=1 -j)
+MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 STAT=1 CHECK_TASK_DISTRIBUTION=1 PPATH=$1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+run_bench test_task_dist

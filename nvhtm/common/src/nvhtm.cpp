@@ -141,6 +141,7 @@ void NVHTM_thr_exit()
 	NH_time_validate_total += NH_time_validate;
 #ifdef STAT
 	abort_time_all += abort_time_thread;
+	transaction_time_all += transaction_time_thread;
 #endif
 
 	mutex = 0;
@@ -291,6 +292,7 @@ void NVHTM_shutdown()
     fprintf(stderr, "     X : %f\n", X);
     fprintf(stderr, " ---   TIME\n");
     fprintf(stderr, "TRANSACTION_ABORT_TIME: %lf s\n", abort_time_all);
+    fprintf(stderr, "TRANSACTION_TIME: %lf s\n", transaction_time_all);
     fprintf(stderr, "Time %f s\n", time_taken);
     fprintf(stderr, "TIME_TX %f ms\n", time_tx);
     fprintf(stderr, "TIME_AFTER %f ms\n", time_after);

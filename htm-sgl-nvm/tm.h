@@ -203,10 +203,57 @@ extern __thread CL_ALIGN int GLOBAL_instrument_write;
 # define TM_SHARED_READ_F(var) ({ NH_read_D(&(var)); })
 # define TM_SHARED_READ_D(var) ({ NH_read_D(&(var)); })
 
+#ifdef USE_PMEM
+# define TM_SHARED_WRITE(var, val)   ({\
+    if(GLOBAL_instrument_write) {\
+        if (stamp_mapped_file_pointer_g <= &(var) && &(var) < (char *)stamp_mapped_file_pointer_g + INIT_SIZE) {\
+            NH_write(&(var), val);\
+        } else {\
+            TM_LOCAL_WRITE(var, val);\
+        }\
+    } else {\
+        TM_LOCAL_WRITE(var, val);\
+    }\
+    var;})
+# define TM_SHARED_WRITE_P(var, val) ({\
+    if(GLOBAL_instrument_write) {\
+        if (stamp_mapped_file_pointer_g <= &(var) && &(var) < (char *)stamp_mapped_file_pointer_g + INIT_SIZE) {\
+            NH_write_P(&(var), val);\
+        } else {\
+            TM_LOCAL_WRITE_P(var, val);\
+        }\
+    } else {\
+        TM_LOCAL_WRITE_P(var, val);\
+    }\
+    var;})
+# define TM_SHARED_WRITE_F(var, val) ({\
+    if(GLOBAL_instrument_write) {\
+        if (stamp_mapped_file_pointer_g <= &(var) && &(var) < (char *)stamp_mapped_file_pointer_g + INIT_SIZE) {\
+            NH_write_D(&(var), val);\
+        } else {\
+            TM_LOCAL_WRITE_F(var, val);\
+        }\
+    } else {\
+        TM_LOCAL_WRITE_F(var, val);\
+    }\
+    var;})
+# define TM_SHARED_WRITE_D(var, val) ({\
+    if(GLOBAL_instrument_write) {\
+        if (stamp_mapped_file_pointer_g <= &(var) && &(var) < (char *)stamp_mapped_file_pointer_g + INIT_SIZE) {\
+            NH_write_D(&(var), val);\
+        } else {\
+            TM_LOCAL_WRITE_D(var, val);\
+        }\
+    } else {\
+        TM_LOCAL_WRITE_D(var, val);\
+    }\
+    var;})
+#else
 # define TM_SHARED_WRITE(var, val)   ({ if(GLOBAL_instrument_write) NH_write(&(var), val); else TM_LOCAL_WRITE(var, val); var;})
 # define TM_SHARED_WRITE_P(var, val) ({ if(GLOBAL_instrument_write) NH_write_P(&(var), val); else TM_LOCAL_WRITE_P(var, val); var;})
 # define TM_SHARED_WRITE_F(var, val) ({ if(GLOBAL_instrument_write) NH_write_D(&(var), val); else TM_LOCAL_WRITE_F(var, val); var;})
 # define TM_SHARED_WRITE_D(var, val) ({ if(GLOBAL_instrument_write) NH_write_D(&(var), val); else TM_LOCAL_WRITE_D(var, val); var;})
+#endif
 
 # define FAST_PATH_SHARED_WRITE(var, val)   TM_SHARED_WRITE(var, val)
 # define FAST_PATH_SHARED_WRITE_P(var, val) TM_SHARED_WRITE_P(var, val)

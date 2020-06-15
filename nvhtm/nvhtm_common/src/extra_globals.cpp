@@ -15,8 +15,11 @@ __thread CL_ALIGN NVLogLocal_s LOG_local_state;
 #ifdef STAT
 __thread double abort_time_thread = 0;
 double abort_time_all = 0;
+__thread double transaction_time_thread = 0;
+double transaction_time_all = 0;
 __thread struct timespec transaction_start;
 __thread struct timespec transaction_abort_end;
+__thread struct timespec transaction_commit;
 unsigned int *checkpoint_by_flags;
 unsigned int checkpoint_by[3];
 double checkpoint_section_time[4];

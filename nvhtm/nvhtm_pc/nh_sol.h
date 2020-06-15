@@ -54,6 +54,12 @@ extern "C"
     CHECK_AND_REQUEST(tid); \
     TM_inc_local_counter(tid); \
     LOG_after_TX(); \
+    clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_commit);\
+    double time_tmp = 0;                      \
+    time_tmp += (transaction_commit.tv_nsec - transaction_start.tv_nsec);  \
+    time_tmp /= 1000000000;                   \
+    time_tmp += transaction_commit.tv_sec - transaction_start.tv_sec;      \
+    transaction_time_thread += time_tmp;  \
   })
 #else
   #undef AFTER_TRANSACTION_i
