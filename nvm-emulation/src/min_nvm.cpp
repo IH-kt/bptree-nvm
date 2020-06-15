@@ -208,4 +208,6 @@ void MN_thr_reset() {
     written_bytes_thr = 0;
 #endif
 }
-void MN_start_freq(int by_chkp) {}
+void MN_reset(int by_chkp) {
+    MN_count_writes = 0;
+}

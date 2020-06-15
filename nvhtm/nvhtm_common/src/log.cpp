@@ -512,7 +512,7 @@ void NH_reset() {
     transaction_time_all = 0;
     TM_reset_error();
     kill(NH_checkpoint_pid, SIGUSR1);
-    MN_start_freq(0);
+    MN_reset(0);
 #endif
     return;
 }

@@ -1160,7 +1160,7 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
     }
 #endif
     MN_thr_reset();
-    MN_start_freq(1);
+    MN_reset(1);
 #endif
 }
 
