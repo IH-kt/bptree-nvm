@@ -53,7 +53,9 @@ int SPIN_PER_WRITE(int nb_writes)
 
 int MN_write(void *addr, void *buf, size_t size, int to_aux)
 {
-	MN_count_writes++;
+    if (!to_aux) {
+        MN_count_writes++;
+    }
 #ifndef USE_PMEM
 	if (to_aux) {
 		// it means it does not support CoW (dynamic mallocs?)
