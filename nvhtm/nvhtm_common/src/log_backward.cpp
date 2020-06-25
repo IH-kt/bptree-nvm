@@ -210,8 +210,8 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
     NVLogEntry_s entry = log->ptr[pos_local[next_log]];
     ts_s ts = entry_is_ts(entry);
     while (!ts && pos_local[next_log] != starts_g[next_log]) {
-#if defined(CHECK_TASK_DISTRIBUTION) && defined(NUMBER_OF_ENTRIES)
-        read_entries[tid]++;
+#ifdef NUMBER_OF_ENTRIES
+        read_entries[thread_id]++;
 #endif
 
 #  ifdef STAT

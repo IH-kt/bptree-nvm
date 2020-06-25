@@ -1203,10 +1203,15 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
 #    endif
 #    ifdef NUMBER_OF_ENTRIES
   unsigned long compressed_entries = 0;
+  unsigned long all_entries = 0;
   for (int i = 0; i < number_of_checkpoint_threads; i++) {
+      // printf("read_entries[%d] = %u, wrote_entries[%d] = %u\n", i, read_entries[i], i, wrote_entries[i]);
       compressed_entries += read_entries[i] - wrote_entries[i];
+      all_entries += read_entries[i];
   }
+  ptr += sprintf(ptr, "[FORKED_MANAGER] all entries = %lu\n", all_entries);
   ptr += sprintf(ptr, "[FORKED_MANAGER] compressed entries = %lu\n", compressed_entries);
+  ptr += sprintf(ptr, "[FORKED_MANAGER] compression ratio = %lf\n", (double)(compressed_entries) / all_entries);
 #    endif
   double parallel_checkpoint_section_time[CPTIME_NUM];
   for (int j = 0; j < CPTIME_NUM; j++) {
