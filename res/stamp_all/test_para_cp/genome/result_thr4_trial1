@@ -1,0 +1,72 @@
+log_size = 167773312
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fb131400000
+number of entry = 2097152
+Budget=20
+adding
+NH_time_blocked = 115958
+NH_count_blocks = 81
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000045
+adding
+NH_time_blocked = 73776
+NH_count_blocks = 83
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000029
+adding
+NH_time_blocked = 93250
+NH_count_blocks = 85
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000037
+adding
+NH_time_blocked = 44824
+NH_count_blocks = 59
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000017
+--- Percentage time blocked 0.000027 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000128 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 762335
+ABORTS : 50796
+CONFLS : 12439
+CAPACS : 28526
+EXPLIC : 308
+FALLBK : 913
+   P_A : 0.062470
+     X : 985507.548058
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.106940 s
+TRANSACTION_TIME: 2.585931 s
+Time 0.774472 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          842098
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          616
+[FORKED_MANAGER] Nb. checkpoints 0
+[FORKED_MANAGER] Time active 156.052733 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 0
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.000000
+[FORKED_MANAGER] sec. 2 (find commit) = 0.000000
+[FORKED_MANAGER] sec. 3 (apply & flush) = 0.000000
+[FORKED_MANAGER] cpthread write = 0.000000
+[FORKED_MANAGER] cpthread flush = 0.000000
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
+TOTAL_TIME_B (clocks) 327808
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.005580 s!

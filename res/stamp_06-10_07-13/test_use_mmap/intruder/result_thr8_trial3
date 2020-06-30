@@ -1,5 +1,0 @@
-log_size = 80000
-log_size_per_thread = 10000
-LOG_global_ptr = 0x7fcded400000
-number of entry = 512
-Budget=20
