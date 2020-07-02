@@ -79,6 +79,11 @@ ifeq ($(entries),1)
     NVHTM_DEFINES   += -DNUMBER_OF_ENTRIES
 endif
 
+ifeq ($(opt_c),1)
+    NVHTM_MAKE_ARGS += OPT_COMMIT=1
+    NVHTM_DEFINES   += -DOPT_COMMIT
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

@@ -573,6 +573,7 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   // flush entries before write TS (does not need memory barrier)
   
 #ifdef USE_PMEM
+#ifndef OPT_COMMIT
   int log_before = ptr_mod_log(LOG_local_state.end, -nb_writes);
   if (log_before + nb_writes > NH_global_logs[id]->size_of_log) {
       // fprintf(stderr, "LOG_local_state.end = %d\n", LOG_local_state.end);
@@ -591,6 +592,7 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
               nb_writes * sizeof(NVLogEntry_s), 0
               );
   }
+#endif
 #else
   SPIN_PER_WRITE(MAX(nb_writes * sizeof(NVLogEntry_s) / CACHE_LINE_SIZE, 1));
   // int log_before = ptr_mod_log(NH_global_logs[id]->end, -nb_writes);
@@ -608,10 +610,12 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
 
   NVMHTM_write_ts(id, ts); // Flush all together
 #ifdef USE_PMEM
+#ifndef OPT_COMMIT
   log_before = ptr_mod_log(LOG_local_state.end, -1);
   MN_flush(&(NH_global_logs[id]->ptr[log_before]),
     sizeof(NVLogEntry_s), 0
   );
+#endif
 #else
   SPIN_PER_WRITE(1);
 #endif
@@ -620,7 +624,9 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   // __sync_synchronize(); // Is not working! need the fence in the while loop!
   #endif
 
+#ifndef OPT_COMMIT
   __sync_synchronize();
+#endif
 }
 
 void NVMHTM_free(void *ptr)

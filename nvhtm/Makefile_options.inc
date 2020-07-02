@@ -157,3 +157,7 @@ endif
 ifeq ($(NUMBER_OF_ENTRIES), 1)
 DEFINES += -DNUMBER_OF_ENTRIES
 endif
+
+ifeq ($(OPT_COMMIT), 1)
+DEFINES += -DOPT_COMMIT
+endif
