@@ -1,64 +1,64 @@
 log_size = 167773312
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7f3f93800000
+LOG_global_ptr = 0x7ff015200000
 number of entry = 2097152
 Budget=20
 adding
-NH_time_blocked = 5818
-NH_count_blocks = 3
+NH_time_blocked = 12384
+NH_count_blocks = 8
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000005
+adding
+NH_time_blocked = 4330
+NH_count_blocks = 2
 NH_nanotime_blocked[0] = 0.000000
 NH_nanotime_blocked[1] = 0.000002
 adding
-NH_time_blocked = 17472
-NH_count_blocks = 6
+NH_time_blocked = 14148
+NH_count_blocks = 5
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000006
+adding
+NH_time_blocked = 18534
+NH_count_blocks = 7
 NH_nanotime_blocked[0] = 0.000000
 NH_nanotime_blocked[1] = 0.000007
-adding
-NH_time_blocked = 29848
-NH_count_blocks = 12
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000012
-adding
-NH_time_blocked = 41002
-NH_count_blocks = 16
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000016
---- Percentage time blocked 0.000126 
+--- Percentage time blocked 0.000067 
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 0.000037 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000019 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
 COMMIT : 65354
-ABORTS : 5009
-CONFLS : 527
-CAPACS : 1610
-EXPLIC : 37
+ABORTS : 5071
+CONFLS : 537
+CAPACS : 1707
+EXPLIC : 22
 FALLBK : 182
-   P_A : 0.071188
-     X : 1367157.272747
+   P_A : 0.072006
+     X : 1383485.954873
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.008400 s
-TRANSACTION_TIME: 0.125546 s
-Time 0.047936 s
+TRANSACTION_ABORT_TIME: 0.008662 s
+TRANSACTION_TIME: 0.125306 s
+Time 0.047370 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          111322
+TOTAL_WRITES          111366
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          74
-TOTAL_TIME_B (clocks) 94140
+TOTAL_BLOCKS          44
+TOTAL_TIME_B (clocks) 49396
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.002364 s!
+--- HTM time blocked 0.002383 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 275.472214 ms!
+[FORKED_MANAGER] Time active 280.408362 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0

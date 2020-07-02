@@ -1,54 +1,54 @@
 log_size = 83886656
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7fcde4e00000
+LOG_global_ptr = 0x7f49ca800000
 number of entry = 2097152
 Budget=20
 adding
-NH_time_blocked = 10674
-NH_count_blocks = 5
+NH_time_blocked = 19376
+NH_count_blocks = 11
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000004
+NH_nanotime_blocked[1] = 0.000008
 adding
-NH_time_blocked = 9490
-NH_count_blocks = 4
+NH_time_blocked = 32402
+NH_count_blocks = 11
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000004
---- Percentage time blocked 0.000018 
+NH_nanotime_blocked[1] = 0.000013
+--- Percentage time blocked 0.000046 
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 0.000008 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000020 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 64948
-ABORTS : 15459
-CONFLS : 857
-CAPACS : 5967
-EXPLIC : 9
-FALLBK : 588
-   P_A : 0.192259
-     X : 457675.982890
+COMMIT : 64961
+ABORTS : 15037
+CONFLS : 815
+CAPACS : 5625
+EXPLIC : 22
+FALLBK : 575
+   P_A : 0.187967
+     X : 451913.028018
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.031548 s
-TRANSACTION_TIME: 0.180713 s
-Time 0.143193 s
+TRANSACTION_ABORT_TIME: 0.031591 s
+TRANSACTION_TIME: 0.181906 s
+Time 0.145019 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          109670
+TOTAL_WRITES          109658
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          18
-TOTAL_TIME_B (clocks) 20164
+TOTAL_BLOCKS          44
+TOTAL_TIME_B (clocks) 51778
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.002071 s!
+--- HTM time blocked 0.002018 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 267.505541 ms!
+[FORKED_MANAGER] Time active 263.395251 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0

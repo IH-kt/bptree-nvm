@@ -1,6 +1,6 @@
 log_size = 41943328
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7f54c0800000
+LOG_global_ptr = 0x7f4321000000
 number of entry = 2097152
 Budget=20
 adding
@@ -19,20 +19,20 @@ NH_nanotime_blocked[1] = 0.000000
  ########################################### 
  --- ABORTS
 COMMIT : 258
-ABORTS : 5129
-CONFLS : 13
-CAPACS : 4874
+ABORTS : 5126
+CONFLS : 5
+CAPACS : 4797
 EXPLIC : 0
 FALLBK : 256
-   P_A : 0.952107
-     X : 161.526720
+   P_A : 0.952080
+     X : 161.624141
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.002350 s
-TRANSACTION_TIME: 3.176646 s
-Time 3.182136 s
+TRANSACTION_ABORT_TIME: 0.001984 s
+TRANSACTION_TIME: 3.175038 s
+Time 3.180218 s
 TIME_TX 0.000000 ms
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 1146.487169 ms!
+[FORKED_MANAGER] Time active 1142.479749 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0
@@ -53,4 +53,4 @@ TOTAL_TIME_B (clocks) 0
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.000033 s!
+--- HTM time blocked 0.000042 s!

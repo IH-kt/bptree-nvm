@@ -1,54 +1,54 @@
 log_size = 83886656
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7f9a09601000
+LOG_global_ptr = 0x7fda581f8000
 number of entry = 2097152
 Budget=20
 adding
-NH_time_blocked = 16270
+NH_time_blocked = 12832
 NH_count_blocks = 8
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000006
+NH_nanotime_blocked[1] = 0.000005
 adding
-NH_time_blocked = 19646
-NH_count_blocks = 9
+NH_time_blocked = 41336
+NH_count_blocks = 17
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000008
---- Percentage time blocked 0.000034 
+NH_nanotime_blocked[1] = 0.000016
+--- Percentage time blocked 0.000049 
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 0.000014 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000021 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 64974
-ABORTS : 15085
-CONFLS : 769
-CAPACS : 5539
-EXPLIC : 17
-FALLBK : 562
-   P_A : 0.188424
-     X : 478777.107675
+COMMIT : 64902
+ABORTS : 18065
+CONFLS : 914
+CAPACS : 8545
+EXPLIC : 25
+FALLBK : 634
+   P_A : 0.217737
+     X : 461238.593024
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.030084 s
-TRANSACTION_TIME: 0.175607 s
-Time 0.136882 s
+TRANSACTION_ABORT_TIME: 0.036103 s
+TRANSACTION_TIME: 0.176855 s
+Time 0.142087 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          109664
+TOTAL_WRITES          109672
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          34
-TOTAL_TIME_B (clocks) 35916
+TOTAL_BLOCKS          50
+TOTAL_TIME_B (clocks) 54168
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.001990 s!
+--- HTM time blocked 0.002099 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 262.216485 ms!
+[FORKED_MANAGER] Time active 261.672056 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0

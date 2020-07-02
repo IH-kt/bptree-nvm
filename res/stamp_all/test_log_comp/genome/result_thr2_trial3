@@ -1,54 +1,54 @@
 log_size = 83886656
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7fa0be3f3000
+LOG_global_ptr = 0x7faf4f7d5000
 number of entry = 2097152
 Budget=20
 adding
-NH_time_blocked = 12726
+NH_time_blocked = 12918
 NH_count_blocks = 16
 NH_nanotime_blocked[0] = 0.000000
 NH_nanotime_blocked[1] = 0.000005
 adding
-NH_time_blocked = 35542
-NH_count_blocks = 46
+NH_time_blocked = 82882
+NH_count_blocks = 69
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000014
---- Percentage time blocked 0.000005 
+NH_nanotime_blocked[1] = 0.000032
+--- Percentage time blocked 0.000009 
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 0.000019 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000037 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 762598
-ABORTS : 27673
-CONFLS : 1678
-CAPACS : 10172
-EXPLIC : 62
-FALLBK : 650
-   P_A : 0.035017
-     X : 565714.613286
+COMMIT : 762605
+ABORTS : 41509
+CONFLS : 8460
+CAPACS : 9998
+EXPLIC : 85
+FALLBK : 643
+   P_A : 0.051621
+     X : 551843.461754
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.042508 s
-TRANSACTION_TIME: 2.420050 s
-Time 1.349175 s
+TRANSACTION_ABORT_TIME: 0.073810 s
+TRANSACTION_TIME: 2.423484 s
+Time 1.383088 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          848668
+TOTAL_WRITES          844140
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          124
-TOTAL_TIME_B (clocks) 48268
+TOTAL_BLOCKS          170
+TOTAL_TIME_B (clocks) 95800
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.001402 s!
+--- HTM time blocked 0.001410 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 151.793992 ms!
+[FORKED_MANAGER] Time active 145.520406 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0

@@ -1,54 +1,54 @@
 log_size = 83886656
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7f12b981a000
+LOG_global_ptr = 0x7fb2d0b98000
 number of entry = 2097152
 Budget=20
 adding
-NH_time_blocked = 6116
+NH_time_blocked = 5158
 NH_count_blocks = 3
 NH_nanotime_blocked[0] = 0.000000
 NH_nanotime_blocked[1] = 0.000002
 adding
-NH_time_blocked = 17192
-NH_count_blocks = 4
+NH_time_blocked = 6754
+NH_count_blocks = 3
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000007
---- Percentage time blocked 0.000035 
+NH_nanotime_blocked[1] = 0.000003
+--- Percentage time blocked 0.000018 
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 0.000009 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000005 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 65383
-ABORTS : 3956
-CONFLS : 217
-CAPACS : 682
-EXPLIC : 7
-FALLBK : 153
-   P_A : 0.057053
-     X : 758035.036620
+COMMIT : 65380
+ABORTS : 4104
+CONFLS : 194
+CAPACS : 914
+EXPLIC : 6
+FALLBK : 156
+   P_A : 0.059064
+     X : 769274.425360
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.006055 s
-TRANSACTION_TIME: 0.110732 s
-Time 0.086455 s
+TRANSACTION_ABORT_TIME: 0.006235 s
+TRANSACTION_TIME: 0.109356 s
+Time 0.085192 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          110978
+TOTAL_WRITES          110838
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          14
-TOTAL_TIME_B (clocks) 23308
+TOTAL_BLOCKS          12
+TOTAL_TIME_B (clocks) 11912
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.000615 s!
+--- HTM time blocked 0.000606 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 260.935825 ms!
+[FORKED_MANAGER] Time active 257.028512 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0

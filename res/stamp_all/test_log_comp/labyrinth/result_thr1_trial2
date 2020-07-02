@@ -1,6 +1,6 @@
 log_size = 41943328
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7f8e42898000
+LOG_global_ptr = 0x7f7f50894000
 number of entry = 2097152
 Budget=20
 adding
@@ -19,23 +19,19 @@ NH_nanotime_blocked[1] = 0.000000
  ########################################### 
  --- ABORTS
 COMMIT : 258
-ABORTS : 5130
-CONFLS : 7
-CAPACS : 4856
+ABORTS : 5128
+CONFLS : 0
+CAPACS : 4873
 EXPLIC : 0
 FALLBK : 256
-   P_A : 0.952116
-     X : 164.971951
+   P_A : 0.952098
+     X : 165.222412
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.002212 s
-TRANSACTION_TIME: 3.110036 s
-Time 3.115681 s
-TIME_TX 0.000000 ms
-TIME_AFTER 0.000000 ms
-AVG_CAP -nan
-TOTAL_WRITES          514
+TRANSACTION_ABORT_TIME: 0.002299 s
+TRANSACTION_TIME: 3.105814 s
+Time 3.110958 s
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 1123.048396 ms!
+[FORKED_MANAGER] Time active 1129.015139 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0
@@ -47,6 +43,10 @@ TOTAL_WRITES          514
 [FORKED_MANAGER] cpthread logwrite = 0.000000
 [FORKED_MANAGER] cpthread write & flush = 0.000000
 [logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          514
 TOTAL_SPINS (workers) 0
 TOTAL_BLOCKS          0
 TOTAL_TIME_B (clocks) 0
@@ -54,4 +54,4 @@ TOTAL_TIME_B (clocks) 0
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.000035 s!
+--- HTM time blocked 0.000033 s!

@@ -1,54 +1,54 @@
 log_size = 83886656
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7fa0a4200000
+LOG_global_ptr = 0x7f04ac800000
 number of entry = 2097152
 Budget=20
 adding
-NH_time_blocked = 145644
-NH_count_blocks = 106
+NH_time_blocked = 165778
+NH_count_blocks = 91
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000057
+NH_nanotime_blocked[1] = 0.000064
 adding
-NH_time_blocked = 137158
-NH_count_blocks = 97
+NH_time_blocked = 174040
+NH_count_blocks = 122
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000054
---- Percentage time blocked 0.000078 
+NH_nanotime_blocked[1] = 0.000068
+--- Percentage time blocked 0.000089 
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 0.000111 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000132 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 798130
-ABORTS : 68781
-CONFLS : 26592
-CAPACS : 2744
-EXPLIC : 203
-FALLBK : 1975
-   P_A : 0.079340
-     X : 1714028.966828
+COMMIT : 798104
+ABORTS : 68970
+CONFLS : 27495
+CAPACS : 2752
+EXPLIC : 213
+FALLBK : 2001
+   P_A : 0.079543
+     X : 1631824.800279
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.051183 s
-TRANSACTION_TIME: 0.612858 s
-Time 0.466798 s
+TRANSACTION_ABORT_TIME: 0.053607 s
+TRANSACTION_TIME: 0.646907 s
+Time 0.490313 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          3480649
+TOTAL_WRITES          3480013
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          406
-TOTAL_TIME_B (clocks) 282802
+TOTAL_BLOCKS          426
+TOTAL_TIME_B (clocks) 339818
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.006268 s!
+--- HTM time blocked 0.006586 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 30.872134 ms!
+[FORKED_MANAGER] Time active 27.038024 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0

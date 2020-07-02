@@ -1,54 +1,54 @@
 log_size = 83886656
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7fc27c600000
+LOG_global_ptr = 0x7f65d1000000
 number of entry = 2097152
 Budget=20
 adding
-NH_time_blocked = 14778
-NH_count_blocks = 8
+NH_time_blocked = 21696
+NH_count_blocks = 12
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000006
+NH_nanotime_blocked[1] = 0.000009
 adding
-NH_time_blocked = 18572
-NH_count_blocks = 9
+NH_time_blocked = 19914
+NH_count_blocks = 7
 NH_nanotime_blocked[0] = 0.000000
 NH_nanotime_blocked[1] = 0.000008
---- Percentage time blocked 0.000032 
+--- Percentage time blocked 0.000037 
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 0.000013 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000016 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 64937
-ABORTS : 17437
-CONFLS : 889
-CAPACS : 6865
-EXPLIC : 17
-FALLBK : 599
-   P_A : 0.211681
-     X : 491012.984477
+COMMIT : 64962
+ABORTS : 15087
+CONFLS : 840
+CAPACS : 5635
+EXPLIC : 19
+FALLBK : 574
+   P_A : 0.188472
+     X : 448953.240667
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.034124 s
-TRANSACTION_TIME: 0.169127 s
-Time 0.133471 s
+TRANSACTION_ABORT_TIME: 0.031610 s
+TRANSACTION_TIME: 0.182671 s
+Time 0.145975 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          109784
+TOTAL_WRITES          109868
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          34
-TOTAL_TIME_B (clocks) 33350
+TOTAL_BLOCKS          38
+TOTAL_TIME_B (clocks) 41610
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.002046 s!
+--- HTM time blocked 0.002006 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 269.224035 ms!
+[FORKED_MANAGER] Time active 260.651878 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0

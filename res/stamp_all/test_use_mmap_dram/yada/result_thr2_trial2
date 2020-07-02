@@ -1,60 +1,60 @@
 log_size = 83886656
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7efc6c800000
+LOG_global_ptr = 0x7fc375c00000
 number of entry = 2097152
 Budget=20
 adding
-NH_time_blocked = 68978
-NH_count_blocks = 54
+NH_time_blocked = 66596
+NH_count_blocks = 57
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000027
+NH_nanotime_blocked[1] = 0.000026
 adding
-NH_time_blocked = 59050
-NH_count_blocks = 35
+NH_time_blocked = 62758
+NH_count_blocks = 44
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000023
---- Percentage time blocked 0.000044 
+NH_nanotime_blocked[1] = 0.000024
+--- Percentage time blocked 0.000045 
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 0.000049 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000050 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 25513
-ABORTS : 104000
-CONFLS : 43536
-CAPACS : 28630
-EXPLIC : 89
-FALLBK : 4957
-   P_A : 0.803008
-     X : 81051.485831
+COMMIT : 25456
+ABORTS : 104723
+CONFLS : 43355
+CAPACS : 30095
+EXPLIC : 101
+FALLBK : 4986
+   P_A : 0.804454
+     X : 81760.395658
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.482683 s
-TRANSACTION_TIME: 0.155195 s
-Time 0.375934 s
+TRANSACTION_ABORT_TIME: 0.490101 s
+TRANSACTION_TIME: 0.146932 s
+Time 0.372332 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          732412
+TOTAL_WRITES          734844
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          178
-TOTAL_TIME_B (clocks) 128028
+TOTAL_BLOCKS          202
+TOTAL_TIME_B (clocks) 129354
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.105969 s!
+--- HTM time blocked 0.101635 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 37.208674 ms!
+[FORKED_MANAGER] Time active 42.036869 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0
 [FORKED_MANAGER] by CHECK_LOG_ABORT = 0
 [FORKED_MANAGER] by WAIT_MORE_LOG = 0
-[FORKED_MANAGER] sec. 1 (reserve) = 0.000179
+[FORKED_MANAGER] sec. 1 (reserve) = 0.000110
 [FORKED_MANAGER] sec. 2 (find commit) = 0.000000
 [FORKED_MANAGER] sec. 3 (apply) = 0.000000
 [FORKED_MANAGER] sec. 4 (flush) = 0.000000

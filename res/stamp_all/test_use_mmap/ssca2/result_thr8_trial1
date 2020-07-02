@@ -1,6 +1,6 @@
 log_size = 335546624
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7fa558800000
+LOG_global_ptr = 0x7febddc00000
 number of entry = 2097152
 Budget=20
 adding
@@ -53,34 +53,34 @@ NH_nanotime_blocked[1] = 0.000000
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 5557501
-ABORTS : 8139
-CONFLS : 1880
-CAPACS : 133
+COMMIT : 5557505
+ABORTS : 7854
+CONFLS : 1778
+CAPACS : 95
 EXPLIC : 0
 FALLBK : 0
-   P_A : 0.001462
-     X : 3608886.538147
+   P_A : 0.001411
+     X : 3529874.548885
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.011350 s
-TRANSACTION_TIME: 8.432941 s
-Time 1.539949 s
+TRANSACTION_ABORT_TIME: 0.011827 s
+TRANSACTION_TIME: 8.453992 s
+Time 1.574420 s
 TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          38902439
 [FORKED_MANAGER] Nb. checkpoints 2
-[FORKED_MANAGER] Time active 1863.922532 ms!
+[FORKED_MANAGER] Time active 1868.597187 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 2
 [FORKED_MANAGER] by CHECK_LOG_ABORT = 0
 [FORKED_MANAGER] by WAIT_MORE_LOG = 0
-[FORKED_MANAGER] sec. 1 (reserve) = 0.030823
-[FORKED_MANAGER] sec. 2 (find commit) = 0.000846
-[FORKED_MANAGER] sec. 3 (apply) = 0.693372
-[FORKED_MANAGER] sec. 4 (flush) = 0.000600
+[FORKED_MANAGER] sec. 1 (reserve) = 0.027787
+[FORKED_MANAGER] sec. 2 (find commit) = 0.000952
+[FORKED_MANAGER] sec. 3 (apply) = 0.691096
+[FORKED_MANAGER] sec. 4 (flush) = 0.000616
 [logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
-TIME_AFTER 0.000000 ms
-AVG_CAP -nan
-TOTAL_WRITES          38902411
 TOTAL_SPINS (workers) 0
 TOTAL_BLOCKS          0
 TOTAL_TIME_B (clocks) 0

@@ -1,170 +1,170 @@
 log_size = 335546624
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7f18e3800000
+LOG_global_ptr = 0x7f8af4000000
 number of entry = 2097152
 Budget=20
 adding
-NH_time_blocked = 221564
-NH_count_blocks = 308
+NH_time_blocked = 214626
+NH_count_blocks = 291
 NH_nanotime_blocked[0] = 0.000000
 NH_nanotime_blocked[1] = 0.000085
 adding
-NH_time_blocked = 207888
-NH_count_blocks = 281
+NH_time_blocked = 224852
+NH_count_blocks = 287
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000088
+adding
+NH_time_blocked = 221036
+NH_count_blocks = 302
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000087
+adding
+NH_time_blocked = 240518
+NH_count_blocks = 329
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000095
+adding
+NH_time_blocked = 207192
+NH_count_blocks = 283
 NH_nanotime_blocked[0] = 0.000000
 NH_nanotime_blocked[1] = 0.000081
 adding
-NH_time_blocked = 200680
-NH_count_blocks = 277
+NH_time_blocked = 221738
+NH_count_blocks = 296
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000078
+NH_nanotime_blocked[1] = 0.000087
 adding
-NH_time_blocked = 200796
-NH_count_blocks = 263
+NH_time_blocked = 209320
+NH_count_blocks = 287
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000078
+NH_nanotime_blocked[1] = 0.000082
 adding
-NH_time_blocked = 229852
-NH_count_blocks = 295
+NH_time_blocked = 212864
+NH_count_blocks = 300
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000089
+NH_nanotime_blocked[1] = 0.000084
 adding
-NH_time_blocked = 247448
-NH_count_blocks = 328
+NH_time_blocked = 7065162
+NH_count_blocks = 10442
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000096
+NH_nanotime_blocked[1] = 0.002793
 adding
-NH_time_blocked = 200876
-NH_count_blocks = 280
+NH_time_blocked = 7282936
+NH_count_blocks = 10743
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000078
+NH_nanotime_blocked[1] = 0.002881
 adding
-NH_time_blocked = 237514
-NH_count_blocks = 321
+NH_time_blocked = 7503664
+NH_count_blocks = 11040
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000092
+NH_nanotime_blocked[1] = 0.002966
 adding
-NH_time_blocked = 7164064
-NH_count_blocks = 10608
+NH_time_blocked = 7278922
+NH_count_blocks = 10783
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.002779
+NH_nanotime_blocked[1] = 0.002889
 adding
-NH_time_blocked = 6814640
-NH_count_blocks = 9990
+NH_time_blocked = 6749232
+NH_count_blocks = 9868
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.002648
+NH_nanotime_blocked[1] = 0.002667
 adding
-NH_time_blocked = 7073416
-NH_count_blocks = 10396
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.002742
-adding
-NH_time_blocked = 7131262
-NH_count_blocks = 10439
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.002767
-adding
-NH_time_blocked = 6449878
-NH_count_blocks = 9533
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.002503
-adding
-NH_time_blocked = 6731414
-NH_count_blocks = 9957
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.002613
-adding
-NH_time_blocked = 7210306
-NH_count_blocks = 10688
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.002799
-adding
-NH_time_blocked = 7290500
-NH_count_blocks = 10828
+NH_time_blocked = 7191652
+NH_count_blocks = 10614
 NH_nanotime_blocked[0] = 0.000000
 NH_nanotime_blocked[1] = 0.002846
 adding
-NH_time_blocked = 13093438
-NH_count_blocks = 19183
+NH_time_blocked = 7300812
+NH_count_blocks = 10677
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.005104
+NH_nanotime_blocked[1] = 0.002885
 adding
-NH_time_blocked = 13683800
-NH_count_blocks = 20079
+NH_time_blocked = 6334288
+NH_count_blocks = 9375
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.005307
+NH_nanotime_blocked[1] = 0.002502
 adding
-NH_time_blocked = 13885918
-NH_count_blocks = 20556
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.005390
-adding
-NH_time_blocked = 14137764
-NH_count_blocks = 20705
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.005485
-adding
-NH_time_blocked = 13295256
+NH_time_blocked = 13493980
 NH_count_blocks = 19685
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.005160
+NH_nanotime_blocked[1] = 0.005335
 adding
-NH_time_blocked = 13469668
-NH_count_blocks = 19932
+NH_time_blocked = 14244792
+NH_count_blocks = 21076
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.005229
+NH_nanotime_blocked[1] = 0.005635
 adding
-NH_time_blocked = 14571522
-NH_count_blocks = 21385
+NH_time_blocked = 13133762
+NH_count_blocks = 19430
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.005683
+NH_nanotime_blocked[1] = 0.005191
 adding
-NH_time_blocked = 14238204
-NH_count_blocks = 20859
+NH_time_blocked = 13489446
+NH_count_blocks = 19759
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.005525
---- Percentage time blocked 0.008717 
+NH_nanotime_blocked[1] = 0.005330
+adding
+NH_time_blocked = 14184540
+NH_count_blocks = 20974
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.005611
+adding
+NH_time_blocked = 14752640
+NH_count_blocks = 21795
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.005832
+adding
+NH_time_blocked = 13836726
+NH_count_blocks = 20224
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.005460
+adding
+NH_time_blocked = 14410340
+NH_count_blocks = 21369
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.005710
+--- Percentage time blocked 0.008859 
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 0.065255 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.067222 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 127665
-ABORTS : 2709687
-CONFLS : 2546557
-CAPACS : 462
-EXPLIC : 162384
-FALLBK : 134502
-   P_A : 0.955006
-     X : 424466.350893
+COMMIT : 127757
+ABORTS : 2708757
+CONFLS : 2543484
+CAPACS : 708
+EXPLIC : 164312
+FALLBK : 134410
+   P_A : 0.954960
+     X : 426234.425955
  ---   TIME
-TRANSACTION_ABORT_TIME: 1.813020 s
-TRANSACTION_TIME: 0.976660 s
-Time 0.617639 s
+TRANSACTION_ABORT_TIME: 1.819108 s
+TRANSACTION_TIME: 0.992998 s
+Time 0.615077 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
 TOTAL_WRITES          27263022
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          494352
-TOTAL_TIME_B (clocks) 167987668
+TOTAL_BLOCKS          500458
+TOTAL_TIME_B (clocks) 170005040
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.545796 s!
+--- HTM time blocked 0.549148 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 157.124629 ms!
+[FORKED_MANAGER] Time active 154.109883 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0
 [FORKED_MANAGER] by CHECK_LOG_ABORT = 0
 [FORKED_MANAGER] by WAIT_MORE_LOG = 0
-[FORKED_MANAGER] sec. 1 (reserve) = 0.000100
+[FORKED_MANAGER] sec. 1 (reserve) = 0.000107
 [FORKED_MANAGER] sec. 2 (find commit) = 0.000000
 [FORKED_MANAGER] sec. 3 (apply) = 0.000000
 [FORKED_MANAGER] sec. 4 (flush) = 0.000000
