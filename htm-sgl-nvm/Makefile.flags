@@ -161,9 +161,17 @@ DEFINES += -DCHECK_TASK_DISTRIBUTION
 endif
 
 ifdef PPATH
-DEFINES += -DLOG_NAME="\"${PPATH}/log\""
 DEFINES += -DDATA_NAME="\"${PPATH}/data\""
 else
-DEFINES += -DLOG_NAME="\"./log\""
 DEFINES += -DDATA_NAME="\"./data\""
+endif
+
+ifdef VPATH
+DEFINES += -DLOG_NAME="\"${VPATH}/log\""
+else
+ifdef PPATH
+DEFINES += -DLOG_NAME="\"${PPATH}/log\""
+else
+DEFINES += -DLOG_NAME="\"./log\""
+endif
 endif

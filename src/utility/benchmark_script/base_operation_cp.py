@@ -7,7 +7,7 @@ import os
 import subprocess
 import csv
 import pandas as pd
-# exefiles = ["insert_concurrent.exe", "search_concurrent.exe", "delete_concurrent.exe", "mixed_concurrent.exe"]
+# exefiles = ["insert_concurrent.exe", "search_concurrent.exe", "delete_concurrent.exe"]
 exefiles = ["mixed_concurrent.exe"]
 exp_loop_times = range(3)
 warmup_num = int(sys.argv[1]) # 元からある要素の数
@@ -15,6 +15,7 @@ trial_num = int(sys.argv[2]) # 検索・追加する回数
 thread_num = eval(sys.argv[3]) # スレッド数
 pmempath = sys.argv[4]
 pmemlogpath = sys.argv[5]
+cpthread_num = sys.argv[6] # Checkpointプロセスのスレッド数
 # linestyles = ["ro-", "b.-", "gs-", "k+-", "y^-", "c*-", "m1-", "kD-", "kx-", "k3-"]
 
 def exp_loop(filename, mode, mempath):
@@ -29,7 +30,7 @@ def exp_loop(filename, mode, mempath):
         for i in thread_num:
             print("thread_num: " + str(i))
             inner_result_array = [];
-            cmd = ['./' + filename, str(warmup_num), str(trial_num), str(warmup_num + trial_num), str(i), pmempath, pmemlogpath]
+            cmd = ['./' + filename, str(warmup_num), str(trial_num), str(warmup_num + trial_num), str(i), pmempath, pmemlogpath, cpthread_num]
             print(cmd)
             for j in exp_loop_times:
                 print("trial " + str(j+1))

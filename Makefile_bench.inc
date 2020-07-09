@@ -118,16 +118,20 @@ bench_all:
 	# mv $(BENCH_ET_DIR) $(BENCH_DIR)/pmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree thrmax=3 type=nvhtm parallel_cp
 	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
-	# make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) tree=bptree thrmax=3 type=nvhtm parallel_cp
+    # make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) tree=bptree thrmax=3 type=nvhtm parallel_cp
 	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/vmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree thrmax=3 type=nvhtm log_compression
 	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree thrmax=3 type=nvhtm measure_cp
 	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
-	make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=nvhtm measure_cp_log_comp
-	mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree type=nvhtm measure_cp_log_comp
+	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
 	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree thrstart=8 thrmax=0 cpthrstart=8 cpthrmax=0 type=nvhtm parallel_cp
 	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
+	# make BENCH_DATE=$(BENCH_DATE) ppath=$(PPATH) tree=bptree thrmax=3 type=nvhtm opt_c=1 log_compression
+	# mv $(BENCH_CP_DIR) $(BENCH_DIR)/pmem
+	make BENCH_DATE=$(BENCH_DATE) ppath=$(VDPATH) tree=bptree thrmax=3 type=nvhtm cpthrmax=0 cpthrstart=8 parallel_cp
+	mv $(BENCH_CP_DIR) $(BENCH_DIR)/vmem
 
 numofentries:
 	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 BENCH_DATE=$(BENCH_DATE) parallel_cp=1 log_compression=1 cpthrstart=8 cpthrmax=0 numofentries_thr
@@ -193,11 +197,11 @@ measure_cp_thr: bench_cp_dir
 	done
 
 log_compression:
-	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) log_compression=1 parallel_cp=1 cpthrstart=8 cpthrmax=0 log_compression_thr 
+	make tree=bptree type=nvhtm logsize=41943328 ppath=$(PPATH) db=0 thrmax=$(THRMAX) BENCH_DATE=$(BENCH_DATE) log_compression=1 parallel_cp=1 cpthrstart=8 cpthrmax=0 opt_c=$(opt_c) log_compression_thr 
 
 log_compression_thr: bench_cp_dir
 	make tree=$(tree) type=$(type) dist-clean
-	make tree=$(tree) type=$(type) db=$(db) logsize=$(LOGSZ) stats=1 reduce=$(reduce) parallel_cp=$(parallel_cp) log_compression=$(log_compression) -j all
+	make tree=$(tree) type=$(type) db=$(db) logsize=$(LOGSZ) stats=1 reduce=$(reduce) parallel_cp=$(parallel_cp) log_compression=$(log_compression) opt_c=$(opt_c) -j all
 	cp $(BENCH_SCRIPT_DIR)/base_operation_cp.py $(BUILD_DIR)
 	for cpthr in $(CPTLST); do\
 		(cd build; python3 base_operation_cp.py $(WARM_UP) $(LOOP_TIMES) "$(THRLSTP)" $(PPATH)/data $(PPATH)/log "$$cpthr");\
