@@ -25,12 +25,14 @@ extern "C" {
 #  define LOCK 0
 #endif
 
-#define MIN_KEY 128
+// #define MIN_KEY 128
+#define MIN_KEY 7
 #define MIN_DEG (MIN_KEY+1)
 #define MAX_KEY (2*MIN_KEY+1)
 #define MAX_DEG (MAX_KEY+1)
 #ifndef MAX_PAIR
-#  define MAX_PAIR 128
+// #  define MAX_PAIR 128
+#  define MAX_PAIR 13
 #endif
 
 #include "allocator.h"
@@ -87,7 +89,7 @@ struct InternalNode {
     unsigned char children_type;
     Key keys[MAX_KEY];
     void *children[MAX_DEG];
-};
+} __attribute__((aligned (64)));
 
 struct LeafNode {
     unsigned char tid;
@@ -96,7 +98,7 @@ struct LeafNode {
     ppointer pnext;
     int key_length;
     KeyValuePair kv[MAX_PAIR];
-};
+} __attribute__((aligned (64)));
 
 struct BPTree {
     struct InternalNode *root;

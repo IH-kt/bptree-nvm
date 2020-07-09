@@ -74,7 +74,7 @@ void *mixed_random(BPTree *bpt, void *arg) {
     int flag = 0;
     for (int i = 0; i < loop; i++) {
         kv.key = get_rand(i, tid-1) % INT_MAX + 1;
-        if (flag < 14) {
+        if (flag < 25) {
             search(bpt, kv.key, &sr, tid);
             flag++;
         } else {

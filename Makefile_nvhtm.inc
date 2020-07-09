@@ -87,7 +87,7 @@ endif
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else
-	LOGSZ	:= 65824
+	LOGSZ	:= 41943328
 endif
 NVHTM_MAKE_ARGS += LOG_SIZE=$(LOGSZ)
 
