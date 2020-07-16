@@ -30,24 +30,25 @@ def plot_graph(plot_dir, bench_name, result_files, ledgends, colorlst, markerlst
     # plt.title('スレッド数による実行時間の変化 (' + ops[i] + ')', fontsize=font_size)
     plt.tight_layout()
     # plt.savefig(log_size_str + '/' + colname + '.png')
-    plt.savefig(plot_dir + '/' + bench_name + '_threads_ja.pdf')
+    plt.savefig(plot_dir + '/' + bench_name + '_with_dram.pdf')
     plt.close()
 
 
 def main():
     bench_names = ['genome', 'intruder', 'kmeans-high', 'kmeans-low', 'labyrinth', 'ssca2', 'vacation-high', 'vacation-low', 'yada']
     # result_file_template = ['use_mmap', 'para_cp', 'log_comp', 'emulator']
-    # result_file_template = ['use_mmap', 'para_cp', 'log_comp']
-    result_file_template = ['use_mmap', 'para_cp', 'log_comp', 'para_cp_dram']
+    result_file_template = ['use_mmap', 'para_cp', 'log_comp']
     result_file_generator = lambda extype: 'scaling/' + extype + '/time_' + bench_name + '.csv'
     plot_target_dir = "graphs/scaling"
     colorlst = ['#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
     markerlst = ['o', 'v', '^', 's']
     font_size = 18
     # ledgends = ['NVM(1スレッド)', 'NVM(8スレッド)', 'NVM(ログ圧縮)', 'エミュレータ(1スレッド)']
-    ledgends = ['NVM(1スレッド)', 'NVM(8スレッド)', 'NVM(ログ圧縮)', 'DRAM(1スレッド)']
+    ledgends = ['NVM(1スレッド)', 'NVM(8スレッド)', 'NVM(ログ圧縮)', 'DRAM']
     for bench_name in bench_names:
         result_files = list(map(result_file_generator, result_file_template))
+        result_files.append(sys.argv[1] + 'scaling/use_mmap/time_' + bench_name + '.csv')
+        print(result_files)
         plot_graph(plot_target_dir, bench_name, result_files, ledgends, colorlst, markerlst, font_size)
 
 main()

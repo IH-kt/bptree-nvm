@@ -6,7 +6,8 @@ else
     root_dir=$1
 fi
 # exec_types='emulator log_comp para_cp use_mmap'
-exec_types='log_comp para_cp use_mmap'
+# exec_types='log_comp para_cp use_mmap'
+exec_types='use_mmap'
 bench_types='genome intruder kmeans-high kmeans-low labyrinth ssca2 vacation-high vacation-low yada'
 max_trial=3
 trials=`seq 1 ${max_trial}`
