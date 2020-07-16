@@ -161,3 +161,11 @@ endif
 ifeq ($(OPT_COMMIT), 1)
 DEFINES += -DOPT_COMMIT
 endif
+
+ifeq ($(NO_FENCE), 1)
+DEFINES += -DNO_FENCE
+endif
+
+ifeq ($(NO_FLUSH), 1)
+DEFINES += -DNO_FLUSH
+endif

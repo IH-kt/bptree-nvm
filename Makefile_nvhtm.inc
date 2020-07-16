@@ -84,6 +84,16 @@ ifeq ($(opt_c),1)
     NVHTM_DEFINES   += -DOPT_COMMIT
 endif
 
+ifeq ($(no_fence),1)
+    NVHTM_MAKE_ARGS += NO_FENCE=1
+    NVHTM_DEFINES   += -DNO_FENCE
+endif
+
+ifeq ($(no_flush),1)
+    NVHTM_MAKE_ARGS += NO_FLUSH=1
+    NVHTM_DEFINES   += -DNO_FLUSH
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

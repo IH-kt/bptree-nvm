@@ -32,7 +32,7 @@ def exp_loop(filename, mode, exp_loop_times, warmup_num, trial_num, thread_list,
     average_result_list = []
     print("executing: " + filename)
     print("warming up")
-    cmd = ['./' + filename, str(warmup_num), str(trial_num), str(warmup_num + trial_num), str(4), datapath, logpath]
+    cmd = ['./' + filename, str(warmup_num), str(trial_num), str(warmup_num + trial_num), str(4), datapath, logpath, '8']
     execute_command(cmd)
     for cpthr in cpthread_list:
         for thr in thread_list:
