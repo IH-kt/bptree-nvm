@@ -94,6 +94,11 @@ ifeq ($(no_flush),1)
     NVHTM_DEFINES   += -DNO_FLUSH
 endif
 
+ifeq ($(no_cp),1)
+    NVHTM_MAKE_ARGS += NO_CHECKPOINTER=1
+    NVHTM_DEFINES   += -DNO_CHECKPOINTER
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

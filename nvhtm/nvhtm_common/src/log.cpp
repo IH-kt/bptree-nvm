@@ -511,7 +511,9 @@ void NH_reset() {
     abort_time_all = 0;
     transaction_time_all = 0;
     TM_reset_error();
+#ifndef NO_CHECKPOINTER
     kill(NH_checkpoint_pid, SIGUSR1);
+#endif
     MN_reset(0);
 #endif
     return;
@@ -524,6 +526,7 @@ void NH_thr_reset() {
   NH_nanotime_blocked[0] = 0;
   NH_nanotime_blocked[1] = 0;
   abort_time_thread = 0;
+  transaction_time_thread = 0;
   MN_thr_reset();
 #endif
 }

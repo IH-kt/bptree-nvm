@@ -169,3 +169,7 @@ endif
 ifeq ($(NO_FLUSH), 1)
 DEFINES += -DNO_FLUSH
 endif
+
+ifeq ($(NO_CHECKPOINTER), 1)
+DEFINES += -DNO_CHECKPOINTER
+endif

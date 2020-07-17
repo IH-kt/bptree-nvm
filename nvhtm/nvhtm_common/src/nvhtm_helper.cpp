@@ -522,11 +522,13 @@ void NVMHTM_shutdown()
 
   is_exit = 1; // stops checkpoint manager
 
+#ifndef NO_CHECKPOINTER
   #if DO_CHECKPOINT == 5
   int request = REQ_KILL;
 
   kill(pid, SIGINT);
   #endif
+#endif
 
   __sync_synchronize();
 
@@ -832,6 +834,7 @@ static void dangerous_threads(int id, bitset<MAX_NB_THREADS> & threads_set)
 
 static void fork_manager()
 {
+#ifndef NO_CHECKPOINTER
   #if DO_CHECKPOINT == 5
   *NH_checkpointer_state = 1; // BUSY
   __sync_synchronize();
@@ -910,6 +913,7 @@ static void fork_manager()
 
   while (*NH_checkpointer_state == 1) PAUSE();
   #endif
+#endif
 }
 
 void checkpoint_start_threads(int number_of_threads) {
@@ -1294,6 +1298,7 @@ static void aux_thread_stats_to_gnuplot_file(char *filename) {
 }
 
 void wait_for_checkpoint () {
+#ifndef NO_CHECKPOINTER
 #ifdef STAT
 #if SORT_ALG == 5
     int value;
@@ -1323,6 +1328,7 @@ void wait_for_checkpoint () {
     time_tmp /= 1000000000;
     time_tmp += edt.tv_sec - stt.tv_sec;
     fprintf(stderr, "wait_for_checkpoint = %lf\n", time_tmp);
+#endif
 #endif
 #endif
 }
