@@ -3,25 +3,25 @@ initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max 
 allocating 106667584 byte
 log_size = 167773312
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7f80c13e6000
+LOG_global_ptr = 0x7f778883e000
 number of entry = 2097152
 remaining value = 0
-wait_for_checkpoint = 0.000018
+wait_for_checkpoint = 0.000019
 HTM_nanotime_blocked_total = 0.000000
 NH_time_blocked_total (WL) = 0.000000
 NH_time_blocked_total (CA) = 0.000000
 reset error counter
 thread 0:
-	SUCCESS  = 2497655
-	ABORT    = 56183
+	SUCCESS  = 2498166
+	ABORT    = 42020
 	EXPLICIT = 50
-	RETRY    = 1419
-	CONFLICT = 1422
-	CAPACITY = 18325
+	RETRY    = 2032
+	CONFLICT = 2036
+	CAPACITY = 2888
 	DEBUG    = 0
 	NESTED   = 0
-	OTHER    = 36436
-	FALLBACK = 2345
+	OTHER    = 37096
+	FALLBACK = 1834
 thread 1:
 	SUCCESS  = 0
 	ABORT    = 0
@@ -59,19 +59,19 @@ reset: nb_checkpoints = 50, checkpoint_by = 50, 0, 0
 *******************Thread 1*******************
 ***********************************************
 adding
-NH_time_blocked = 1378683984
-NH_count_blocks = 92
+NH_time_blocked = 1220869634
+NH_count_blocks = 101
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.530372
+NH_nanotime_blocked[1] = 0.469644
 *******************Thread 2*******************
 ***********************************************
 adding
-NH_time_blocked = 1608560986
-NH_count_blocks = 86
+NH_time_blocked = 1694779662
+NH_count_blocks = 84
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.618883
+NH_nanotime_blocked[1] = 0.651899
 remaining value = 0
-wait_for_checkpoint = 0.000011
+wait_for_checkpoint = 0.000007
 finish running threads
 adding
 NH_time_blocked = 0
@@ -82,47 +82,47 @@ NH_nanotime_blocked[1] = 0.000000
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 1.149255 s!
+--- NH time blocked by CHECK_LOG_ABORT 1.121543 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 2495774
-ABORTS : 92170
-CONFLS : 2794
-CAPACS : 2572
-EXPLIC : 178
-[FORKED_MANAGER] Nb. checkpoints 9
-[FORKED_MANAGER] Time active 8004.426286 ms!
-[FORKED_MANAGER] Applied TXs 0 
-[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
-[FORKED_MANAGER] by before_TX = 7
-[FORKED_MANAGER] by CHECK_LOG_ABORT = 2
-[FORKED_MANAGER] by WAIT_MORE_LOG = 0
-[FORKED_MANAGER] sec. 1 (reserve) = 0.217267
-[FORKED_MANAGER] sec. 2 (find commit) = 0.079590
-[FORKED_MANAGER] sec. 3 (apply & flush) = 0.553771
-[FORKED_MANAGER] cpthread logwrite = 0.470218
-[FORKED_MANAGER] cpthread write & flush = 0.249910
-[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
-FALLBK : 4226
-   P_A : 0.035615
+COMMIT : 2495781
+ABORTS : 91934
+CONFLS : 2267
+CAPACS : 2390
+EXPLIC : 185
+FALLBK : 4219
+   P_A : 0.035527
      X : inf
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.056597 s
-TRANSACTION_TIME: 7.644569 s
+TRANSACTION_ABORT_TIME: 0.054197 s
+TRANSACTION_TIME: 3.373149 s
 Time 0.000000 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          38439338
+TOTAL_WRITES          38443138
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          356
-TOTAL_TIME_B (clocks) 2987244970
+TOTAL_BLOCKS          370
+TOTAL_TIME_B (clocks) 2915649296
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.004246 s!
-3.331115
+--- HTM time blocked 0.003966 s!
+[FORKED_MANAGER] Nb. checkpoints 10
+[FORKED_MANAGER] Time active 7973.868677 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 8
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 2
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.221102
+[FORKED_MANAGER] sec. 2 (find commit) = 0.097910
+[FORKED_MANAGER] sec. 3 (apply & flush) = 0.589516
+[FORKED_MANAGER] cpthread logwrite = 0.508966
+[FORKED_MANAGER] cpthread write & flush = 0.226686
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
+3.356182

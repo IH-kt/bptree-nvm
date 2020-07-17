@@ -3,25 +3,25 @@ initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max 
 allocating 106667328 byte
 log_size = 125829984
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7f7c2019d000
+LOG_global_ptr = 0x7f011725d000
 number of entry = 2097152
 remaining value = 0
-wait_for_checkpoint = 0.000030
+wait_for_checkpoint = 0.000020
 HTM_nanotime_blocked_total = 0.000000
 NH_time_blocked_total (WL) = 0.000000
 NH_time_blocked_total (CA) = 0.000000
 reset error counter
 thread 0:
-	SUCCESS  = 2498000
-	ABORT    = 47041
+	SUCCESS  = 2498146
+	ABORT    = 42905
 	EXPLICIT = 50
-	RETRY    = 2155
-	CONFLICT = 2160
-	CAPACITY = 7598
+	RETRY    = 2211
+	CONFLICT = 2219
+	CAPACITY = 3710
 	DEBUG    = 0
 	NESTED   = 0
-	OTHER    = 37283
-	FALLBACK = 2000
+	OTHER    = 36976
+	FALLBACK = 1854
 thread 1:
 	SUCCESS  = 0
 	ABORT    = 0
@@ -44,7 +44,7 @@ thread 2:
 	NESTED   = 0
 	OTHER    = 0
 	FALLBACK = 0
-reset: nb_checkpoints = 50, checkpoint_by = 50, 0, 0
+reset: nb_checkpoints = 50, checkpoint_by = 49, 1, 0
 *******************Thread 1*******************
 ***********************************************
 adding
@@ -53,7 +53,7 @@ NH_count_blocks = 0
 NH_nanotime_blocked[0] = 0.000000
 NH_nanotime_blocked[1] = 0.000000
 remaining value = 0
-wait_for_checkpoint = 0.000007
+wait_for_checkpoint = 0.000019
 finish running threads
 adding
 NH_time_blocked = 0
@@ -71,16 +71,16 @@ NH_nanotime_blocked[1] = 0.000000
  ########################################### 
  --- ABORTS
 COMMIT : 2500000
-ABORTS : 3440
-CONFLS : 1385
-CAPACS : 326
+ABORTS : 3181
+CONFLS : 1095
+CAPACS : 254
 EXPLIC : 0
 FALLBK : 0
-   P_A : 0.001374
+   P_A : 0.001271
      X : inf
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.003226 s
-TRANSACTION_TIME: 5.377863 s
+TRANSACTION_ABORT_TIME: 0.002832 s
+TRANSACTION_TIME: 1.537225 s
 Time 0.000000 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
@@ -93,9 +93,9 @@ TOTAL_TIME_B (clocks) 0
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.000281 s!
+--- HTM time blocked 0.000273 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 5358.288961 ms!
+[FORKED_MANAGER] Time active 5439.344206 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0
@@ -107,4 +107,4 @@ TOTAL_TIME_B (clocks) 0
 [FORKED_MANAGER] cpthread logwrite = 0.000000
 [FORKED_MANAGER] cpthread write & flush = 0.000000
 [logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
-2.062260
+2.066573

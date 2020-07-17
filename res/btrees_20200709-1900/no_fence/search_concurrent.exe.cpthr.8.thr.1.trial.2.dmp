@@ -3,25 +3,25 @@ initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max 
 allocating 106667328 byte
 log_size = 125829984
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7f350cedf000
+LOG_global_ptr = 0x7eff280c4000
 number of entry = 2097152
 remaining value = 0
-wait_for_checkpoint = 0.000019
+wait_for_checkpoint = 0.000029
 HTM_nanotime_blocked_total = 0.000000
 NH_time_blocked_total (WL) = 0.000000
 NH_time_blocked_total (CA) = 0.000000
 reset error counter
 thread 0:
-	SUCCESS  = 2498048
-	ABORT    = 46748
+	SUCCESS  = 2497845
+	ABORT    = 51004
 	EXPLICIT = 50
-	RETRY    = 1753
-	CONFLICT = 1763
-	CAPACITY = 8305
+	RETRY    = 1943
+	CONFLICT = 1950
+	CAPACITY = 11961
 	DEBUG    = 0
 	NESTED   = 0
-	OTHER    = 36680
-	FALLBACK = 1952
+	OTHER    = 37093
+	FALLBACK = 2155
 thread 1:
 	SUCCESS  = 0
 	ABORT    = 0
@@ -53,7 +53,7 @@ NH_count_blocks = 0
 NH_nanotime_blocked[0] = 0.000000
 NH_nanotime_blocked[1] = 0.000000
 remaining value = 0
-wait_for_checkpoint = 0.000021
+wait_for_checkpoint = 0.000009
 finish running threads
 adding
 NH_time_blocked = 0
@@ -71,16 +71,16 @@ NH_nanotime_blocked[1] = 0.000000
  ########################################### 
  --- ABORTS
 COMMIT : 2500000
-ABORTS : 3527
-CONFLS : 1484
-CAPACS : 489
+ABORTS : 4074
+CONFLS : 1639
+CAPACS : 506
 EXPLIC : 0
 FALLBK : 0
-   P_A : 0.001409
+   P_A : 0.001627
      X : inf
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.004189 s
-TRANSACTION_TIME: 5.854748 s
+TRANSACTION_ABORT_TIME: 0.003360 s
+TRANSACTION_TIME: 1.538358 s
 Time 0.000000 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
@@ -93,9 +93,9 @@ TOTAL_TIME_B (clocks) 0
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.000275 s!
+--- HTM time blocked 0.000303 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 5808.240175 ms!
+[FORKED_MANAGER] Time active 5688.792549 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0
@@ -107,4 +107,4 @@ TOTAL_TIME_B (clocks) 0
 [FORKED_MANAGER] cpthread logwrite = 0.000000
 [FORKED_MANAGER] cpthread write & flush = 0.000000
 [logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
-2.071558
+2.065038

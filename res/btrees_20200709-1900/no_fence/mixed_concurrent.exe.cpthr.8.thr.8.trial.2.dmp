@@ -3,25 +3,25 @@ initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max 
 allocating 215469460 byte
 log_size = 419433280
 log_size_per_thread = 41943328
-LOG_global_ptr = 0x7fa764600000
+LOG_global_ptr = 0x7faee54ee000
 number of entry = 2097152
 remaining value = 0
-wait_for_checkpoint = 0.000031
+wait_for_checkpoint = 0.000024
 HTM_nanotime_blocked_total = 0.000000
 NH_time_blocked_total (WL) = 0.000000
 NH_time_blocked_total (CA) = 0.000000
 reset error counter
 thread 0:
-	SUCCESS  = 2498125
-	ABORT    = 43725
+	SUCCESS  = 2497350
+	ABORT    = 61748
 	EXPLICIT = 50
-	RETRY    = 1957
-	CONFLICT = 1960
-	CAPACITY = 4535
+	RETRY    = 1801
+	CONFLICT = 1803
+	CAPACITY = 23063
 	DEBUG    = 0
 	NESTED   = 0
-	OTHER    = 37230
-	FALLBACK = 1875
+	OTHER    = 36882
+	FALLBACK = 2650
 thread 1:
 	SUCCESS  = 0
 	ABORT    = 0
@@ -122,64 +122,64 @@ thread 9:
 	OTHER    = 0
 	FALLBACK = 0
 reset: nb_checkpoints = 50, checkpoint_by = 50, 0, 0
-*******************Thread 1*******************
-***********************************************
-adding
-NH_time_blocked = 428714
-NH_count_blocks = 442
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000166
-*******************Thread 7*******************
-***********************************************
-adding
-NH_time_blocked = 362486
-NH_count_blocks = 441
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000141
-*******************Thread 5*******************
-***********************************************
-adding
-NH_time_blocked = 342066
-NH_count_blocks = 458
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000133
-*******************Thread 8*******************
-***********************************************
-adding
-NH_time_blocked = 357036
-NH_count_blocks = 458
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000139
-*******************Thread 3*******************
-***********************************************
-adding
-NH_time_blocked = 357078
-NH_count_blocks = 458
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000139
-*******************Thread 6*******************
-***********************************************
-adding
-NH_time_blocked = 348590
-NH_count_blocks = 471
-NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000136
 *******************Thread 2*******************
 ***********************************************
 adding
-NH_time_blocked = 360050
-NH_count_blocks = 477
+NH_time_blocked = 446678
+NH_count_blocks = 460
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000140
+NH_nanotime_blocked[1] = 0.000173
+*******************Thread 6*******************
+***********************************************
+adding
+NH_time_blocked = 336306
+NH_count_blocks = 450
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000131
 *******************Thread 4*******************
 ***********************************************
 adding
-NH_time_blocked = 308582
-NH_count_blocks = 429
+NH_time_blocked = 366798
+NH_count_blocks = 489
 NH_nanotime_blocked[0] = 0.000000
-NH_nanotime_blocked[1] = 0.000120
-remaining value = 12169
-wait_for_checkpoint = 0.000008
+NH_nanotime_blocked[1] = 0.000142
+*******************Thread 7*******************
+***********************************************
+adding
+NH_time_blocked = 337372
+NH_count_blocks = 444
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000131
+*******************Thread 8*******************
+***********************************************
+adding
+NH_time_blocked = 340656
+NH_count_blocks = 439
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000132
+*******************Thread 5*******************
+***********************************************
+adding
+NH_time_blocked = 346126
+NH_count_blocks = 464
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000135
+*******************Thread 1*******************
+***********************************************
+adding
+NH_time_blocked = 353406
+NH_count_blocks = 465
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000137
+*******************Thread 3*******************
+***********************************************
+adding
+NH_time_blocked = 362900
+NH_count_blocks = 504
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000141
+remaining value = 31564
+wait_for_checkpoint = 0.000011
 finish running threads
 adding
 NH_time_blocked = 0
@@ -190,47 +190,47 @@ NH_nanotime_blocked[1] = 0.000000
 --- Nb. checkpoints 0
 --- Time blocked 0.000000e+00 ms!
 --- NH time blocked by WAIT_MORE_LOG 0.000000 s!
---- NH time blocked by CHECK_LOG_ABORT 0.001112 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.001122 s!
 
 
  ########################################### 
  ########################################### 
  --- ABORTS
-COMMIT : 2497990
-ABORTS : 54387
-CONFLS : 48386
-CAPACS : 1263
-EXPLIC : 3634
-FALLBK : 2010
-   P_A : 0.021308
+COMMIT : 2497952
+ABORTS : 55704
+CONFLS : 49590
+CAPACS : 1378
+EXPLIC : 3715
+FALLBK : 2048
+   P_A : 0.021813
      X : inf
  ---   TIME
-TRANSACTION_ABORT_TIME: 0.064299 s
-TRANSACTION_TIME: 6.792444 s
+TRANSACTION_ABORT_TIME: 0.066387 s
+TRANSACTION_TIME: 2.040635 s
 Time 0.000000 s
 TIME_TX 0.000000 ms
 TIME_AFTER 0.000000 ms
 AVG_CAP -nan
-TOTAL_WRITES          6626328
+TOTAL_WRITES          6626224
 TOTAL_SPINS (workers) 0
-TOTAL_BLOCKS          7268
-TOTAL_TIME_B (clocks) 2864602
+TOTAL_BLOCKS          7430
+TOTAL_TIME_B (clocks) 2890242
  ---   ----
  ########################################### 
  ########################################### 
 
---- HTM time blocked 0.052866 s!
+--- HTM time blocked 0.055239 s!
 [FORKED_MANAGER] Nb. checkpoints 0
-[FORKED_MANAGER] Time active 6438.092071 ms!
+[FORKED_MANAGER] Time active 6517.137467 ms!
 [FORKED_MANAGER] Applied TXs 0 
 [FORKED_MANAGER] Time extra sort logs 0.000000 ms 
 [FORKED_MANAGER] by before_TX = 0
 [FORKED_MANAGER] by CHECK_LOG_ABORT = 0
 [FORKED_MANAGER] by WAIT_MORE_LOG = 0
-[FORKED_MANAGER] sec. 1 (reserve) = 0.017919
+[FORKED_MANAGER] sec. 1 (reserve) = 0.015995
 [FORKED_MANAGER] sec. 2 (find commit) = 0.000000
 [FORKED_MANAGER] sec. 3 (apply & flush) = 0.000000
 [FORKED_MANAGER] cpthread logwrite = 0.000000
 [FORKED_MANAGER] cpthread write & flush = 0.000000
 [logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
-0.412873
+0.410122
