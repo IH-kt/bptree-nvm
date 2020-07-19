@@ -1,0 +1,97 @@
+initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 1, pmem_path = /mnt/nvmm/iiboshi//data, log_path = /mnt/nvmm/iiboshi//log
+allocating 215467668 byte
+log_size = 83886656
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f301b800000
+number of entry = 2097152
+remaining value = 976407
+wait_for_checkpoint = 0.000054
+HTM_nanotime_blocked_total = 0.000000
+NH_time_blocked_total (WL) = 0.000000
+NH_time_blocked_total (CA) = 0.000000
+reset error counter
+thread 0:
+	SUCCESS  = 2496951
+	ABORT    = 72762
+	EXPLICIT = 50
+	RETRY    = 338
+	CONFLICT = 341
+	CAPACITY = 35605
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 36816
+	FALLBACK = 3049
+thread 1:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+reset: nb_checkpoints = 50, checkpoint_by = 46, 4, 0
+*******************Thread 1*******************
+***********************************************
+adding
+NH_time_blocked = 5184984708
+NH_count_blocks = 50
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 1.994239
+remaining value = 1970585
+wait_for_checkpoint = 0.000043
+finish running threads
+adding
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 1.994239 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 2497889
+ABORTS : 52077
+CONFLS : 1696
+CAPACS : 12119
+EXPLIC : 50
+FALLBK : 2111
+   P_A : 0.020423
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.162632 s
+TRANSACTION_TIME: 4.501965 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          110063454
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          100
+TOTAL_TIME_B (clocks) 5184984708
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000778 s!
+[FORKED_MANAGER] Nb. checkpoints 52
+[FORKED_MANAGER] Time active 9487.981774 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 47
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 5
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 2.513773
+[FORKED_MANAGER] sec. 2 (find commit) = 0.015805
+[FORKED_MANAGER] sec. 3 (apply) = 1.810294
+[FORKED_MANAGER] sec. 4 (flush) = 0.192291
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
+7.276572

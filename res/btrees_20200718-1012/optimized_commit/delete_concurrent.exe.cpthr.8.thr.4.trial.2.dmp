@@ -1,0 +1,164 @@
+cp_threads = 8
+initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 4, pmem_path = /mnt/nvmm/iiboshi//data, log_path = /mnt/nvmm/iiboshi//log
+allocating 106668096 byte
+log_size = 251659968
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fe1e95a2000
+number of entry = 2097152
+remaining value = 0
+wait_for_checkpoint = 0.000022
+HTM_nanotime_blocked_total = 0.000000
+NH_time_blocked_total (WL) = 0.000000
+NH_time_blocked_total (CA) = 0.000000
+reset error counter
+thread 0:
+	SUCCESS  = 2498141
+	ABORT    = 42852
+	EXPLICIT = 50
+	RETRY    = 1907
+	CONFLICT = 1913
+	CAPACITY = 3775
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 37164
+	FALLBACK = 1859
+thread 1:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 4:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 5:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+reset: nb_checkpoints = 50, checkpoint_by = 50, 0, 0
+*******************Thread 1*******************
+***********************************************
+adding
+NH_time_blocked = 1025578300
+NH_count_blocks = 169
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.394457
+*******************Thread 2*******************
+***********************************************
+adding
+NH_time_blocked = 995398550
+NH_count_blocks = 240
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.382849
+*******************Thread 3*******************
+***********************************************
+adding
+NH_time_blocked = 1017658862
+NH_count_blocks = 255
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.391411
+*******************Thread 4*******************
+***********************************************
+adding
+NH_time_blocked = 1054947950
+NH_count_blocks = 274
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.405752
+remaining value = 0
+wait_for_checkpoint = 0.000008
+finish running threads
+adding
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 1.574469 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 2495731
+ABORTS : 99885
+CONFLS : 7909
+CAPACS : 6052
+EXPLIC : 938
+FALLBK : 4269
+   P_A : 0.038482
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.070696 s
+TRANSACTION_TIME: 3.417329 s
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          39041308
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          1876
+TOTAL_TIME_B (clocks) 4093583662
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.020938 s!
+[FORKED_MANAGER] Nb. checkpoints 5
+[FORKED_MANAGER] Time active 6587.610626 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 3
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 2
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.145653
+[FORKED_MANAGER] sec. 2 (find commit) = 0.168285
+[FORKED_MANAGER] sec. 3 (apply & flush) = 0.296350
+[FORKED_MANAGER] cpthread logwrite = 0.286711
+[FORKED_MANAGER] cpthread write & flush = 0.183502
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
+1.719491
