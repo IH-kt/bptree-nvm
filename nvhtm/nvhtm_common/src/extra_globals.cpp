@@ -24,6 +24,7 @@ unsigned int *checkpoint_by_flags;
 unsigned int checkpoint_by[3];
 double checkpoint_section_time[4];
 int *checkpoint_empty;
+int LOG_flush_all_flag;
 #ifdef WRITE_AMOUNT_NVHTM
 unsigned long no_filter_write_amount;
 unsigned long filtered_write_amount;

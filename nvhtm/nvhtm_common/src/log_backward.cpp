@@ -675,43 +675,51 @@ int LOG_checkpoint_backward_apply_one()
 
   // ---------------------------------------------------------------
   // First check if the logs are too empty
-  for (i = 0; i < TM_nb_threads; ++i) {
-    log = NH_global_logs[i];
-    log_start = log->start;
-    log_end = log->end;
-    dist = distance_ptr(log_start, log_end);
-    // sum_dist += dist;
-    if (dist < TOO_EMPTY) {
-      too_empty = true;
-    }
-    if (dist > TOO_FULL) {
-      someone_passed = true;
-      too_full = true;
-    }
-    if (dist > APPLY_BACKWARD_VAL) {
-      j = ends[i];
-      someone_passed = true;
-    }
-  }
-  // Only apply log if someone passed the threshold mark
-  if ((!too_full && too_empty) || !someone_passed) {
-    *NH_checkpointer_state = 0; // doing checkpoint
+  if (LOG_flush_all_flag) {
+      for (i = 0; i < TM_nb_threads; ++i) {
+          log = NH_global_logs[i];
+          log_start = log->start;
+          log_end = log->end;
+      }
+  } else {
+      for (i = 0; i < TM_nb_threads; ++i) {
+          log = NH_global_logs[i];
+          log_start = log->start;
+          log_end = log->end;
+          dist = distance_ptr(log_start, log_end);
+          // sum_dist += dist;
+          if (dist < TOO_EMPTY) {
+              too_empty = true;
+          }
+          if (dist > TOO_FULL) {
+              someone_passed = true;
+              too_full = true;
+          }
+          if (dist > APPLY_BACKWARD_VAL) {
+              j = ends[i];
+              someone_passed = true;
+          }
+      }
+      // Only apply log if someone passed the threshold mark
+      if ((!too_full && too_empty) || !someone_passed) {
+          *NH_checkpointer_state = 0; // doing checkpoint
 #ifdef STAT
-    if (*checkpoint_empty == 1) {
-        *checkpoint_empty = 2;
-    } else {
-        *checkpoint_empty = 1;
-    }
+          if (*checkpoint_empty == 1) {
+              *checkpoint_empty = 2;
+          } else {
+              *checkpoint_empty = 1;
+          }
 #ifdef NO_EMPTY_LOOP_TIME
-    checkpoint_section_time[0] -= time_tmp;
+          checkpoint_section_time[0] -= time_tmp;
 #endif
 #endif
-    __sync_synchronize();
-    return 1; // try again later
-  }
+          __sync_synchronize();
+          return 1; // try again later
+      }
 #ifdef STAT
-  *checkpoint_empty = 0;
+      *checkpoint_empty = 0;
 #endif
+  }
   // ---------------------------------------------------------------
 
   // first find target_ts, then the remaining TSs
@@ -725,11 +733,15 @@ int LOG_checkpoint_backward_apply_one()
     // TODO: check the size of the log
     size_t log_size = ptr_mod_log(ends[i], -starts[i]);
     ts_s ts = 0;
-    // find target ts in this log
-    if (log_size <= APPLY_BACKWARD_VAL) {
-      j = ends[i];
+    if (LOG_flush_all_flag) {
+            j = ends[i];
     } else {
-      j = ptr_mod_log(starts[i], APPLY_BACKWARD_VAL);
+        // find target ts in this log
+        if (log_size <= APPLY_BACKWARD_VAL) {
+            j = ends[i];
+        } else {
+            j = ptr_mod_log(starts[i], APPLY_BACKWARD_VAL);
+        }
     }
 
     // TODO: repeated code
@@ -1002,6 +1014,12 @@ int LOG_checkpoint_backward_apply_one()
 #endif
     // log->start = pos_to_start[i];
     // TODO: snapshot the old ptrs before moving them
+  }
+  if (LOG_flush_all_flag) {
+      for (i = 0; i < TM_nb_threads; ++i) {
+          printf("log[%d] -> start = %u, end = %u\n", i, log->start, log->end);
+      }
+      LOG_flush_all_flag = 0;
   }
   *NH_checkpointer_state = 0;
   __sync_synchronize();

@@ -219,6 +219,7 @@ int main(int argc, char *argv[]) {
     }
 
 #ifdef NVHTM
+    NVHTM_flush_all_logs();
     wait_for_checkpoint();
     NH_reset();
 #else
@@ -233,6 +234,7 @@ int main(int argc, char *argv[]) {
         free(NULL);
     }
 #ifdef NVHTM
+    NVHTM_flush_all_logs();
     wait_for_checkpoint();
 #endif
     clock_gettime(CLOCK_MONOTONIC_RAW, &edt);

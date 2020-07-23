@@ -165,6 +165,7 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context);
 static void aux_thread_stats_to_gnuplot_file(char *filename);
 #ifdef STAT
 static void usr1_sigaction(int signal, siginfo_t *si, void *uap);
+static void usr2_sigaction(int signal, siginfo_t *si, void *uap);
 #endif
 
 // ################ implementation header
@@ -883,6 +884,13 @@ static void fork_manager()
     sa.sa_flags = SA_SIGINFO;
 
     sigaction(SIGUSR1, &sa, NULL); // The parent can SIGINT the child to shutdown
+
+    memset(&sa, 0, sizeof (struct sigaction));
+    sigemptyset(&sa.sa_mask);
+    sa.sa_sigaction = usr2_sigaction;
+    sa.sa_flags = SA_SIGINFO;
+
+    sigaction(SIGUSR2, &sa, NULL); // The parent can SIGINT the child to shutdown
 #endif
 
     LOG_attach_shared_mem();
@@ -1180,6 +1188,12 @@ static void usr1_sigaction(int signal, siginfo_t *si, void *uap)
 #endif
 }
 
+static void usr2_sigaction(int signal, siginfo_t *si, void *uap)
+{
+    LOG_flush_all_flag = 1;
+    sem_post(NH_chkp_sem);
+}
+
 static void segint_sigaction(int signal, siginfo_t *si, void *context)
 {
   char buffer[2 * 8192];
@@ -1337,4 +1351,9 @@ void NVHTM_set_cp_thread_num(int thrnum) {
 #ifdef PARALLEL_CHECKPOINT
   number_of_checkpoint_threads = thrnum;
 #endif
+}
+
+void NVHTM_flush_all_logs() {
+    extern NH_checkpoint_pid;
+    kill(NH_checkpoint_pid, SIGUSR2);
 }
