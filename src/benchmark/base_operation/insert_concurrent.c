@@ -36,6 +36,32 @@ void *warmup(BPTree *bpt, void *args) {
     return NULL;
 }
 
+void *insert_initials(BPTree *bpt, void *arg) {
+#ifdef NVHTM
+    NVHTM_thr_init();
+#endif
+    arg_t *arg_cast = (arg_t *)arg;
+    unsigned char tid = arg_cast->tid;
+    KeyValuePair kv;
+    unsigned int seed = arg_cast->seed;
+    unsigned int loop = arg_cast->loop;
+    kv.key = 1;
+    kv.value = 1;
+    for (int i = 0; i < loop; i++) {
+        kv.key = get_rand_initials(i) % INT_MAX + 1;
+        // printf("inserting %ld\n", kv.key);
+        if (!insert(bpt, kv, tid)) {
+            // fprintf(stderr, "insert: failure\n");
+        }
+        // showTree(bpt, tid);
+    }
+    show_result_thread(tid);
+#ifdef NVHTM
+    NVHTM_thr_exit();
+#endif
+    return arg;
+}
+
 void *insert_random(BPTree *bpt, void *arg) {
 #ifdef NVHTM
     NVHTM_thr_init();
@@ -121,7 +147,8 @@ int main(int argc, char *argv[]) {
 #ifdef USE_PMEM
     set_log_file_name(log_path);
 #endif
-    NVHTM_init(thread_max + 1);
+    // NVHTM_init(thread_max + 1);
+    NVHTM_init(thread_max);
 #ifdef USE_PMEM
     void *pool = NH_alloc(pmem_path, allocation_size);
 #else
@@ -130,10 +157,12 @@ int main(int argc, char *argv[]) {
     // void *pool = NH_alloc(allocation_size);
     NVHTM_clear();
     NVHTM_cpy_to_checkpoint(pool);
-    initAllocator(pool, pmem_path, allocation_size, thread_max + 1);
-    NVHTM_thr_init();
+    // initAllocator(NULL, pmem_path, allocation_size, thread_max + 1);
+    initAllocator(pool, pmem_path, allocation_size, thread_max);
+    // NVHTM_thr_init();
 #else
-    initAllocator(NULL, pmem_path, allocation_size, thread_max + 1);
+    // initAllocator(NULL, pmem_path, allocation_size, thread_max + 1);
+    initAllocator(NULL, pmem_path, allocation_size, thread_max);
 #endif
     random_init(initial_elements, loop_times, thread_max);
 
@@ -143,29 +172,29 @@ int main(int argc, char *argv[]) {
     arg_t **arg = (arg_t **)malloc(sizeof(arg_t *) * (thread_max + 1));
     bptreeThreadInit(BPTREE_NONBLOCK);
 
-    kv.key = 1;
-    kv.value = 1;
-    unsigned int seed = thread_max;
+    // kv.key = 1;
+    // kv.value = 1;
+    // unsigned int seed = thread_max;
 
-    for (int i = 0; i < initial_elements; i++) {
-        kv.key = get_rand_initials(i) % INT_MAX + 1;
-        // printf("inserting %ld\n", kv.key);
-        if (!insert(bpt, kv, thread_max)) {
-            // fprintf(stderr, "insert: failure\n");
-        }
-        // showTree(bpt);
-    }
+    // for (int i = 0; i < initial_elements; i++) {
+    //     kv.key = get_rand_initials(i) % INT_MAX + 1;
+    //     // printf("inserting %ld\n", kv.key);
+    //     if (!insert(bpt, kv, thread_max)) {
+    //         // fprintf(stderr, "insert: failure\n");
+    //     }
+    //     // showTree(bpt);
+    // }
     // show_result_thread(thread_max);
 // #ifdef NVHTM
 //     NVHTM_thr_exit();
 // #endif
-    // arg[thread_max] = (arg_t *)malloc(sizeof(arg_t));
-    // arg[thread_max]->seed = thread_max + 1;
-    // arg[thread_max]->tid = thread_max + 1;
-    // arg[thread_max]->loop = initial_elements;
-    // tid_array[thread_max] = bptreeCreateThread(bpt, insert_random, arg[thread_max]);
-    // bptreeWaitThread(tid_array[thread_max], NULL);
-    // free(arg[thread_max]);
+    arg[thread_max] = (arg_t *)malloc(sizeof(arg_t));
+    arg[thread_max]->seed = 0;
+    arg[thread_max]->tid = thread_max;
+    arg[thread_max]->loop = initial_elements;
+    tid_array[thread_max] = bptreeCreateThread(bpt, insert_initials, warmup, arg[thread_max]);
+    bptreeWaitThread(tid_array[thread_max], NULL);
+    free(arg[thread_max]);
 
     bptreeThreadInit(BPTREE_BLOCK);
 
@@ -223,8 +252,8 @@ int main(int argc, char *argv[]) {
     random_destroy();
 
 #ifdef NVHTM
-    NH_thr_reset();
-    NVHTM_thr_exit();
+    // NH_thr_reset();
+    // NVHTM_thr_exit();
     NVHTM_shutdown();
 #endif
 

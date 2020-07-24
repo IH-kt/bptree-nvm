@@ -1016,10 +1016,23 @@ int LOG_checkpoint_backward_apply_one()
     // TODO: snapshot the old ptrs before moving them
   }
   if (LOG_flush_all_flag) {
+      int not_empty = 0;
       for (i = 0; i < TM_nb_threads; ++i) {
-          printf("log[%d] -> start = %u, end = %u\n", i, log->start, log->end);
+          log = NH_global_logs[i];
+          if (log->start != log->end) {
+              not_empty = 1;
+          }
       }
-      LOG_flush_all_flag = 0;
+      if (!not_empty) {
+          int err = 0;
+          int value = 0;
+          sem_getvalue(NH_chkp_sem, &value);
+          while (value > 0) {
+              sem_trywait(NH_chkp_sem);
+              sem_getvalue(NH_chkp_sem, &value);
+          }
+          LOG_flush_all_flag = 0;
+      }
   }
   *NH_checkpointer_state = 0;
   __sync_synchronize();

@@ -464,6 +464,7 @@ extern "C"
     void NH_reset();
     void NH_thr_reset();
     void wait_for_checkpoint ();
+    void NVHTM_flush_all_logs();
 #ifdef PARALLEL_CHECKPOINT
 	void NVHTM_set_cp_thread_num(int thrnum);
 #endif

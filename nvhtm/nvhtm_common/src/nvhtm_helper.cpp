@@ -1354,6 +1354,7 @@ void NVHTM_set_cp_thread_num(int thrnum) {
 }
 
 void NVHTM_flush_all_logs() {
-    extern NH_checkpoint_pid;
+#ifdef STAT
     kill(NH_checkpoint_pid, SIGUSR2);
+#endif
 }
