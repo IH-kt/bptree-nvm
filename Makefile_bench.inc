@@ -74,15 +74,16 @@ endif
 LOGLST	?= $(shell seq 0 $(LOGMAX) | sed -e 's/\(.*\)/$(LOGSTT) * 2^\1 + 288/'| bc -q | tr '\n' ' ')
 
 bench_all:
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm use_mmap
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp_dram_log
-	# ke PPBENCH_DATE=$(BENCH_DATE) ATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm log_compression
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm optimized_commit
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm use_mmap
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp_dram_log
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm log_compression
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm optimized_commit
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_fence
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_flush
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp
 	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp_dram
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp_optc
 
 use_mmap:
 	mkdir -p $(BENCH_DIR)/$@
@@ -158,19 +159,25 @@ no_flush:
 
 no_cp:
 	mkdir -p $(BENCH_DIR)/$@
-	make tree=$(tree) type=$(type) no_cp=1 build_log_compression
+	make tree=$(tree) type=$(type) no_cp=1 build_use_mmap
 	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
 	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
 
 no_cp_dram:
 	mkdir -p $(BENCH_DIR)/$@
-	make tree=$(tree) type=$(type) no_cp=1 build_log_compression
-	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(VDPATH)/data $(VDPATH)/log
+	make tree=$(tree) type=$(type) no_cp=1 build_use_mmap
+	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(VDPATH)/log
+	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
+
+no_cp_optc:
+	mkdir -p $(BENCH_DIR)/$@
+	make tree=$(tree) type=$(type) opt_c=1 no_cp=1 build_use_mmap
+	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
 	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
 
 build_use_mmap:
 	make tree=$(tree) type=$(type) dist-clean
-	make tree=$(tree) type=$(type) logsize=$(LOGSZ) stats=1 no_flush=$(no_flush) no_fence=$(no_fence) no_cp=$(no_cp) -j all
+	make tree=$(tree) type=$(type) logsize=$(LOGSZ) stats=1 no_flush=$(no_flush) no_fence=$(no_fence) no_cp=$(no_cp) opt_c=$(opt_c) -j all
 
 build_parallel_cp:
 	make tree=$(tree) type=$(type) dist-clean

@@ -49,7 +49,7 @@ static int max_next_log(int *pos, int starts[], int ends[])
     max_ts[i] = 0;
     NVLog_s *log = NH_global_logs[i];
     ts_s ts = entry_is_ts(log->ptr[pos[i]]);
-    while (!ts && pos[i] != starts[i]) {
+    while (pos[i] != starts[i] && !ts) {
       pos[i] = ptr_mod_log(pos[i], -1);
       ts = entry_is_ts(log->ptr[pos[i]]);
     }
@@ -83,6 +83,7 @@ static int *ends_g = NULL;
 static int *pos_g = NULL;
 static ts_s target_ts_g = 0;
 static int finished_threads = 0;
+static int running_threads = 0;
 
 void LOG_checkpoint_backward_start_thread(int thread_num) {
     int i;
@@ -92,8 +93,12 @@ void LOG_checkpoint_backward_start_thread(int thread_num) {
 }
 
 void LOG_checkpoint_backward_wait_for_thread(int thread_num) {
-    sem_wait(&cpthread_finish_sem);
-    finished_threads = 0;
+    // fprintf(stderr, "main start to wait\n");
+    do {
+        errno = 0;
+        sem_wait(&cpthread_finish_sem);
+    } while(errno == EINTR);
+    // fprintf(stderr, "main end wait\n");
 #ifdef CHECK_TASK_DISTRIBUTION
     double entries_max = applied_entries[0];
     double entries_min = applied_entries[0];
@@ -140,7 +145,7 @@ int LOG_checkpoint_backward_parallel_apply(int thread_num, int starts[], int end
 
 // void LOG_checkpoint_backward_parallel_apply(intptr_t assigned_addr, intptr_t mask) {
 void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) {
-  int i, next_log, pos_local[TM_nb_threads];
+  int i, next_log = 0, pos_local[TM_nb_threads], starts_local[TM_nb_threads], ends_local[TM_nb_threads];
   NVLog_s *log;
   ts_s target_ts;
 #ifdef STAT
@@ -157,11 +162,24 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   writes_list.reserve(32000/number_of_threads);
   writes_map.reserve(32000/number_of_threads);
   // printf("thread %d begins to wait\n", thread_id);
-  sem_wait(&cp_back_sem);
+  do {
+      errno = 0;
+      sem_wait(&cp_back_sem);
+  } while(errno == EINTR);
+  while (finished_threads < number_of_threads) {
+      _mm_pause();
+  }
+  __sync_fetch_and_add(&running_threads, 1);
+  while (running_threads < number_of_threads) {
+      _mm_pause();
+  }
+  __sync_fetch_and_sub(&finished_threads, 1);
   // printf("thread %d started\n", thread_id);
 
   for (i = 0; i < TM_nb_threads; i++) {
       pos_local[i] = pos_g[i];
+      starts_local[i] = starts_g[i];
+      ends_local[i] = ends_g[i];
   }
   target_ts = target_ts_g;
 
@@ -177,7 +195,19 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
 #ifndef MEASURE_PART_CP
   do {
-    next_log = max_next_log(pos_local, starts_g, ends_g);
+    // assert((starts_g[0] <= ends_g[0] && pos_local[0] >= starts_g[0] &&
+    //   pos_local[0] <= ends_g[0]) || (starts_g[0] > ends_g[0] &&
+    //     ((pos_local[0] >= 0 && pos_local[0] < ends_g[0]) ||
+    //     (pos_local[0] < LOG_local_state.size_of_log && pos_local[0] >= starts_g[0]))
+    //   )
+    // );
+    // assert((starts_g[1] <= ends_g[1] && pos_local[1] >= starts_g[1] &&
+    //   pos_local[1] <= ends_g[1]) || (starts_g[1] > ends_g[1] &&
+    //     ((pos_local[1] >= 0 && pos_local[1] < ends_g[1]) ||
+    //     (pos_local[1] < LOG_local_state.size_of_log && pos_local[1] >= starts_g[1]))
+    //   )
+    // );
+    next_log = max_next_log(pos_local, starts_g, ends_local);
     i = next_log;
     if (next_log == -1) {
       break;
@@ -185,12 +215,13 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
     log = NH_global_logs[next_log];
 
-    target_ts = max_tx_after(log, starts_g[next_log], target_ts, &(pos_local[next_log])); // updates the ptr
+    target_ts = max_tx_after(log, starts_local[next_log], target_ts, &(pos_local[next_log])); // updates the ptr
     // advances to the next write after the TS
 
     // pos[next_log] must be between start and end
-    if (pos_local[next_log] != starts_g[next_log]) {
-      pos_local[next_log] = ptr_mod_log(pos_local[next_log], -1);
+    if (pos_local[next_log] != starts_local[next_log]) {
+      // pos_local[next_log] = ptr_mod_log(pos_local[next_log], -1);
+      // already moved in max_tx_after
     } else {
       // ended
       break;
@@ -198,9 +229,9 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
     // within the start/end boundary
     // assert((starts_g[i] <= ends_g[i] && pos_local[i] >= starts_g[i] &&
-    //   pos[i] <= ends[i]) || (starts[i] > ends[i] &&
-    //     ((pos[i] >= 0 && pos[i] < starts[i]) ||
-    //     (pos[i] < LOG_local_state.size_of_log && pos[i] > ends[i]))
+    //   pos_local[i] <= ends_g[i]) || (starts_g[i] > ends_g[i] &&
+    //     ((pos_local[i] >= 0 && pos_local[i] < ends_g[i]) ||
+    //     (pos_local[i] < LOG_local_state.size_of_log && pos_local[i] > starts_g[i]))
     //   )
     // );
 
@@ -209,7 +240,13 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #  endif
     NVLogEntry_s entry = log->ptr[pos_local[next_log]];
     ts_s ts = entry_is_ts(entry);
-    while (!ts && pos_local[next_log] != starts_g[next_log]) {
+    while (pos_local[next_log] != starts_local[next_log] && !ts) {
+        // assert((starts_local[next_log] <= ends_local[next_log] && pos_local[next_log] >= starts_local[next_log] &&
+        //   pos_local[next_log] <= ends_local[next_log]) || (starts_local[next_log] > ends_local[next_log] &&
+        //     ((pos_local[next_log] >= 0 && pos_local[next_log] < ends_local[next_log]) ||
+        //     (pos_local[next_log] < LOG_local_state.size_of_log && pos_local[next_log] > starts_local[next_log]))
+        //   )
+        // );
 #ifdef NUMBER_OF_ENTRIES
         read_entries[thread_id]++;
 #endif
@@ -221,7 +258,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #  endif
 #ifdef USE_PMEM
         // if ((uintptr_t)entry.addr < (uintptr_t)pmem_pool || (uintptr_t)((char *)pmem_pool + pmem_size) < (uintptr_t)entry.addr) {
-        //     fprintf(stderr, "out of range\n");
+        //     fprintf(stderr, "out of range: %p\n", entry.addr);
         //     continue;
         // }
 #endif
@@ -334,7 +371,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
     // pos[next_log] must be between start and end
     if (pos_local_tmp[next_log] != starts_g[next_log]) {
-      pos_local_tmp[next_log] = ptr_mod_log(pos_local_tmp[next_log], -1);
+      // pos_local_tmp[next_log] = ptr_mod_log(pos_local_tmp[next_log], -1);
     } else {
       // ended
       break;
@@ -342,7 +379,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
     NVLogEntry_s entry = log->ptr[pos_local_tmp[next_log]];
     ts_s ts = entry_is_ts(entry);
-    while (!ts && pos_local_tmp[next_log] != starts_g[next_log]) {
+    while (pos_local_tmp[next_log] != starts_g[next_log] && !ts) {
 #ifdef USE_PMEM
         if ((uintptr_t)entry.addr < (uintptr_t)pmem_pool || (uintptr_t)((char *)pmem_pool + pmem_size) < (uintptr_t)entry.addr) {
             // fprintf(stderr, "out of range\n");
@@ -441,7 +478,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
     // pos[next_log] must be between start and end
     if (pos_local_tmp[next_log] != starts_g[next_log]) {
-      pos_local_tmp[next_log] = ptr_mod_log(pos_local_tmp[next_log], -1);
+      // pos_local_tmp[next_log] = ptr_mod_log(pos_local_tmp[next_log], -1);
     } else {
       // ended
       break;
@@ -449,7 +486,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
     NVLogEntry_s entry = log->ptr[pos_local_tmp[next_log]];
     ts_s ts = entry_is_ts(entry);
-    while (!ts && pos_local_tmp[next_log] != starts_g[next_log]) {
+    while (pos_local_tmp[next_log] != starts_g[next_log] && !ts) {
         pos_local_tmp[next_log] = ptr_mod_log(pos_local_tmp[next_log], -1);
         entry = log->ptr[pos_local_tmp[next_log]];
         ts = entry_is_ts(entry);
@@ -486,7 +523,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
     // pos[next_log] must be between start and end
     if (pos_local_tmp[next_log] != starts_g[next_log]) {
-      pos_local_tmp[next_log] = ptr_mod_log(pos_local_tmp[next_log], -1);
+      // pos_local_tmp[next_log] = ptr_mod_log(pos_local_tmp[next_log], -1);
     } else {
       // ended
       break;
@@ -494,7 +531,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
     NVLogEntry_s entry = log->ptr[pos_local_tmp[next_log]];
     ts_s ts = entry_is_ts(entry);
-    while (!ts && pos_local_tmp[next_log] != starts_g[next_log]) {
+    while (pos_local_tmp[next_log] != starts_g[next_log] && !ts) {
 
         // uses only the bits needed to identify the cache line
         intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
@@ -568,9 +605,15 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   parallel_checkpoint_section_time_thread[1][thread_id] += time_tmp;
 #  endif
 #endif
-  int res = __sync_fetch_and_add(&finished_threads, 1);
-  if (res == number_of_threads - 1) {
+  int res = __sync_fetch_and_sub(&running_threads, 1);
+  if (res == 1) {
       sem_post(&cpthread_finish_sem);
+      __sync_fetch_and_add(&finished_threads, 1);
+  } else {
+      do {
+          _mm_pause();
+      } while (running_threads > 0);
+      __sync_fetch_and_add(&finished_threads, 1);
   }
 
 #ifdef LOG_COMPRESSION
@@ -608,6 +651,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 
 void *LOG_checkpoint_backward_thread_func(void *args) {
   checkpoint_args_s *cp_args = (checkpoint_args_s *)args;
+  __sync_fetch_and_add(&finished_threads, 1);
   // printf("cp thread started: id = %d, num of threads = %d\n", cp_args->thread_id, cp_args->number_of_threads);
   LOG_local_state.size_of_log = NH_global_logs[0]->size_of_log;
   while (1) {
@@ -675,13 +719,7 @@ int LOG_checkpoint_backward_apply_one()
 
   // ---------------------------------------------------------------
   // First check if the logs are too empty
-  if (LOG_flush_all_flag) {
-      for (i = 0; i < TM_nb_threads; ++i) {
-          log = NH_global_logs[i];
-          log_start = log->start;
-          log_end = log->end;
-      }
-  } else {
+  if (!LOG_flush_all_flag) {
       for (i = 0; i < TM_nb_threads; ++i) {
           log = NH_global_logs[i];
           log_start = log->start;
@@ -734,7 +772,7 @@ int LOG_checkpoint_backward_apply_one()
     size_t log_size = ptr_mod_log(ends[i], -starts[i]);
     ts_s ts = 0;
     if (LOG_flush_all_flag) {
-            j = ends[i];
+        j = ends[i];
     } else {
         // find target ts in this log
         if (log_size <= APPLY_BACKWARD_VAL) {
@@ -885,23 +923,23 @@ int LOG_checkpoint_backward_apply_one()
 
     // pos[next_log] must be between start and end
     if (pos[next_log] != starts[next_log]) {
-      pos[next_log] = ptr_mod_log(pos[next_log], -1);
+      // pos[next_log] = ptr_mod_log(pos[next_log], -1);
     } else {
       // ended
       break;
     }
 
     // within the start/end boundary
-    assert((starts[i] <= ends[i] && pos[i] >= starts[i] &&
-      pos[i] <= ends[i]) || (starts[i] > ends[i] &&
-        ((pos[i] >= 0 && pos[i] < starts[i]) ||
-        (pos[i] < LOG_local_state.size_of_log && pos[i] > ends[i]))
-      )
-    );
+    // assert((starts[i] <= ends[i] && pos[i] >= starts[i] &&
+    //   pos[i] <= ends[i]) || (starts[i] > ends[i] &&
+    //     ((pos[i] >= 0 && pos[i] < ends[i]) ||
+    //     (pos[i] < LOG_local_state.size_of_log && pos[i] > starts[i]))
+    //   )
+    // );
 
     NVLogEntry_s entry = log->ptr[pos[next_log]];
     ts_s ts = entry_is_ts(entry);
-    while (!ts && pos[next_log] != starts[next_log]) {
+    while (pos[next_log] != starts[next_log] && !ts) {
 
 #ifdef STAT
 #ifdef WRITE_AMOUNT_NVHTM
