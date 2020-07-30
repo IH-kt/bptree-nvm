@@ -605,9 +605,15 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   parallel_checkpoint_section_time_thread[1][thread_id] += time_tmp;
 #  endif
 #endif
+  do {
+      _mm_pause();
+  } while (finished_threads > 0);
   int res = __sync_fetch_and_sub(&running_threads, 1);
   if (res == 1) {
       sem_post(&cpthread_finish_sem);
+      do {
+          _mm_pause();
+      } while (running_threads > 0);
       __sync_fetch_and_add(&finished_threads, 1);
   } else {
       do {
