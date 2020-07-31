@@ -53,9 +53,6 @@ int SPIN_PER_WRITE(int nb_writes)
 
 int MN_write(void *addr, void *buf, size_t size, int to_aux)
 {
-    if (!to_aux) {
-        MN_count_writes++;
-    }
 #ifndef USE_PMEM
 	if (to_aux) {
 		// it means it does not support CoW (dynamic mallocs?)
@@ -127,6 +124,9 @@ void MN_flush(void *addr, size_t size, int do_flush)
 
 	for (i = 0; i < new_size; i += size_cl) {
 #ifdef USE_PMEM
+        if (!do_flush) {
+            MN_count_writes++;
+        }
         _mm_clwb(((char *) addr) + i - ((unsigned long)addr % size_cl));
 #else
 		// TODO: addr may not be aligned
@@ -212,4 +212,5 @@ void MN_thr_reset() {
 }
 void MN_reset(int by_chkp) {
     MN_count_writes = 0;
+	MN_count_writes_to_PM_total = 0;
 }
