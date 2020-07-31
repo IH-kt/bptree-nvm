@@ -1076,6 +1076,7 @@ int LOG_checkpoint_backward_apply_one()
               sem_getvalue(NH_chkp_sem, &value);
           }
           LOG_flush_all_flag = 0;
+          *checkpoint_empty = 2;
       }
   }
   *NH_checkpointer_state = 0;
