@@ -74,22 +74,25 @@ endif
 LOGLST	?= $(shell seq 0 $(LOGMAX) | sed -e 's/\(.*\)/$(LOGSTT) * 2^\1 + 288/'| bc -q | tr '\n' ' ')
 
 bench_all:
-	#make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm use_mmap
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp_dram_log
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm log_compression
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm optimized_commit
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_fence
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_flush
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp_dram
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp_optc
+	(for i in `seq 0 17`; do sudo cpufreq-set -g performance -c $$i; done)
+	sudo su -c "echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo"
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm use_mmap
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp_dram_log
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm log_compression
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm optimized_commit
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_fence
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_flush
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp_dram
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp_optc
 	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm large_node_use_mmap
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm large_node_parallel_cp
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm large_node_log_compression
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm more_loop_use_mmap
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm more_loop_parallel_cp 
-	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm more_loop_log_compression
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm large_node_parallel_cp
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm large_node_log_compression
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm more_loop_use_mmap
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm more_loop_parallel_cp 
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm more_loop_log_compression
+	(for i in `seq 0 17`; do sudo cpufreq-set -g powersave -c $$i; done)
 
 use_mmap:
 	mkdir -p $(BENCH_DIR)/$@
