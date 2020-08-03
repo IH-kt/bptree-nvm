@@ -52,22 +52,28 @@ void TM_init_nb_threads(int nb_threads)
 
 void TM_set_is_record(int tid, int is_rec)
 {
+#ifndef NSTAT
     HTM_set_is_record(is_rec); // TODO: this is thread-local
     is_record[tid] = is_rec;
+#endif
 }
 
 void TM_inc_fallback(int tid)
 {
+#ifndef NSTAT
     if (is_record[tid]) {
         errors[tid][HTM_FALLBACK]++;
     }
+#endif
 }
 
 void TM_inc_error(int tid, HTM_STATUS_TYPE error)
 {
+#ifndef NSTAT
     if (is_record[tid] || error == HTM_CODE_SUCCESS) {
         HTM_ERROR_INC(error, errors[tid]);
     }
+#endif
 }
 
 void TM_reset_error()
@@ -98,9 +104,11 @@ void TM_reset_error()
 int TM_get_error_count(int error)
 {
     int i, res = 0;
+#ifndef NSTAT
     for (i = 0; i < threads; ++i) {
         res += errors[i][error];
     }
+#endif
     return res;
 }
 

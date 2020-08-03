@@ -114,6 +114,10 @@ ifeq ($(STAT), 1)
 DEFINES += -DSTAT
 endif
 
+ifeq ($(NSTAT), 1)
+DEFINES += -DNSTAT
+endif
+
 ifeq ($(REDUCE_CP), 1)
 DEFINES += -DREDUCE_CP
 endif

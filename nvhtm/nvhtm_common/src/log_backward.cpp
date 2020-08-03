@@ -860,7 +860,9 @@ int LOG_checkpoint_backward_apply_one()
     return 1; // there isn't enough transactions
   }
 
+#ifndef NSTAT
   NH_nb_checkpoints = NH_nb_checkpoints + 1;
+#endif
 #ifdef STAT
   if (checkpoint_by_flags[2]) {
       checkpoint_by[2]++;

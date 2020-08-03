@@ -255,6 +255,7 @@ static int s_explicit_a;
 
 void NVHTM_shutdown()
 {
+#ifndef NSTAT
     // TODO: statistics optional
     double time_taken;
 
@@ -275,9 +276,11 @@ void NVHTM_shutdown()
 
     double time_tx = NVHTM_stats_get_avg_time_tx();
     double time_after = NVHTM_stats_get_avg_time_after();
+#endif
 
     NVMHTM_shutdown();
 
+#ifndef NSTAT
 #ifdef STAT
     fprintf(stderr, "\n\n ########################################### \n");
     fprintf(stderr, " ########################################### \n");
@@ -329,13 +332,16 @@ void NVHTM_shutdown()
 	printf(" ########################################### \n");
 	printf(" ########################################### \n\n");
 #endif
+#endif
 
     // ---
     HTM_exit();
     // ---
 
+#ifndef NSTAT
 	// TODO: if gnuplot file
 	stats_to_gnuplot_file((char*) STATS_FILE);
+#endif
 #ifdef STAT
     MN_exit(0);
 #endif

@@ -95,7 +95,9 @@ void HTM_enter_fallback()
 #endif
   // HTM_SGL_var = 1;
   // __sync_synchronize();
+#ifndef NSTAT
   errors[HTM_FALLBACK]++;
+#endif
 }
 
 void HTM_exit_fallback()
@@ -131,9 +133,11 @@ void HTM_block()
 
 void HTM_inc_status_count(int status_code)
 {
+#ifndef NSTAT
   if (is_record) {
     HTM_ERROR_INC(status_code, errors);
   }
+#endif
 }
 
 // int HTM_update_budget(int budget, HTM_STATUS_TYPE status)
@@ -147,19 +151,23 @@ void HTM_inc_status_count(int status_code)
 int HTM_get_status_count(int status_code, int **accum)
 {
   int res = 0;
+#ifndef NSTAT
   res = errors[status_code];
   if (accum != NULL) {
     accum[tid][status_code] = errors[status_code];
   }
+#endif
   return res;
 }
 
 void HTM_reset_status_count()
 {
+#ifndef NSTAT
   int i, j;
   for (i = 0; i < HTM_NB_ERRORS; ++i) {
     errors[i] = 0;
   }
+#endif
 }
 
 int HTM_get_nb_threads() { return threads; }

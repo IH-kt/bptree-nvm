@@ -12,6 +12,10 @@ int is_sigsegv = 0;
 __thread CL_ALIGN NVLog_s *nvm_htm_local_log;
 __thread CL_ALIGN int LOG_nb_wraps;
 __thread CL_ALIGN NVLogLocal_s LOG_local_state;
+#ifdef NSTAT
+int *checkpoint_empty;
+int LOG_flush_all_flag;
+#endif
 #ifdef STAT
 __thread double abort_time_thread = 0;
 double abort_time_all = 0;
@@ -43,8 +47,8 @@ unsigned int *applied_entries;
 unsigned int *read_entries;
 unsigned int *wrote_entries;
 #    endif
-#  endif
 double *parallel_checkpoint_section_time_thread[CPTIME_NUM];
+#  endif
 #  ifdef LOG_COMPRESSION
 CL_ALIGN NVLog_s **NH_global_compressed_logs;
 void* LOG_compressed_global_ptr;

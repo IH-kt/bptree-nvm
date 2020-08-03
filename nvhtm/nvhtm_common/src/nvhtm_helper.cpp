@@ -397,6 +397,7 @@ void NVMHTM_thr_init(void *pool)
 
 void NVMHTM_thr_exit()
 {
+#ifndef NSTAT
   mtx.lock();
   NH_time_blocked_total += NH_time_blocked;
   NH_count_blocks_total += NH_count_blocks;
@@ -410,6 +411,7 @@ void NVMHTM_thr_exit()
   NH_nanotime_blocked_total[1] += NH_nanotime_blocked[1];
 #endif
   mtx.unlock();
+#endif
 }
 
 void NVMHTM_init_thrs(int nb_threads)
@@ -547,10 +549,12 @@ void NVMHTM_shutdown()
   // fprintf(stderr, "checkpoint process started by check %lu times\n", checkpoint_by_check);
   // fprintf(stderr, "checkpoint process started by wait %lu times\n", checkpoint_by_wait);
 #else
+#  ifndef NSTAT
   printf("--- Percentage time blocked %f \n", ((double) NH_time_blocked_total
   / (double) CPU_MAX_FREQ / 1000.0D) / (double) TM_nb_threads / time_taken);
   printf("--- Nb. checkpoints %lli\n", NH_nb_checkpoints);
   printf("--- Time blocked %e ms!\n", (double) time_chkp_total / ((double) CPU_MAX_FREQ));
+#  endif
 #endif
 }
 
@@ -1058,7 +1062,9 @@ static int loop_checkpoint_manager()
   printf("More than 100ms (%f)\n", lat);
 }*/
 
+#ifndef NSTAT
 time_chkp_1 = rdtscp();
+#endif
 
 __sync_synchronize();
 
@@ -1120,11 +1126,13 @@ if (LOG_is_logged_tx()) {
     // printf("NO TRANSACTIONS TO APPLY!\n");
   }
 
+#ifndef NSTAT
   time_chkp_2 = rdtscp();
 
   // time_o_chkp_1 = rdtscp();
 
   time_chkp_total += time_chkp_2 - time_chkp_1;
+#endif
 
   return res;
 }
@@ -1196,6 +1204,7 @@ static void usr2_sigaction(int signal, siginfo_t *si, void *uap)
 
 static void segint_sigaction(int signal, siginfo_t *si, void *context)
 {
+#ifndef NSTAT
   char buffer[2 * 8192];
   char *ptr = buffer;
 
@@ -1284,6 +1293,8 @@ static void segint_sigaction(int signal, siginfo_t *si, void *context)
 #ifdef STAT
   MN_thr_exit();
   MN_exit(1);
+#endif
+
 #endif
 
   exit(EXIT_SUCCESS);

@@ -565,7 +565,9 @@ NVLog_s* LOG_init_1thread(void *log_pool, size_t max_size)
 #ifdef STAT
   // printf("size of 1 log: %zu\n", new_size_log);
 #else
+#ifndef NSTAT
   printf("size of 1 log: %zu\n", new_size_log);
+#endif
 #endif
 
   aux_ptr = (char*) log_pool;

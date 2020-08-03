@@ -94,11 +94,14 @@ void MN_free(void *ptr)
 
 void MN_thr_enter()
 {
+#ifndef USE_PMEM
 	NH_spins_per_100 = SPINS_PER_100NS;
+#endif
 }
 
 void MN_thr_exit()
 {
+#ifndef NSTAT
 	mtx.lock();
 	MN_count_spins_total        += MN_count_spins;
 	MN_time_spins_total         += MN_time_spins;
@@ -107,6 +110,7 @@ void MN_thr_exit()
 #ifdef WRITE_AMOUNT_NVHTM
     fprintf(stderr, "add written_bytes_thr:%lu\n", written_bytes_thr);
     __sync_fetch_and_add(&written_bytes, written_bytes_thr);
+#endif
 #endif
 }
 
@@ -124,9 +128,11 @@ void MN_flush(void *addr, size_t size, int do_flush)
 
 	for (i = 0; i < new_size; i += size_cl) {
 #ifdef USE_PMEM
+#ifndef NSTAT
         if (!do_flush) {
             MN_count_writes++;
         }
+#endif
         _mm_clwb(((char *) addr) + i - ((unsigned long)addr % size_cl));
 #else
 		// TODO: addr may not be aligned
@@ -151,11 +157,11 @@ void MN_drain()
 }
 
 void MN_learn_nb_nops() {
+#ifndef USE_PMEM
  	const char *save_file = "ns_per_10_nops";
  	FILE *fp = fopen(save_file, "r");
  
  	if (fp == NULL) {
-#ifndef USE_PMEM
  		// File does not exist
  		unsigned long long ts1, ts2;
  		double time;
@@ -169,9 +175,7 @@ void MN_learn_nb_nops() {
  
  		printf("CPU_MAX_FREQ=%llu\n", CPU_MAX_FREQ);
  
-#endif
  		fp = fopen(save_file, "w");
-#ifndef USE_PMEM
  
  		ts1 = rdtscp();
  		SPIN_10NOPS(test);
@@ -182,16 +186,14 @@ void MN_learn_nb_nops() {
  		time = measured_cycles / (double) CPU_MAX_FREQ; // TODO:
  
  		SPINS_PER_100NS = (double) test * (ns100 / time) + 1; // round up
-#endif
  		fprintf(fp, "%i\n", SPINS_PER_100NS);
  		fclose(fp);
-#ifndef USE_PMEM
  		printf("measured spins per 100ns: %i\n", SPINS_PER_100NS);
  	} else {
-#endif
  		fscanf(fp, "%i\n", &SPINS_PER_100NS);
  		fclose(fp);
  	}
+#endif
 }
 
 void MN_enter() {}
@@ -211,6 +213,8 @@ void MN_thr_reset() {
 #endif
 }
 void MN_reset(int by_chkp) {
+#ifndef NSTAT
     MN_count_writes = 0;
 	MN_count_writes_to_PM_total = 0;
+#endif
 }

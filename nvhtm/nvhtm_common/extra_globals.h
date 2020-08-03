@@ -15,6 +15,10 @@ extern __thread CL_ALIGN NVLog_s *nvm_htm_local_log;
 extern __thread CL_ALIGN int LOG_nb_wraps;
 extern __thread CL_ALIGN NVLogLocal_s LOG_local_state;
 // ####################################################
+#ifdef NSTAT
+extern int *checkpoint_empty;
+extern int LOG_flush_all_flag;
+#endif
 #ifdef STAT
 extern __thread double abort_time_thread;
 extern double abort_time_all;

@@ -144,6 +144,19 @@ extern "C"
 		} \
 	})
 #else
+#  ifdef NSTAT
+	#define WAIT_MORE_LOG(log) ({ \
+		if (WAIT_LOG_CONDITION) { \
+			if (HTM_test()) HTM_named_abort(CODE_LOG_ABORT); \
+			while (distance_ptr(log->start, log->end) > \
+				(LOG_local_state.size_of_log - 32)) { \
+                    RUN_CHECKPOINT();\
+					PAUSE(); \
+			} \
+			LOG_before_TX(); \
+		} \
+	})
+#  else
 	#define WAIT_MORE_LOG(log) ({ \
 		if (WAIT_LOG_CONDITION) { \
 			ts_s ts1_wait_log_time, ts2_wait_log_time; \
@@ -162,6 +175,7 @@ extern "C"
 			 if (lat > 100) printf("Blocked for %f ms\n", lat); */ \
 		} \
 	})
+#  endif
 #endif
 
 #ifdef STAT
@@ -194,6 +208,20 @@ extern "C"
 		if (lat > 100) printf("Blocked for %f ms\n", lat); */ \
 	}
 #else
+#  ifdef NSTAT
+	#define CHECK_LOG_ABORT(TM_tid_var, TM_status_var) \
+	if (HTM_is_named(TM_status_var) == CODE_LOG_ABORT) { \
+		NVLog_s *log = NH_global_logs[TM_tid_var]; \
+		while ((LOG_local_state.counter == distance_ptr(log->start, log->end) \
+			&& (LOG_local_state.size_of_log - LOG_local_state.counter) < WAIT_DISTANCE) \
+			|| (distance_ptr(log->end, log->start) < WAIT_DISTANCE \
+			&& log->end != log->start)) { \
+                RUN_CHECKPOINT();\
+				PAUSE(); \
+		} \
+		LOG_before_TX(); \
+	}
+#  else
 	#define CHECK_LOG_ABORT(TM_tid_var, TM_status_var) \
 	if (HTM_is_named(TM_status_var) == CODE_LOG_ABORT) { \
 		ts_s ts1_wait_log_time, ts2_wait_log_time; \
@@ -213,6 +241,7 @@ extern "C"
 		/* double lat = (double)(ts2_wait_log_time - ts1_wait_log_time) / (double)CPU_MAX_FREQ; \
 		if (lat > 100) printf("Blocked for %f ms\n", lat); */ \
 	}
+#  endif
 #endif
 
 	#else /* DEFAULT: WRAP */
