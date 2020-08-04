@@ -45,6 +45,8 @@ extern "C"
 #ifdef STAT
   #undef AFTER_TRANSACTION_i
   #define AFTER_TRANSACTION_i(tid, budget) ({ \
+    struct timespec transaction_commit_start;\
+    clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_commit_start);\
     int nb_writes = LOG_count_writes(tid); \
     if (nb_writes) { \
       htm_tx_val_counters[tid].global_counter = ts_var; \
@@ -60,6 +62,11 @@ extern "C"
     time_tmp /= 1000000000;                   \
     time_tmp += transaction_commit.tv_sec - transaction_start.tv_sec;      \
     transaction_time_thread += time_tmp;  \
+    \
+    time_tmp += (transaction_commit.tv_nsec - transaction_commit_start.tv_nsec);  \
+    time_tmp /= 1000000000;                   \
+    time_tmp += transaction_commit.tv_sec - transaction_commit_start.tv_sec;      \
+    commit_time_thread += time_tmp;  \
   })
 #else
   #undef AFTER_TRANSACTION_i

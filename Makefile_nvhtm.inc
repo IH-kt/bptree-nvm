@@ -106,6 +106,11 @@ ifeq ($(no_cp),1)
     NVHTM_DEFINES   += -DNO_CHECKPOINTER
 endif
 
+ifeq ($(no_val),1)
+    NVHTM_MAKE_ARGS += DISABLE_VALIDATION=1
+    NVHTM_DEFINES   += -DDISABLE_VALIDATION
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

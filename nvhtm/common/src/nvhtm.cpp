@@ -142,6 +142,8 @@ void NVHTM_thr_exit()
 #ifdef STAT
 	abort_time_all += abort_time_thread;
 	transaction_time_all += transaction_time_thread;
+	commit_time_all += commit_time_thread;
+	log_flush_time_all += log_flush_time_thread;
 #endif
 
 	mutex = 0;
@@ -296,6 +298,8 @@ void NVHTM_shutdown()
     fprintf(stderr, " ---   TIME\n");
     fprintf(stderr, "TRANSACTION_ABORT_TIME: %lf s\n", abort_time_all);
     fprintf(stderr, "TRANSACTION_TIME: %lf s\n", transaction_time_all);
+    fprintf(stderr, "COMMIT_TIME: %lf s\n", commit_time_all);
+    fprintf(stderr, "LOG_FLUSH_TIME: %lf s\n", log_flush_time_all);
     fprintf(stderr, "Time %f s\n", time_taken);
     fprintf(stderr, "TIME_TX %f ms\n", time_tx);
     fprintf(stderr, "TIME_AFTER %f ms\n", time_after);

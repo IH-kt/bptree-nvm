@@ -32,6 +32,10 @@ extern unsigned int checkpoint_by[3];
 extern double checkpoint_section_time[4];
 extern int *checkpoint_empty;
 extern int LOG_flush_all_flag;
+extern __thread double commit_time_thread;
+extern double commit_time_all;
+extern __thread double log_flush_time_thread;
+extern double log_flush_time_all;
 #ifdef WRITE_AMOUNT_NVHTM
 extern unsigned long no_filter_write_amount;
 extern unsigned long filtered_write_amount;

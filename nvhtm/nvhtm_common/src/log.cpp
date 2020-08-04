@@ -119,7 +119,9 @@ void LOG_init(int nb_threads, int fresh)
   // nvm_htm_log_size = NVMHTM_LOG_SIZE / nb_threads; // TODO
 
 #ifndef NSTAT
+#ifndef STAT
   printf("Number of threads: %i\n", TM_nb_threads);
+#endif
 #endif
 
   if (NH_global_logs == NULL) {

@@ -582,6 +582,9 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
 #ifdef USE_PMEM
 #ifndef OPT_COMMIT
 #ifndef NO_FLUSH
+  struct timespec log_flush_start, log_flush_end;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_start);
+
   int log_before = ptr_mod_log(LOG_local_state.end, -nb_writes);
   if (log_before + nb_writes > NH_global_logs[id]->size_of_log) {
       // fprintf(stderr, "LOG_local_state.end = %d\n", LOG_local_state.end);
@@ -600,6 +603,12 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
               nb_writes * sizeof(NVLogEntry_s), 0
               );
   }
+    clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_end);
+    double time_tmp = 0;
+    time_tmp += (log_flush_end.tv_nsec - log_flush_start.tv_nsec);
+    time_tmp /= 1000000000;
+    time_tmp += log_flush_end.tv_sec - log_flush_start.tv_sec;
+    log_flush_time_thread += time_tmp;
 #endif
 #endif
 #else
@@ -621,6 +630,7 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
 #ifdef USE_PMEM
 #ifndef OPT_COMMIT
 #ifndef NO_FLUSH
+    clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_start);
   log_before = ptr_mod_log(LOG_local_state.end, -1);
   MN_flush(&(NH_global_logs[id]->ptr[log_before]),
     sizeof(NVLogEntry_s), 0
@@ -638,6 +648,12 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
 #ifndef OPT_COMMIT
 #ifndef NO_FENCE
   __sync_synchronize();
+    clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_end);
+    time_tmp = 0;
+    time_tmp += (log_flush_end.tv_nsec - log_flush_start.tv_nsec);
+    time_tmp /= 1000000000;
+    time_tmp += log_flush_end.tv_sec - log_flush_start.tv_sec;
+    log_flush_time_thread += time_tmp;
 #endif
 #endif
 }
