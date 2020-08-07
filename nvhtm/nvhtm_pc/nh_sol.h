@@ -43,10 +43,26 @@ extern "C"
   }
 
 #ifdef STAT
+#ifdef NO_COMMIT_TIME
+#  define TAKE_COMMIT_TIME_1() {}
+#  define TAKE_COMMIT_TIME_4() {}
+#else
+#  define TAKE_COMMIT_TIME_1() {\
+    commit_time_tmp = rdtscp();\
+    _mm_mfence();\
+}
+#  define TAKE_COMMIT_TIME_4() {\
+    long long tmp = rdtscp();\
+    long long diff = tmp - commit_time_tmp;\
+    commit_time_thread[2] += diff;\
+    commit_time_doubled_thread[2] += diff * diff;\
+    assert(diff < diff * diff);\
+    _mm_mfence();\
+}
+#endif
   #undef AFTER_TRANSACTION_i
   #define AFTER_TRANSACTION_i(tid, budget) ({ \
-    struct timespec transaction_commit_start;\
-    clock_gettime(CLOCK_MONOTONIC_RAW, &transaction_commit_start);\
+      TAKE_COMMIT_TIME_1();\
     int nb_writes = LOG_count_writes(tid); \
     if (nb_writes) { \
       htm_tx_val_counters[tid].global_counter = ts_var; \
@@ -62,11 +78,8 @@ extern "C"
     time_tmp /= 1000000000;                   \
     time_tmp += transaction_commit.tv_sec - transaction_start.tv_sec;      \
     transaction_time_thread += time_tmp;  \
+    TAKE_COMMIT_TIME_4();\
     \
-    time_tmp += (transaction_commit.tv_nsec - transaction_commit_start.tv_nsec);  \
-    time_tmp /= 1000000000;                   \
-    time_tmp += transaction_commit.tv_sec - transaction_commit_start.tv_sec;      \
-    commit_time_thread += time_tmp;  \
   })
 #else
   #undef AFTER_TRANSACTION_i

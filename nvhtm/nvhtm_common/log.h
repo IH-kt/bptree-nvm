@@ -458,6 +458,24 @@ extern "C"
 	})
 #endif
 #else
+#ifdef NO_CHECKPOINTER
+	#define LOG_after_TX() ({ \
+		NVLog_s *log = NH_global_logs[TM_tid_var]; \
+		int log_end, log_start; \
+		log_end = log->end; log_start = log->start; \
+		while (!(distance_ptr(log_start, log_end) <= \
+		distance_ptr(log_start, LOG_local_state.end))) \
+		log_start = log->start; \
+		MN_write(&(log->end), &(LOG_local_state.end), \
+			sizeof(LOG_local_state.end), 0); \
+		MN_count_spins++; \
+		/* log->end = LOG_local_state.end; */ \
+		__sync_synchronize(); \
+        log_end = 0;\
+		MN_write(&(log->end), &(log_end), \
+			sizeof(LOG_local_state.end), 0); \
+	})
+#else
 	#define LOG_after_TX() ({ \
 		NVLog_s *log = NH_global_logs[TM_tid_var]; \
 		int log_end, log_start; \
@@ -471,6 +489,7 @@ extern "C"
 		/* log->end = LOG_local_state.end; */ \
 		__sync_synchronize(); \
 	})
+#endif
 #endif
 	#endif
 

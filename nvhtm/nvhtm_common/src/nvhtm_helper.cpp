@@ -582,8 +582,6 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
 #ifdef USE_PMEM
 #ifndef OPT_COMMIT
 #ifndef NO_FLUSH
-  struct timespec log_flush_start, log_flush_end;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_start);
 
   int log_before = ptr_mod_log(LOG_local_state.end, -nb_writes);
   if (log_before + nb_writes > NH_global_logs[id]->size_of_log) {
@@ -603,14 +601,24 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
               nb_writes * sizeof(NVLogEntry_s), 0
               );
   }
-    clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_end);
-    double time_tmp = 0;
-    time_tmp += (log_flush_end.tv_nsec - log_flush_start.tv_nsec);
-    time_tmp /= 1000000000;
-    time_tmp += log_flush_end.tv_sec - log_flush_start.tv_sec;
-    log_flush_time_thread += time_tmp;
+    // clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_end);
+    // double time_tmp = 0;
+    // time_tmp += (log_flush_end.tv_nsec - log_flush_start.tv_nsec);
+    // time_tmp /= 1000000000;
+    // time_tmp += log_flush_end.tv_sec - log_flush_start.tv_sec;
+    // log_flush_time_thread += time_tmp;
 #endif
 #endif
+#  ifdef STAT
+#    ifndef NO_COMMIT_TIME
+  long long tmp = rdtscp();
+  long long diff = tmp - commit_time_tmp;
+  commit_time_thread[0] += diff;
+  commit_time_tmp = tmp;
+  commit_time_doubled_thread[0] += diff * diff;
+  _mm_lfence();
+#    endif
+#  endif
 #else
   SPIN_PER_WRITE(MAX(nb_writes * sizeof(NVLogEntry_s) / CACHE_LINE_SIZE, 1));
   // int log_before = ptr_mod_log(NH_global_logs[id]->end, -nb_writes);
@@ -622,6 +630,15 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   #ifndef DISABLE_VALIDATION
   NVMHTM_validate(id, threads_set);
   #endif
+#ifdef STAT
+#  ifndef NO_COMMIT_TIME
+  tmp = rdtscp();
+  diff = tmp - commit_time_tmp;
+  commit_time_thread[1] += diff;
+  commit_time_doubled_thread[1] += diff * diff;
+  commit_time_tmp = tmp;
+#  endif
+#endif
 
   // good place for a memory barrier
   _mm_sfence();
@@ -630,7 +647,7 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
 #ifdef USE_PMEM
 #ifndef OPT_COMMIT
 #ifndef NO_FLUSH
-    clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_start);
+    // clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_start);
   log_before = ptr_mod_log(LOG_local_state.end, -1);
   MN_flush(&(NH_global_logs[id]->ptr[log_before]),
     sizeof(NVLogEntry_s), 0
@@ -648,12 +665,12 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
 #ifndef OPT_COMMIT
 #ifndef NO_FENCE
   __sync_synchronize();
-    clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_end);
-    time_tmp = 0;
-    time_tmp += (log_flush_end.tv_nsec - log_flush_start.tv_nsec);
-    time_tmp /= 1000000000;
-    time_tmp += log_flush_end.tv_sec - log_flush_start.tv_sec;
-    log_flush_time_thread += time_tmp;
+    // clock_gettime(CLOCK_MONOTONIC_RAW, &log_flush_end);
+    // time_tmp = 0;
+    // time_tmp += (log_flush_end.tv_nsec - log_flush_start.tv_nsec);
+    // time_tmp /= 1000000000;
+    // time_tmp += log_flush_end.tv_sec - log_flush_start.tv_sec;
+    // log_flush_time_thread += time_tmp;
 #endif
 #endif
 }

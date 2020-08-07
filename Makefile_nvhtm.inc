@@ -111,6 +111,11 @@ ifeq ($(no_val),1)
     NVHTM_DEFINES   += -DDISABLE_VALIDATION
 endif
 
+ifeq ($(nctime),1)
+    NVHTM_MAKE_ARGS += NO_COMMIT_TIME=1
+    NVHTM_DEFINES   += -DNO_COMMIT_TIME
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

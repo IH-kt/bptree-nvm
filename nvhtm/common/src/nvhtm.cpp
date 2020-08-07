@@ -142,8 +142,11 @@ void NVHTM_thr_exit()
 #ifdef STAT
 	abort_time_all += abort_time_thread;
 	transaction_time_all += transaction_time_thread;
-	commit_time_all += commit_time_thread;
-	log_flush_time_all += log_flush_time_thread;
+    int i;
+    for (i = 0; i < 3; i++) {
+        commit_time_all[i] += commit_time_thread[i];
+        commit_time_doubled_all[i] += commit_time_doubled_thread[i];
+    }
 #endif
 
 	mutex = 0;
@@ -276,6 +279,17 @@ void NVHTM_shutdown()
     double X = (double) commits / (double) time_taken;
     double P_A = (double) s_aborts / (double) (successes + s_aborts);
 
+#ifndef NO_COMMIT_TIME
+    double commit_time_sec[3];
+    double commit_time_var[3];
+    int i;
+    for (i = 0; i < 3; i++) {
+        commit_time_sec[i] = commit_time_all[i] / TSC_CLOCK_FREQ;
+        commit_time_var[i] = commit_time_doubled_all[i] / commits;
+        commit_time_var[i] = (commit_time_all[i] / commits) * (commit_time_all[i] / commits);
+    }
+#endif
+
     double time_tx = NVHTM_stats_get_avg_time_tx();
     double time_after = NVHTM_stats_get_avg_time_after();
 #endif
@@ -298,8 +312,14 @@ void NVHTM_shutdown()
     fprintf(stderr, " ---   TIME\n");
     fprintf(stderr, "TRANSACTION_ABORT_TIME: %lf s\n", abort_time_all);
     fprintf(stderr, "TRANSACTION_TIME: %lf s\n", transaction_time_all);
-    fprintf(stderr, "COMMIT_TIME: %lf s\n", commit_time_all);
-    fprintf(stderr, "LOG_FLUSH_TIME: %lf s\n", log_flush_time_all);
+#ifndef NO_COMMIT_TIME
+    fprintf(stderr, "COMMIT_TIME1: %lf s\n", commit_time_sec[0]);
+    fprintf(stderr, "COMMIT_TIME2: %lf s\n", commit_time_sec[1]);
+    fprintf(stderr, "COMMIT_TIME3: %lf s\n", commit_time_sec[2]);
+    fprintf(stderr, "COMMIT_TIME1_VAR: %lf\n", commit_time_var[0]);
+    fprintf(stderr, "COMMIT_TIME2_VAR: %lf\n", commit_time_var[1]);
+    fprintf(stderr, "COMMIT_TIME3_VAR: %lf\n", commit_time_var[2]);
+#endif
     fprintf(stderr, "Time %f s\n", time_taken);
     fprintf(stderr, "TIME_TX %f ms\n", time_tx);
     fprintf(stderr, "TIME_AFTER %f ms\n", time_after);

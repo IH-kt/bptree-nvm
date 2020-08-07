@@ -20,6 +20,7 @@ extern int *checkpoint_empty;
 extern int LOG_flush_all_flag;
 #endif
 #ifdef STAT
+#define TSC_CLOCK_FREQ ((double)2600 * 1024 * 1024)
 extern __thread double abort_time_thread;
 extern double abort_time_all;
 extern __thread double transaction_time_thread;
@@ -32,10 +33,11 @@ extern unsigned int checkpoint_by[3];
 extern double checkpoint_section_time[4];
 extern int *checkpoint_empty;
 extern int LOG_flush_all_flag;
-extern __thread double commit_time_thread;
-extern double commit_time_all;
-extern __thread double log_flush_time_thread;
-extern double log_flush_time_all;
+extern __thread long long commit_time_tmp;
+extern __thread long long commit_time_thread[3];
+extern __thread long long commit_time_doubled_thread[3];
+extern long long commit_time_doubled_all[3];
+extern long long commit_time_all[3];
 #ifdef WRITE_AMOUNT_NVHTM
 extern unsigned long no_filter_write_amount;
 extern unsigned long filtered_write_amount;

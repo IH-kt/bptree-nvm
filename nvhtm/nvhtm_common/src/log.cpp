@@ -504,12 +504,18 @@ void NH_reset() {
 #ifdef STAT
     extern CL_ALIGN double HTM_nanotime_blocked_total;
     extern pid_t NH_checkpoint_pid;
+    int i;
     fprintf(stderr, "HTM_nanotime_blocked_total = %lf\n", HTM_nanotime_blocked_total);
     fprintf(stderr, "NH_time_blocked_total (WL) = %lf\n", NH_nanotime_blocked_total[0]);
     fprintf(stderr, "NH_time_blocked_total (CA) = %lf\n", NH_nanotime_blocked_total[1]);
     HTM_nanotime_blocked_total = 0;
     NH_nanotime_blocked_total[0] = 0;
     NH_nanotime_blocked_total[1] = 0;
+#ifndef NO_COMMIT_TIME
+    for (i = 0; i < 3; i++) {
+        commit_time_all[i] = 0;
+    }
+#endif
     abort_time_all = 0;
     transaction_time_all = 0;
     TM_reset_error();
