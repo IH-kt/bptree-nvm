@@ -1,0 +1,95 @@
+initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 2, pmem_path = /mnt/nvmm/iiboshi//data, log_path = /mnt/nvmm/iiboshi//log
+allocating 106667584 byte
+log_size = 83886656
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f8859a00000
+number of entry = 2097152
+*******************Thread 2*******************
+***********************************************
+adding
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+HTM_nanotime_blocked_total = 0.000420
+NH_time_blocked_total (WL) = 0.000000
+NH_time_blocked_total (CA) = 0.000000
+reset error counter
+thread 0:
+	SUCCESS  = 2497877
+	ABORT    = 48454
+	EXPLICIT = 0
+	RETRY    = 584
+	CONFLICT = 589
+	CAPACITY = 10277
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 37588
+	FALLBACK = 2123
+thread 1:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+*******************Thread 1*******************
+***********************************************
+adding
+NH_time_blocked = 58932
+NH_count_blocks = 74
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000023
+*******************Thread 2*******************
+***********************************************
+adding
+NH_time_blocked = 55780
+NH_count_blocks = 70
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000022
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000044 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 2495685
+ABORTS : 92994
+CONFLS : 3119
+CAPACS : 3727
+EXPLIC : 144
+FALLBK : 4315
+   P_A : 0.035923
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.071309 s
+TRANSACTION_TIME: 5.953139 s
+COMMIT_TIME1: 0.526814 s
+COMMIT_TIME2: 0.264197 s
+COMMIT_TIME3: 2.103900 s
+COMMIT_TIME1_VAR: 329476.000000
+COMMIT_TIME2_VAR: 82944.000000
+COMMIT_TIME3_VAR: 5262436.000000
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          22932721
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          288
+TOTAL_TIME_B (clocks) 114712
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.004348 s!
+3.871570
