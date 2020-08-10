@@ -962,6 +962,8 @@ static void fork_manager()
 
   while (*NH_checkpointer_state == 1) PAUSE();
   #endif
+#else
+  REMAP_PRIVATE();
 #endif
 }
 
