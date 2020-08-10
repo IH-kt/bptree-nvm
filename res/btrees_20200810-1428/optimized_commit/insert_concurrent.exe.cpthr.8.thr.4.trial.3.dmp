@@ -1,0 +1,150 @@
+cp_threads = 8
+initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 4, pmem_path = /mnt/nvmm/iiboshi//data, log_path = /mnt/nvmm/iiboshi//log
+allocating 215468436 byte
+log_size = 167773312
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fa9c0659000
+number of entry = 2097152
+*******************Thread 4*******************
+***********************************************
+adding
+NH_time_blocked = 3370992178
+NH_count_blocks = 50
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 1.296550
+remaining value = 0
+wait_for_checkpoint = 0.000019
+HTM_nanotime_blocked_total = 0.000771
+NH_time_blocked_total (WL) = 0.000000
+NH_time_blocked_total (CA) = 1.296550
+reset error counter
+thread 0:
+	SUCCESS  = 2496200
+	ABORT    = 98790
+	EXPLICIT = 50
+	RETRY    = 546
+	CONFLICT = 548
+	CAPACITY = 60522
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 37720
+	FALLBACK = 3800
+thread 1:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+reset: nb_checkpoints = 51, checkpoint_by = 51, 0, 0
+*******************Thread 2*******************
+***********************************************
+adding
+NH_time_blocked = 18400392
+NH_count_blocks = 25932
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.007184
+*******************Thread 4*******************
+***********************************************
+adding
+NH_time_blocked = 19416592
+NH_count_blocks = 27350
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.007623
+*******************Thread 3*******************
+***********************************************
+adding
+NH_time_blocked = 19716780
+NH_count_blocks = 27672
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.007671
+*******************Thread 1*******************
+***********************************************
+adding
+NH_time_blocked = 19082938
+NH_count_blocks = 27067
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.007430
+remaining value = 0
+wait_for_checkpoint = 0.000007
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.029907 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 2306182
+ABORTS : 4336487
+CONFLS : 4212513
+CAPACS : 3475
+EXPLIC : 108021
+FALLBK : 193818
+   P_A : 0.652823
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 4.811528 s
+TRANSACTION_TIME: 6.931334 s
+COMMIT_TIME1: 0.569537 s
+COMMIT_TIME2: 0.352979 s
+COMMIT_TIME3: 0.704271 s
+COMMIT_TIME1_VAR: 385641.000000
+COMMIT_TIME2_VAR: 147456.000000
+COMMIT_TIME3_VAR: 589824.000000
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          53785073
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          216142
+TOTAL_TIME_B (clocks) 3447608880
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 2.438547 s!
+[FORKED_MANAGER] Nb. checkpoints 256
+[FORKED_MANAGER] Time active 9818.924175 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 256
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.000063
+[FORKED_MANAGER] sec. 2 (find commit) = 0.003806
+[FORKED_MANAGER] sec. 3 (apply & flush) = 2.368385
+[FORKED_MANAGER] cpthread logwrite = 1.475762
+[FORKED_MANAGER] cpthread write & flush = 0.881508
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
+4.205509
