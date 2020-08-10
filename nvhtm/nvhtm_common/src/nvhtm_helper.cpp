@@ -640,8 +640,12 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
 #  endif
 #endif
 
+#ifndef OPT_COMMIT
+#ifndef NO_FENCE
   // good place for a memory barrier
   _mm_sfence();
+#endif
+#endif
 
   NVMHTM_write_ts(id, ts); // Flush all together
 #ifdef USE_PMEM
