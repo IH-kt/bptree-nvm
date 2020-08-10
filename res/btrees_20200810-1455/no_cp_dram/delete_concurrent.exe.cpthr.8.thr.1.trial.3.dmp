@@ -1,0 +1,77 @@
+initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 1, pmem_path = /mnt/nvmm/iiboshi//data, log_path = /home/iiboshi/dramdir//log
+allocating 106667328 byte
+log_size = 41943328
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fbbedc00000
+number of entry = 2097152
+*******************Thread 1*******************
+***********************************************
+adding
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+HTM_nanotime_blocked_total = 0.000572
+NH_time_blocked_total (WL) = 0.000000
+NH_time_blocked_total (CA) = 0.000000
+reset error counter
+thread 0:
+	SUCCESS  = 2497047
+	ABORT    = 68646
+	EXPLICIT = 0
+	RETRY    = 310
+	CONFLICT = 312
+	CAPACITY = 31024
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 37310
+	FALLBACK = 2953
+*******************Thread 1*******************
+***********************************************
+adding
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+finish running threads
+--- Percentage time blocked -nan 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000000 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 2495458
+ABORTS : 96893
+CONFLS : 983
+CAPACS : 9659
+EXPLIC : 0
+FALLBK : 4542
+   P_A : 0.037376
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.069452 s
+TRANSACTION_TIME: 3.887549 s
+COMMIT_TIME1: 0.366053 s
+COMMIT_TIME2: 0.218843 s
+COMMIT_TIME3: 1.208325 s
+COMMIT_TIME1_VAR: 159201.000000
+COMMIT_TIME2_VAR: 56644.000000
+COMMIT_TIME3_VAR: 1734489.000000
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          22489152
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          0
+TOTAL_TIME_B (clocks) 0
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000886 s!
+4.846765
