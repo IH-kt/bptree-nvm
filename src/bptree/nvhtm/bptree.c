@@ -536,8 +536,8 @@ int bptreeUpdate(BPTree *bpt, KeyValuePair new_kv, unsigned char tid) {
         //persist(&target->pleaf->kv[target_index], sizeof(KeyValuePair));
         // _xbegin();
         // _xend();
+        NVHTM_end();
     }
-    NVHTM_end();
     return 1;
 }
 
