@@ -402,6 +402,9 @@ void NVMHTM_thr_exit()
   NH_time_blocked_total += NH_time_blocked;
   NH_count_blocks_total += NH_count_blocks;
 #ifdef STAT
+  // printf("TM local counter [%d] = %d, & 1 = %d\n", TM_tid_var, TM_get_local_counter(TM_tid_var), TM_get_local_counter(TM_tid_var) & 1);
+  // printf("HTM local counter [%d] = %d\n", HTM_SGL_tid, TM_get_local_counter(HTM_SGL_tid));
+  // fflush(stdout);
   fprintf(stderr, "adding\n");
   fprintf(stderr, "NH_time_blocked = %llu\n", NH_time_blocked);
   fprintf(stderr, "NH_count_blocks = %lld\n", NH_count_blocks);
@@ -573,8 +576,9 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
   #if VALIDATION == 3
   int nb_threads = TM_get_nb_threads();
   intptr_t all_dang = (1 << nb_threads) - 1;
-  threads_set << all_dang; // assume all dangerous initially
-  dangerous_threads(id, threads_set);
+  threads_set |= all_dang; // assume all dangerous initially
+  // dangerous_threads(tid, threads_set);
+  dangerous_threads(HTM_SGL_tid, threads_set);
   #endif
 
   // flush entries before write TS (does not need memory barrier)
@@ -628,7 +632,8 @@ void NVMHTM_commit(int id, ts_s ts, int nb_writes)
 #endif
 
   #ifndef DISABLE_VALIDATION
-  NVMHTM_validate(id, threads_set);
+  // NVMHTM_validate(id, threads_set);
+  NVMHTM_validate(HTM_SGL_tid, threads_set);
   #endif
 #ifdef STAT
 #  ifndef NO_COMMIT_TIME
@@ -866,10 +871,16 @@ static void dangerous_threads(int id, bitset<MAX_NB_THREADS> & threads_set)
     if (i != id && (local_counter & 1)) {
       int other_global = TM_get_global_counter(i);
       int my_global = TM_get_global_counter(id);
-      if (other_global < my_global || NH_before_ts[i] > my_global) {
-        // the other has a smaller TS or started after
-        threads_set[i] = 1;
+      // if (other_global < my_global || NH_before_ts[i] > my_global) {
+      //   // the other has a smaller TS or started after
+      //   threads_set[i] = 1;
+      // }
+      if (other_global >= my_global || NH_before_ts[i] > my_global) {
+        // the other has a larger TS or started after
+        threads_set[i] = 0;
       }
+    } else {
+        threads_set[i] = 0;
     }
   }
 }

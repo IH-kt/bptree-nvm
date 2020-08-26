@@ -41,7 +41,7 @@ void TM_init_nb_threads(int nb_threads)
              sizeof (tx_counters_s) * nb_threads);
     //    htm_tx_val_counters = (tx_counters_s*)
     //            aligned_alloc(CACHE_LINE_SIZE, sizeof (tx_counters_s) * nb_threads);
-    memset(htm_tx_val_counters, 0, sizeof (tx_counters_s));
+    memset(htm_tx_val_counters, 0, sizeof (tx_counters_s) * nb_threads);
 
     //    for (i = 0; i < nb_threads; ++i) {
     //        htm_tx_val_counters[i*DIST_CL] = (tx_counters_s*)
