@@ -185,3 +185,15 @@ endif
 ifeq ($(NO_COMMIT_TIME), 1)
 DEFINES += -DNO_COMMIT_TIME
 endif
+
+ifeq ($(CP_NOTHING), 1)
+DEFINES += -DCP_NOTHING
+endif
+
+ifeq ($(CP_INITIALIZE_ONLY), 1)
+DEFINES += -DCP_INITIALIZE_ONLY
+endif
+
+ifeq ($(CP_NOWRITE), 1)
+DEFINES += -DCP_NOWRITE
+endif

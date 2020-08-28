@@ -116,6 +116,16 @@ ifeq ($(nctime),1)
     NVHTM_DEFINES   += -DNO_COMMIT_TIME
 endif
 
+ifeq ($(cpnt),1)
+    NVHTM_MAKE_ARGS += CP_NOTHING=1
+    NVHTM_DEFINES   += -DCP_NOTHING
+endif
+
+ifeq ($(cpit),1)
+    NVHTM_MAKE_ARGS += CP_INITIALIZE_ONLY=1
+    NVHTM_DEFINES   += -DCP_INITIALIZE_ONLY
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

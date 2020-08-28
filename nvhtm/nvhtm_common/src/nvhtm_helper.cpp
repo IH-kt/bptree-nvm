@@ -895,19 +895,25 @@ static void fork_manager()
   pid = fork();
 
   if (pid == 0) {
-#ifdef STAT
+#ifdef CP_NOTHING
+      int status;
+      while(1) {
+          wait(&status);
+      }
+#else
+#  ifdef STAT
       MN_enter();
-#endif
+#  endif
     LOG_init(TM_nb_threads, 1); // reattach
     // printf("Maximum supported CPUs: %i\n", MAX_PHYS_THRS);
 
-#ifndef PARALLEL_CHECKPOINT
+#  ifndef PARALLEL_CHECKPOINT
     if (MAX_PHYS_THRS == 56) {
       set_affinity_at(27);
     } else {
       set_affinity_at(MAX_PHYS_THRS - 1);
     }
-#endif
+#  endif
 
     /*
     struct sigaction sa_sigsegv;
@@ -929,7 +935,7 @@ static void fork_manager()
 
     sigaction(SIGINT, &sa, NULL); // The parent can SIGINT the child to shutdown
 
-#ifdef STAT
+#  ifdef STAT
     memset(&sa, 0, sizeof (struct sigaction));
     sigemptyset(&sa.sa_mask);
     sa.sa_sigaction = usr1_sigaction;
@@ -943,13 +949,13 @@ static void fork_manager()
     sa.sa_flags = SA_SIGINFO;
 
     sigaction(SIGUSR2, &sa, NULL); // The parent can SIGINT the child to shutdown
-#endif
+#  endif
 
     LOG_attach_shared_mem();
 
-#ifdef STAT
+#  ifdef STAT
     memset(checkpoint_by, 0, sizeof(unsigned int) * 3);
-#endif
+#  endif
 
     // sort the logs for faster checkpoint (TODO:)
     #if SORT_ALG == 4
@@ -959,7 +965,15 @@ static void fork_manager()
       launch_thread_at(MAX_PHYS_THRS - 2, LOG_SOR_main_thread);
     }
     #endif /* Sorting thread */
+#  ifdef CP_INITIALIZE_ONLY
+      int status;
+      while(1) {
+          wait(&status);
+      }
+#  else
     server(NULL);
+#  endif
+#endif
 #ifdef USE_PMEM
   } else {
       REMAP_PRIVATE();

@@ -313,8 +313,10 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                         exit(1);
                     }
 #  else
+#    ifndef CP_NOWRITE
                     // Need to write this word
                     MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+#    endif
 #  endif
                     it->second.bit_map |= bit_map;
 #  ifdef FAW_CHECKPOINT
@@ -973,7 +975,9 @@ int LOG_checkpoint_backward_apply_one()
         auto to_insert = make_pair((GRANULE_TYPE*)cl_addr, block);
         writes_map.insert(to_insert);
         writes_list.push_back((GRANULE_TYPE*)cl_addr);
+#  ifndef CP_NOWRITE
         MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+#  endif
 #ifdef STAT
 #ifdef WRITE_AMOUNT_NVHTM
         filtered_write_amount += sizeof(entry.value);
@@ -982,7 +986,9 @@ int LOG_checkpoint_backward_apply_one()
       } else {
         if ( !(it->second.bit_map & bit_map) ) {
           // Need to write this word
+#  ifndef CP_NOWRITE
           MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
+#  endif
           it->second.bit_map |= bit_map;
 #ifdef STAT
 #ifdef WRITE_AMOUNT_NVHTM
