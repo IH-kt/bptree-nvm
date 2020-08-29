@@ -425,7 +425,7 @@ extern "C"
 	})
 	#else
 #ifdef STAT
-#ifdef NO_CHECKPOINTER
+#if defined(NO_CHECKPOINTER) || defined(CP_NOTHING) || defined(CP_INITIALIZE_ONLY)
 	#define LOG_after_TX() ({ \
 		NVLog_s *log = NH_global_logs[TM_tid_var]; \
 		int log_end, log_start; \

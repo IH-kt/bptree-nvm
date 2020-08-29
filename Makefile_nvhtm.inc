@@ -126,6 +126,11 @@ ifeq ($(cpit),1)
     NVHTM_DEFINES   += -DCP_INITIALIZE_ONLY
 endif
 
+ifeq ($(cpnw),1)
+    NVHTM_MAKE_ARGS += CP_NOWRITE=1
+    NVHTM_DEFINES   += -DCP_NOWRITE
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

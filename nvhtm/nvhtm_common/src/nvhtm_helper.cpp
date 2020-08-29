@@ -1387,7 +1387,7 @@ static void aux_thread_stats_to_gnuplot_file(char *filename) {
 }
 
 void wait_for_checkpoint () {
-#ifndef NO_CHECKPOINTER
+#if !defined(NO_CHECKPOINTER) || !defined(CP_NOTHING) || !defined(CP_INITIALIZE_ONLY)
 #ifdef STAT
 #if SORT_ALG == 5
     int value;
