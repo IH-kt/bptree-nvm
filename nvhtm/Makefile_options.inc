@@ -197,3 +197,7 @@ endif
 ifeq ($(CP_NOWRITE), 1)
 DEFINES += -DCP_NOWRITE
 endif
+
+ifeq ($(NUMBER_OF_WAIT_TIME), 1)
+DEFINES += -DNUMBER_OF_WAIT_TIME
+endif

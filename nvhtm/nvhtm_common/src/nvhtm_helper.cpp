@@ -402,10 +402,12 @@ void NVMHTM_thr_exit()
   NH_time_blocked_total += NH_time_blocked;
   NH_count_blocks_total += NH_count_blocks;
 #ifdef STAT
+#  ifdef NUMBER_OF_WAIT_TIME
+  commit_wait_loop_times = commit_wait_loop_times_thr;
+#  endif
   // printf("TM local counter [%d] = %d, & 1 = %d\n", TM_tid_var, TM_get_local_counter(TM_tid_var), TM_get_local_counter(TM_tid_var) & 1);
   // printf("HTM local counter [%d] = %d\n", HTM_SGL_tid, TM_get_local_counter(HTM_SGL_tid));
   // fflush(stdout);
-  fprintf(stderr, "adding\n");
   fprintf(stderr, "NH_time_blocked = %llu\n", NH_time_blocked);
   fprintf(stderr, "NH_count_blocks = %lld\n", NH_count_blocks);
   fprintf(stderr, "NH_nanotime_blocked[0] = %lf\n", NH_nanotime_blocked[0]);
@@ -473,7 +475,7 @@ void NVMHTM_init_thrs(int nb_threads)
   shmid = shmget(key, sizeof (int), 0777 | IPC_CREAT);
   shmctl(shmid, IPC_RMID, NULL);
   shmid = shmget(key, sizeof (int), 0777 | IPC_CREAT);
-
+  
   if (shmid < 0) {
     perror("shmget CHKP_EMPTY");
   }
@@ -551,6 +553,9 @@ void NVMHTM_shutdown()
   // fprintf(stderr, "checkpoint process started by before_TX %lu times\n", checkpoint_by_before);
   // fprintf(stderr, "checkpoint process started by check %lu times\n", checkpoint_by_check);
   // fprintf(stderr, "checkpoint process started by wait %lu times\n", checkpoint_by_wait);
+#  ifdef NUMBER_OF_WAIT_TIME
+  fprintf(stderr, "--- Nb. commit wait loop %lu\n", commit_wait_loop_times);
+#  endif
 #else
 #  ifndef NSTAT
   printf("--- Percentage time blocked %f \n", ((double) NH_time_blocked_total
@@ -777,6 +782,9 @@ static void NVMHTM_validate(int id, bitset<MAX_NB_THREADS>& threads_set)
 
   do {
     dangerous_threads(id, threads_set);
+#ifdef NUMBER_OF_WAIT_TIME
+    commit_wait_loop_times_thr++;
+#endif
   }
   while (threads_set.any());
   NH_time_validate += rdtscp() - ts1_wait_log_time;

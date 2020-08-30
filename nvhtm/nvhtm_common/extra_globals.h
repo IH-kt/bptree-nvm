@@ -42,6 +42,10 @@ extern long long commit_time_all[3];
 extern unsigned long no_filter_write_amount;
 extern unsigned long filtered_write_amount;
 #endif
+#  ifdef NUMBER_OF_WAIT_TIME
+extern __thread unsigned long commit_wait_loop_times_thr;
+extern unsigned long commit_wait_loop_times;
+#  endif
 #endif
 #ifdef PARALLEL_CHECKPOINT
   typedef struct checkpoint_args_s {

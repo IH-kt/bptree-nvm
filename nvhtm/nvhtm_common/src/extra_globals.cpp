@@ -38,6 +38,10 @@ int LOG_flush_all_flag;
 unsigned long no_filter_write_amount;
 unsigned long filtered_write_amount;
 #endif
+#  ifdef NUMBER_OF_WAIT_TIME
+__thread unsigned long commit_wait_loop_times_thr;
+unsigned long commit_wait_loop_times;
+#  endif
 #endif
 #ifdef PARALLEL_CHECKPOINT
 int number_of_checkpoint_threads = 1;
