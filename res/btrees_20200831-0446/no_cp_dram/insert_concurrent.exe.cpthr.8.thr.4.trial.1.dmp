@@ -1,0 +1,126 @@
+initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 4, pmem_path = /mnt/nvmm/iiboshi//data, log_path = /home/iiboshi/dramdir//log
+allocating 215468436 byte
+log_size = 167773312
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f03e0800000
+number of entry = 2097152
+*******************Thread 4*******************
+***********************************************
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+HTM_nanotime_blocked_total = 0.000486
+NH_time_blocked_total (WL) = 0.000000
+NH_time_blocked_total (CA) = 0.000000
+reset error counter
+thread 0:
+	SUCCESS  = 2497497
+	ABORT    = 58264
+	EXPLICIT = 0
+	RETRY    = 333
+	CONFLICT = 335
+	CAPACITY = 20378
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 37551
+	FALLBACK = 2503
+thread 1:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+*******************Thread 2*******************
+***********************************************
+NH_time_blocked = 12113946
+NH_count_blocks = 17543
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004710
+*******************Thread 4*******************
+***********************************************
+NH_time_blocked = 11963828
+NH_count_blocks = 17288
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004650
+*******************Thread 3*******************
+***********************************************
+NH_time_blocked = 12311196
+NH_count_blocks = 17399
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004806
+*******************Thread 1*******************
+***********************************************
+NH_time_blocked = 12482990
+NH_count_blocks = 17289
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004881
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.019047 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 2352767
+ABORTS : 3350373
+CONFLS : 3271611
+CAPACS : 4121
+EXPLIC : 69519
+FALLBK : 147233
+   P_A : 0.587461
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 3.761655 s
+TRANSACTION_TIME: 8.817057 s
+COMMIT_TIME1: 1.131135 s
+COMMIT_TIME2: 2.063351 s
+COMMIT_TIME3: 1.247760 s
+COMMIT_TIME1_VAR: 1520289.000000
+COMMIT_TIME2_VAR: 5062500.000000
+COMMIT_TIME3_VAR: 1849600.000000
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          58775547
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          139038
+TOTAL_TIME_B (clocks) 48871960
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 1.646284 s!
+4.060990
