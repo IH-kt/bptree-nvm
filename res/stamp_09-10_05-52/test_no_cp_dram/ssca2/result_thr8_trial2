@@ -1,0 +1,77 @@
+log_size = 335546624
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fab36e00000
+number of entry = 2097152
+Budget=20
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+--- Percentage time blocked 0.000000 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000000 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 5557505
+ABORTS : 1963
+CONFLS : 848
+CAPACS : 118
+EXPLIC : 0
+FALLBK : 0
+   P_A : 0.000353
+     X : 1893594.443306
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.001473 s
+TRANSACTION_TIME: 18.429376 s
+COMMIT_TIME1: 4.071965 s
+COMMIT_TIME2: 8.101669 s
+COMMIT_TIME3: 4.566446 s
+COMMIT_TIME1_VAR: 3988009.000000
+COMMIT_TIME2_VAR: 15792676.000000
+COMMIT_TIME3_VAR: 5017600.000000
+Time 2.934897 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          27787445
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          0
+TOTAL_TIME_B (clocks) 0
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000000 s!

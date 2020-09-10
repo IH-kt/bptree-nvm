@@ -1,0 +1,93 @@
+log_size = 167773312
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f9dab600000
+number of entry = 2097152
+Budget=20
+NH_time_blocked = 553934
+NH_count_blocks = 629
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000215
+NH_time_blocked = 501284
+NH_count_blocks = 568
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000195
+NH_time_blocked = 461634
+NH_count_blocks = 520
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000179
+NH_time_blocked = 451312
+NH_count_blocks = 512
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000175
+NH_time_blocked = 9563208
+NH_count_blocks = 11049
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003712
+NH_time_blocked = 9607118
+NH_count_blocks = 11146
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003725
+NH_time_blocked = 9102878
+NH_count_blocks = 10527
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003526
+NH_time_blocked = 8936842
+NH_count_blocks = 10325
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003464
+NH_time_blocked = 16776746
+NH_count_blocks = 19358
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.006498
+NH_time_blocked = 15714558
+NH_count_blocks = 18135
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.006094
+NH_time_blocked = 15992586
+NH_count_blocks = 18495
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.006199
+NH_time_blocked = 17891276
+NH_count_blocks = 20546
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.006938
+--- Percentage time blocked 0.006327 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.040920 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 143320
+ABORTS : 2506494
+CONFLS : 2429064
+CAPACS : 707
+EXPLIC : 76534
+FALLBK : 118835
+   P_A : 0.945913
+     X : 245122.390931
+ ---   TIME
+TRANSACTION_ABORT_TIME: 2.307956 s
+TRANSACTION_TIME: 1.413394 s
+COMMIT_TIME1: 0.178616 s
+COMMIT_TIME2: 0.145809 s
+COMMIT_TIME3: 0.325614 s
+COMMIT_TIME1_VAR: 3448449.000000
+COMMIT_TIME2_VAR: 2298256.000000
+COMMIT_TIME3_VAR: 11464996.000000
+Time 1.069486 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          14155776
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          243620
+TOTAL_TIME_B (clocks) 105553376
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.248997 s!

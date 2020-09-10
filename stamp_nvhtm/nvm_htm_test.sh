@@ -57,6 +57,13 @@ if [ -z "$2" ]; then
     echo "warning: no vpath"
 fi
 
+fallocate -l 4G /mnt/nvmm/iiboshi/data
+fallocate -l 4G /home/iiboshi/dramdir/data
+
+(for i in `seq 0 17`; do sudo cpufreq-set -g performance -c $i; done)
+
+sudo su -c "echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo"
+
 # MAKEFILE_ARGS="SOLUTION=1" ./build-stamp.sh htm-sgl-nvm test_HTM.txt
 # run_bench test_HTM
 # 
@@ -86,17 +93,21 @@ fi
 # MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=10000 THREASHOLD=0.5 USE_PMEM=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
 
 # クソでかログ
-(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 -j)
-MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-run_bench test_use_mmap
+# (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 -j)
+# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+# run_bench test_use_mmap
 
-(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 -j)
-MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-run_bench test_para_cp
+# (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 -j)
+# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+# run_bench test_para_cp
+# 
+# (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 log_compression=1 -j)
+# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 LOG_COMPRESSION=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+# run_bench test_log_comp
 
-(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 log_compression=1 -j)
-MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 LOG_COMPRESSION=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-run_bench test_log_comp
+(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 no_cp=1 -j)
+MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PPATH=$1 STAT=1 NO_CHECKPOINTER=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+run_bench test_no_cp
 
 # クソしょぼログ
 # (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=10000 stats=1 -j)
@@ -117,9 +128,14 @@ run_bench test_log_comp
 
 # DRAM
 if [ ! -z "$2" ]; then
+    echo DRAM
 (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 -j)
 MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
 run_bench test_use_mmap_dram
+# 
+(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 no_cp -j)
+MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PPATH=$1 STAT=1 NO_CHECKPOINTER=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+run_bench test_no_cp_dram
 # 
 # (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 -j)
 # MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
@@ -129,3 +145,5 @@ run_bench test_use_mmap_dram
 # MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 LOG_COMPRESSION=1 PPATH=$1 STAT=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
 # run_bench test_log_comp
 fi
+
+(for i in `seq 0 17`; do sudo cpufreq-set -g powersave -c $i; done)

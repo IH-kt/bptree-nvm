@@ -1,0 +1,141 @@
+log_size = 335546624
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7ff26f400000
+number of entry = 2097152
+Budget=20
+NH_time_blocked = 1954514
+NH_count_blocks = 2273
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000756
+NH_time_blocked = 2015392
+NH_count_blocks = 2371
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000781
+NH_time_blocked = 1962024
+NH_count_blocks = 2298
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000759
+NH_time_blocked = 1986302
+NH_count_blocks = 2327
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000768
+NH_time_blocked = 2085622
+NH_count_blocks = 2414
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000807
+NH_time_blocked = 1913168
+NH_count_blocks = 2234
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000740
+NH_time_blocked = 2037308
+NH_count_blocks = 2391
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000788
+NH_time_blocked = 1918324
+NH_count_blocks = 2253
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000741
+NH_time_blocked = 12639768
+NH_count_blocks = 15028
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004886
+NH_time_blocked = 12273130
+NH_count_blocks = 14445
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004740
+NH_time_blocked = 12835248
+NH_count_blocks = 15206
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004958
+NH_time_blocked = 11655864
+NH_count_blocks = 13707
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004503
+NH_time_blocked = 12397734
+NH_count_blocks = 14710
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004790
+NH_time_blocked = 12282998
+NH_count_blocks = 14578
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004747
+NH_time_blocked = 12354454
+NH_count_blocks = 14501
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004775
+NH_time_blocked = 12009042
+NH_count_blocks = 14239
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.004641
+NH_time_blocked = 22064550
+NH_count_blocks = 25946
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.008529
+NH_time_blocked = 21678170
+NH_count_blocks = 25415
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.008375
+NH_time_blocked = 22594134
+NH_count_blocks = 26823
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.008730
+NH_time_blocked = 22881720
+NH_count_blocks = 27211
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.008846
+NH_time_blocked = 22055108
+NH_count_blocks = 26153
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.008523
+NH_time_blocked = 22183100
+NH_count_blocks = 26325
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.008571
+NH_time_blocked = 22963590
+NH_count_blocks = 27239
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.008873
+NH_time_blocked = 21274214
+NH_count_blocks = 25044
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.008223
+--- Percentage time blocked 0.013354 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.112848 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 114832
+ABORTS : 3019819
+CONFLS : 2808013
+CAPACS : 1467
+EXPLIC : 210156
+FALLBK : 147335
+   P_A : 0.963367
+     X : 374051.983443
+ ---   TIME
+TRANSACTION_ABORT_TIME: 2.717969 s
+TRANSACTION_TIME: 1.728907 s
+COMMIT_TIME1: 0.286668 s
+COMMIT_TIME2: 0.268738 s
+COMMIT_TIME3: 0.302700 s
+COMMIT_TIME1_VAR: 8886361.000000
+COMMIT_TIME2_VAR: 7806436.000000
+COMMIT_TIME3_VAR: 9903609.000000
+Time 0.700884 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          14155776
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          664847
+TOTAL_TIME_B (clocks) 292015478
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.851641 s!

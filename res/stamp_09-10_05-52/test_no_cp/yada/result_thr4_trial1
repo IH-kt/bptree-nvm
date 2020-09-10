@@ -1,0 +1,61 @@
+log_size = 167773312
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fe28d600000
+number of entry = 2097152
+Budget=20
+NH_time_blocked = 343438
+NH_count_blocks = 291
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000133
+NH_time_blocked = 357546
+NH_count_blocks = 296
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000139
+NH_time_blocked = 332710
+NH_count_blocks = 270
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000129
+NH_time_blocked = 335360
+NH_count_blocks = 273
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000130
+--- Percentage time blocked 0.000259 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000531 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 25885
+ABORTS : 108076
+CONFLS : 58436
+CAPACS : 22655
+EXPLIC : 1130
+FALLBK : 5011
+   P_A : 0.806772
+     X : 91245.494580
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.602261 s
+TRANSACTION_TIME: 0.325900 s
+COMMIT_TIME1: 0.003417 s
+COMMIT_TIME2: 0.097527 s
+COMMIT_TIME3: 0.013488 s
+COMMIT_TIME1_VAR: 90601.000000
+COMMIT_TIME2_VAR: 74046025.000000
+COMMIT_TIME3_VAR: 1416100.000000
+Time 0.338603 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          369284
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          2260
+TOTAL_TIME_B (clocks) 1369054
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.415807 s!

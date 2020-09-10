@@ -1,0 +1,141 @@
+log_size = 335546624
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f2225800000
+number of entry = 2097152
+Budget=20
+NH_time_blocked = 298238
+NH_count_blocks = 339
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000116
+NH_time_blocked = 265098
+NH_count_blocks = 295
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000102
+NH_time_blocked = 300048
+NH_count_blocks = 338
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000116
+NH_time_blocked = 281958
+NH_count_blocks = 310
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000109
+NH_time_blocked = 286690
+NH_count_blocks = 322
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000111
+NH_time_blocked = 271704
+NH_count_blocks = 304
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000105
+NH_time_blocked = 267198
+NH_count_blocks = 295
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000103
+NH_time_blocked = 291650
+NH_count_blocks = 326
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000113
+NH_time_blocked = 8572516
+NH_count_blocks = 9906
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003321
+NH_time_blocked = 9409054
+NH_count_blocks = 10914
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003649
+NH_time_blocked = 8905310
+NH_count_blocks = 10135
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003450
+NH_time_blocked = 9407506
+NH_count_blocks = 10862
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003639
+NH_time_blocked = 9202662
+NH_count_blocks = 10634
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003567
+NH_time_blocked = 8675582
+NH_count_blocks = 10027
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003360
+NH_time_blocked = 9314608
+NH_count_blocks = 10694
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003611
+NH_time_blocked = 9040554
+NH_count_blocks = 10486
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.003507
+NH_time_blocked = 18337758
+NH_count_blocks = 21047
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.007109
+NH_time_blocked = 18444494
+NH_count_blocks = 21302
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.007141
+NH_time_blocked = 17095702
+NH_count_blocks = 19754
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.006630
+NH_time_blocked = 17796974
+NH_count_blocks = 20604
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.006901
+NH_time_blocked = 18403574
+NH_count_blocks = 21298
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.007134
+NH_time_blocked = 18411034
+NH_count_blocks = 21354
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.007139
+NH_time_blocked = 18171890
+NH_count_blocks = 21102
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.007049
+NH_time_blocked = 17905244
+NH_count_blocks = 20415
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.006934
+--- Percentage time blocked 0.008834 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.085017 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 126910
+ABORTS : 2726636
+CONFLS : 2559089
+CAPACS : 494
+EXPLIC : 166876
+FALLBK : 135257
+   P_A : 0.955526
+     X : 329416.008903
+ ---   TIME
+TRANSACTION_ABORT_TIME: 2.195717 s
+TRANSACTION_TIME: 1.780639 s
+COMMIT_TIME1: 0.251330 s
+COMMIT_TIME2: 0.446827 s
+COMMIT_TIME3: 0.275480 s
+COMMIT_TIME1_VAR: 6827769.000000
+COMMIT_TIME2_VAR: 21585316.000000
+COMMIT_TIME3_VAR: 8202496.000000
+Time 0.795854 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          14155776
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          506126
+TOTAL_TIME_B (clocks) 219357046
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.601591 s!
