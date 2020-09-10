@@ -37,6 +37,9 @@
 #ifdef PARALLEL_CHECKPOINT
 #include "log_backward.h"
 #endif
+#if defined(CP_NOTHING) || defined(CP_INITIALIZE_ONLY)
+#  include <sys/wait.h>
+#endif
 
 
 // ################ defines
@@ -993,7 +996,9 @@ static void fork_manager()
 
   // printf("PID: %i\n", pid);
 
+#if !defined(CP_NOTHING) && !defined(CP_INITIALIZE_ONLY)
   while (*NH_checkpointer_state == 1) PAUSE();
+#endif
   #endif
 #else
   REMAP_PRIVATE();
@@ -1395,7 +1400,7 @@ static void aux_thread_stats_to_gnuplot_file(char *filename) {
 }
 
 void wait_for_checkpoint () {
-#if !defined(NO_CHECKPOINTER) || !defined(CP_NOTHING) || !defined(CP_INITIALIZE_ONLY)
+#if !defined(NO_CHECKPOINTER) && !defined(CP_NOTHING) && !defined(CP_INITIALIZE_ONLY)
 #ifdef STAT
 #if SORT_ALG == 5
     int value;
