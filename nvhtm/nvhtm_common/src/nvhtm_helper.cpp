@@ -1057,7 +1057,9 @@ static void * server(void * args)
     req = 0;
 
     *NH_checkpointer_state = 0; // IDLE
+#ifndef CP_NOFLUSH
     __sync_synchronize();
+#endif
 
     while (LOG_THRESHOLD > 0.0D && *NH_checkpointer_state == 0) {
       PAUSE();

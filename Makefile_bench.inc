@@ -77,10 +77,10 @@ bench_all:
 	(for i in `seq 0 17`; do sudo cpufreq-set -g performance -c $$i; done)
 	sudo su -c "echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo"
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm use_mmap
-	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp
-	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp_dram_log
-	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm log_compression
-	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm optimized_commit
+	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp
+	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp_dram_log
+	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm log_compression
+	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm optimized_commit
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_fence
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_flush
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm no_cp
@@ -92,7 +92,12 @@ bench_all:
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm more_loop_use_mmap
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm more_loop_parallel_cp 
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm more_loop_log_compression
-	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp_nctime
+	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm parallel_cp_nctime
+	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm cp_nothing
+	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm cp_initialize_only
+	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm cp_nowrite
+	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm wait_time_count
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm cp_noflush
 	(for i in `seq 0 17`; do sudo cpufreq-set -g powersave -c $$i; done)
 
 use_mmap:
@@ -224,6 +229,36 @@ more_loop_log_compression:
 parallel_cp_nctime:
 	mkdir -p $(BENCH_DIR)/$@
 	make tree=$(tree) type=$(type) nctime=1 build_parallel_cp
+	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
+	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
+
+cp_nothing:
+	mkdir -p $(BENCH_DIR)/$@
+	make tree=$(tree) type=$(type) cpnt=1 build_use_mmap
+	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
+	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
+
+cp_initialize_only:
+	mkdir -p $(BENCH_DIR)/$@
+	make tree=$(tree) type=$(type) cpit=1 build_use_mmap
+	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
+	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
+
+cp_nowrite:
+	mkdir -p $(BENCH_DIR)/$@
+	make tree=$(tree) type=$(type) cpnw=1 build_use_mmap
+	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
+	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
+
+cp_noflush:
+	mkdir -p $(BENCH_DIR)/$@
+	make tree=$(tree) type=$(type) cpnf=1 build_use_mmap
+	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
+	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
+
+wait_time_count:
+	mkdir -p $(BENCH_DIR)/$@
+	make tree=$(tree) type=$(type) nwt=1 build_use_mmap
 	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
 	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
 

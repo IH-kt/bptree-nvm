@@ -131,6 +131,11 @@ ifeq ($(cpnw),1)
     NVHTM_DEFINES   += -DCP_NOWRITE
 endif
 
+ifeq ($(cpnf),1)
+    NVHTM_MAKE_ARGS += CP_NOFLUSH=1
+    NVHTM_DEFINES   += -DCP_NOFLUSH
+endif
+
 ifeq ($(nwt),1)
     NVHTM_MAKE_ARGS += NUMBER_OF_WAIT_TIME=1
     NVHTM_DEFINES   += -DNUMBER_OF_WAIT_TIME

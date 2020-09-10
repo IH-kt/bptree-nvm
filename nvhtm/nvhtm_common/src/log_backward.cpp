@@ -1020,20 +1020,22 @@ int LOG_checkpoint_backward_apply_one()
   clock_gettime(CLOCK_MONOTONIC_RAW, &stt);
 #endif
 
+#ifndef CP_NOFLUSH
   // flushes the changes
   auto cl_iterator = writes_list.begin();
   // auto cl_it_end = writes_list.end();
   for (; cl_iterator != writes_list.end(); ++cl_iterator) {
     // TODO: must write the cache line, now is just spinning
     GRANULE_TYPE *addr = *cl_iterator;
-#ifdef USE_PMEM
+#  ifdef USE_PMEM
     MN_flush(addr, CACHE_LINE_SIZE, 1);
-#else
+#  else
     MN_flush(addr, CACHE_LINE_SIZE, 0);
-#endif
+#  endif
   }
-#ifdef USE_PMEM
+#  ifdef USE_PMEM
   _mm_sfence();
+#  endif
 #endif
 
 #ifdef STAT
