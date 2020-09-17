@@ -97,7 +97,8 @@ bench_all:
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm cp_initialize_only
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm cp_nowrite
 	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm wait_time_count
-	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm cp_noflush
+	# make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm cp_noflush
+	make BENCH_DATE=$(BENCH_DATE) PPATH=$(PPATH) VDPATH=$(VDPATH) tree=bptree type=nvhtm ex_small_leaf_use_mmap
 	(for i in `seq 0 17`; do sudo cpufreq-set -g powersave -c $$i; done)
 
 use_mmap:
@@ -259,6 +260,12 @@ cp_noflush:
 wait_time_count:
 	mkdir -p $(BENCH_DIR)/$@
 	make tree=$(tree) type=$(type) nwt=1 build_use_mmap
+	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
+	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
+
+ex_small_leaf_use_mmap:
+	mkdir -p $(BENCH_DIR)/$@
+	make tree=$(tree) type=$(type) leafsz=3 build_use_mmap
 	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
 	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
 
