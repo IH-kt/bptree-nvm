@@ -205,3 +205,7 @@ endif
 ifeq ($(NUMBER_OF_WAIT_TIME), 1)
 DEFINES += -DNUMBER_OF_WAIT_TIME
 endif
+
+ifeq ($(MAX_TX_SIZE), 1)
+DEFINES += -DMAX_TX_SIZE
+endif

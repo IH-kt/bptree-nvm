@@ -63,4 +63,9 @@ CL_ALIGN NVLog_s **NH_global_compressed_logs;
 void* LOG_compressed_global_ptr;
 #  endif
 #endif
+#ifdef MAX_TX_SIZE
+__thread unsigned int count_writes_tmp_thr;
+__thread unsigned int max_tx_size_thr;
+unsigned int max_tx_size;
+#endif
 // ####################################################

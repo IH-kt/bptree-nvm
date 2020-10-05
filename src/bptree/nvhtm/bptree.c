@@ -72,9 +72,11 @@ void initLeafNode(LeafNode *node, unsigned char tid) {
     NVM_write_varsize(&node->next, &null_var, sizeof(NULL));
     NVM_write_varsize(&node->prev, &null_var, sizeof(NULL));
     NVM_write_varsize(&node->pnext, &P_NULL, sizeof(P_NULL));
+#ifdef NO_INIT_LEAF
     for (i = 0; i < MAX_PAIR; i++) {
         initKeyValuePair(&node->kv[i]);
     }
+#endif
     NVM_write_varsize(&node->key_length, &zint, sizeof(int));
     NVM_write_varsize(&node->tid, &tid, sizeof(unsigned char));
     // NVHTM_end();

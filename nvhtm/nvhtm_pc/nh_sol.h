@@ -23,11 +23,27 @@ extern "C"
       PAUSE(); \
     }
 
+#ifdef MAX_TX_SIZE
+#  define COUNT_WRITES_STAMP() { extern __thread unsigned int count_writes_tmp_thr; count_writes_tmp_thr = MN_count_writes; }
+#  define MAX_TX_UPDATE() {\
+    extern __thread unsigned int max_tx_size_thr;\
+    extern __thread unsigned int count_writes_tmp_thr;\
+    unsigned int tx_size = MN_count_writes - count_writes_tmp_thr;\
+    if (tx_size > max_tx_size_thr) {\
+        max_tx_size_thr = tx_size;\
+    }\
+}
+#else
+#  define COUNT_WRITES_STAMP() {  }
+#  define MAX_TX_UPDATE() { }
+#endif
+
   #undef BEFORE_TRANSACTION_i
   #define BEFORE_TRANSACTION_i(tid, budget) \
   LOG_get_ts_before_tx(tid); \
   LOG_before_TX(); \
   TM_inc_local_counter(tid);\
+    COUNT_WRITES_STAMP();
 
 #ifdef STAT
   #undef BEFORE_HTM_BEGIN
@@ -80,6 +96,7 @@ extern "C"
     transaction_time_thread += time_tmp;  \
     TAKE_COMMIT_TIME_4();\
     \
+    MAX_TX_UPDATE();\
   })
 #else
   #undef AFTER_TRANSACTION_i

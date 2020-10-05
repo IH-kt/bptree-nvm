@@ -88,8 +88,13 @@ ifeq ($(write_amount),1)
 else
 	WA	:=
 endif
+ifeq ($(no_init_leaf), 1)
+	NIL	:= -DNO_INIT_LEAF
+else
+	NIL	:=
+endif
 
-DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA) $(FW) $(TS) $(WA) $(LEAFSZ) $(NODESZ)
+DEFINES = $(NVHTM) $(CLWB) $(CONCURRENT) $(NO_PERSIST) $(TIME_PART) $(TREE_D) $(DEBUG) $(CW) $(CA) $(FW) $(TS) $(WA) $(LEAFSZ) $(NODESZ) $(NIL)
 
 CFLAGS=$(DEBUGF) -march=native -pthread $(DEFINES) -I$(INCLUDE_DIR) $(NVHTM_CFLAGS)
 

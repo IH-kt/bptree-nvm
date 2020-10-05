@@ -141,6 +141,11 @@ ifeq ($(nwt),1)
     NVHTM_DEFINES   += -DNUMBER_OF_WAIT_TIME
 endif
 
+ifeq ($(max_tx_size),1)
+    NVHTM_MAKE_ARGS += MAX_TX_SIZE=1
+    NVHTM_DEFINES   += -DMAX_TX_SIZE
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

@@ -59,25 +59,30 @@ extern sem_t cp_back_sem;
 extern int number_of_checkpoint_threads;
 extern sem_t cpthread_finish_sem;
 extern checkpoint_args_s *cp_thread_args;
-#ifdef STAT
-#  ifdef CHECK_TASK_DISTRIBUTION
+#  ifdef STAT
+#    ifdef CHECK_TASK_DISTRIBUTION
 extern unsigned int *applied_entries;
-#  endif
-#  ifdef NUMBER_OF_ENTRIES
+#    endif
+#    ifdef NUMBER_OF_ENTRIES
 extern unsigned int *read_entries;
 extern unsigned int *wrote_entries;
-#  endif
+#    endif
 #    ifdef MEASURE_PART_CP
 #      define CPTIME_NUM 4
 #    else
 #      define CPTIME_NUM 2
 #    endif
 extern double *parallel_checkpoint_section_time_thread[];
-#endif
-#ifdef LOG_COMPRESSION
+#  endif
+#  ifdef LOG_COMPRESSION
 extern NVLog_s **NH_global_compressed_logs;
 extern void* LOG_compressed_global_ptr;
+#  endif
 #endif
+#ifdef MAX_TX_SIZE
+extern __thread unsigned int tx_size_tmp_thr;
+extern __thread unsigned int max_tx_size_thr;
+extern unsigned int max_tx_size;
 #endif
 
 #endif /* EXTRA_GLOBALS_H */

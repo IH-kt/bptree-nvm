@@ -405,6 +405,11 @@ void NVMHTM_thr_exit()
   NH_time_blocked_total += NH_time_blocked;
   NH_count_blocks_total += NH_count_blocks;
 #ifdef STAT
+#ifdef MAX_TX_SIZE
+  if (max_tx_size_thr > max_tx_size) {
+      max_tx_size = max_tx_size_thr;
+  }
+#endif
 #  ifdef NUMBER_OF_WAIT_TIME
   commit_wait_loop_times = commit_wait_loop_times_thr;
 #  endif
@@ -558,6 +563,9 @@ void NVMHTM_shutdown()
   // fprintf(stderr, "checkpoint process started by wait %lu times\n", checkpoint_by_wait);
 #  ifdef NUMBER_OF_WAIT_TIME
   fprintf(stderr, "--- Nb. commit wait loop %lu\n", commit_wait_loop_times);
+#  endif
+#  ifdef MAX_TX_SIZE
+  fprintf(stderr, "--- max tx. size %u\n", max_tx_size);
 #  endif
 #else
 #  ifndef NSTAT
