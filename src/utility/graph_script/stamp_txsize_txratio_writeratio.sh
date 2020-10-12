@@ -47,7 +47,7 @@ function calc_txratio () {
     echo "scale=9;$tx_time/$whole_time" | bc
 }
 
-function calc_writeratio () {
+function calc_writefreq() {
     target_dir=$1
     bench_type=$2
     whole_time=`format_switch $target_dir $bench_type 1 1`
@@ -66,8 +66,8 @@ function add_csv () {
     time_sum=0
     txsize=`calc_txsize $source_dir_tmp/result_thr${thr}_trial1`
     txratio=`calc_txratio $source_dir_tmp $bench_type`
-    writeratio=`calc_writeratio $source_dir_tmp $bench_type`
-    echo "$bench_type,$txsize,$txratio,$writeratio" >> ${target_csv}
+    writefreq=`calc_writefreq $source_dir_tmp $bench_type`
+    echo "$bench_type,$txsize,$txratio,$writefreq" >> ${target_csv}
 }
 
 function apply_all_bench () {
@@ -75,7 +75,7 @@ function apply_all_bench () {
     root_dir=$2
     result_dir=$3
     mkdir -p $result_dir/$exec_type
-    echo 'bench_type,txsize,txratio,writeratio' > ${result_dir}/${exec_type}/stats.csv
+    echo 'bench_type,txsize,txratio,writefreq' > ${result_dir}/${exec_type}/stats.csv
     for bench_type in $bench_types
     do
         add_csv $bench_type $root_dir/test_$exec_type $result_dir/$exec_type/stats.csv
