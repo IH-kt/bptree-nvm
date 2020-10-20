@@ -5,7 +5,7 @@ if [ $# -eq 0 ]; then
 else
     root_dir=$1
 fi
-trees='use_mmap parallel_cp parallel_cp_dram_log log_compression optimized_commit no_flush no_fence'
+trees='use_mmap parallel_cp parallel_cp_dram_log log_compression optimized_commit no_flush no_fence no_cp no_cp_optc no_cp_dram ex_small_leaf_use_mmap'
 ops='insert delete search mixed'
 # max_trial=5
 max_trial=3

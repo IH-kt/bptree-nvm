@@ -28,7 +28,7 @@ do
         do
             echo 'thread,HTM-block,Checkpoint-block,Abort,End' > ${result_dir}/wait_${op}_${type}.logsize.${logsz}.csv
             logsz_dir=logsz_$logsz
-            target_dir=`echo "${root_dir}/${type_dir}/${logsz_dir}"`
+            target_dir=`echo "${root_dir}/${type_dir}/${logsz_dir}/compressed"`
             thrs=`ls ${target_dir} | grep $op | cut -f 4 -d '.' | sort -n -u`
             for thr in $thrs
             do
