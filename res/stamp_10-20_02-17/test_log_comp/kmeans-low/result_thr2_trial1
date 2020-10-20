@@ -1,0 +1,82 @@
+log_size = 83886656
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fb99b5c0000
+number of entry = 2097152
+Budget=20
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 2260
+NH_count_blocks = 1
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000001
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+NH_time_blocked = 2260
+NH_count_blocks = 1
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000001
+--- Percentage time blocked 0.000000 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000002 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 220794
+ABORTS : 835561
+CONFLS : 833295
+CAPACS : 1736
+EXPLIC : 1
+FALLBK : 41355
+   P_A : 0.790985
+     X : 130550.080922
+ ---   TIME
+TRANSACTION_ABORT_TIME: 1.046062 s
+TRANSACTION_TIME: 0.976967 s
+COMMIT_TIME1: 0.105980 s
+COMMIT_TIME2: 0.081038 s
+COMMIT_TIME3: 0.219309 s
+COMMIT_TIME1_VAR: 1214404.000000
+COMMIT_TIME2_VAR: 708964.000000
+COMMIT_TIME3_VAR: 5198400.000000
+Time 2.008034 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          14155780
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          4
+TOTAL_TIME_B (clocks) 4520
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.023825 s!
+[FORKED_MANAGER] Nb. checkpoints 3
+[FORKED_MANAGER] Time active 1501.392277 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 3
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.000004
+[FORKED_MANAGER] sec. 2 (find commit) = 0.000032
+[FORKED_MANAGER] sec. 3 (apply & flush) = 0.161366
+[FORKED_MANAGER] cpthread logwrite = 0.137922
+[FORKED_MANAGER] cpthread write & flush = 0.022981
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
