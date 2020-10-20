@@ -1,0 +1,66 @@
+log_size = 83886656
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f18187a4000
+number of entry = 2097152
+Budget=20
+NH_time_blocked = 104660
+NH_count_blocks = 52
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000040
+NH_time_blocked = 91348
+NH_count_blocks = 51
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000035
+--- Percentage time blocked 0.000048 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000075 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 25559
+ABORTS : 104091
+CONFLS : 42148
+CAPACS : 29569
+EXPLIC : 103
+FALLBK : 4975
+   P_A : 0.802862
+     X : 58272.776650
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.675629 s
+TRANSACTION_TIME: 0.221232 s
+COMMIT_TIME1: 0.002634 s
+COMMIT_TIME2: 0.011296 s
+COMMIT_TIME3: 0.011271 s
+COMMIT_TIME1_VAR: 55225.000000
+COMMIT_TIME2_VAR: 1016064.000000
+COMMIT_TIME3_VAR: 1012036.000000
+Time 0.523984 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          369152
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          206
+TOTAL_TIME_B (clocks) 196008
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.144036 s!
+[FORKED_MANAGER] Nb. checkpoints 0
+[FORKED_MANAGER] Time active 48.152329 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 0
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.000000
+[FORKED_MANAGER] sec. 2 (find commit) = 0.000000
+[FORKED_MANAGER] sec. 3 (apply & flush) = 0.000000
+[FORKED_MANAGER] cpthread logwrite = 0.000000
+[FORKED_MANAGER] cpthread write & flush = 0.000000
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
