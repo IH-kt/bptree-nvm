@@ -4,5 +4,7 @@ number of checkpoint threads: 8
 compressed_log = 41943328
 number of checkpoint threads: 8
 compressed_log = 41943328
-0.293351
-Elapsed time    = 0.293351 seconds
+2.458562
+
+Time taken for all is  2.458562 sec.
+
