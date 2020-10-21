@@ -1,0 +1,11 @@
+number of checkpoint threads: 1
+compressed_log = 167773312
+number of checkpoint threads: 1
+compressed_log = 167773312
+number of checkpoint threads: 1
+compressed_log = 167773312
+Maze dimensions = 256 x 256 x 3
+Paths to route  = 256
+Paths routed    = 253
+Elapsed time    = 4.467077 seconds
+Verification passed.
