@@ -146,6 +146,11 @@ ifeq ($(max_tx_size),1)
     NVHTM_DEFINES   += -DMAX_TX_SIZE
 endif
 
+ifeq ($(large_plog),1)
+    NVHTM_MAKE_ARGS += LARGE_PLOG=1
+    NVHTM_DEFINES   += -DLARGE_PLOG
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

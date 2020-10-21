@@ -209,3 +209,7 @@ endif
 ifeq ($(MAX_TX_SIZE), 1)
 DEFINES += -DMAX_TX_SIZE
 endif
+
+ifeq ($(LARGE_PLOG), 1)
+DEFINES += -DLARGE_PLOG
+endif

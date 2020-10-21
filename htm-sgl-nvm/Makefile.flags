@@ -164,6 +164,18 @@ ifeq ($(NO_CHECKPOINTER), 1)
 DEFINES += -DNO_CHECKPOINTER
 endif
 
+ifeq ($(MAX_TX_SIZE), 1)
+DEFINES += -DMAX_TX_SIZE
+endif
+
+ifeq ($(LARGE_PLOG), 1)
+DEFINES += -DLARGE_PLOG
+endif
+
+ifdef CP_THRNUM
+DEFINES += -DCP_THRNUM=$(CP_THRNUM)
+endif
+
 ifdef PPATH
 DEFINES += -DDATA_NAME="\"${PPATH}/data\""
 else

@@ -107,7 +107,18 @@ void LOG_init(int nb_threads, int fresh)
 
   size_of_logs = (int)(NVMHTM_LOG_SIZE /* / TM_nb_threads */) * TM_nb_threads;
 #ifdef LOG_COMPRESSION
+#  ifdef LARGE_PLOG
+  int thr_ratio = TM_nb_threads / number_of_checkpoint_threads;
+  if (thr_ratio < 1) {
+      thr_ratio = 1;
+  }
+  size_t size_of_compressed_logs = (unsigned long)(NVMHTM_LOG_SIZE /* / TM_nb_threads */) * number_of_checkpoint_threads * thr_ratio;
+#  else
   size_t size_of_compressed_logs = (int)(NVMHTM_LOG_SIZE /* / TM_nb_threads */) * number_of_checkpoint_threads;
+#  endif
+#  ifdef STAT
+  printf("number of checkpoint threads: %d\n", number_of_checkpoint_threads);
+#  endif
 #endif
 
   #if defined(SORT_ALG) && SORT_ALG == 4
@@ -244,7 +255,16 @@ void LOG_attach_compressed() {
   char *aux_ptr;
   int i;
   size_t size_of_struct = sizeof(NVLog_s);
+#  ifdef LARGE_PLOG
+  int thr_ratio = TM_nb_threads / number_of_checkpoint_threads;
+  if (thr_ratio < 1) {
+      thr_ratio = 1;
+  }
+  size_t size_of_log = NVMHTM_LOG_SIZE * thr_ratio /* / TM_nb_threads */;
+  printf("compressed_log = %lu\n", size_of_log);
+#  else
   size_t size_of_log = NVMHTM_LOG_SIZE /* / TM_nb_threads */;
+#  endif
   aux_ptr = (char*) LOG_compressed_global_ptr;
   for (i = 0; i < number_of_checkpoint_threads; ++i) {
     NVLog_s *new_log = LOG_init_1thread(aux_ptr, size_of_log);
