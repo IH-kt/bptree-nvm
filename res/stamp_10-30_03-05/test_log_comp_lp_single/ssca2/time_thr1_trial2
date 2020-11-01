@@ -1,0 +1,10 @@
+number of checkpoint threads: 1
+compressed_log = 41943328
+9.069029
+
+Time taken for all is  9.069029 sec.
+
+number of checkpoint threads: 1
+compressed_log = 41943328
+number of checkpoint threads: 1
+compressed_log = 41943328

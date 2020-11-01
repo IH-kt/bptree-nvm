@@ -1,0 +1,147 @@
+cp_threads = 8
+initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 4, pmem_path = /mnt/nvmm/iiboshi//data, log_path = /mnt/nvmm/iiboshi//log
+allocating 82511680 byte
+number of checkpoint threads: 8
+log_size = 167773312
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f23261d9000
+number of entry = 2097152
+number of checkpoint threads: 8
+*******************Thread 4*******************
+***********************************************
+NH_time_blocked = 14171523372
+NH_count_blocks = 274
+NH_nanotime_blocked[0] = 0.000009
+NH_nanotime_blocked[1] = 5.450541
+remaining value = 0
+wait_for_checkpoint = 0.000010
+HTM_nanotime_blocked_total = 0.004653
+NH_time_blocked_total (WL) = 0.000009
+NH_time_blocked_total (CA) = 5.450541
+reset error counter
+thread 0:
+	SUCCESS  = 2476221
+	ABORT    = 523666
+	EXPLICIT = 270
+	RETRY    = 1000
+	CONFLICT = 1000
+	CAPACITY = 515711
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 6955
+	FALLBACK = 23779
+thread 1:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+reset: nb_checkpoints = 245, checkpoint_by = 242, 3, 0
+*******************Thread 1*******************
+***********************************************
+NH_time_blocked = 1744067556
+NH_count_blocks = 29
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.670789
+*******************Thread 3*******************
+***********************************************
+NH_time_blocked = 1885714260
+NH_count_blocks = 35
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.725268
+*******************Thread 2*******************
+***********************************************
+NH_time_blocked = 1581373178
+NH_count_blocks = 45
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.608216
+*******************Thread 4*******************
+***********************************************
+NH_time_blocked = 1904865772
+NH_count_blocks = 50
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.732632
+remaining value = 0
+wait_for_checkpoint = 0.000007
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 2.736905 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 2499586
+ABORTS : 53010
+CONFLS : 7064
+CAPACS : 8296
+EXPLIC : 159
+FALLBK : 414
+   P_A : 0.020767
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.083864 s
+TRANSACTION_TIME: 10.526333 s
+COMMIT_TIME1: 1.228699 s
+COMMIT_TIME2: 3.146428 s
+COMMIT_TIME3: 2.210470 s
+COMMIT_TIME1_VAR: 1792921.000000
+COMMIT_TIME2_VAR: 11771761.000000
+COMMIT_TIME3_VAR: 5808100.000000
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          126129850
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          866
+TOTAL_TIME_B (clocks) 21287544138
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+[FORKED_MANAGER] Nb. checkpoints 87
+[FORKED_MANAGER] Time active 17118.713381 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 85
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 2
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.000019
+[FORKED_MANAGER] sec. 2 (find commit) = 0.055133
+[FORKED_MANAGER] sec. 3 (apply & flush) = 3.432741
+[FORKED_MANAGER] cpthread logwrite = 2.638564
+[FORKED_MANAGER] cpthread write & flush = 0.762484
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
+--- HTM time blocked 0.001568 s!
+3.591680

@@ -1,0 +1,147 @@
+cp_threads = 8
+initial_elements = 2500000, loop_times = 2500000, max_val = 5000000, thread_max = 4, pmem_path = /mnt/nvmm/iiboshi//data, log_path = /mnt/nvmm/iiboshi//log
+allocating 166664848 byte
+number of checkpoint threads: 8
+log_size = 167773312
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fe0dcfad000
+number of entry = 2097152
+number of checkpoint threads: 8
+*******************Thread 4*******************
+***********************************************
+NH_time_blocked = 14115406520
+NH_count_blocks = 271
+NH_nanotime_blocked[0] = 0.000009
+NH_nanotime_blocked[1] = 5.428959
+remaining value = 0
+wait_for_checkpoint = 0.000009
+HTM_nanotime_blocked_total = 0.004498
+NH_time_blocked_total (WL) = 0.000009
+NH_time_blocked_total (CA) = 5.428959
+reset error counter
+thread 0:
+	SUCCESS  = 2476075
+	ABORT    = 526361
+	EXPLICIT = 267
+	RETRY    = 887
+	CONFLICT = 888
+	CAPACITY = 519075
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 6398
+	FALLBACK = 23925
+thread 1:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 2:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+thread 3:
+	SUCCESS  = 0
+	ABORT    = 0
+	EXPLICIT = 0
+	RETRY    = 0
+	CONFLICT = 0
+	CAPACITY = 0
+	DEBUG    = 0
+	NESTED   = 0
+	OTHER    = 0
+	FALLBACK = 0
+reset: nb_checkpoints = 245, checkpoint_by = 242, 3, 0
+*******************Thread 4*******************
+***********************************************
+NH_time_blocked = 4011829022
+NH_count_blocks = 990
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 1.542998
+*******************Thread 1*******************
+***********************************************
+NH_time_blocked = 3806737446
+NH_count_blocks = 979
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 1.464121
+*******************Thread 2*******************
+***********************************************
+NH_time_blocked = 3689975504
+NH_count_blocks = 882
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 1.419200
+*******************Thread 3*******************
+***********************************************
+NH_time_blocked = 3809858722
+NH_count_blocks = 982
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 1.465322
+remaining value = 0
+wait_for_checkpoint = 0.157083
+finish running threads
+--- Percentage time blocked inf 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000001 s!
+--- NH time blocked by CHECK_LOG_ABORT 5.891641 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 2475164
+ABORTS : 609999
+CONFLS : 294613
+CAPACS : 258289
+EXPLIC : 3831
+FALLBK : 24836
+   P_A : 0.197720
+     X : inf
+ ---   TIME
+TRANSACTION_ABORT_TIME: 2.738940 s
+TRANSACTION_TIME: 19.458659 s
+COMMIT_TIME1: 1.404590 s
+COMMIT_TIME2: 7.089705 s
+COMMIT_TIME3: 3.163172 s
+COMMIT_TIME1_VAR: 2343961.000000
+COMMIT_TIME2_VAR: 59768361.000000
+COMMIT_TIME3_VAR: 11895601.000000
+Time 0.000000 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          261739916
+TOTAL_SPINS (workers) 0
+[FORKED_MANAGER] Nb. checkpoints 68
+[FORKED_MANAGER] Time active 19786.484609 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 66
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 2
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.000016
+[FORKED_MANAGER] sec. 2 (find commit) = 0.176184
+[FORKED_MANAGER] sec. 3 (apply & flush) = 7.490644
+[FORKED_MANAGER] cpthread logwrite = 5.536395
+[FORKED_MANAGER] cpthread write & flush = 1.924352
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
+TOTAL_BLOCKS          8208
+TOTAL_TIME_B (clocks) 29433807214
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.727044 s!
+7.667138
