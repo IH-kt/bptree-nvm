@@ -516,6 +516,9 @@ extern "C"
 #ifdef PARALLEL_CHECKPOINT
 	void NVHTM_set_cp_thread_num(int thrnum);
 #endif
+#ifdef FUNCTIONIZE_AT
+    void after_transaction(int, int);
+#endif
 		// #endif
 
 

@@ -1458,3 +1458,16 @@ void NVHTM_flush_all_logs() {
 #endif
 #endif
 }
+
+#ifdef FUNCTIONIZE_AT
+void after_transaction(int tid, int budget) {
+    int nb_writes = LOG_count_writes(tid);
+    if (nb_writes) {
+      htm_tx_val_counters[tid].global_counter = ts_var;
+      __sync_synchronize(); /* MFENCE 遅い？ */
+      NVMHTM_commit(TM_tid_var, ts_var, nb_writes);
+    }
+    CHECK_AND_REQUEST(tid);
+    LOG_after_TX();
+}
+#endif

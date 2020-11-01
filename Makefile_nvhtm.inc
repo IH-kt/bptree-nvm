@@ -151,6 +151,11 @@ ifeq ($(large_plog),1)
     NVHTM_DEFINES   += -DLARGE_PLOG
 endif
 
+ifeq ($(func_at),1)
+    NVHTM_MAKE_ARGS += FUNCTIONIZE_AT=1
+    NVHTM_DEFINES   += -DFUNCTIONIZE_AT
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

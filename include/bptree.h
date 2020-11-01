@@ -32,8 +32,8 @@ extern "C" {
 #define MIN_DEG (MIN_KEY+1)
 #define MAX_KEY (2*MIN_KEY+1)
 #define MAX_DEG (MAX_KEY+1)
+// #define MAX_PAIR 128
 #ifndef MAX_PAIR
-// #  define MAX_PAIR 128
 #  define MAX_PAIR 13
 #endif
 

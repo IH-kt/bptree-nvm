@@ -117,7 +117,7 @@ void LOG_init(int nb_threads, int fresh)
   size_t size_of_compressed_logs = (int)(NVMHTM_LOG_SIZE /* / TM_nb_threads */) * number_of_checkpoint_threads;
 #  endif
 #  ifdef STAT
-  printf("number of checkpoint threads: %d\n", number_of_checkpoint_threads);
+  fprintf(stderr, "number of checkpoint threads: %d\n", number_of_checkpoint_threads);
 #  endif
 #endif
 

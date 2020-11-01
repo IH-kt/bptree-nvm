@@ -213,3 +213,7 @@ endif
 ifeq ($(LARGE_PLOG), 1)
 DEFINES += -DLARGE_PLOG
 endif
+
+ifeq ($(FUNCTIONIZE_AT), 1)
+DEFINES += -DFUNCTIONIZE_AT
+endif

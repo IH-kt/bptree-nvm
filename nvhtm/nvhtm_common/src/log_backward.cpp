@@ -188,7 +188,7 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
 #endif
 
 #ifdef LOG_COMPRESSION
-  int end_tmp = 0;
+  int end_tmp = -1;
   MN_write(&compressed_log->end, &end_tmp, sizeof(compressed_log_end), 1);
   MN_flush(&compressed_log->end, sizeof(compressed_log_end), 1);
 #endif
