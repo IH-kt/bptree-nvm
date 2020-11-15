@@ -68,4 +68,9 @@ __thread unsigned int count_writes_tmp_thr;
 __thread unsigned int max_tx_size_thr;
 unsigned int max_tx_size;
 #endif
+#ifdef TX_SIZE
+unsigned int count_writes_tmp;
+int txsizelist_index;
+unsigned int txsizelist[30000];
+#endif
 // ####################################################

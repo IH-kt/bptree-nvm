@@ -567,6 +567,15 @@ void NVMHTM_shutdown()
 #  ifdef MAX_TX_SIZE
   fprintf(stderr, "--- max tx. size %u\n", max_tx_size);
 #  endif
+#  ifdef TX_SIZE
+    FILE *txsize_file = fopen("./txsize.dat", "w");
+    fprintf(txsize_file, "%u", txsizelist[0]);
+    for (int txsize_line = 1; txsize_line < txsizelist_index; txsize_line++) {
+        fprintf(txsize_file, ",%u", txsizelist[txsize_line]);
+    }
+    fprintf(txsize_file, "\n");
+    close(txsize_file);
+#  endif
 #else
 #  ifndef NSTAT
   printf("--- Percentage time blocked %f \n", ((double) NH_time_blocked_total

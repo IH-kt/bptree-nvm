@@ -84,5 +84,10 @@ extern __thread unsigned int tx_size_tmp_thr;
 extern __thread unsigned int max_tx_size_thr;
 extern unsigned int max_tx_size;
 #endif
+#ifdef TX_SIZE
+extern unsigned int count_writes_tmp;
+extern int txsizelist_index;
+extern unsigned int txsizelist[];
+#endif
 
 #endif /* EXTRA_GLOBALS_H */

@@ -33,6 +33,15 @@ extern "C"
         max_tx_size_thr = tx_size;\
     }\
 }
+#elif defined TX_SIZE
+#  define COUNT_WRITES_STAMP() { extern __thread unsigned int count_writes_tmp; count_writes_tmp = MN_count_writes; }
+#  define MAX_TX_UPDATE() {\
+    extern __thread unsigned int txsizelist[];\
+    extern __thread unsigned int txsizelist_index;\
+    extern __thread unsigned int count_writes_tmp;\
+    txsizelist[txsizelist_index] = MN_count_writes - count_writes_tmp;\
+    txsizelist_index++;\
+}
 #else
 #  define COUNT_WRITES_STAMP() {  }
 #  define MAX_TX_UPDATE() { }
