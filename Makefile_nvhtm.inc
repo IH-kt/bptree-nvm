@@ -156,6 +156,11 @@ ifeq ($(func_at),1)
     NVHTM_DEFINES   += -DFUNCTIONIZE_AT
 endif
 
+ifeq ($(tx_size),1)
+    NVHTM_MAKE_ARGS += TX_SIZE=1
+    NVHTM_DEFINES   += -DTX_SIZE
+endif
+
 ifdef logsize
 	LOGSZ	:= $(logsize)
 else

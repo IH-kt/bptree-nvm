@@ -247,31 +247,31 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
         //     (pos_local[next_log] < LOG_local_state.size_of_log && pos_local[next_log] > starts_local[next_log]))
         //   )
         // );
-#  ifdef NUMBER_OF_ENTRIES
+#ifdef NUMBER_OF_ENTRIES
         read_entries[thread_id]++;
-#  endif
+#endif
 
 #  ifdef STAT
 #    ifdef WRITE_AMOUNT_NVHTM
         // no_filter_write_amount += sizeof(entry.value);
 #    endif
 #  endif
-#  ifdef USE_PMEM
+#ifdef USE_PMEM
         // if ((uintptr_t)entry.addr < (uintptr_t)pmem_pool || (uintptr_t)((char *)pmem_pool + pmem_size) < (uintptr_t)entry.addr) {
         //     fprintf(stderr, "out of range: %p\n", entry.addr);
         //     continue;
         // }
-#  endif
+#endif
         // uses only the bits needed to identify the cache line
         intptr_t cl_addr = (((intptr_t)entry.addr >> 6) << 6);
         int val_idx = ((intptr_t)entry.addr & 0x38) >> 3; // use bits 4,5,6
         char bit_map = 1 << val_idx;
-#  ifdef LARGE_DIV
+#ifdef LARGE_DIV
         if (thread_id * (pmem_size/number_of_threads) <= ((uintptr_t)entry.addr - (uintptr_t)pmem_pool) &&
                 ((uintptr_t)entry.addr - (uintptr_t)pmem_pool) < (thread_id+1) * (pmem_size/number_of_threads)) {
-#  else
+#else
         if ((cl_addr >> 8) % number_of_threads == thread_id) {
-#  endif
+#endif
 #ifdef CHECK_TASK_DISTRIBUTION
             applied_entries[thread_id]++;
 #endif
@@ -580,21 +580,19 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   for (; cl_iterator != writes_list.end(); ++cl_iterator) {
     // TODO: must write the cache line, now is just spinning
     GRANULE_TYPE *addr = *cl_iterator;
-#  ifndef CP_NOFLUSH
-#    ifdef USE_PMEM
+#ifdef USE_PMEM
     MN_flush(addr, CACHE_LINE_SIZE, 1);
-#    else
-    MN_flush(addr, CACHE_LINE_SIZE, 0);
-#    endif
-  }
-#  endif
-#  ifdef USE_PMEM
-  _mm_sfence();
-#  endif
 #else
-#  if defined(USE_PMEM) && !defined(CP_NOFLUSH)
+    MN_flush(addr, CACHE_LINE_SIZE, 0);
+#endif
+  }
+#ifdef USE_PMEM
   _mm_sfence();
-#  endif
+#endif
+#else
+#ifdef USE_PMEM
+  _mm_sfence();
+#endif
   MN_write(&compressed_log->end, &compressed_log_end, sizeof(compressed_log_end), 1);
   MN_flush(&compressed_log->end, sizeof(compressed_log_end), 1);
 #endif
@@ -639,11 +637,11 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   for (; cl_iterator != writes_list.end(); ++cl_iterator) {
     // TODO: must write the cache line, now is just spinning
     GRANULE_TYPE *addr = *cl_iterator;
-#  ifdef USE_PMEM
+#ifdef USE_PMEM
     MN_flush(addr, CACHE_LINE_SIZE, 1);
-#  else
+#else
     MN_flush(addr, CACHE_LINE_SIZE, 0);
-#  endif
+#endif
   }
 #  ifdef STAT
   clock_gettime(CLOCK_MONOTONIC_RAW, &edt);
@@ -653,9 +651,9 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
   time_tmp += edt.tv_sec - stt.tv_sec;
   parallel_checkpoint_section_time_thread[1][thread_id] += time_tmp;
 #  endif
-#  ifdef USE_PMEM
+#ifdef USE_PMEM
   _mm_sfence();
-#  endif
+#endif
 #endif
 }
 
@@ -1038,7 +1036,6 @@ int LOG_checkpoint_backward_apply_one()
 #  ifdef USE_PMEM
   _mm_sfence();
 #  endif
-#endif
 #endif
 
 #ifdef STAT

@@ -34,12 +34,15 @@ function run_bench {
 	do
         resdir_tmp="$resdir/${testname[$i]}"
         mkdir -p $resdir_tmp
-		for t in 1 2 4 8 # 10 14 15 28 29 56 # 1 2 4 8
+		for t in 1 # 2 4 8 # 10 14 15 28 29 56 # 1 2 4 8
 		do
 			for a in `seq 3` # `seq 30`
 			do
 				echo timeout 1m ${test[$i]} $t
 				timeout 1m ${test[$i]} $t > $resdir_tmp/time_thr${t}_trial${a} 2> $resdir_tmp/result_thr${t}_trial${a}
+                if [ -e "./txsize.dat" ] ;then
+                    mv ./txsize.dat $resdir_tmp/txsize_${testname[$i]}.dat
+                fi
 				if [[ $? -ne 0 ]] ; then 
 					timeout 10m ${test[$i]} $t  # second try
 				fi
@@ -117,9 +120,13 @@ sudo su -c "echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo"
 # MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 LOG_COMPRESSION=1 PPATH=$1 STAT=1 LARGE_PLOG=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
 # run_bench test_log_comp_lp
 # 
-(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 log_compression=1 large_plog=1 entries=1 -j)
-MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 LOG_COMPRESSION=1 PPATH=$1 STAT=1 LARGE_PLOG=1 NUMBER_OF_ENTRIES=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-run_bench test_log_comp_lp_noe
+# (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 parallel_cp=1 log_compression=1 large_plog=1 entries=1 -j)
+# MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PARALLEL_CHECKPOINT=1 LOG_COMPRESSION=1 PPATH=$1 STAT=1 LARGE_PLOG=1 NUMBER_OF_ENTRIES=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+# run_bench test_log_comp_lp_noe
+
+(cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 tx_size=1 -j)
+MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PPATH=$1 STAT=1 TX_SIZE=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
+run_bench test_txsize
 
 # (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 no_cp=1 -j)
 # MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PPATH=$1 STAT=1 NO_CHECKPOINTER=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt

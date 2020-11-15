@@ -71,6 +71,6 @@ unsigned int max_tx_size;
 #ifdef TX_SIZE
 unsigned int count_writes_tmp;
 int txsizelist_index;
-unsigned int txsizelist[30000];
+unsigned int txsizelist[6000000];
 #endif
 // ####################################################

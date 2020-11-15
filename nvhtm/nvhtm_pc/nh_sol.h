@@ -25,7 +25,7 @@ extern "C"
 
 #ifdef MAX_TX_SIZE
 #  define COUNT_WRITES_STAMP() { extern __thread unsigned int count_writes_tmp_thr; count_writes_tmp_thr = MN_count_writes; }
-#  define MAX_TX_UPDATE() {\
+#  define TX_UPDATE() {\
     extern __thread unsigned int max_tx_size_thr;\
     extern __thread unsigned int count_writes_tmp_thr;\
     unsigned int tx_size = MN_count_writes - count_writes_tmp_thr;\
@@ -34,17 +34,18 @@ extern "C"
     }\
 }
 #elif defined TX_SIZE
-#  define COUNT_WRITES_STAMP() { extern __thread unsigned int count_writes_tmp; count_writes_tmp = MN_count_writes; }
-#  define MAX_TX_UPDATE() {\
-    extern __thread unsigned int txsizelist[];\
-    extern __thread unsigned int txsizelist_index;\
-    extern __thread unsigned int count_writes_tmp;\
+#  define COUNT_WRITES_STAMP() { extern unsigned int count_writes_tmp; count_writes_tmp = MN_count_writes; }
+#  define TX_UPDATE() {\
+    extern unsigned int txsizelist[];\
+    extern int txsizelist_index;\
+    extern unsigned int count_writes_tmp;\
     txsizelist[txsizelist_index] = MN_count_writes - count_writes_tmp;\
     txsizelist_index++;\
+    assert(txsizelist_index < 6000000);\
 }
 #else
 #  define COUNT_WRITES_STAMP() {  }
-#  define MAX_TX_UPDATE() { }
+#  define TX_UPDATE() { }
 #endif
 
   #undef BEFORE_TRANSACTION_i
@@ -105,7 +106,7 @@ extern "C"
     transaction_time_thread += time_tmp;  \
     TAKE_COMMIT_TIME_4();\
     \
-    MAX_TX_UPDATE();\
+    TX_UPDATE();\
   })
 #else
 #  ifdef FUNCTIONIZE_AT

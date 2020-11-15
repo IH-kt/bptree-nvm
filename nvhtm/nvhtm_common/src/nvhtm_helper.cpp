@@ -574,7 +574,7 @@ void NVMHTM_shutdown()
         fprintf(txsize_file, ",%u", txsizelist[txsize_line]);
     }
     fprintf(txsize_file, "\n");
-    close(txsize_file);
+    fclose(txsize_file);
 #  endif
 #else
 #  ifndef NSTAT

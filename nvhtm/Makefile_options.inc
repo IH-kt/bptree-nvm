@@ -217,3 +217,7 @@ endif
 ifeq ($(FUNCTIONIZE_AT), 1)
 DEFINES += -DFUNCTIONIZE_AT
 endif
+
+ifeq ($(TX_SIZE), 1)
+DEFINES += -DTX_SIZE
+endif
