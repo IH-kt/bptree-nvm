@@ -300,7 +300,9 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                 MN_write(entry.addr, &(entry.value), sizeof(GRANULE_TYPE), 1);
 #  endif
             } else {
+#ifndef OFFLOAD_ONLY
                 if ( !(it->second.bit_map & bit_map) ) {
+#endif
 #ifdef NUMBER_OF_ENTRIES
                     wrote_entries[i]++;
 #endif
@@ -324,7 +326,9 @@ void LOG_checkpoint_backward_thread_apply(int thread_id, int number_of_threads) 
                         MN_flush(it->first, CACHE_LINE_SIZE, 1);
                     }
 #  endif
+#ifndef OFFLOAD_ONLY
                 }
+#endif
             }
         }
 

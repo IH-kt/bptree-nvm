@@ -218,6 +218,11 @@ ifeq ($(FUNCTIONIZE_AT), 1)
 DEFINES += -DFUNCTIONIZE_AT
 endif
 
+ifeq ($(offload_only),1)
+    NVHTM_MAKE_ARGS += OFFLOAD_ONLY=1
+    NVHTM_DEFINES   += -DOFFLOAD_ONLY
+endif
+
 ifeq ($(TX_SIZE), 1)
 DEFINES += -DTX_SIZE
 endif

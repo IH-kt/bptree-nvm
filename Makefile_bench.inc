@@ -290,6 +290,12 @@ ex_maxtx_small_leaf_noinit_use_mmap:
 	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
 	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
 
+offload_only_log_compression:
+	mkdir -p $(BENCH_DIR)/$@
+	make tree=$(tree) type=$(type) large_plog=1 offload_only=1 build_log_compression
+	python3 $(SCRIPT_SRC_DIR)/base_operation.py $(BUILD_DIR) $(WARM_UP) $(LOOP_TIMES) $(THRSTT) $(THREND) $(CPTHRSTT) $(CPTHREND) $(PPATH)/data $(PPATH)/log
+	$(SCRIPT_SRC_DIR)/copy_results.sh $(BUILD_DIR) $(BENCH_DIR)/$@
+
 build_use_mmap:
 	make tree=$(tree) type=$(type) dist-clean
 	make tree=$(tree) type=$(type) logsize=$(LOGSZ) stats=1 no_flush=$(no_flush) no_fence=$(no_fence) no_cp=$(no_cp) opt_c=$(opt_c) nctime=$(nctime) -j all
@@ -300,4 +306,4 @@ build_parallel_cp:
 
 build_log_compression:
 	make tree=$(tree) type=$(type) dist-clean
-	make tree=$(tree) type=$(type) logsize=$(LOGSZ) stats=1 parallel_cp=1 log_compression=1 measure_cp=$(measure_cp) entries=$(entries) opt_c=$(opt_c) no_flush=$(no_flush) no_fence=$(no_fence) no_cp=$(no_cp) nctime=$(nctime) -j all
+	make tree=$(tree) type=$(type) logsize=$(LOGSZ) stats=1 parallel_cp=1 log_compression=1 measure_cp=$(measure_cp) entries=$(entries) opt_c=$(opt_c) no_flush=$(no_flush) no_fence=$(no_fence) no_cp=$(no_cp) nctime=$(nctime) large_plog=$(large_plog)  -j all

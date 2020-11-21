@@ -156,6 +156,11 @@ ifeq ($(func_at),1)
     NVHTM_DEFINES   += -DFUNCTIONIZE_AT
 endif
 
+ifeq ($(offload_only),1)
+    NVHTM_MAKE_ARGS += OFFLOAD_ONLY=1
+    NVHTM_DEFINES   += -DOFFLOAD_ONLY
+endif
+
 ifeq ($(tx_size),1)
     NVHTM_MAKE_ARGS += TX_SIZE=1
     NVHTM_DEFINES   += -DTX_SIZE
