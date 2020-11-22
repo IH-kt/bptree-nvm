@@ -261,7 +261,7 @@ void LOG_attach_compressed() {
       thr_ratio = 1;
   }
   size_t size_of_log = NVMHTM_LOG_SIZE * thr_ratio /* / TM_nb_threads */;
-  printf("compressed_log = %lu\n", size_of_log);
+  fprintf(stderr, "compressed_log = %lu\n", size_of_log);
 #  else
   size_t size_of_log = NVMHTM_LOG_SIZE /* / TM_nb_threads */;
 #  endif
