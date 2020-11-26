@@ -180,6 +180,10 @@ ifeq ($(TX_SIZE), 1)
 	DEFINES += -DTX_SIZE
 endif
 
+ifeq ($(OFFLOAD_ONLY), 1)
+	DEFINES += -DOFFLOAD_ONLY
+endif
+
 ifdef CP_THRNUM
 DEFINES += -DCP_THRNUM=$(CP_THRNUM)
 endif
