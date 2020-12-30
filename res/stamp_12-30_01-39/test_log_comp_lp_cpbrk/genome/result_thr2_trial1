@@ -1,0 +1,70 @@
+number of checkpoint threads: 8
+log_size = 83886656
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7fe31d0af000
+number of entry = 2097152
+compressed_log = 41943328
+Budget=20
+number of checkpoint threads: 8
+compressed_log = 41943328
+NH_time_blocked = 16164
+NH_count_blocks = 13
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000006
+NH_time_blocked = 160704
+NH_count_blocks = 143
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000062
+--- Percentage time blocked 0.000010 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000069 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 757344
+ABORTS : 147631
+CONFLS : 6223
+CAPACS : 135350
+EXPLIC : 156
+FALLBK : 5904
+   P_A : 0.163133
+     X : 320732.455101
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.496978 s
+TRANSACTION_TIME: 3.435341 s
+COMMIT_TIME1: 0.006262 s
+COMMIT_TIME2: 0.002533 s
+COMMIT_TIME3: 0.249119 s
+COMMIT_TIME1_VAR: 484.000000
+COMMIT_TIME2_VAR: 81.000000
+COMMIT_TIME3_VAR: 790321.000000
+Time 2.379703 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          86238
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          312
+TOTAL_TIME_B (clocks) 176868
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.019051 s!
+[FORKED_MANAGER] Nb. checkpoints 0
+[FORKED_MANAGER] Time active 205.253766 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 0
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.000000
+[FORKED_MANAGER] sec. 2 (find commit) = 0.000000
+[FORKED_MANAGER] sec. 3 (apply & flush) = 0.000000
+[FORKED_MANAGER] cpthread logwrite = 0.000000
+[FORKED_MANAGER] cpthread write & flush = 0.000000
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms

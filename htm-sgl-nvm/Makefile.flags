@@ -184,6 +184,10 @@ ifeq ($(OFFLOAD_ONLY), 1)
 	DEFINES += -DOFFLOAD_ONLY
 endif
 
+ifeq ($(MEASURE_PART_CP), 1)
+	DEFINES += -DMEASURE_PART_CP
+endif
+
 ifdef CP_THRNUM
 DEFINES += -DCP_THRNUM=$(CP_THRNUM)
 endif
