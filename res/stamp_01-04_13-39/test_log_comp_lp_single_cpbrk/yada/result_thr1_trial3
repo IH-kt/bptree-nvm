@@ -1,0 +1,68 @@
+number of checkpoint threads: 1
+log_size = 41943328
+log_size_per_thread = 41943328
+LOG_global_ptr = 0x7f892a806000
+number of entry = 2097152
+compressed_log = 41943328
+Budget=20
+number of checkpoint threads: 1
+compressed_log = 41943328
+NH_time_blocked = 0
+NH_count_blocks = 0
+NH_nanotime_blocked[0] = 0.000000
+NH_nanotime_blocked[1] = 0.000000
+--- Percentage time blocked 0.000000 
+--- Nb. checkpoints 0
+--- Time blocked 0.000000e+00 ms!
+--- NH time blocked by WAIT_MORE_LOG 0.000000 s!
+--- NH time blocked by CHECK_LOG_ABORT 0.000000 s!
+
+
+ ########################################### 
+ ########################################### 
+ --- ABORTS
+COMMIT : 24569
+ABORTS : 98160
+CONFLS : 194
+CAPACS : 54148
+EXPLIC : 0
+FALLBK : 4863
+   P_A : 0.799811
+     X : 27950.326883
+ ---   TIME
+TRANSACTION_ABORT_TIME: 0.857826 s
+TRANSACTION_TIME: 0.199630 s
+COMMIT_TIME1: 0.001651 s
+COMMIT_TIME2: 0.000724 s
+COMMIT_TIME3: 0.010338 s
+COMMIT_TIME1_VAR: 23104.000000
+COMMIT_TIME2_VAR: 4489.000000
+COMMIT_TIME3_VAR: 915849.000000
+Time 1.053011 s
+TIME_TX 0.000000 ms
+TIME_AFTER 0.000000 ms
+AVG_CAP -nan
+TOTAL_WRITES          367611
+TOTAL_SPINS (workers) 0
+TOTAL_BLOCKS          0
+TOTAL_TIME_B (clocks) 0
+ ---   ----
+ ########################################### 
+ ########################################### 
+
+--- HTM time blocked 0.000987 s!
+[FORKED_MANAGER] Nb. checkpoints 0
+[FORKED_MANAGER] Time active 46.857122 ms!
+[FORKED_MANAGER] Applied TXs 0 
+[FORKED_MANAGER] Time extra sort logs 0.000000 ms 
+[FORKED_MANAGER] by before_TX = 0
+[FORKED_MANAGER] by CHECK_LOG_ABORT = 0
+[FORKED_MANAGER] by WAIT_MORE_LOG = 0
+[FORKED_MANAGER] sec. 1 (reserve) = 0.000000
+[FORKED_MANAGER] sec. 2 (find commit) = 0.000000
+[FORKED_MANAGER] sec. 3 (apply & flush) = 0.000000
+[FORKED_MANAGER] cpthread logwrite = 0.000000
+[FORKED_MANAGER] cpthread read-only = 0.000000
+[FORKED_MANAGER] cpthread nowrite = 0.000000
+[FORKED_MANAGER] cpthread write & flush = 0.000000
+[logger] NB_spins=0 NB_writes=0 TIME_spins=0.000000ms
