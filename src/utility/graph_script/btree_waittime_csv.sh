@@ -5,7 +5,9 @@ if [ $# -eq 0 ]; then
 else
     root_dir=$1
 fi
-trees='use_mmap parallel_cp parallel_cp_dram_log log_compression optimized_commit'
+# trees='use_mmap parallel_cp parallel_cp_dram_log log_compression optimized_commit more_loop_use_mmap more_loop_parallel_cp more_loop_log_compression'
+trees='use_mmap parallel_cp parallel_cp_dram_log optimized_commit ex_small_leaf_use_mmap'
+# trees='use_mmap'
 ops='insert delete search mixed'
 # max_trial=5
 max_trial=3
@@ -26,7 +28,8 @@ function make_csv() {
         end_time_sum=0
         for trial in $trials
         do
-            # echo "${src_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp"
+            # echo "${src_dir}/${op}_concurrent.exe.cpthr.*.thr.${thr}.trial.${trial}.dmp"
+            # echo "cat ${src_dir}/${op}_concurrent.exe.cpthr.*.thr.${thr}.trial.${trial}.dmp | grep \"HTM \" | cut -f 5 -d ' '"
             hblock_time=`cat ${src_dir}/${op}_concurrent.exe.cpthr.*.thr.${thr}.trial.${trial}.dmp | grep "HTM " | cut -f 5 -d ' '`
             # echo "hblock_time = ${hblock_time}"
             cblock_time1=`cat ${src_dir}/${op}_concurrent.exe.cpthr.*.thr.${thr}.trial.${trial}.dmp | grep "d by WAIT_MORE_LOG" | cut -f 7 -d ' '`

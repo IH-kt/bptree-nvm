@@ -1,8 +1,0 @@
-number of checkpoint threads: 1
-number of checkpoint threads: 1
-number of checkpoint threads: 1
-Maze dimensions = 256 x 256 x 3
-Paths to route  = 256
-Paths routed    = 254
-Elapsed time    = 4.599810 seconds
-Verification passed.

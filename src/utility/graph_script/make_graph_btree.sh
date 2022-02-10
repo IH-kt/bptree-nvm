@@ -27,8 +27,8 @@ function maxtx() {
     ${graphscr_dir}/btree_maxtx_csv.sh
 }
 
-# scaling
+scaling
 # waittime
-abort
+# abort
 # committime
 # maxtx

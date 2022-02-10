@@ -126,6 +126,22 @@ def ex_small_compare(root_dir, ops, opnames, font_size):
         dataframes = read_csvs(result_file_dirs, op)
         plot_graph('scaling/', dataframes, tree_names, op, opname, colorlst, markerlst, font_size, 'exs_')
 
+def large_node(root_dir, ops, opnames, font_size):
+    colorlst = ['#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
+    markerlst = ['o', 'd', 'x', '*']
+    tree_types = [
+            'use_mmap',
+            'log_compression'
+            ]
+    tree_names = [
+            'NV-HTM',
+            '提案手法'
+            ]
+    result_file_dirs = list(map(lambda x: root_dir + '/' + x, tree_types))
+    for (op, opname) in zip(ops, opnames):
+        dataframes = read_csvs(result_file_dirs, op)
+        plot_graph('scaling/', dataframes, tree_names, op, opname, colorlst, markerlst, font_size, 'ln_')
+
 
 def main():
     # colorlst = ['#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
@@ -140,24 +156,26 @@ def main():
     tree_types = [
             # 'use_mmap',
             'parallel_cp',
-            # 'log_compression',
-            'parallel_cp_dram_log',
-            'optimized_commit',
+            'log_compression',
+            # 'parallel_cp_dram_log',
+            # 'optimized_commit',
             # 'parallel_cp_nctime',
-            'no_cp',
-            'no_cp_dram',
-            'no_cp_optc'
+            # 'no_cp',
+            # 'no_cp_dram',
+            # 'no_cp_optc'
+            'offload_only_log_compression'
             ]
     tree_names = [
             # 'NVM+CP1スレッド',
             'NVM+CP8スレッド',
-            # 'NVM+ログ圧縮+CP8スレッド',
-            'DRAM+CP8スレッド',
-            'NVM+ログ圧縮+ログflushなし+CP8スレッド',
+            'NVM+ログ圧縮+CP8スレッド',
+            # 'DRAM+CP8スレッド',
+            # 'NVM+ログ圧縮+ログflushなし+CP8スレッド',
             # 'NVM+CP8スレッド+コミット時間計測なし',
-            'NVM+CPなし',
-            'DRAM+CPなし',
-            'NVM+ログflushなし+CPなし'
+            # 'NVM+CPなし',
+            # 'DRAM+CPなし',
+            # 'NVM+ログflushなし+CPなし'
+            'NVM+オフロードのみ+CP8スレッド',
             ]
     # tree_types = ['log_compression', 'parallel_cp_dram_log']
     # tree_names = ['NVM(ログ圧縮+8スレッド)', 'DRAM(8スレッド)']
@@ -168,10 +186,11 @@ def main():
     root_dir = sys.argv[1]
     result_file_dirs = list(map(lambda x: root_dir + '/' + x, tree_types))
 
-    no_cp_compare(root_dir, ops, opnames, font_size)
-    cp_variant_compare(root_dir, ops, opnames, font_size)
-    optimization_compare(root_dir, ops, opnames, font_size)
-    ex_small_compare(root_dir, ops, opnames, font_size)
+    large_node(root_dir, ops, opnames, font_size)
+    # no_cp_compare(root_dir, ops, opnames, font_size)
+    # cp_variant_compare(root_dir, ops, opnames, font_size)
+    # optimization_compare(root_dir, ops, opnames, font_size)
+    # ex_small_compare(root_dir, ops, opnames, font_size)
 
     # for (op, opname) in zip(ops, opnames):
     #     dataframes = read_csvs(result_file_dirs, op)

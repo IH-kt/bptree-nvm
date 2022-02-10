@@ -1,0 +1,343 @@
+Function Stack,CPU Time,CPU Time:Effective Time,CPU Time:Effective Time:Idle,CPU Time:Effective Time:Poor,CPU Time:Effective Time:Ok,CPU Time:Effective Time:Ideal,CPU Time:Effective Time:Over,CPU Time:Spin Time,CPU Time:Overhead Time,Module,Function (Full),Source File,Start Address
+insert,4.952645,4.952645,0.0,4.952645,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+ insert_random,2.491983,2.491983,0.0,2.491983,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+  bptreeThreadFunctionWrapper,2.491983,2.491983,0.0,2.491983,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+   start_thread,2.491983,2.491983,0.0,2.491983,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+    clone,2.491983,2.491983,0.0,2.491983,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+ insert_initials,2.460661,2.460661,0.0,2.460661,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+  bptreeThreadFunctionWrapper,2.460661,2.460661,0.0,2.460661,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+   start_thread,2.460661,2.460661,0.0,2.460661,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+    clone,2.460661,2.460661,0.0,2.460661,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+NVMHTM_commit,0.847321,0.847321,0.0,0.847321,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+ insert,0.847321,0.847321,0.0,0.847321,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+  insert_initials,0.459334,0.459334,0.0,0.459334,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+   bptreeThreadFunctionWrapper,0.459334,0.459334,0.0,0.459334,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+    start_thread,0.459334,0.459334,0.0,0.459334,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+     clone,0.459334,0.459334,0.0,0.459334,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+  insert_random,0.387987,0.387987,0.0,0.387987,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+   bptreeThreadFunctionWrapper,0.387987,0.387987,0.0,0.387987,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+    start_thread,0.387987,0.387987,0.0,0.387987,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+     clone,0.387987,0.387987,0.0,0.387987,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+__memset_avx2_erms,0.198259,0.198259,0.0,0.198259,0.0,0.0,0.0,0.0,0.0,libc.so.6,__memset_avx2_erms,memset-vec-unaligned-erms.S,0x18f190
+ memset,0.179978,0.179978,0.0,0.179978,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,memset,string_fortified.h,0x19055
+  initAllocator,0.179978,0.179978,0.0,0.179978,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,initAllocator,allocator.c,0x19020
+   main,0.179978,0.179978,0.0,0.179978,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,main,insert_concurrent.c,0x25e0
+    __libc_start_main,0.179978,0.179978,0.0,0.179978,0.0,0.0,0.0,0.0,0.0,libc.so.6,__libc_start_main,libc-start.c,0x21ab0
+     _start,0.179978,0.179978,0.0,0.179978,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,_start,[Unknown],0x2b70
+ LOG_init,0.018282,0.018282,0.0,0.018282,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,LOG_init,log.cpp,0x1aeb2
+  NVMHTM_init_thrs,0.018282,0.018282,0.0,0.018282,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_init_thrs,nvhtm_helper.cpp,0x20f3c
+   NVHTM_init_,0.018282,0.018282,0.0,0.018282,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVHTM_init_,nvhtm.cpp,0x19b32
+    main,0.018282,0.018282,0.0,0.018282,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,main,insert_concurrent.c,0x25e0
+     __libc_start_main,0.018282,0.018282,0.0,0.018282,0.0,0.0,0.0,0.0,0.0,libc.so.6,__libc_start_main,libc-start.c,0x21ab0
+      _start,0.018282,0.018282,0.0,0.018282,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,_start,[Unknown],0x2b70
+NVMHTM_validate,0.152032,0.152032,0.0,0.152032,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"NVMHTM_validate(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x21883
+ NVMHTM_commit,0.152032,0.152032,0.0,0.152032,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+  insert,0.152032,0.152032,0.0,0.152032,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+   insert_random,0.104010,0.104010,0.0,0.104010,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+    bptreeThreadFunctionWrapper,0.104010,0.104010,0.0,0.104010,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.104010,0.104010,0.0,0.104010,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.104010,0.104010,0.0,0.104010,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+   insert_initials,0.048023,0.048023,0.0,0.048023,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+    bptreeThreadFunctionWrapper,0.048023,0.048023,0.0,0.048023,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.048023,0.048023,0.0,0.048023,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.048023,0.048023,0.0,0.048023,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+MN_flush,0.143988,0.143988,0.0,0.143988,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,MN_flush,min_nvm.cpp,0x29364
+ NVMHTM_commit,0.143988,0.143988,0.0,0.143988,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+  insert,0.143988,0.143988,0.0,0.143988,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+   insert_random,0.071998,0.071998,0.0,0.071998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+    bptreeThreadFunctionWrapper,0.071998,0.071998,0.0,0.071998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.071998,0.071998,0.0,0.071998,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.071998,0.071998,0.0,0.071998,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+   insert_initials,0.071989,0.071989,0.0,0.071989,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+    bptreeThreadFunctionWrapper,0.071989,0.071989,0.0,0.071989,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.071989,0.071989,0.0,0.071989,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.071989,0.071989,0.0,0.071989,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+__memmove_avx_unaligned_erms,0.128002,0.128002,0.0,0.128002,0.0,0.0,0.0,0.0,0.0,libc.so.6,__memmove_avx_unaligned_erms,memmove-vec-unaligned-erms.S,0x18ed40
+ MN_write,0.128002,0.128002,0.0,0.128002,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,MN_write,min_nvm.cpp,0x292ce
+  NVMHTM_write_ts,0.120001,0.120001,0.0,0.120001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_write_ts,nvhtm_helper.cpp,0x21236
+   NVMHTM_commit,0.120001,0.120001,0.0,0.120001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+    insert,0.120001,0.120001,0.0,0.120001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+     insert_initials,0.072000,0.072000,0.0,0.072000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+      bptreeThreadFunctionWrapper,0.072000,0.072000,0.0,0.072000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+       start_thread,0.072000,0.072000,0.0,0.072000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+        clone,0.072000,0.072000,0.0,0.072000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+     insert_random,0.048000,0.048000,0.0,0.048000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+      bptreeThreadFunctionWrapper,0.048000,0.048000,0.0,0.048000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+       start_thread,0.048000,0.048000,0.0,0.048000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+        clone,0.048000,0.048000,0.0,0.048000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+  insert,0.008001,0.008001,0.0,0.008001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+   insert_random,0.008001,0.008001,0.0,0.008001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+    bptreeThreadFunctionWrapper,0.008001,0.008001,0.0,0.008001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.008001,0.008001,0.0,0.008001,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.008001,0.008001,0.0,0.008001,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+std::bitset<(unsigned long)56>::test,0.109999,0.109999,0.0,0.109999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,std::bitset<(unsigned long)56>::test(unsigned long) const,bitset,0x225ce
+ dangerous_threads,0.109999,0.109999,0.0,0.109999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"dangerous_threads(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x2194c
+  NVMHTM_validate,0.073999,0.073999,0.0,0.073999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"NVMHTM_validate(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x21883
+   NVMHTM_commit,0.073999,0.073999,0.0,0.073999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+    insert,0.073999,0.073999,0.0,0.073999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+     insert_initials,0.040000,0.040000,0.0,0.040000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+      bptreeThreadFunctionWrapper,0.040000,0.040000,0.0,0.040000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+       start_thread,0.040000,0.040000,0.0,0.040000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+        clone,0.040000,0.040000,0.0,0.040000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+     insert_random,0.033999,0.033999,0.0,0.033999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+      bptreeThreadFunctionWrapper,0.033999,0.033999,0.0,0.033999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+       start_thread,0.033999,0.033999,0.0,0.033999,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+        clone,0.033999,0.033999,0.0,0.033999,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+  NVMHTM_commit,0.036000,0.036000,0.0,0.036000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+   insert,0.036000,0.036000,0.0,0.036000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+    insert_initials,0.024000,0.024000,0.0,0.024000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+     bptreeThreadFunctionWrapper,0.024000,0.024000,0.0,0.024000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.024000,0.024000,0.0,0.024000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.024000,0.024000,0.0,0.024000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+    insert_random,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+     bptreeThreadFunctionWrapper,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+std::bitset<(unsigned long)56>::any,0.087996,0.087996,0.0,0.087996,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,std::bitset<(unsigned long)56>::any(void) const,bitset,0x225b4
+ NVMHTM_validate,0.087996,0.087996,0.0,0.087996,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"NVMHTM_validate(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x21883
+  NVMHTM_commit,0.087996,0.087996,0.0,0.087996,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+   insert,0.087996,0.087996,0.0,0.087996,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+    insert_initials,0.047998,0.047998,0.0,0.047998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+     bptreeThreadFunctionWrapper,0.047998,0.047998,0.0,0.047998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.047998,0.047998,0.0,0.047998,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.047998,0.047998,0.0,0.047998,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+    insert_random,0.039998,0.039998,0.0,0.039998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+     bptreeThreadFunctionWrapper,0.039998,0.039998,0.0,0.039998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.039998,0.039998,0.0,0.039998,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.039998,0.039998,0.0,0.039998,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+__popcountdi2,0.083975,0.083975,0.0,0.083975,0.0,0.0,0.0,0.0,0.0,libgcc_s.so.1,__popcountdi2,[Unknown],0x3880
+ NVMHTM_commit,0.071975,0.071975,0.0,0.071975,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+  insert,0.071975,0.071975,0.0,0.071975,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+   insert_random,0.039999,0.039999,0.0,0.039999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+    bptreeThreadFunctionWrapper,0.039999,0.039999,0.0,0.039999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.039999,0.039999,0.0,0.039999,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.039999,0.039999,0.0,0.039999,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+   insert_initials,0.031976,0.031976,0.0,0.031976,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+    bptreeThreadFunctionWrapper,0.031976,0.031976,0.0,0.031976,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.031976,0.031976,0.0,0.031976,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.031976,0.031976,0.0,0.031976,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+ NVMHTM_write_ts,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_write_ts,nvhtm_helper.cpp,0x21236
+  NVMHTM_commit,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+   insert,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+    insert_random,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+     bptreeThreadFunctionWrapper,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+LOG_get_ts_before_tx,0.079994,0.079994,0.0,0.079994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,LOG_get_ts_before_tx,log.cpp,0x1b071
+ insert,0.079994,0.079994,0.0,0.079994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+  insert_random,0.047995,0.047995,0.0,0.047995,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+   bptreeThreadFunctionWrapper,0.047995,0.047995,0.0,0.047995,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+    start_thread,0.047995,0.047995,0.0,0.047995,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+     clone,0.047995,0.047995,0.0,0.047995,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+  insert_initials,0.031999,0.031999,0.0,0.031999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+   bptreeThreadFunctionWrapper,0.031999,0.031999,0.0,0.031999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+    start_thread,0.031999,0.031999,0.0,0.031999,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+     clone,0.031999,0.031999,0.0,0.031999,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+std::bitset<(unsigned long)56>::reference::operator=,0.075994,0.075994,0.0,0.075994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,std::bitset<(unsigned long)56>::reference::operator=(bool),bitset,0x2264c
+ dangerous_threads,0.075994,0.075994,0.0,0.075994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"dangerous_threads(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x2194c
+  NVMHTM_commit,0.075994,0.075994,0.0,0.075994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+   insert,0.075994,0.075994,0.0,0.075994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+    insert_random,0.056000,0.056000,0.0,0.056000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+     bptreeThreadFunctionWrapper,0.056000,0.056000,0.0,0.056000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.056000,0.056000,0.0,0.056000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.056000,0.056000,0.0,0.056000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+    insert_initials,0.019994,0.019994,0.0,0.019994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+     bptreeThreadFunctionWrapper,0.019994,0.019994,0.0,0.019994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.019994,0.019994,0.0,0.019994,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.019994,0.019994,0.0,0.019994,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+get_rand,0.059998,0.059998,0.0,0.059998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,get_rand,random.c,0x19aa0
+ insert_random,0.059998,0.059998,0.0,0.059998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+  bptreeThreadFunctionWrapper,0.059998,0.059998,0.0,0.059998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+   start_thread,0.059998,0.059998,0.0,0.059998,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+    clone,0.059998,0.059998,0.0,0.059998,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+std::bitset<(unsigned long)56>::bitset,0.051999,0.051999,0.0,0.051999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,std::bitset<(unsigned long)56>::bitset(unsigned long long),bitset,0x224b4
+ NVMHTM_commit,0.051999,0.051999,0.0,0.051999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+  insert,0.051999,0.051999,0.0,0.051999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+   insert_initials,0.032000,0.032000,0.0,0.032000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+    bptreeThreadFunctionWrapper,0.032000,0.032000,0.0,0.032000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.032000,0.032000,0.0,0.032000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.032000,0.032000,0.0,0.032000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+   insert_random,0.019999,0.019999,0.0,0.019999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+    bptreeThreadFunctionWrapper,0.019999,0.019999,0.0,0.019999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.019999,0.019999,0.0,0.019999,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.019999,0.019999,0.0,0.019999,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+TM_get_nb_threads,0.048004,0.048004,0.0,0.048004,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,TM_get_nb_threads,tm.cpp,0x1ae13
+ dangerous_threads,0.024005,0.024005,0.0,0.024005,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"dangerous_threads(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x2194c
+  NVMHTM_commit,0.012003,0.012003,0.0,0.012003,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+   insert,0.012003,0.012003,0.0,0.012003,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+    insert_random,0.012003,0.012003,0.0,0.012003,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+     bptreeThreadFunctionWrapper,0.012003,0.012003,0.0,0.012003,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.012003,0.012003,0.0,0.012003,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.012003,0.012003,0.0,0.012003,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+  NVMHTM_validate,0.012002,0.012002,0.0,0.012002,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"NVMHTM_validate(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x21883
+   NVMHTM_commit,0.012002,0.012002,0.0,0.012002,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+    insert,0.012002,0.012002,0.0,0.012002,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+     insert_initials,0.012002,0.012002,0.0,0.012002,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+      bptreeThreadFunctionWrapper,0.012002,0.012002,0.0,0.012002,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+       start_thread,0.012002,0.012002,0.0,0.012002,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+        clone,0.012002,0.012002,0.0,0.012002,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+ NVMHTM_validate,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"NVMHTM_validate(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x21883
+  NVMHTM_commit,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+   insert,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+    insert_initials,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+     bptreeThreadFunctionWrapper,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+ NVMHTM_commit,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+  insert,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+   insert_initials,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+    bptreeThreadFunctionWrapper,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+std::bitset<(unsigned long)56>::operator|=,0.043998,0.043998,0.0,0.043998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,std::bitset<(unsigned long)56>::operator|=(std::bitset<(unsigned long)56> const&),bitset,0x224e8
+ NVMHTM_commit,0.043998,0.043998,0.0,0.043998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+  insert,0.043998,0.043998,0.0,0.043998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+   insert_random,0.031998,0.031998,0.0,0.031998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+    bptreeThreadFunctionWrapper,0.031998,0.031998,0.0,0.031998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.031998,0.031998,0.0,0.031998,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.031998,0.031998,0.0,0.031998,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+   insert_initials,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+    bptreeThreadFunctionWrapper,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+TM_get_local_counter,0.043997,0.043997,0.0,0.043997,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,TM_get_local_counter,tm.cpp,0x1add2
+ dangerous_threads,0.043997,0.043997,0.0,0.043997,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"dangerous_threads(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x2194c
+  NVMHTM_commit,0.043997,0.043997,0.0,0.043997,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+   insert,0.043997,0.043997,0.0,0.043997,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+    insert_random,0.043997,0.043997,0.0,0.043997,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+     bptreeThreadFunctionWrapper,0.043997,0.043997,0.0,0.043997,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.043997,0.043997,0.0,0.043997,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.043997,0.043997,0.0,0.043997,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+warmup,0.042003,0.042003,0.0,0.042003,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,warmup,insert_concurrent.c,0x2c80
+ bptreeThreadFunctionWrapper,0.042003,0.042003,0.0,0.042003,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+  start_thread,0.042003,0.042003,0.0,0.042003,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+   clone,0.042003,0.042003,0.0,0.042003,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+rand,0.037994,0.037994,0.0,0.037994,0.0,0.0,0.0,0.0,0.0,libc.so.6,rand,rand.c,0x44450
+ random_init,0.037994,0.037994,0.0,0.037994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,random_init,random.c,0x19a00
+  main,0.037994,0.037994,0.0,0.037994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,main,insert_concurrent.c,0x25e0
+   __libc_start_main,0.037994,0.037994,0.0,0.037994,0.0,0.0,0.0,0.0,0.0,libc.so.6,__libc_start_main,libc-start.c,0x21ab0
+    _start,0.037994,0.037994,0.0,0.037994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,_start,[Unknown],0x2b70
+dangerous_threads,0.027999,0.027999,0.0,0.027999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"dangerous_threads(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x2194c
+ NVMHTM_commit,0.027999,0.027999,0.0,0.027999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+  insert,0.027999,0.027999,0.0,0.027999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+   insert_initials,0.016000,0.016000,0.0,0.016000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+    bptreeThreadFunctionWrapper,0.016000,0.016000,0.0,0.016000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.016000,0.016000,0.0,0.016000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.016000,0.016000,0.0,0.016000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+   insert_random,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+    bptreeThreadFunctionWrapper,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+get_rand_initials,0.027994,0.027994,0.0,0.027994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,get_rand_initials,random.c,0x19a90
+ insert_initials,0.027994,0.027994,0.0,0.027994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+  bptreeThreadFunctionWrapper,0.027994,0.027994,0.0,0.027994,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+   start_thread,0.027994,0.027994,0.0,0.027994,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+    clone,0.027994,0.027994,0.0,0.027994,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+NVMHTM_write_ts,0.024001,0.024001,0.0,0.024001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_write_ts,nvhtm_helper.cpp,0x21236
+ NVMHTM_commit,0.024001,0.024001,0.0,0.024001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+  insert,0.024001,0.024001,0.0,0.024001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+   insert_random,0.024001,0.024001,0.0,0.024001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+    bptreeThreadFunctionWrapper,0.024001,0.024001,0.0,0.024001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.024001,0.024001,0.0,0.024001,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.024001,0.024001,0.0,0.024001,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+__GI___libc_malloc,0.020000,0.020000,0.0,0.020000,0.0,0.0,0.0,0.0,0.0,libc.so.6,__GI___libc_malloc,malloc.c,0x970e0
+ newInternalNode,0.020000,0.020000,0.0,0.020000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,newInternalNode,bptree.c,0x5c03
+  splitInternal,0.020000,0.020000,0.0,0.020000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,splitInternal,bptree.c,0x5bc0
+   insertRecursive,0.020000,0.020000,0.0,0.020000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x65f2
+    insertRecursive,0.020000,0.020000,0.0,0.020000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x64c0
+     insertRecursive,0.020000,0.020000,0.0,0.020000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x65f2
+      insertRecursive,0.020000,0.020000,0.0,0.020000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x64c0
+       insertRecursive,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x788a
+        insertRecursive,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x7470
+         insertRecursive,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x8174
+          insertParent,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertParent,bptree.c,0x8020
+           insert,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+            insert_random,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+             bptreeThreadFunctionWrapper,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+              start_thread,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+               clone,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+       insertRecursive,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x65f2
+        insertRecursive,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x64c0
+         insertRecursive,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x788a
+          insertRecursive,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x7470
+           insertRecursive,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x8174
+            insertParent,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertParent,bptree.c,0x8020
+             insert,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+              insert_random,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+               bptreeThreadFunctionWrapper,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+                start_thread,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+                 clone,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+std::bitset<(unsigned long)56>::operator[],0.019998,0.019998,0.0,0.019998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,std::bitset<(unsigned long)56>::operator[](unsigned long),bitset,0x2260e
+ dangerous_threads,0.019998,0.019998,0.0,0.019998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,"dangerous_threads(int, std::bitset<(unsigned long)56>&)",nvhtm_helper.cpp,0x2194c
+  NVMHTM_commit,0.019998,0.019998,0.0,0.019998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+   insert,0.019998,0.019998,0.0,0.019998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+    insert_random,0.019998,0.019998,0.0,0.019998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+     bptreeThreadFunctionWrapper,0.019998,0.019998,0.0,0.019998,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.019998,0.019998,0.0,0.019998,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.019998,0.019998,0.0,0.019998,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+TM_inc_local_counter,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,TM_inc_local_counter,tm.cpp,0x1adaa
+ insert,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+  insert_random,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+   bptreeThreadFunctionWrapper,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+    start_thread,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+     clone,0.012001,0.012001,0.0,0.012001,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+[Outside any known module],0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,[Unknown],[Outside any known module],[Unknown],0x0
+ __GI___libc_malloc,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,libc.so.6,__GI___libc_malloc,malloc.c,0x970e0
+  newInternalNode,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,newInternalNode,bptree.c,0x5c03
+   splitInternal,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,splitInternal,bptree.c,0x5bc0
+    insertRecursive,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x65f2
+     insertRecursive,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x64c0
+      insertRecursive,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x65f2
+       insertRecursive,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x64c0
+        insertRecursive,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x65f2
+         insertRecursive,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x64c0
+          insertRecursive,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x788a
+           insertRecursive,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x7470
+            insertRecursive,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertRecursive,bptree.c,0x8174
+             insertParent,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insertParent,bptree.c,0x8020
+              insert,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+               insert_random,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+                bptreeThreadFunctionWrapper,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+                 start_thread,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+                  clone,0.012000,0.012000,0.0,0.012000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+_mm_clwb,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,_mm_clwb(void*),clwbintrin.h,0x293dc
+ MN_flush,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,MN_flush,min_nvm.cpp,0x29364
+  NVMHTM_commit,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+   insert,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+    insert_initials,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+     bptreeThreadFunctionWrapper,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+      start_thread,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+       clone,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+random_init,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,random_init,random.c,0x19a00
+ main,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,main,insert_concurrent.c,0x25e0
+  __libc_start_main,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,libc.so.6,__libc_start_main,libc-start.c,0x21ab0
+   _start,0.011999,0.011999,0.0,0.011999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,_start,[Unknown],0x2b70
+__ftruncate64,0.011748,0.011748,0.0,0.011748,0.0,0.0,0.0,0.0,0.0,libc.so.6,__ftruncate64,ftruncate64.c,0x118d90
+ pmem_map_file,0.011748,0.011748,0.0,0.011748,0.0,0.0,0.0,0.0,0.0,libpmem.so.1,pmem_map_file,[Unknown],0x8890
+  LOG_init,0.011748,0.011748,0.0,0.011748,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,LOG_init,log.cpp,0x1aeb2
+   NVMHTM_init_thrs,0.011748,0.011748,0.0,0.011748,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_init_thrs,nvhtm_helper.cpp,0x20f3c
+    NVHTM_init_,0.011748,0.011748,0.0,0.011748,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVHTM_init_,nvhtm.cpp,0x19b32
+     main,0.011748,0.011748,0.0,0.011748,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,main,insert_concurrent.c,0x25e0
+      __libc_start_main,0.011748,0.011748,0.0,0.011748,0.0,0.0,0.0,0.0,0.0,libc.so.6,__libc_start_main,libc-start.c,0x21ab0
+       _start,0.011748,0.011748,0.0,0.011748,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,_start,[Unknown],0x2b70
+insert_initials,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+ bptreeThreadFunctionWrapper,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+  start_thread,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+   clone,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+insert_random,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+ bptreeThreadFunctionWrapper,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+  start_thread,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+   clone,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+printf,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,printf,stdio2.h,0x8f87
+ insert,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+  insert_initials,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_initials,insert_concurrent.c,0x2ca0
+   bptreeThreadFunctionWrapper,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+    start_thread,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+     clone,0.008000,0.008000,0.0,0.008000,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
+func@0x2420,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,func@0x2420,[Unknown],0x2420
+ NVMHTM_commit,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,NVMHTM_commit,nvhtm_helper.cpp,0x21407
+  insert,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert,bptree.c,0x8d20
+   insert_random,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,insert_random,insert_concurrent.c,0x2d70
+    bptreeThreadFunctionWrapper,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,insert_concurrent.exe,bptreeThreadFunctionWrapper,thread_manager.c,0x19850
+     start_thread,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,libpthread.so.0,start_thread,pthread_create.c,0x7600
+      clone,0.007999,0.007999,0.0,0.007999,0.0,0.0,0.0,0.0,0.0,libc.so.6,clone,clone.S,0x121a00
