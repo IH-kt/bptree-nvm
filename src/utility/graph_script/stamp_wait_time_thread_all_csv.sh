@@ -16,12 +16,30 @@ trials=`seq 1 ${max_trial}`
 result_dir="./waittime"
 thrs="1 2 4 8"
 
+function format_switch () {
+    source_dir=$1
+    bench_type=$2
+    thr=$3
+    trial=$4
+    case $bench_type in
+        genome        ) cat ${source_dir}/time_thr${thr}_trial${trial} | grep "Time"    | sed -E 's/.* ([0-9]+\.[0-9]+).*/\1/' ;;
+        intruder      ) cat ${source_dir}/time_thr${thr}_trial${trial} | grep "Elapsed" | sed -E 's/.* ([0-9]+\.[0-9]+).*/\1/' ;;
+        kmeans-high   ) cat ${source_dir}/time_thr${thr}_trial${trial} | grep "Time"    | sed -E 's/.* ([0-9]+\.[0-9]+).*/\1/' ;;
+        kmeans-low    ) cat ${source_dir}/time_thr${thr}_trial${trial} | grep "Time"    | sed -E 's/.* ([0-9]+\.[0-9]+).*/\1/' ;;
+        labyrinth     ) cat ${source_dir}/time_thr${thr}_trial${trial} | grep "Elapsed" | sed -E 's/.* ([0-9]+\.[0-9]+).*/\1/' ;;
+        vacation-high ) cat ${source_dir}/time_thr${thr}_trial${trial} | grep "Time"    | sed -E 's/.* ([0-9]+\.[0-9]+).*/\1/' ;;
+        vacation-low  ) cat ${source_dir}/time_thr${thr}_trial${trial} | grep "Time"    | sed -E 's/.* ([0-9]+\.[0-9]+).*/\1/' ;;
+        ssca2         ) cat ${source_dir}/time_thr${thr}_trial${trial} | grep "Time"    | sed -E 's/.* ([0-9]+\.[0-9]+).*/\1/' ;;
+        yada          ) cat ${source_dir}/time_thr${thr}_trial${trial} | grep "Elapsed" | sed -E 's/.* ([0-9]+\.[0-9]+).*/\1/' ;;
+    esac
+}
+
 function make_csv () {
     bench_type=$1
     source_dir=$2
     target_dir=$3
 
-    echo 'thread,HTM-block,Checkpoint-block,Abort' > ${target_dir}/wait_${bench_type}.csv
+    echo 'thread,HTM-block,Checkpoint-block,Abort,Time' > ${target_dir}/waitall_${bench_type}.csv
     source_dir_tmp=`echo "$source_dir/$bench_type"`
     for thr in $thrs
     do
@@ -29,6 +47,7 @@ function make_csv () {
         hblock_time_sum=0
         ablock_time_sum=0
         end_time_sum=0
+        elapsed_time_sum=0
         for trial in $trials
         do
             # echo "${target_dir}/${op}_concurrent.exe.thr.${thr}.trial.${trial}.dmp"
@@ -42,18 +61,21 @@ function make_csv () {
             # echo "ablock_time = ${ablock_time}"
             # end_time=`cat ${target_dir}/result_thr${thr}_trial${trial} | grep "wait_for" | tail -n 1 | cut -f 3 -d ' '`
             # echo "end_time = ${end_time}"
+            elapsed_time=`format_switch $source_dir_tmp $bench_type $thr $trial`
             hblock_time_sum=`echo "scale=7; ${hblock_time} + ${hblock_time_sum}" | bc`
             cblock_time_sum=`echo "scale=7; ${cblock_time1} + ${cblock_time2} + ${cblock_time_sum}" | bc`
             ablock_time_sum=`echo "scale=7; ${ablock_time} + ${ablock_time_sum}" | bc`
             # end_time_sum=`echo "scale=7; ${end_time} + ${end_time_sum}" | bc`
+            elapsed_time_sum=`echo "scale=7; ${elapsed_time} + ${elapsed_time_sum}" | bc`
         done
         hbl_pt=`echo "scale=7; (${hblock_time_sum} / ${max_trial}) / ${thr}" | bc`
         cbl_pt=`echo "scale=7; (${cblock_time_sum} / ${max_trial}) / ${thr}" | bc`
         abl_pt=`echo "scale=7; (${ablock_time_sum} / ${max_trial}) / ${thr}" | bc`
+        elp_pt=`echo "scale=7; ${elapsed_time_sum} / ${max_trial}" | bc`
         # end_pt=`echo "scale=7; (${end_time_sum} / ${max_trial})" | bc`
         # echo "end = ${end_pt}"
         # echo "$thr,$hbl_pt,$cbl_pt,$abl_pt,$end_pt" >> ${result_dir}/wait_${b}.csv
-        echo "$thr,$hbl_pt,$cbl_pt,$abl_pt" >> ${target_dir}/wait_${bench_type}.csv
+        echo "$thr,$hbl_pt,$cbl_pt,$abl_pt,$elp_pt" >> ${target_dir}/waitall_${bench_type}.csv
     done
 }
 

@@ -1,14 +1,21 @@
 import numpy as np
 from matplotlib import pyplot as plt
+import numpy as np
+from matplotlib import pyplot as plt
 import pandas as pd
 import japanize_matplotlib
 import sys
 import os
 
-def plot_graph(plot_dir, bench_name, result_files, plot_text, colorlst, labels, font_size, time_class):
+def plot_graph(plot_dir, bench_name, result_files, plot_text, colorlst, labels, font_size, time_class1, time_class2):
     result_dataframes = []
     for result_file in result_files:
-        result_dataframes.append(pd.read_csv(result_file, index_col=0))
+        df = pd.read_csv(result_file, index_col=0)
+        if (hasattr(df, 'flush')):
+            df['apply-log'] += df['flush']
+            df = df.rename(columns={'apply-log': 'apply-log-flush'})
+            del(df['flush'])
+        result_dataframes.append(df)
 
     os.makedirs(plot_dir, exist_ok=True)
 
@@ -20,48 +27,41 @@ def plot_graph(plot_dir, bench_name, result_files, plot_text, colorlst, labels, 
     for df in result_dataframes:
         xtick_tmp = list(map(lambda x: x + barwidth*x_position, xtick))
         # for (color, label, tc) in zip(colorlst, labels, time_class):
-        bar_bottom = 0
-        for (color, tc) in zip(colorlst, time_class):
+        for (color, tc) in zip(colorlst, time_class1):
+            bar_bottom = 0
             # plt.bar(xtick+barwidth*x_position, df[tc], bottom=bar_bottom, width=barwidth, edgecolor = 'k', color = color, label = label)
             plt.bar(xtick_tmp, df[tc], bottom=bar_bottom, width=barwidth, edgecolor = 'k', color = color, align='edge')
             bar_bottom += df[tc]
         top_of_bar = max([max(bar_bottom), top_of_bar])
         x_position += 1
     plt.xticks(xtick, result_dataframes[0].index)
-    plt.ylim(top = top_of_bar * 1.1)
-    plt.xlabel('ユーザスレッド数', fontsize=font_size)
+    plt.xlabel('スレッド数', fontsize=font_size)
     # plt.xlabel('Number of Threads', fontsize=font_size)
-    plt.ylabel('消費時間 (秒/スレッド)', fontsize=font_size)
+    plt.ylabel('実行時間 (秒)', fontsize=font_size)
     # plt.ylabel('Wasted Time (sec. / thread)', fontsize=font_size)
     plt.tick_params(labelsize=font_size)
     # plt.legend(bbox_to_anchor=(0.50, -0.20), loc='center', borderaxespad=0, ncol=2, fontsize=font_size-4)
     plt.legend(labels, bbox_to_anchor=(0.45, -0.30), loc='center', borderaxespad=0, fontsize=font_size-4)
-    plt.text(0.1, top_of_bar-(top_of_bar * 0.1), plot_text, fontsize=font_size-4)
+    plt.text(-0.5, top_of_bar-(top_of_bar * 0.1), plot_text, fontsize=font_size-4)
     plt.tight_layout()
-    plt.savefig(plot_dir + '/' + bench_name + '_wait_ja.pdf')
+    plt.savefig(plot_dir + '/' + bench_name + '_checkpointtime.pdf')
     plt.close()
 
 def main():
     bench_names = ['genome', 'intruder', 'kmeans-high', 'kmeans-low', 'labyrinth', 'ssca2', 'vacation-high', 'vacation-low', 'yada']
     # result_file_template = ['use_mmap', 'para_cp', 'log_comp']
     # result_file_template = ['use_mmap', 'use_mmap_dram', 'log_comp', 'no_cp', 'no_cp_dram']
-    # result_file_template = ['use_mmap', 'log_comp_lp', 'log_comp_lp_single']
-    # result_file_template = ['use_mmap', 'log_comp_lp']
-    result_file_template = ['use_mmap']
-    result_file_generator = lambda extype: 'waittime/' + extype + '/wait_' + bench_name + '.csv'
-    plot_target_dir = "graphs/waittime"
+    result_file_template = ['use_mmap', 'log_comp_lp_single', 'log_comp_lp']
+    result_file_generator = lambda extype: 'checkpointtime/' + extype + '/checkpointtime_' + bench_name + '.csv'
+    plot_target_dir = "graphs/checkpointtime"
     colorlst = ['#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
-    labels = ['Checkpointプロセスによるログ処理の待ち時間', 'トランザクションのアボートによる消費時間', 'フォールバックによる待ち時間']
-    # labels = ['Checkpointプロセスによるログ処理の待ち時間', 'トランザクションのアボートによる消費時間']
+    labels = ['initialization', 'read-log', 'log-write']
     font_size = 18
-    # plot_text = '左：NVM(1スレッド), 中央：NVM(8スレッド),\n右：NVM(ログ圧縮)'
-    # plot_text = '左：Plain-NVHTM, 中央：Log-compression(single),\n右：Log-compression(parallel)'
-    # plot_text = '左：NV-HTM, 右：提案手法'
-    plot_text = ''
-    # time_class = ['Checkpoint-block', 'Abort']
-    time_class = ['Checkpoint-block', 'Abort', 'HTM-block']
+    plot_text = '左：Plain-NVHTM, 中央：Log-Compression (single),\n右：Log-Compression (parallel)'
+    time_class1 = ['reserve', 'commit-finding', 'apply-log-flush']
+    time_class2 = ['reserve', 'commit-finding', 'apply-log', 'flush']
     for bench_name in bench_names:
         result_files = list(map(result_file_generator, result_file_template))
-        plot_graph(plot_target_dir, bench_name, result_files, plot_text, colorlst, labels, font_size, time_class)
+        plot_graph(plot_target_dir, bench_name, result_files, plot_text, colorlst, labels, font_size, time_class1, time_class2)
 
 main()

@@ -7,7 +7,10 @@ else
 fi
 # exec_types='emulator log_comp para_cp use_mmap'
 # exec_types='log_comp para_cp use_mmap'
-exec_types='log_comp para_cp use_mmap para_cp_dram'
+# exec_types='log_comp para_cp use_mmap para_cp_dram'
+# exec_types='log_comp use_mmap_dram use_mmap no_cp no_cp_dram'
+# exec_types='log_comp use_mmap_dram use_mmap para_cp log_comp_single log_comp_lp log_comp_lp_single'
+exec_types='use_mmap_dram use_mmap log_comp_lp log_comp_lp_single log_comp_lp_offloadonly'
 bench_types='genome intruder kmeans-high kmeans-low labyrinth ssca2 vacation-high vacation-low yada'
 max_trial=3
 trials=`seq 1 ${max_trial}`

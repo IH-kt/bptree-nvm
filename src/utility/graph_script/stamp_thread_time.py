@@ -15,9 +15,9 @@ def plot_graph(plot_infos):
     os.makedirs(plot_infos['plot_target_dir'], exist_ok=True)
 
     ax = plt.axes()
-    for (df, color, marker) in zip(source_dataframes, plot_infos['colorlst'], plot_infos['markerlst']):
-        df.plot(ax=ax, color=color, marker=marker, figsize=(8,6))
-    plt.xlabel('スレッド数', fontsize=plot_infos['font_size'])
+    for (df, color, marker, line) in zip(source_dataframes, plot_infos['colorlst'], plot_infos['markerlst'], plot_infos['linestyle']):
+        df.plot(ax=ax, color=color, marker=marker, markeredgecolor='black', markersize=10, linestyle=line, linewidth=2, figsize=(6,6))
+    plt.xlabel('ユーザスレッド数', fontsize=plot_infos['font_size'])
     # plt.xlabel('Number of Threads', fontsize=font_size)
     plt.ylabel('実行時間 (秒)', fontsize=plot_infos['font_size'])
     # plt.ylabel('Execution Time (sec.)', fontsize=font_size)
@@ -36,28 +36,36 @@ def plot_graph(plot_infos):
 def compare_dram(plot_infos):
     plot_infos['result_suffix'] = '_cpdram'
     result_file_template = ['use_mmap', 'use_mmap_dram']
-    plot_infos['ledgends'] = ['Log-on-NVM', 'Log-on-DRAM']
+    # plot_infos['ledgends'] = ['Log-on-NVM', 'Log-on-DRAM']
+    plot_infos['ledgends'] = ['NVM', 'DRAM']
     for bench_name in plot_infos['bench_names']:
+        print("plot", bench_name, "@cpdram")
         plot_infos['bench_name'] = bench_name
         plot_infos['source_files'] = list(map(plot_infos['fn_generator'](bench_name), result_file_template))
         plot_graph(plot_infos)
 
 def compare_log_compression(plot_infos):
     plot_infos['result_suffix'] = '_cplogcmp'
-    result_file_template = ['use_mmap', 'log_comp'] # TODO: ログ圧縮 + CP1スレッドが必要になる
-    plot_infos['ledgends'] = ['Plain-NVHTM', 'Log-compression']
+    # result_file_template = ['use_mmap', 'log_comp_lp_single', 'log_comp_lp']
+    result_file_template = ['use_mmap', 'log_comp_lp']
+    # plot_infos['ledgends'] = ['Plain-NVHTM', 'Log-compression (single)', 'Log-compression (parallel)']
+    plot_infos['ledgends'] = ['NV-HTM', '提案手法']
     for bench_name in plot_infos['bench_names']:
+        print("plot", bench_name, "@cplog")
+        plot_infos['bench_name'] = bench_name
         plot_infos['source_files'] = list(map(plot_infos['fn_generator'](bench_name), result_file_template))
         plot_graph(plot_infos)
 
 def main():
     plot_infos = {}
     plot_infos['bench_names'] = ['genome', 'intruder', 'kmeans-high', 'kmeans-low', 'labyrinth', 'ssca2', 'vacation-high', 'vacation-low', 'yada']
-    plot_infos['colorlst'] = ['#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
-    plot_infos['markerlst'] = ['o', 'v', '^', 's']
+    # plot_infos['colorlst'] = ['#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
+    plot_infos['colorlst'] = ['#7fcdbb', '#bd0026']
+    plot_infos['markerlst'] = ['^', 'v', 's', 'x']
     plot_infos['font_size'] = 18
     plot_infos['plot_target_dir'] = "graphs/scaling"
     plot_infos['fn_generator'] = lambda bench_name: lambda extype: 'scaling/' + extype + '/time_' + bench_name + '.csv'
+    plot_infos['linestyle'] = ['solid', 'dashed', 'dashdot', 'dotted']
     # result_file_template = ['use_mmap', 'para_cp', 'log_comp', 'para_cp_dram']
     # result_file_template = ['use_mmap', 'use_mmap_dram', 'log_comp', 'no_cp', 'no_cp_dram']
     # ledgends = ['NVM(1スレッド)', 'NVM(8スレッド)', 'NVM(ログ圧縮)', 'エミュレータ(1スレッド)']

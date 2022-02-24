@@ -35,7 +35,7 @@ function format_switch () {
 function calc_txsize () {
     target_file=$1
     write_num=`cat $target_file | grep TOTAL_WRITES | cut -f 11 -d ' '`
-    tx_num=`cat $target_file | grep COMMIT | cut -f 3 -d ' '`
+    tx_num=`cat $target_file | grep "COMMIT " | cut -f 3 -d ' '`
     echo "scale=9;$write_num/$tx_num" | bc
 }
 
