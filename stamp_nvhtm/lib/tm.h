@@ -7,10 +7,10 @@
 #  include "nh.h"
 
 #ifndef LOG_NAME
-#  define LOG_NAME "/home/iiboshi/dramdir/log"
+#  define LOG_NAME "./log"
 #endif
 #ifndef DATA_NAME
-#  define DATA_NAME "/home/iiboshi/dramdir/data"
+#  define DATA_NAME "./data"
 #endif
 #ifndef CP_THRNUM
 #  define CP_THRNUM 8
@@ -23,7 +23,7 @@
 
 // before start
 #ifdef USE_PMEM
-#  define GOTO_SIM()                    {TM_MALLOC(0);NVHTM_start_stats();}
+#  define GOTO_SIM()                    {INIT_ALLOCATOR();NVHTM_start_stats();}
 #else
 #  define GOTO_SIM()                    NVHTM_start_stats()
 #endif
@@ -63,31 +63,47 @@
 
 // do not track private memory allocation
 #ifdef USE_PMEM
-#  define INIT_SIZE (1024 * 1024 * 1024)
-#  ifndef MALLOC_GLOBAL_VAR
-#    define MALLOC_GLOBAL_VAR
-extern void *stamp_mapped_file_pointer;
-extern stamp_used_bytes;
-extern pthread_mutex_t tm_malloc_mutex;
-#  else
-// extern void *stamp_mapped_file_pointer;
-// extern size_t stamp_used_bytes;
-#  endif
-#  define P_MALLOC(size)                ({\
-    if (stamp_mapped_file_pointer == NULL) {\
+#  define INIT_SIZE (4 * 1073741824l)
+extern void *stamp_mapped_file_pointer_g;
+extern __thread void *stamp_mapped_file_pointer;
+extern int stamp_number_of_thread_counter;
+extern unsigned long stamp_length_of_mapped_area_per_thread;
+extern __thread stamp_used_bytes;
+extern __thread pthread_mutex_t tm_malloc_mutex;
+#  define INIT_ALLOCATOR() {\
+    if (stamp_mapped_file_pointer_g == NULL) {\
         pthread_mutex_lock(&tm_malloc_mutex);\
-        if (stamp_mapped_file_pointer == NULL) {\
-            stamp_mapped_file_pointer = NH_alloc(DATA_NAME, INIT_SIZE);\
-            NVHTM_cpy_to_checkpoint(stamp_mapped_file_pointer);\
+        if (stamp_mapped_file_pointer_g == NULL) {\
+            stamp_mapped_file_pointer_g = NH_alloc(DATA_NAME, INIT_SIZE);\
+            NVHTM_cpy_to_checkpoint(stamp_mapped_file_pointer_g);\
         }\
         pthread_mutex_unlock(&tm_malloc_mutex);\
+        stamp_mapped_file_pointer = stamp_mapped_file_pointer_g;\
     }\
-    void *p = (void *)((char *)stamp_mapped_file_pointer + __sync_fetch_and_add(&stamp_used_bytes, (size_t)(size)));\
+}
+#  define ALLOCATOR_SET_SIZE_THR(threadnum) {\
+    stamp_length_of_mapped_area_per_thread = (INIT_SIZE) / (threadnum);\
+}
+#  define INIT_ALLOCATOR_THR() {\
+    int tid = __sync_fetch_and_add(&stamp_number_of_thread_counter, 1);\
+    stamp_mapped_file_pointer = (void *)((char *)stamp_mapped_file_pointer_g + tid * stamp_length_of_mapped_area_per_thread);\
+}
+#  define EXIT_ALLOCATOR_THR() {\
+    __sync_fetch_and_sub(&stamp_number_of_thread_counter, 1);\
+}
+#  define P_MALLOC(size)                ({\
+    void *p = (void *)((char *)stamp_mapped_file_pointer + stamp_used_bytes);\
+    stamp_used_bytes += size;\
+    assert(stamp_used_bytes < stamp_length_of_mapped_area_per_thread);\
+    /*assert(stamp_mapped_file_pointer_g <= p && p < (void *)((char *)stamp_mapped_file_pointer_g + INIT_SIZE));*/\
+    assert(stamp_mapped_file_pointer <= p && p < (void *)((char *)stamp_mapped_file_pointer + stamp_length_of_mapped_area_per_thread));\
     p;\
 })
 /* NVHTM_alloc("alloc.dat", size, 0) */
 #  define P_FREE(ptr)                   
 #else
+#  define INIT_ALLOCATOR()
+#  define ALLOCATOR_SET_SIZE_THR(threadnum)
 #  define P_MALLOC(size)                NH_alloc(size) /* NVHTM_alloc("alloc.dat", size, 0) */
 #  define P_FREE(ptr)                   NH_free(ptr)
 #endif
@@ -107,15 +123,11 @@ extern pthread_mutex_t tm_malloc_mutex;
     p;\
 })
 #  define TM_MALLOC(size)                ({\
-    if (stamp_mapped_file_pointer == NULL) {\
-        pthread_mutex_lock(&tm_malloc_mutex);\
-        if (stamp_mapped_file_pointer == NULL) {\
-            stamp_mapped_file_pointer = NH_alloc(DATA_NAME, INIT_SIZE);\
-            NVHTM_cpy_to_checkpoint(stamp_mapped_file_pointer);\
-        }\
-        pthread_mutex_unlock(&tm_malloc_mutex);\
-    }\
-    void *p = (void *)((char *)stamp_mapped_file_pointer + __sync_fetch_and_add(&stamp_used_bytes, (size_t)(size)));\
+    void *p = (void *)((char *)stamp_mapped_file_pointer + stamp_used_bytes);\
+    stamp_used_bytes += size;\
+    assert(stamp_used_bytes < stamp_length_of_mapped_area_per_thread);\
+    assert(stamp_mapped_file_pointer <= p && p < (void *)((char *)stamp_mapped_file_pointer + stamp_length_of_mapped_area_per_thread));\
+    /*assert(stamp_mapped_file_pointer_g <= p && p < (void *)((char *)stamp_mapped_file_pointer_g + INIT_SIZE));*/\
     p;\
 })
 /* NVHTM_alloc("alloc.dat", size, 0) */
@@ -128,7 +140,7 @@ extern pthread_mutex_t tm_malloc_mutex;
 #  define SLOW_PATH_FREE(ptr)           FAST_PATH_FREE(ptr)
 
 # define SETUP_NUMBER_TASKS(n)
-# define SETUP_NUMBER_THREADS(n)
+# define SETUP_NUMBER_THREADS(n) ALLOCATOR_SET_SIZE_THR(n+1)
 # define PRINT_STATS()
 # define AL_LOCK(idx)
 
@@ -153,17 +165,22 @@ extern __thread CL_ALIGN int GLOBAL_instrument_write;
 
 #ifdef USE_PMEM
 #  ifdef PARALLEL_CHECKPOINT
-#    define TM_STARTUP(numThread)  NVHTM_set_cp_thread_num(CP_THRNUM); set_log_file_name(LOG_NAME); NVHTM_init(numThread); fprintf(stderr, "Budget=%i\n", HTM_SGL_INIT_BUDGET); HTM_set_budget(HTM_SGL_INIT_BUDGET)
+#    define TM_STARTUP(numThread)  NVHTM_set_cp_thread_num(CP_THRNUM); set_log_file_name(LOG_NAME); NVHTM_init(numThread); fprintf(stderr, "Budget=%i\n", HTM_SGL_INIT_BUDGET); HTM_set_budget(HTM_SGL_INIT_BUDGET); INIT_ALLOCATOR();  ALLOCATOR_SET_SIZE_THR(numThread+1)
 #  else
-#    define TM_STARTUP(numThread) set_log_file_name(LOG_NAME); NVHTM_init(numThread); fprintf(stderr, "Budget=%i\n", HTM_SGL_INIT_BUDGET); HTM_set_budget(HTM_SGL_INIT_BUDGET)
+#    define TM_STARTUP(numThread) set_log_file_name(LOG_NAME); NVHTM_init(numThread); fprintf(stderr, "Budget=%i\n", HTM_SGL_INIT_BUDGET); HTM_set_budget(HTM_SGL_INIT_BUDGET); INIT_ALLOCATOR();  ALLOCATOR_SET_SIZE_THR(numThread+1)
 #  endif
 #else
 #  define TM_STARTUP(numThread)   NVHTM_init(numThread); printf("Budget=%i\n", HTM_SGL_INIT_BUDGET); HTM_set_budget(HTM_SGL_INIT_BUDGET)
 #endif
 #  define TM_SHUTDOWN()                NVHTM_shutdown()
 
+#ifdef USE_PMEM
+#  define TM_THREAD_ENTER()            NVHTM_thr_init(); HTM_set_budget(HTM_SGL_INIT_BUDGET); INIT_ALLOCATOR_THR()
+#  define TM_THREAD_EXIT()             NVHTM_thr_exit(); EXIT_ALLOCATOR_THR()
+#else
 #  define TM_THREAD_ENTER()            NVHTM_thr_init(); HTM_set_budget(HTM_SGL_INIT_BUDGET)
 #  define TM_THREAD_EXIT()             NVHTM_thr_exit()
+#endif
 
 // leave local_exec_mode = 0 to use the FAST_PATH
 # define TM_BEGIN(b)                   NH_begin()
@@ -186,10 +203,57 @@ extern __thread CL_ALIGN int GLOBAL_instrument_write;
 # define TM_SHARED_READ_F(var) ({ NH_read_D(&(var)); })
 # define TM_SHARED_READ_D(var) ({ NH_read_D(&(var)); })
 
+#ifdef USE_PMEM
+# define TM_SHARED_WRITE(var, val)   ({\
+    if(GLOBAL_instrument_write) {\
+        if (stamp_mapped_file_pointer_g <= &(var) && &(var) < (char *)stamp_mapped_file_pointer_g + INIT_SIZE) {\
+            NH_write(&(var), val);\
+        } else {\
+            TM_LOCAL_WRITE(var, val);\
+        }\
+    } else {\
+        TM_LOCAL_WRITE(var, val);\
+    }\
+    var;})
+# define TM_SHARED_WRITE_P(var, val) ({\
+    if(GLOBAL_instrument_write) {\
+        if (stamp_mapped_file_pointer_g <= &(var) && &(var) < (char *)stamp_mapped_file_pointer_g + INIT_SIZE) {\
+            NH_write_P(&(var), val);\
+        } else {\
+            TM_LOCAL_WRITE_P(var, val);\
+        }\
+    } else {\
+        TM_LOCAL_WRITE_P(var, val);\
+    }\
+    var;})
+# define TM_SHARED_WRITE_F(var, val) ({\
+    if(GLOBAL_instrument_write) {\
+        if (stamp_mapped_file_pointer_g <= &(var) && &(var) < (char *)stamp_mapped_file_pointer_g + INIT_SIZE) {\
+            NH_write_D(&(var), val);\
+        } else {\
+            TM_LOCAL_WRITE_F(var, val);\
+        }\
+    } else {\
+        TM_LOCAL_WRITE_F(var, val);\
+    }\
+    var;})
+# define TM_SHARED_WRITE_D(var, val) ({\
+    if(GLOBAL_instrument_write) {\
+        if (stamp_mapped_file_pointer_g <= &(var) && &(var) < (char *)stamp_mapped_file_pointer_g + INIT_SIZE) {\
+            NH_write_D(&(var), val);\
+        } else {\
+            TM_LOCAL_WRITE_D(var, val);\
+        }\
+    } else {\
+        TM_LOCAL_WRITE_D(var, val);\
+    }\
+    var;})
+#else
 # define TM_SHARED_WRITE(var, val)   ({ if(GLOBAL_instrument_write) NH_write(&(var), val); else TM_LOCAL_WRITE(var, val); var;})
 # define TM_SHARED_WRITE_P(var, val) ({ if(GLOBAL_instrument_write) NH_write_P(&(var), val); else TM_LOCAL_WRITE_P(var, val); var;})
 # define TM_SHARED_WRITE_F(var, val) ({ if(GLOBAL_instrument_write) NH_write_D(&(var), val); else TM_LOCAL_WRITE_F(var, val); var;})
 # define TM_SHARED_WRITE_D(var, val) ({ if(GLOBAL_instrument_write) NH_write_D(&(var), val); else TM_LOCAL_WRITE_D(var, val); var;})
+#endif
 
 # define FAST_PATH_SHARED_WRITE(var, val)   TM_SHARED_WRITE(var, val)
 # define FAST_PATH_SHARED_WRITE_P(var, val) TM_SHARED_WRITE_P(var, val)

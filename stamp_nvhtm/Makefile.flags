@@ -159,3 +159,51 @@ endif
 ifeq ($(CHECK_TASK_DISTRIBUTION), 1)
 DEFINES += -DCHECK_TASK_DISTRIBUTION
 endif
+
+ifeq ($(NO_CHECKPOINTER), 1)
+DEFINES += -DNO_CHECKPOINTER
+endif
+
+ifeq ($(MAX_TX_SIZE), 1)
+DEFINES += -DMAX_TX_SIZE
+endif
+
+ifeq ($(LARGE_PLOG), 1)
+DEFINES += -DLARGE_PLOG
+endif
+
+ifeq ($(NUMBER_OF_ENTRIES), 1)
+DEFINES += -DNUMBER_OF_ENTRIES
+endif
+
+ifeq ($(TX_SIZE), 1)
+	DEFINES += -DTX_SIZE
+endif
+
+ifeq ($(OFFLOAD_ONLY), 1)
+	DEFINES += -DOFFLOAD_ONLY
+endif
+
+ifeq ($(MEASURE_PART_CP), 1)
+	DEFINES += -DMEASURE_PART_CP
+endif
+
+ifdef CP_THRNUM
+DEFINES += -DCP_THRNUM=$(CP_THRNUM)
+endif
+
+ifdef PPATH
+DEFINES += -DDATA_NAME="\"${PPATH}/data\""
+else
+DEFINES += -DDATA_NAME="\"./data\""
+endif
+
+ifdef VPATH
+DEFINES += -DLOG_NAME="\"${VPATH}/log\""
+else
+ifdef PPATH
+DEFINES += -DLOG_NAME="\"${PPATH}/log\""
+else
+DEFINES += -DLOG_NAME="\"./log\""
+endif
+endif
