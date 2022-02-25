@@ -34,7 +34,13 @@ function run_bench {
 	do
         resdir_tmp="$resdir/${testname[$i]}"
         mkdir -p $resdir_tmp
-		for t in 1 2 4 8 # 10 14 15 28 29 56 # 1 2 4 8
+        threads=""
+        if [ -z "$2" ]; then
+            threads="1 2 4 8"
+        else
+            threads=$2
+        fi
+		for t in $threads # 10 14 15 28 29 56 # 1 2 4 8
 		do
 			for a in `seq 3` # `seq 30`
 			do
@@ -138,7 +144,7 @@ run_bench test_log_comp_lp_noe
 
 (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 tx_size=1 -j)
 MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PPATH=$1 STAT=1 TX_SIZE=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
-run_bench test_txsize
+run_bench test_txsize "1"
 
 # (cd ../; make type=nvhtm tree=bptree stats=1 dist-clean; make type=nvhtm tree=bptree logsize=41943328 stats=1 no_cp=1 -j)
 # MAKEFILE_ARGS="SOLUTION=4 DO_CHECKPOINT=5 LOG_SIZE=41943328 THREASHOLD=0.5 USE_PMEM=1 PPATH=$1 STAT=1 NO_CHECKPOINTER=1" ./build-stamp.sh htm-sgl-nvm test_REDO-TS-FORK.txt
