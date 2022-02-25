@@ -1,8 +1,8 @@
 # TODO: fix the entry point for the libs
-LIB_MIN_NVM_PATH=/home/iiboshi/bptree-nvm/nvm-emulation
-NVM_HTM=/home/iiboshi/bptree-nvm/nvhtm
-ARCH_DEP_PATH=/home/iiboshi/bptree-nvm/nvhtm/DEPENDENCIES/arch_dep
-HTM_ALG_DEP_PATH ?=/home/iiboshi/bptree-nvm/nvhtm/DEPENDENCIES/htm_alg
+LIB_MIN_NVM_PATH=../../nvm-emulation
+NVM_HTM=../../nvhtm
+ARCH_DEP_PATH=../../nvhtm/DEPENDENCIES/arch_dep
+HTM_ALG_DEP_PATH ?=../../nvhtm/DEPENDENCIES/htm_alg
 DO_CHECK ?= 0
 
 #### unine-haswell2
