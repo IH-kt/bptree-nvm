@@ -40,7 +40,7 @@ def plot_graph(plot_infos):
     plt.ylim(bottom = 0)
     # plt.ylim(top = max_val * 1.1)
     # plt.ylim(top = 10000000)
-    plt.ylim(top = 1)
+    # plt.ylim(top = 1)
 
     # plt.xticks(result_df.index, result_df.index)
     # plt.tick_params(labelsize=plot_infos['font_size'])
